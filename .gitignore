@@ -1,0 +1,26 @@
+# dependencies
+*/**/node_modules/
+*/**/vendor/
+
+# Bitrix core
+/bitrix/
+
+# Bitrix files
+/upload/
+/local/php_interface
+/local/templates
+/.access.php
+/.htaccess
+/404.php
+/index.php
+
+#Misc
+.htsecure
+.DS_Store
+.htpasswd
+.well-known
+restore.php
+.htpassword
+/.idea/
+*.log
+*.txt
