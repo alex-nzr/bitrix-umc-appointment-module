@@ -13,6 +13,7 @@
 /.htaccess
 /404.php
 /index.php
+/urlrewrite.php
 
 #Misc
 .htsecure
