@@ -14,12 +14,19 @@ class OptionManager{
     private Request $request;
     private string  $moduleId;
     private array   $tabs;
+    private string $formAction;
+    public CAdminTabControl $tabControl;
 
     public function __construct(string $moduleId)
     {
         $this->request  = Context::getCurrent()->getRequest();
         $this->moduleId = $moduleId;
         $this->setTabs();
+        $this->tabControl = new CAdminTabControl('tabControl', $this->tabs);
+        $this->formAction = $this->request->getRequestedPage() . "?" . http_build_query([
+            'mid'  => htmlspecialcharsbx($this->request->get('mid')),
+            'lang' => $this->request->get('lang')
+        ]);
     }
 
     /**
@@ -37,19 +44,19 @@ class OptionManager{
                     Loc::getMessage("FIRSTBIT_APPOINTMENT_API_SETTINGS"),
                     [
                         'appointment_api_ws_url',
-                        'Адрес WSDL опубликованной базы 1С БИТ.УМЦ',
+                        Loc::getMessage("FIRSTBIT_APPOINTMENT_API_ADDRESS"),
                         "http://localhost:3500/umc_corp/ws/ws1.1cws?wsdl",
                         ['text', 50]
                     ],
                     [
                         'appointment_api_db_login',
-                        'Логин пользователя 1С БИТ.УМЦ',
+                        Loc::getMessage("FIRSTBIT_APPOINTMENT_API_LOGIN"),
                         "siteIntegration",
                         ['text', 50]
                     ],
                     [
                         'appointment_api_db_password',
-                        'Пароль пользователя 1С БИТ.УМЦ',
+                        Loc::getMessage("FIRSTBIT_APPOINTMENT_API_PASSWORD"),
                         "123456",
                         ['text', 50]
                     ],
@@ -73,10 +80,11 @@ class OptionManager{
                         "Y",
                         ['checkbox', "Y"]
                     ],
+                    [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_NOMENCLATURE_WARNING')],
                 ]
             ],
             [
-                'DIV'   => "access_tab",
+                'DIV'   => "edit2",
                 'TAB'   => Loc::getMessage("MAIN_TAB_RIGHTS"),
                 'ICON'  => '',
                 'TITLE' => Loc::getMessage("MAIN_TAB_TITLE_RIGHTS"),
@@ -89,7 +97,7 @@ class OptionManager{
      */
     public function processRequest(): void
     {
-        if ($this->request->isPost() && $this->request->getPost('update') && check_bitrix_sessid())
+        if ($this->request->isPost() && $this->request->getPost('Update') && check_bitrix_sessid())
         {
             foreach ($this->tabs as $arTab)
             {
@@ -101,34 +109,34 @@ class OptionManager{
     /**
      * @return void
      */
-    public function showHtml()
+    public function startDrawHtml()
     {
-        $tabControl = new CAdminTabControl('tabControl', $this->tabs);
-        $tabControl->Begin();
-        $formAction = $this->request->getRequestedPage() . "?" . http_build_query([
-            'mid'  => htmlspecialcharsbx($this->request->get('mid')),
-            'lang' => $this->request->get('lang')
-        ]);
+        $this->tabControl->Begin();
         ?>
-        <form method="POST" action="<?=$formAction;?>" name="firstbit_appointment_settings">
-            <?php
+        <form method="POST" action="<?=$this->formAction?>" name="firstbit_appointment_settings">
+        <?php
             foreach ($this->tabs as $arTab)
             {
                 if(is_array($arTab['OPTIONS']))
                 {
-                    $tabControl->BeginNextTab();
+                    $this->tabControl->BeginNextTab();
                     __AdmSettingsDrawList($this->moduleId, $arTab['OPTIONS']);
                 }
-            }
 
-            $tabControl->BeginNextTab();
-            $tabControl->Buttons();
-            ?>
+            }
+    }
+
+    /**
+     * @return void
+     */
+    public function endDrawHtml()
+    {
+            $this->tabControl->Buttons();?>
             <?=bitrix_sessid_post();?>
-            <input type="submit" name="update" value="<?=Loc::getMessage('MAIN_SAVE')?>">
+            <input type="submit" name="Update" value="<?=Loc::getMessage('MAIN_SAVE')?>" class="adm-btn-save">
             <input type="reset"  name="reset" value="<?=Loc::getMessage('MAIN_RESET')?>">
         </form>
         <?php
-        $tabControl->End();
+        $this->tabControl->End();
     }
 }

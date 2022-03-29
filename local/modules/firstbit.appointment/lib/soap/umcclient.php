@@ -3,6 +3,7 @@
 namespace FirstBit\Appointment\Soap;
 
 use Bitrix\Main\Error;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Exception;
 use FirstBit\Appointment\Config\Constants;
@@ -29,17 +30,25 @@ class UmcClient
                 $options = [
                     'login'          => Option::get(Constants::THIS_MODULE_ID, "appointment_api_db_login"),
                     'password'       => Option::get(Constants::THIS_MODULE_ID, "appointment_api_db_password"),
-                    "soap_version"   => SOAP_1_1,
-                    "stream_context" => stream_context_create(
+                    'stream_context' => stream_context_create(
                         [
                             'ssl' => [
                                 'verify_peer'       => false,
                                 'verify_peer_name'  => false,
                             ]
                         ]
-                    )
+                    ),
+                    'soap_version' => SOAP_1_2,
+                    'trace' => 1,
+                    'connection_timeout' => 5000,
+                    'keep_alive' => false,
                 ];
             }
+
+            if (!class_exists('\SoapClient')) {
+                throw new Exception(Loc::getMessage("FIRSTBIT_APPOINTMENT_SOAP_EXT_NOT_FOUND"));
+            }
+
             $this->soapClient = new SoapClient($url, $options);
             $this->createdSuccessfully = true;
         }
@@ -199,12 +208,20 @@ class UmcClient
         {
             $xmlArr = Utils::xmlToArray($xml);
             $nomenclature = [];
-            if (is_array($xmlArr['asd'])){
-                foreach ($xmlArr['asd'] as $item) {
-                    $clinic = [];
-                    $clinic['uid'] = $item['УИД'];
-                    $clinic['name'] = $item['Наименование'];
-                    $clinics[] = $clinic;
+            if (is_array($xmlArr['Каталог']))
+            {
+                foreach ($xmlArr['Каталог'] as $item)
+                {
+                    if ($item['ЭтоПапка'] === true){
+                        continue;
+                    }
+                    $product = [];
+                    $product['name'] = $item['Наименование'];
+                    $product['typeOfItem'] = $item['Вид'];
+                    $product['artNumber'] = $item['Артикул'];
+                    $product['price'] = $item['Цена'];
+                    $product['duration'] = Utils::formatDurationToSeconds($item['Продолжительность']);
+                    $nomenclature[$item['UID'][0]] = $product;
                 }
             }
 

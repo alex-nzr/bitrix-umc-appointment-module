@@ -10,14 +10,14 @@ if ($ex = $APPLICATION->GetException())
 {
     CAdminMessage::ShowMessage(array(
         "TYPE" => "ERROR",
-        "MESSAGE" => Loc::getMessage("MOD_UNINST_ERR"),
+        "MESSAGE" => Loc::getMessage("FIRSTBIT_APPOINTMENT_UNINSTALL_ERROR"),
         "DETAILS" => $ex->GetString(),
         "HTML" => true,
     ));
 }
 else
 {
-    CAdminMessage::ShowNote(Loc::getMessage("MOD_UNINST_OK"));
+    CAdminMessage::ShowNote(Loc::getMessage("FIRSTBIT_APPOINTMENT_UNINSTALL_OK"));
 }
 ?>
 <form action="<?=$APPLICATION->GetCurPage();?>">

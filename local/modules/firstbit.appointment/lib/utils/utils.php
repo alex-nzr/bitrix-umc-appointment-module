@@ -1,5 +1,6 @@
 <?php
 namespace FirstBit\Appointment\Utils;
+
 use Bitrix\Main\Config\Option;
 use DateTime;
 use Exception;
@@ -54,9 +55,12 @@ class Utils{
         if(strlen($phone) > 10)
         {
             $phone = substr($phone, -10);
+            return  '+7' . $phone;
         }
-
-        return  '+7' . $phone;
+        else
+        {
+            return  $phone;
+        }
     }
 
     /** creates array of date interval
@@ -99,6 +103,13 @@ class Utils{
     public static function formatDateToISO(int $timestamp): string
     {
         return (new DateTime())->setTimestamp($timestamp)->format('Y-m-d\TH:i:s');
+    }
+
+    public static function formatDurationToSeconds(string $isoTime): int
+    {
+        $minutes = date("i", strtotime($isoTime));
+        $hours = date("H", strtotime($isoTime));
+        return (int)$minutes*60 + (int)$hours*3600;
     }
 
     /** create error message in json
@@ -299,14 +310,5 @@ class Utils{
     public static function xmlToArray(SimpleXMLElement $xml): array
     {
         return json_decode(json_encode($xml), true);
-    }
-
-    /** checking the validity of the json
-     * @param $string
-     * @return bool
-     */
-    public static function isJSON($string): bool
-    {
-        return is_string($string) && (is_object(json_decode($string)) || is_array(json_decode($string, true)));
     }
 }
