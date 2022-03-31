@@ -12,7 +12,6 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Bitrix\Main\Type\DateTime;
 use CBitrixComponent;
-use CJSCore;
 use CMain;
 use Exception;
 use FirstBit\Appointment\Config\Constants;
@@ -26,7 +25,6 @@ class AppForm extends CBitrixComponent implements Controllerable
 
     public function __construct($component = null)
     {
-        CJSCore::Init(['ajax']);
         $this->App = $GLOBALS['APPLICATION'];
         $this->result = new Result();
         parent::__construct($component);

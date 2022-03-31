@@ -128,12 +128,38 @@ class firstbit_appointment extends CModule
 
     public function InstallEvents()
     {
-        EventManager::getInstance()->registerEventHandler($this->MODULE_ID, 'TestEventD7', $this->MODULE_ID, '\Academy\D7\Event', 'eventHandler');
+        EventManager::getInstance()->registerEventHandler(
+            $this->MODULE_ID,
+            'TestEventD7',
+            $this->MODULE_ID,
+            '\Academy\D7\Event',
+            'eventHandler'
+        );
+        EventManager::getInstance()->registerEventHandler(
+            'academy.d7',
+            '\Academy\D7\Book::OnBeforeAdd',
+            $this->MODULE_ID,
+            '\Academy\Event\Event',
+            'eventHandler'
+        );
     }
 
     public function UnInstallEvents()
     {
-        EventManager::getInstance()->unRegisterEventHandler($this->MODULE_ID, 'TestEventD7', $this->MODULE_ID, '\Academy\D7\Event', 'eventHandler');
+        EventManager::getInstance()->unRegisterEventHandler(
+            $this->MODULE_ID,
+            'TestEventD7',
+            $this->MODULE_ID,
+            '\Academy\D7\Event',
+            'eventHandler'
+        );
+        EventManager::getInstance()->unRegisterEventHandler(
+            'academy.d7',
+            '\Academy\D7\Book::OnBeforeAdd',
+            $this->MODULE_ID,
+            '\Academy\Event\Event',
+            'eventHandler'
+        );
     }
 
     public function InstallFiles()

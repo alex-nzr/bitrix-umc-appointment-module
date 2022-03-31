@@ -1,10 +1,4 @@
-<?php if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-/** @var $templateFolder */
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Page\Asset;
-
-Loc::loadMessages(__FILE__);
-
+<?php
 //options
 $useServices                    = "Y";
 $selectDoctorBeforeService      = "Y";

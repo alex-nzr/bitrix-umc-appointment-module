@@ -24,12 +24,23 @@ class UmcClient
         $this->result = new Result();
         
         try {
-            $url = Option::get(Constants::THIS_MODULE_ID, "appointment_api_ws_url");
+            $url        = Option::get(Constants::THIS_MODULE_ID, "appointment_api_ws_url");
+            $login      = Option::get(Constants::THIS_MODULE_ID, "appointment_api_db_login");
+            $password   = Option::get(Constants::THIS_MODULE_ID, "appointment_api_db_password");
+
+            if (empty($login) || empty($password)){
+                throw new Exception(Loc::getMessage("FIRSTBIT_APPOINTMENT_SOAP_AUTH_ERROR"));
+            }
+
+            if (empty($url)){
+                throw new Exception(Loc::getMessage("FIRSTBIT_APPOINTMENT_SOAP_URL_ERROR"));
+            }
+
             if ($options === null)
             {
                 $options = [
-                    'login'          => Option::get(Constants::THIS_MODULE_ID, "appointment_api_db_login"),
-                    'password'       => Option::get(Constants::THIS_MODULE_ID, "appointment_api_db_password"),
+                    'login'          => $login,
+                    'password'       => $password,
                     'stream_context' => stream_context_create(
                         [
                             'ssl' => [
