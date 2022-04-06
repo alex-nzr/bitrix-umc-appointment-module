@@ -21,7 +21,8 @@ EventManager::getInstance()->addEventHandlerCompatible(
 
             $GLOBALS['APPLICATION']->SetAdditionalCss("/bitrix/css/" . $moduleID . "/menu.css");
 
-            if ($GLOBALS['APPLICATION']->GetGroupRight($moduleID) >= 'R') {
+            if ($GLOBALS['APPLICATION']->GetGroupRight($moduleID) >= 'R')
+            {
                 $arMenu = array(
                     'menu_id' => 'global_menu_firstbit_appointment',
                     'text' => Loc::getMessage('FIRSTBIT_APPOINTMENT_MENU_MAIN_TITLE'),
