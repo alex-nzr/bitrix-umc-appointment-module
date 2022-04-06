@@ -81,10 +81,55 @@ class OptionManager{
                         ['checkbox', "Y"]
                     ],
                     [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_NOMENCLATURE_WARNING')],
+
+                    [
+                        'appointment_settings_select_doctor_before_service',
+                        Loc::getMessage('FIRSTBIT_APPOINTMENT_SELECT_DOCTOR_BEFORE_SERVICE'),
+                        "Y",
+                        ['checkbox', "Y"]
+                    ],
+                    [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_SELECT_DOCTOR_BEFORE_SERVICE_NOTE')],
+
+                    [
+                        'appointment_settings_use_time_steps',
+                        Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_TIME_STEPS'),
+                        "N",
+                        ['checkbox', "N"]
+                    ],
+                    [
+                        'appointment_settings_time_step_duration',
+                        Loc::getMessage('FIRSTBIT_APPOINTMENT_TIME_STEP_DURATION'),
+                        "15",
+                        ['text', 5]
+                    ],
+                    [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_TIME_STEPS_NOTE')],
+
+                    [
+                        'appointment_settings_strict_checking_relations',
+                        Loc::getMessage('FIRSTBIT_APPOINTMENT_STRICT_CHECKING_RELATIONS'),
+                        "Y",
+                        ['checkbox', "Y"]
+                    ],
+                    [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_STRICT_CHECKING_RELATIONS_NOTE')],
+
+                    [
+                        'appointment_settings_show_doctors_without_dpt',
+                        Loc::getMessage('FIRSTBIT_APPOINTMENT_SHOW_DOCTORS_WITHOUT_DEPARTMENT'),
+                        "Y",
+                        ['checkbox', "Y"]
+                    ],
+                    [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_SHOW_DOCTORS_WITHOUT_DEPARTMENT_NOTE')],
+
+                    [
+                        'appointment_settings_privacy_page_url',
+                        Loc::getMessage('FIRSTBIT_APPOINTMENT_PRIVACY_PAGE_URL'),
+                        "javascript: void(0)",
+                        ['text', 50]
+                    ],
                 ]
             ],
             [
-                'DIV'   => "edit2",
+                'DIV'   => "access_tab",
                 'TAB'   => Loc::getMessage("MAIN_TAB_RIGHTS"),
                 'ICON'  => '',
                 'TITLE' => Loc::getMessage("MAIN_TAB_TITLE_RIGHTS"),

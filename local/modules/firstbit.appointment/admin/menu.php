@@ -1,8 +1,14 @@
 <?php
 use Bitrix\Main\EventManager;
+use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
 
 Loc::loadMessages(__FILE__);
+try {
+    Extension::load("ui.icons");
+} catch (LoaderException $e) {
+}
 
 EventManager::getInstance()->addEventHandlerCompatible(
     'main', 'OnBuildGlobalMenu',
@@ -13,64 +19,43 @@ EventManager::getInstance()->addEventHandlerCompatible(
 
             $moduleID = 'firstbit.appointment';
 
-            // TODO add css to installed files
             $GLOBALS['APPLICATION']->SetAdditionalCss("/bitrix/css/" . $moduleID . "/menu.css");
 
             if ($GLOBALS['APPLICATION']->GetGroupRight($moduleID) >= 'R') {
                 $arMenu = array(
                     'menu_id' => 'global_menu_firstbit_appointment',
-                    'text' => 'Первый бит. Запись на приём',
-                    'title' => 'Первый бит. Запись на приём',
+                    'text' => Loc::getMessage('FIRSTBIT_APPOINTMENT_MENU_MAIN_TITLE'),
+                    'title' => Loc::getMessage('FIRSTBIT_APPOINTMENT_MENU_MAIN_TITLE'),
                     'sort' => 1000,
                     'items_id' => 'global_menu_firstbit_appointment_items',
-                    'icon' => 'firstbit_appointment_icon',
+                    'icon' => 'ui-icon ui-icon-service-site-b24 ui-icon-sm firstbit_appointment_main_icon',
                     'items' => array(
                         array(
-                            'text' => 'Cписок записей текст',
-                            'title' => 'Список записей title',
+                            'text' => Loc::getMessage('FIRSTBIT_APPOINTMENT_MENU_LIST_TITLE'),
+                            'title' => Loc::getMessage('FIRSTBIT_APPOINTMENT_MENU_LIST_TITLE'),
                             'sort' => 10,
                             'url' => '/bitrix/admin/firstbit.app.list.page.php?lang=' . urlencode(LANGUAGE_ID),
-                            'icon' => 'firstbit_appointment_control_center',
-                            'page_icon' => 'firstbit_appointment_page_control_center',
-                            'items_id' => 'firstbit_appointment_settings_control_center',
+                            'icon' => 'ui-icon ui-icon-service-webform ui-icon-sm firstbit_appointment_list_menu_icon',
+                            'page_icon' => 'firstbit_appointment_list_page_icon',
                         ),
                         array(
-                            'text' => 'Настройки',
-                            'title' => 'Настройки',
+                            'text' => Loc::getMessage('FIRSTBIT_APPOINTMENT_MENU_SETTINGS_TITLE'),
+                            'title' => Loc::getMessage('FIRSTBIT_APPOINTMENT_MENU_SETTINGS_TITLE'),
                             'sort' => 60,
-                            'icon' => 'firstbit_appointment_settings',
+                            'url' => '/bitrix/admin/settings.php?mid='.$moduleID.'&mid_menu=1&lang='.urlencode(LANGUAGE_ID),
+                            'icon' => 'ui-icon ui-icon-service-wheel ui-icon-sm firstbit_appointment_settings_menu_icon',
                             'page_icon' => 'firstbit_appointment_settings_page_icon',
-                            'items_id' => 'firstbit_appointment_settings',
-                            "items" => array(
-                                array(
-                                    'text' => 'Настройки 1',
-                                    'title' => 'Настройки 1',
-                                    'sort' => 10,
-                                    'url' => '/bitrix/admin/settings.php?mid='.$moduleID.'&mid_menu=1&lang='.urlencode(LANGUAGE_ID),
-                                    'icon' => '',
-                                    'page_icon' => 'firstbit_appointment_settings_page_icon_1',
-                                    'items_id' => 'firstbit_appointment_settings_page_1',
-                                ),
-                                array(
-                                    'text' => 'Настройки 2',
-                                    'title' => 'Настройки 2',
-                                    'sort' => 10,
-                                    'url' => '/bitrix/admin/settings.php?mid='.$moduleID.'&mid_menu=1&lang='.urlencode(LANGUAGE_ID),
-                                    'icon' => '',
-                                    'page_icon' => 'firstbit_appointment_settings_page_icon_2',
-                                    'items_id' => 'firstbit_appointment_settings_page_2',
-                                ),
-                            )
-                        ),
+                       ),
                     ),
                 );
 
                 if (!isset($arGlobalMenu['global_menu_firstbit'])) {
                     $arGlobalMenu['global_menu_firstbit'] = array(
                         'menu_id' => 'global_menu_firstbit',
-                        'text' => 'Первый Бит',
-                        'title' => 'Первый Бит',
+                        'text' => Loc::getMessage('FIRSTBIT_APPOINTMENT_MENU_GLOBAL_TITLE'),
+                        'title' => Loc::getMessage('FIRSTBIT_APPOINTMENT_MENU_GLOBAL_TITLE'),
                         'sort' => 1000,
+                        'icon' => 'firstbit_appointment_global_menu_icon',
                         'items_id' => 'global_menu_firstbit_items',
                     );
                 }

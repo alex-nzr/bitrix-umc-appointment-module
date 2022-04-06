@@ -3,7 +3,6 @@ namespace FirstBit\Appointment\Component;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
-use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Engine\ActionFilter;
@@ -16,7 +15,6 @@ use CMain;
 use Exception;
 use FirstBit\Appointment\Config\Constants;
 use FirstBit\Appointment\Model\RecordTable;
-use FirstBit\Appointment\Utils\Utils;
 
 class AppForm extends CBitrixComponent implements Controllerable
 {
@@ -42,7 +40,7 @@ class AppForm extends CBitrixComponent implements Controllerable
     {
         if ($this->checkModules())
         {
-            if ($this->App->GetGroupRight(Constants::THIS_MODULE_ID) < "R")
+            if ($this->App->GetGroupRight(Constants::APPOINTMENT_MODULE_ID) < "R")
             {
                 $this->showMessage(Loc::getMessage("FIRSTBIT_APPOINTMENT_COMPONENT_ACCESS_DENIED"), true);
             }
@@ -60,17 +58,85 @@ class AppForm extends CBitrixComponent implements Controllerable
 
     public function getResult(): array
     {
-        $this->getAppointmentOptions();
-        return $this->result->isSuccess()
-            ?
-            $this->result->getData()
-            :
-            Utils::createErrorArray(implode("; ", $this->result->getErrorMessages()));
+        try {
+            $templateOptions = $this->getAppointmentOptions();
+            $templateKeys = $this->getTemplateKeys();
+
+            $this->result->setData(array_merge(
+                $this->result->getData(),
+                $templateKeys,
+                $templateOptions
+            ));
+
+            if ($this->result->isSuccess()){
+                return $this->result->getData();
+            }else{
+                throw new Exception(implode("; ", $this->result->getErrorMessages()));
+            }
+        }
+        catch(Exception $e){
+            $this->showMessage($e->getMessage(), true);
+            return [];
+        }
     }
 
-    public function getAppointmentOptions()
+    public function getAppointmentOptions(): array
     {
-        Option::get(Constants::THIS_MODULE_ID, 'appointment_settings_use_nomenclature', "Y");
+        $timeStepDuration = Option::get(
+            Constants::APPOINTMENT_MODULE_ID,
+            'appointment_settings_time_step_duration',
+            15
+        );
+        if (!is_numeric($timeStepDuration)){
+            $timeStepDuration = 15;
+        }
+
+        return [
+            "USE_NOMENCLATURE"                => Option::get(
+                Constants::APPOINTMENT_MODULE_ID,
+                'appointment_settings_use_nomenclature',
+                "Y"
+            ),
+            "SELECT_DOCTOR_BEFORE_SERVICE"    => Option::get(
+                Constants::APPOINTMENT_MODULE_ID,
+                'appointment_settings_select_doctor_before_service',
+                "N"
+            ),
+            "USE_TIME_STEPS"                  => Option::get(
+                Constants::APPOINTMENT_MODULE_ID,
+                'appointment_settings_use_time_steps',
+                "N"
+            ),
+
+            "TIME_STEP_DURATION"              => $timeStepDuration,
+
+            "STRICT_CHECKING_RELATIONS"       => Option::get(
+                Constants::APPOINTMENT_MODULE_ID,
+                'appointment_settings_strict_checking_relations',
+                "Y"
+            ),
+            "SHOW_DOCTORS_WITHOUT_DEPARTMENT" => Option::get(
+                Constants::APPOINTMENT_MODULE_ID,
+                'appointment_settings_show_doctors_without_dpt',
+                "Y"
+            ),
+            "PRIVACY_PAGE_URL"                => Option::get(
+                Constants::APPOINTMENT_MODULE_ID,
+                'appointment_settings_privacy_page_url',
+                "javascript: void(0)"
+            ),
+        ];
+    }
+
+    public function getTemplateKeys(): array
+    {
+        return [
+            "CLINICS_KEY"     => "clinics",
+            "SPECIALTIES_KEY" => "specialties",
+            "SERVICES_KEY"    => "services",
+            "EMPLOYEES_KEY"   => "employees",
+            "SCHEDULE_KEY"    => "schedule",
+        ];
     }
 
     /**

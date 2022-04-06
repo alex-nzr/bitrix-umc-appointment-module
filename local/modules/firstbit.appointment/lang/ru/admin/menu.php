@@ -1,0 +1,5 @@
+<?php
+$MESS['FIRSTBIT_APPOINTMENT_MENU_GLOBAL_TITLE'] = 'Первый бит';
+$MESS['FIRSTBIT_APPOINTMENT_MENU_MAIN_TITLE'] = 'Первый бит. Запись на приём';
+$MESS['FIRSTBIT_APPOINTMENT_MENU_LIST_TITLE'] = 'Список записей';
+$MESS['FIRSTBIT_APPOINTMENT_MENU_SETTINGS_TITLE'] = 'Настройки модуля';

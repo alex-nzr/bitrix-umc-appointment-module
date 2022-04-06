@@ -1,27 +1,43 @@
 <?php
 namespace FirstBit\Appointment\Controllers;
 
+use Bitrix\Main\DI\ServiceLocator;
+use Bitrix\Main\Engine\ActionFilter\Authentication;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Error;
 use FirstBit\Appointment\Services\OneCReader;
 use FirstBit\Appointment\Services\OneCWriter;
+use FirstBit\Appointment\Utils\Utils;
 
 class OneCController extends Controller
 {
     private OneCReader $reader;
     private OneCWriter $writer;
 
-    public function __construct(/*OneCReader $reader, OneCWriter $writer*/)
+    /**
+     * OneCController constructor.
+     * @throws \Bitrix\Main\ObjectNotFoundException
+     */
+    public function __construct()
     {
         parent::__construct();
-        //$this->reader = $reader;
-        //$this->writer = $writer;
-        $this->reader = new OneCReader();
-        $this->writer = new OneCWriter();
+
+        $serviceLocator = ServiceLocator::getInstance();
+
+        if ($serviceLocator->has('appointment.OneCReader'))
+        {
+            $this->reader = $serviceLocator->get('appointment.OneCReader');
+        }
+
+        if ($serviceLocator->has('appointment.OneCWriter'))
+        {
+            $this->writer = $serviceLocator->get('appointment.OneCWriter');
+        }
     }
 
     public function getClinicsAction(): ?array
     {
+
         $response = $this->reader->getClinicsList();
         if ($response['error']){
             $this->addError(new Error($response['error']));
@@ -40,7 +56,7 @@ class OneCController extends Controller
         return $response;
     }
 
-    public function getNomenclatureAction($clinicGuid): ?array
+    public function getNomenclatureAction(string $clinicGuid): ?array
     {
         $response = $this->reader->getNomenclatureList($clinicGuid);
         if ($response['error']){
@@ -60,9 +76,10 @@ class OneCController extends Controller
         return $response;
     }
 
-    public function addOrderAction($params): ?array
+    public function addOrderAction(string $params): ?array
     {
-        $response = $this->writer->addOrder($params);
+        $arParams = json_decode($params, true);
+        $response = $this->writer->addOrder($arParams);
         if ($response['error']){
             $this->addError(new Error($response['error']));
             return null;
@@ -73,10 +90,13 @@ class OneCController extends Controller
     public function configureActions(): array
     {
         return [
-            'getById'   => [ 'prefilters' => [], 'postfilters' => [] ],
-            'add'       => [ 'prefilters' => [], 'postfilters' => [] ],
-            'update'    => [ 'prefilters' => [], 'postfilters' => [] ],
-            'delete'    => [ 'prefilters' => [], 'postfilters' => [] ]
+            'getClinics'        => [ 'prefilters' => [], 'postfilters' => [] ],
+            'getEmployees'      => [ 'prefilters' => [], 'postfilters' => [] ],
+            'getNomenclature'   => [ 'prefilters' => [], 'postfilters' => [] ],
+            'getSchedule'       => [ 'prefilters' => [], 'postfilters' => [] ],
+            'addOrder'          => [ 'prefilters' => [], 'postfilters' => [] ],
+            'customTest'        => [ '-prefilters' => [ new Authentication() ]
+            ],
         ];
     }
 }

@@ -3,13 +3,13 @@ namespace FirstBit\Appointment\Config;
 
 class Constants
 {
-    const THIS_MODULE_ID             = 'firstbit.appointment';
+    const APPOINTMENT_MODULE_ID      = 'firstbit.appointment';
 
     const CLINIC_ACTION_1C           = "GetListClinic";
     const EMPLOYEES_ACTION_1C        = "GetListEmployees";
     const SCHEDULE_ACTION_1C         = "GetSchedule";
     const NOMENCLATURE_ACTION_1C     = "GetNomenclatureAndPrices";
-    const CREATE_ORDER_ACTION_1C     = "BookAnAppointment";
+    const CREATE_ORDER_ACTION_1C     = "BookAnAppointmentWithParams";
     const DELETE_ORDER_ACTION_1C     = "CancelBookAnAppointment";
     const CREATE_WAIT_LIST_ACTION_1C = "FastBookAnAppointment";
     const CREATE_RESERVE_ACTION_1C   = "GetReserve";

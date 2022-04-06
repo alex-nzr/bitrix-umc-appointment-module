@@ -67,7 +67,7 @@ class OneCReader extends AbstractOneCService
 
         $period = Utils::getDateInterval(
             Option::get(
-                Constants::THIS_MODULE_ID,
+                Constants::APPOINTMENT_MODULE_ID,
                 "appointment_api_schedule_days",
                 Constants::DEFAULT_SCHEDULE_PERIOD_DAYS
             )

@@ -164,22 +164,24 @@ class firstbit_appointment extends CModule
 
     public function InstallFiles()
     {
-        if (Dir::isDirectoryExists(__DIR__.'/admin/'))
-        {
-            CopyDirFiles(__DIR__.'/admin/', $this->docRoot.'/bitrix/admin', true);
-        }
-        if (Dir::isDirectoryExists(__DIR__.'/admin/'))
-        {
-            CopyDirFiles(__DIR__.'/components/', $this->docRoot.'/bitrix/components', true, true);
-        }
+        CopyDirFiles(__DIR__.'/js/', $this->docRoot.'/bitrix/js/'.$this->MODULE_ID, true, true);
+        CopyDirFiles(__DIR__.'/css/', $this->docRoot.'/bitrix/css/'.$this->MODULE_ID, true, true);
+        CopyDirFiles(__DIR__.'/admin/', $this->docRoot.'/bitrix/admin', true);
+        CopyDirFiles(__DIR__.'/components/', $this->docRoot.'/bitrix/components', true, true);
     }
 
     public function UnInstallFiles()
     {
         DeleteDirFiles(__DIR__.'/admin/', $this->docRoot.'/bitrix/admin');
-        if (Dir::isDirectoryExists($this->docRoot . '/bitrix/components/'.$this->partnerId.'/'))
-        {
+
+        if (Dir::isDirectoryExists($this->docRoot . '/bitrix/components/'.$this->partnerId.'/')){
             Dir::deleteDirectory($this->docRoot . '/bitrix/components/'.$this->partnerId.'/');
+        }
+        if (Dir::isDirectoryExists($this->docRoot . '/bitrix/css/'.$this->MODULE_ID.'/')){
+            Dir::deleteDirectory($this->docRoot . '/bitrix/css/'.$this->MODULE_ID.'/');
+        }
+        if (Dir::isDirectoryExists($this->docRoot . '/bitrix/js/'.$this->MODULE_ID.'/')){
+            Dir::deleteDirectory($this->docRoot . '/bitrix/js/'.$this->MODULE_ID.'/');
         }
     }
 

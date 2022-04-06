@@ -24,9 +24,9 @@ class UmcClient
         $this->result = new Result();
         
         try {
-            $url        = Option::get(Constants::THIS_MODULE_ID, "appointment_api_ws_url");
-            $login      = Option::get(Constants::THIS_MODULE_ID, "appointment_api_db_login");
-            $password   = Option::get(Constants::THIS_MODULE_ID, "appointment_api_db_password");
+            $url        = Option::get(Constants::APPOINTMENT_MODULE_ID, "appointment_api_ws_url");
+            $login      = Option::get(Constants::APPOINTMENT_MODULE_ID, "appointment_api_db_login");
+            $password   = Option::get(Constants::APPOINTMENT_MODULE_ID, "appointment_api_db_password");
 
             if (empty($login) || empty($password)){
                 throw new Exception(Loc::getMessage("FIRSTBIT_APPOINTMENT_SOAP_AUTH_ERROR"));
@@ -79,6 +79,7 @@ class UmcClient
     {
         try {
             $soapParams = ['parameters' => $params];
+
             $response = $this->soapClient->__soapCall($endpoint, $soapParams);
 
             try {
@@ -104,7 +105,7 @@ class UmcClient
 
     /**
      * @param $endpoint
-     * @param $xml
+     * @param \SimpleXMLElement $xml
      * @return array
      */
     protected function handleXML($endpoint, SimpleXMLElement $xml): array
@@ -134,7 +135,7 @@ class UmcClient
     }
 
     /**
-     * @param $xml
+     * @param \SimpleXMLElement $xml
      * @return array
      */
     protected function prepareClinicData(SimpleXMLElement $xml): array
@@ -161,7 +162,7 @@ class UmcClient
     }
 
     /**
-     * @param $xml
+     * @param \SimpleXMLElement $xml
      * @return array
      */
     protected function prepareEmployeesData(SimpleXMLElement $xml): array
@@ -176,15 +177,15 @@ class UmcClient
                 {
                     $employee = [];
 
+                    $clinicUid = ($item['Организация'] == "00000000-0000-0000-0000-000000000000") ? "" : $item['Организация'];
+
                     $employee['name']        = $item['Имя'];
                     $employee['surname']     = $item['Фамилия'];
                     $employee['middleName']  = $item['Отчество'];
-                    $employee['clinicUid']   = $item['Организация'];
+                    $employee['clinicUid']   = $clinicUid;
                     $employee['photo']       = $item['Фото'];
                     $employee['description'] = $item['КраткоеОписание'];
-                    $employee['specialties'] = [
-                        'main' => $item['Специализация']
-                    ];
+                    $employee['specialty']   = $item['Специализация'];
                     $employee['services']    = [];
 
                     if (is_array($item['ОсновныеУслуги']['ОсновнаяУслуга']))
@@ -210,7 +211,7 @@ class UmcClient
     }
 
     /**
-     * @param $xml
+     * @param \SimpleXMLElement $xml
      * @return array
      */
     protected function prepareNomenclatureData(SimpleXMLElement $xml): array
@@ -245,7 +246,7 @@ class UmcClient
     }
 
     /**
-     * @param $xml
+     * @param \SimpleXMLElement $xml
      * @return array
      */
     public function prepareScheduleData(SimpleXMLElement $xml): array
@@ -266,12 +267,18 @@ class UmcClient
     }
 
     /**
-     * @param $xml
+     * @param \SimpleXMLElement $xml
      * @return array
      */
     public function prepareOrderResultData(SimpleXMLElement $xml): array
     {
-
+        $xmlArr = Utils::xmlToArray($xml);
+        if ($xmlArr["Результат"] === "true"){
+            return ['success' => true];
+        }
+        else {
+            return Utils::createErrorArray($xmlArr["ОписаниеОшибки"]);
+        }
     }
 
     /**
