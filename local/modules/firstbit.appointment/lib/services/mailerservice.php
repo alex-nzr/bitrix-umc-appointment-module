@@ -1,5 +1,7 @@
 <?php
-namespace AlexNzr\BitUmcIntegration\Service;
+namespace FirstBit\Appointment\Services;
+
+use Bitrix\Main\Mail\Event;
 
 class MailerService{
 
@@ -32,42 +34,30 @@ class MailerService{
 
             if (!empty($emailTo))
             {
-                $headers = [
-                    'from' => 'no-reply@'.$_SERVER['HTTP_HOST'],
-                    'MIME-Version' => '1.0',
-                    'Content-type' => 'text/html;charset=utf-8',
-                ];
+                $text = "
+                    Вы успешно записались на приём
+                    Клиника: $clinic
+                    Специализация: $specialty
+                    Услуги: $service
+                    Врач: $doctor
+                    Дата/время: $dateTime
+                    ФИО: $name
+                    Номер телефона: $phone
+                    Комментарий: $comment
+                ";
+                Event::send(array(
+                    "EVENT_NAME" => "FEEDBACK_FORM",
+                    'MESSAGE_ID' => 7,
+                    "LID" => SITE_ID,
+                    "C_FIELDS" => array(
+                        "AUTHOR" => $name,
+                        "AUTHOR_EMAIL" => $emailTo,
+                        'EMAIL_TO' => $emailTo,
+                        "TEXT" => $text,
+                    ),
+                ));
 
-                $subject = 'Запись на приём';
-                $html = '
-                    <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-                    <html lang="ru">
-                        <head>
-                            <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-                            <title>'.$subject.'</title>
-                        </head>
-                        <body>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th colspan="2">Вы успешно записались на приём</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr><td>Клиника:</td>       <td>'. $clinic .'</td></tr>
-                                    <tr><td>Специализация:</td> <td>'. $specialty .'</td></tr>
-                                    <tr><td>Услуги:</td>        <td>'. $service .'</td></tr>
-                                    <tr><td>Врач:</td>          <td>'. $doctor .'</td></tr>
-                                    <tr><td>Дата/время:</td>    <td>'. $dateTime .'</td></tr>
-                                    <tr><td>ФИО:</td>           <td>'. $name .'</td></tr>
-                                    <tr><td>Номер телефона:</td><td>'. $phone .'</td></tr>
-                                    <tr><td>Комментарий:</td>   <td>'. $comment .'</td></tr>
-                                </tbody>
-                            </table>
-                        </body>
-                    </html>';
-
-                return ['success' => mail($emailTo, $subject, $html, $headers)];
+                return ['success' => true];
             }
             else {
                 return ['error' => "EmailTo is empty"];

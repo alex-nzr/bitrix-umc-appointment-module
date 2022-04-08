@@ -1,10 +1,11 @@
 <?php
 namespace FirstBit\Appointment\Controllers;
 
-use AlexNzr\BitUmcIntegration\Service\MailerService;
+use FirstBit\Appointment\Services\MailerService;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Error;
+use FirstBit\Appointment\Utils\Utils;
 
 class MailController extends Controller
 {

@@ -12,7 +12,7 @@ use Bitrix\Main\UI\Extension;
 Loc::loadMessages(__FILE__);
 try
 {
-    Extension::load(['main.core', 'firstbit.popup']);
+    Extension::load(['firstbit.appointment.popup']);
 }
 catch (LoaderException $e)
 {

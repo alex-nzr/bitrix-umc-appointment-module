@@ -5,7 +5,6 @@ use Bitrix\Main\Config\Option;
 use DateTime;
 use Exception;
 use FirstBit\Appointment\Config\Constants;
-use SimpleXMLElement;
 
 class Utils{
     private function __construct(){}
@@ -285,15 +284,6 @@ class Utils{
         {
             return [];
         }
-    }
-
-    /**
-     * @param SimpleXMLElement $xml
-     * @return array
-     */
-    public static function xmlToArray(SimpleXMLElement $xml): array
-    {
-        return json_decode(json_encode($xml), true);
     }
 
     /**

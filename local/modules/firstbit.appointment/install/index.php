@@ -18,6 +18,8 @@ class firstbit_appointment extends CModule
     private CMain $App;
     private ?string $docRoot;
     private $partnerId;
+    private string $vendorName;
+    private string $moduleNameShort;
 
     public function __construct(){
         $this->App = $GLOBALS['APPLICATION'];
@@ -27,7 +29,10 @@ class firstbit_appointment extends CModule
         $arModuleVersion = [];
         include(__DIR__."/version.php");
 
-        $this->MODULE_ID            = str_replace("_", ".", get_class($this));
+        $this->vendorName = 'firstbit';
+        $this->moduleNameShort = 'appointment';
+
+        $this->MODULE_ID            = $this->vendorName.".".$this->moduleNameShort;
         $this->MODULE_VERSION       = $arModuleVersion["VERSION"];
         $this->MODULE_VERSION_DATE  = $arModuleVersion["VERSION_DATE"];
         $this->MODULE_NAME          = Loc::getMessage("FIRSTBIT_APPOINTMENT_MODULE_NAME");
@@ -128,44 +133,18 @@ class firstbit_appointment extends CModule
 
     public function InstallEvents()
     {
-        EventManager::getInstance()->registerEventHandler(
-            $this->MODULE_ID,
-            'TestEventD7',
-            $this->MODULE_ID,
-            '\Academy\D7\Event',
-            'eventHandler'
-        );
-        EventManager::getInstance()->registerEventHandler(
-            'academy.d7',
-            '\Academy\D7\Book::OnBeforeAdd',
-            $this->MODULE_ID,
-            '\Academy\Event\Event',
-            'eventHandler'
-        );
+
     }
 
     public function UnInstallEvents()
     {
-        EventManager::getInstance()->unRegisterEventHandler(
-            $this->MODULE_ID,
-            'TestEventD7',
-            $this->MODULE_ID,
-            '\Academy\D7\Event',
-            'eventHandler'
-        );
-        EventManager::getInstance()->unRegisterEventHandler(
-            'academy.d7',
-            '\Academy\D7\Book::OnBeforeAdd',
-            $this->MODULE_ID,
-            '\Academy\Event\Event',
-            'eventHandler'
-        );
+
     }
 
     public function InstallFiles()
     {
-        CopyDirFiles(__DIR__.'/js/', $this->docRoot.'/bitrix/js/'.$this->MODULE_ID, true, true);
-        CopyDirFiles(__DIR__.'/css/', $this->docRoot.'/bitrix/css/'.$this->MODULE_ID, true, true);
+        CopyDirFiles(__DIR__.'/js/', $this->docRoot.'/bitrix/js/'.$this->vendorName."/".$this->moduleNameShort, true, true);
+        CopyDirFiles(__DIR__.'/css/', $this->docRoot.'/bitrix/css/'.$this->vendorName."/".$this->moduleNameShort, true, true);
         CopyDirFiles(__DIR__.'/admin/', $this->docRoot.'/bitrix/admin', true);
         CopyDirFiles(__DIR__.'/components/', $this->docRoot.'/bitrix/components', true, true);
     }
@@ -177,11 +156,11 @@ class firstbit_appointment extends CModule
         if (Dir::isDirectoryExists($this->docRoot . '/bitrix/components/'.$this->partnerId.'/')){
             Dir::deleteDirectory($this->docRoot . '/bitrix/components/'.$this->partnerId.'/');
         }
-        if (Dir::isDirectoryExists($this->docRoot . '/bitrix/css/'.$this->MODULE_ID.'/')){
-            Dir::deleteDirectory($this->docRoot . '/bitrix/css/'.$this->MODULE_ID.'/');
+        if (Dir::isDirectoryExists($this->docRoot . '/bitrix/css/'.$this->vendorName."/".$this->moduleNameShort.'/')){
+            Dir::deleteDirectory($this->docRoot . '/bitrix/css/'.$this->vendorName. "/".$this->moduleNameShort.'/');
         }
-        if (Dir::isDirectoryExists($this->docRoot . '/bitrix/js/'.$this->MODULE_ID.'/')){
-            Dir::deleteDirectory($this->docRoot . '/bitrix/js/'.$this->MODULE_ID.'/');
+        if (Dir::isDirectoryExists($this->docRoot . '/bitrix/js/'.$this->vendorName."/".$this->moduleNameShort.'/')){
+            Dir::deleteDirectory($this->docRoot . '/bitrix/js/'.$this->vendorName."/".$this->moduleNameShort.'/');
         }
     }
 

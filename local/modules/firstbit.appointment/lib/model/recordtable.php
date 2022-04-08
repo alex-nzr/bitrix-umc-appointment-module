@@ -27,6 +27,8 @@ class RecordTable extends DataManager
                 ->configurePrimary()
                 ->configureAutocomplete(),
 
+            new StringField('XML_ID'),
+
             (new DatetimeField('DATE_CREATE'))
                 ->configureRequired()
                 ->configureDefaultValue(new Type\DateTime),
@@ -46,7 +48,7 @@ class RecordTable extends DataManager
             new StringField('STATUS_1C'),
 
             new ExpressionField('DAYS_LEFT',
-                'DATEDIFF(CURDATE(), %s)', ['DATETIME_VISIT'],
+                'TIMESTAMPDIFF(DAY, NOW(), %s)', ['DATETIME_VISIT'],
                 [
                     'fetch_data_modification' => function () {
                         return [

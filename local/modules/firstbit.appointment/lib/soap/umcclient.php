@@ -110,175 +110,29 @@ class UmcClient
      */
     protected function handleXML($endpoint, SimpleXMLElement $xml): array
     {
+        $parser = new XmlParser();
         $data = [];
         switch ($endpoint)
         {
             case Constants::CLINIC_ACTION_1C:
-                $data = $this->prepareClinicData($xml);
+                $data = $parser->prepareClinicData($xml);
                 break;
             case Constants::EMPLOYEES_ACTION_1C:
-                $data = $this->prepareEmployeesData($xml);
+                $data = $parser->prepareEmployeesData($xml);
                 break;
             case Constants::NOMENCLATURE_ACTION_1C:
-                $data = $this->prepareNomenclatureData($xml);
+                $data = $parser->prepareNomenclatureData($xml);
                 break;
             case Constants::SCHEDULE_ACTION_1C:
-                $data = $this->prepareScheduleData($xml);
+                $data = $parser->prepareScheduleData($xml);
                 break;
             case Constants::CREATE_ORDER_ACTION_1C:
-                $data = $this->prepareOrderResultData($xml);
+                $data = $parser->prepareOrderResultData($xml);
                 break;
             default:
                 break;
         }
         return $data;
-    }
-
-    /**
-     * @param \SimpleXMLElement $xml
-     * @return array
-     */
-    protected function prepareClinicData(SimpleXMLElement $xml): array
-    {
-        try
-        {
-            $xmlArr = Utils::xmlToArray($xml);
-            $clinics = [];
-            if (is_array($xmlArr['Клиника'])){
-                foreach ($xmlArr['Клиника'] as $item) {
-                    $clinic = [];
-                    $clinic['uid'] = $item['УИД'];
-                    $clinic['name'] = $item['Наименование'];
-                    $clinics[] = $clinic;
-                }
-            }
-
-            return $clinics;
-        }
-        catch (Exception $e)
-        {
-            return Utils::createErrorArray($e->getMessage());
-        }
-    }
-
-    /**
-     * @param \SimpleXMLElement $xml
-     * @return array
-     */
-    protected function prepareEmployeesData(SimpleXMLElement $xml): array
-    {
-        try
-        {
-            $xmlArr = Utils::xmlToArray($xml);
-            $employees = [];
-            if (is_array($xmlArr['Сотрудник']))
-            {
-                foreach ($xmlArr['Сотрудник'] as $item)
-                {
-                    $employee = [];
-
-                    $clinicUid = ($item['Организация'] == "00000000-0000-0000-0000-000000000000") ? "" : $item['Организация'];
-
-                    $employee['name']        = $item['Имя'];
-                    $employee['surname']     = $item['Фамилия'];
-                    $employee['middleName']  = $item['Отчество'];
-                    $employee['clinicUid']   = $clinicUid;
-                    $employee['photo']       = $item['Фото'];
-                    $employee['description'] = $item['КраткоеОписание'];
-                    $employee['specialty']   = $item['Специализация'];
-                    $employee['services']    = [];
-
-                    if (is_array($item['ОсновныеУслуги']['ОсновнаяУслуга']))
-                    {
-                        foreach ($item['ОсновныеУслуги']['ОсновнаяУслуга'] as $service)
-                        {
-                            $employee['services'][$service['UID']] = [
-                                'title'            => 'deprecated field',
-                                'personalDuration' => strtotime($service['Продолжительность'])-strtotime('0001-01-01T00:00:00')
-                            ];
-                        }
-                    }
-
-                    $employees[$item['UID'][0]] = $employee;
-                }
-            }
-            return $employees;
-        }
-        catch (Exception $e)
-        {
-            return Utils::createErrorArray($e->getMessage());
-        }
-    }
-
-    /**
-     * @param \SimpleXMLElement $xml
-     * @return array
-     */
-    protected function prepareNomenclatureData(SimpleXMLElement $xml): array
-    {
-        try
-        {
-            $xmlArr = Utils::xmlToArray($xml);
-            $nomenclature = [];
-            if (is_array($xmlArr['Каталог']))
-            {
-                foreach ($xmlArr['Каталог'] as $item)
-                {
-                    if ($item['ЭтоПапка'] === true){
-                        continue;
-                    }
-                    $product = [];
-                    $product['name'] = $item['Наименование'];
-                    $product['typeOfItem'] = $item['Вид'];
-                    $product['artNumber'] = $item['Артикул'];
-                    $product['price'] = $item['Цена'];
-                    $product['duration'] = Utils::formatDurationToSeconds($item['Продолжительность']);
-                    $nomenclature[$item['UID'][0]] = $product;
-                }
-            }
-
-            return $nomenclature;
-        }
-        catch (Exception $e)
-        {
-            return Utils::createErrorArray($e->getMessage());
-        }
-    }
-
-    /**
-     * @param \SimpleXMLElement $xml
-     * @return array
-     */
-    public function prepareScheduleData(SimpleXMLElement $xml): array
-    {
-        try
-        {
-            $xmlArr = Utils::xmlToArray($xml);
-            $schedule = [];
-            if (is_array($xmlArr['ГрафикДляСайта'])){
-                $schedule = Utils::prepareScheduleData($xmlArr['ГрафикДляСайта']);
-            }
-            return $schedule;
-        }
-        catch (Exception $e)
-        {
-            return Utils::createErrorArray($e->getMessage());
-        }
-    }
-
-    /**
-     * @param \SimpleXMLElement $xml
-     * @return array
-     */
-    public function prepareOrderResultData(SimpleXMLElement $xml): array
-    {
-        $xmlArr = Utils::xmlToArray($xml);
-        if ($xmlArr["Результат"] === "true"){
-            return ['success' => true];
-        }
-        else {
-            return Utils::createErrorArray($xmlArr["ОписаниеОшибки"]);
-        }
     }
 
     /**

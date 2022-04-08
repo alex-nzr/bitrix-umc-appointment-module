@@ -1,6 +1,6 @@
 <?php
 
-use AlexNzr\BitUmcIntegration\Service\MailerService;
+use FirstBit\Appointment\Services\MailerService;
 use FirstBit\Appointment\Services\OneCReader;
 use FirstBit\Appointment\Services\OneCWriter;
 

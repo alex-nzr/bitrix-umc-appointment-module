@@ -17,9 +17,11 @@ EventManager::getInstance()->addEventHandlerCompatible(
         if (!defined('FIRSTBIT_APPOINTMENT_MENU_INCLUDED')) {
             define('FIRSTBIT_APPOINTMENT_MENU_INCLUDED', true);
 
-            $moduleID = 'firstbit.appointment';
+            $moduleID        = 'firstbit.appointment';
+            $vendorName      = 'firstbit';
+            $moduleNameShort = 'appointment';
 
-            $GLOBALS['APPLICATION']->SetAdditionalCss("/bitrix/css/" . $moduleID . "/menu.css");
+            $GLOBALS['APPLICATION']->SetAdditionalCss("/bitrix/css/".$vendorName."/".$moduleNameShort. "/menu.css");
 
             if ($GLOBALS['APPLICATION']->GetGroupRight($moduleID) >= 'R')
             {
