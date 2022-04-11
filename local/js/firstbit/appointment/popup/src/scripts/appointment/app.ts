@@ -23,6 +23,7 @@ export const AppointmentPopup: any = {
         this.timeStepDurationMinutes		= Number(params.timeStepDurationMinutes);
         this.strictCheckingOfRelations		= (params.strictCheckingOfRelations === "Y");
         this.showDoctorsWithoutDepartment	= (params.showDoctorsWithoutDepartment === "Y");
+        this.useEmailNote                   = (params.useEmailNote === "Y");
 
         this.isUpdate = params.isUpdate;
 
@@ -898,7 +899,10 @@ export const AppointmentPopup: any = {
                     }
                     else
                     {
-                        params["email"] ? await this.sendToEmail(params) : void(0);
+                        if (this.useEmailNote && params["email"])
+                        {
+                            await this.sendEmailNote(params)
+                        }
                         this.finalizingWidget(true);
                     }
                 }
@@ -919,7 +923,7 @@ export const AppointmentPopup: any = {
         }
     },
 
-    sendToEmail: async function (params: IOrderParams) {
+    sendEmailNote: async function (params: IOrderParams) {
         const action = 'firstbit:appointment.mailController.sendEmailNote';
         this.requestParams.body.set('params', JSON.stringify(params));
         fetch(`${this.ajaxUrl}?action=${action}`, this.requestParams)

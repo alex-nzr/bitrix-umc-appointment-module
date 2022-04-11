@@ -38,6 +38,7 @@ $MESS['FIRSTBIT_APPOINTMENT_SHOW_DOCTORS_WITHOUT_DEPARTMENT_NOTE'] = 'В БИТ.
                                                                        будут показаны во всех филиалах, если выбрана их специализация.';
 
 $MESS['FIRSTBIT_APPOINTMENT_PRIVACY_PAGE_URL'] = 'Ссылка на политику конфиденциальности сайта<br>(необходима для размещения на форме записи)';
+$MESS['FIRSTBIT_APPOINTMENT_USE_EMAIL_NOTE'] = 'Отправлять информацию о записи на email';
 
 $MESS['FIRSTBIT_APPOINTMENT_TAB_RIGHTS'] = "Доступ";
 $MESS['FIRSTBIT_APPOINTMENT_TAB_TITLE_RIGHTS'] = "Уровень доступа к модулю";

@@ -121,6 +121,13 @@ class OptionManager{
                     [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_SHOW_DOCTORS_WITHOUT_DEPARTMENT_NOTE')],
 
                     [
+                        'appointment_settings_use_email_note',
+                        Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_EMAIL_NOTE'),
+                        "Y",
+                        ['checkbox', "Y"]
+                    ],
+
+                    [
                         'appointment_settings_privacy_page_url',
                         Loc::getMessage('FIRSTBIT_APPOINTMENT_PRIVACY_PAGE_URL'),
                         "javascript: void(0)",

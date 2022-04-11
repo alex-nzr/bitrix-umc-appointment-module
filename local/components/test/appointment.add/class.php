@@ -120,6 +120,11 @@ class AppForm extends CBitrixComponent implements Controllerable
                 'appointment_settings_show_doctors_without_dpt',
                 "Y"
             ),
+            "USE_EMAIL_NOTE"                  => Option::get(
+                Constants::APPOINTMENT_MODULE_ID,
+                'appointment_settings_use_email_note',
+                "Y"
+            ),
             "PRIVACY_PAGE_URL"                => Option::get(
                 Constants::APPOINTMENT_MODULE_ID,
                 'appointment_settings_privacy_page_url',

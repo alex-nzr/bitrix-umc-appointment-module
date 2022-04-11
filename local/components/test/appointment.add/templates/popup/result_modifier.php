@@ -13,6 +13,7 @@
         "timeStepDurationMinutes"       => $arResult["TIME_STEP_DURATION"],
         "strictCheckingOfRelations"     => $arResult["STRICT_CHECKING_RELATIONS"],
         "showDoctorsWithoutDepartment"  => $arResult["SHOW_DOCTORS_WITHOUT_DEPARTMENT"],
+        "useEmailNote"                  => $arResult["USE_EMAIL_NOTE"],
         "privacyPageLink"               => $arResult["PRIVACY_PAGE_URL"],
 
         "widgetBtnWrapId"   =>  "appointment-button-wrapper",

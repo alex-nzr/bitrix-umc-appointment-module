@@ -72,6 +72,7 @@ export interface ISettings {
     strictCheckingOfRelations: string,
     showDoctorsWithoutDepartment: string,
     timeStepDurationMinutes: number,
+    useEmailNote: string;
     privacyPageLink: string,
     wrapperId: string,
     widgetBtnWrapId: string,
