@@ -156,6 +156,24 @@ class XmlParser{
     }
 
     /**
+     * @param \SimpleXMLElement $xml
+     * @return array
+     */
+    public function prepareReserveResultData(SimpleXMLElement $xml): array
+    {
+        $xmlArr = $this->xmlToArray($xml);
+        if ($xmlArr["Результат"] === "true" && !empty($xmlArr["УИД"])){
+            return [
+                'success' => true,
+                'XML_ID'  => $xmlArr["УИД"]
+            ];
+        }
+        else {
+            return Utils::createErrorArray($xmlArr["ОписаниеОшибки"]);
+        }
+    }
+
+    /**
      * @param SimpleXMLElement $xml
      * @return array
      */

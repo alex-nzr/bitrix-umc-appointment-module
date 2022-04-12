@@ -18,38 +18,6 @@ class OneCWriter extends AbstractOneCService
     public function addOrder(array $params): array
     {
         try {
-            /*
-         <ru:EmployeeID>ac30e139-3087-11dc-8594-005056c00008</ru:EmployeeID>
-         <ru:PatientSurname>Иванов</ru:PatientSurname>
-         <ru:PatientName>Иван</ru:PatientName>
-         <ru:PatientFatherName>Иванович</ru:PatientFatherName>
-         <ru:Date>2017-03-17T00:00:00</ru:Date>
-         <ru:TimeBegin>0001-01-01T13:10:00</ru:TimeBegin>
-         <ru:Comment>Комментарий</ru:Comment>
-         <ru:Phone>89876543210</ru:Phone>
-         <ru:Email>bit@1cbit.ru</ru:Email>
-         <ru:Address>Ленина 1</ru:Address>
-         <ru:Clinic>f679444a-22b7-11df-8618-002618dcef2c</ru:Clinic>
-         <ru:GUID>9cc6b9fc-0b04-11e7-b13c-00e051000230</ru:GUID>
-         <ru:Params>
-             <core:Property name="Birthday">
-                <core:Value>1980-09-14T00:00:00</core:Value>
-             </core:Property>
-             <core:Property name="Duration">
-                <core:Value>0001-01-01T01:30:00</core:Value>
-             </core:Property>
-         </ru:Params>
-
-         */
-            /*
-            {
-
-                "serviceUid": "5210c9d4-65a2-11e9-936d-1856809fe650",
-                "serviceDuration": "2700",
-
-            }
-            */
-
             if (Constants::DEMO_MODE === "Y"){
                 sleep(3);
                 return ['success' => true];
@@ -80,6 +48,20 @@ class OneCWriter extends AbstractOneCService
                 );
             }
 
+            $paramsToReserve = [
+                'Specialization' => "",
+                'Date'           => $params['orderDate'],
+                'TimeBegin'      => $params['timeBegin'],
+                'EmployeeID'     => $params['refUid'],
+                'Clinic'         => $params['clinicUid'],
+            ];
+
+            $xml_id = $this->getReserveUid($paramsToReserve);
+
+            if (!strlen($xml_id) > 0){
+                throw new Exception("FIRSTBIT_APPOINTMENT_RESERVE_ERROR");
+            }
+
             $paramsToSend = [
                 'EmployeeID'        => $params['refUid'],
                 'PatientSurname'    => $params['surname'],
@@ -92,7 +74,7 @@ class OneCWriter extends AbstractOneCService
                 'Email'             => $params['email'] ?? '',
                 'Address'           => $params['address'] ?? '',
                 'Clinic'            => $params['clinicUid'],
-                'GUID'              => "", //id of reserve if it available
+                'GUID'              => $xml_id,
                 'Params'            => $properties
             ];
 
@@ -100,6 +82,18 @@ class OneCWriter extends AbstractOneCService
         }
         catch (Exception $e){
             return Utils::createErrorArray($e->getMessage());
+        }
+    }
+
+    public function getReserveUid(array $params): string
+    {
+        $res = $this->send(Constants::CREATE_RESERVE_ACTION_1C, $params);
+        if ($res['success'] && !empty($res['XML_ID'])){
+            return $res['XML_ID'];
+        }
+        else
+        {
+            return "";
         }
     }
 

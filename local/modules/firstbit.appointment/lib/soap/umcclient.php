@@ -126,6 +126,9 @@ class UmcClient
             case Constants::SCHEDULE_ACTION_1C:
                 $data = $parser->prepareScheduleData($xml);
                 break;
+            case Constants::CREATE_RESERVE_ACTION_1C:
+                $data = $parser->prepareReserveResultData($xml);
+                break;
             case Constants::CREATE_ORDER_ACTION_1C:
                 $data = $parser->prepareOrderResultData($xml);
                 break;
