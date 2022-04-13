@@ -99,12 +99,22 @@
             ],
             [
                 "type"          => "email",
-                "placeholder"   => "Email *",
+                "placeholder"   => "Email",
                 "id"            => "appointment-form-email",
                 "maxlength"     => "50",
                 "class"         => "appointment-form_input",
                 "name"          => "email",
                 "data-required" =>  "false"
+            ],
+            [
+                "type"          => "text",
+                "placeholder"   => "День рождения",
+                "id"            => "appointment-form-birthday",
+                "maxlength"     => "10",
+                "class"         => "appointment-form_input",
+                "name"          => "birthday",
+                "data-required" =>  "false",
+                "autocomplete"  => "new-password",
             ],
             [
                 "placeholder"   => "Комментарий",

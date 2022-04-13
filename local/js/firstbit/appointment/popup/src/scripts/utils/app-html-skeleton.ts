@@ -36,9 +36,8 @@ export default function buildAppointmentSkeleton(styles: any, settings: ISetting
                 {
                     if (settings.textBlocks[key].hasOwnProperty(attr) && attr !== "tag"){
                         if (attr === "class"){
-                            html = html+`
-                        ${attr}="${styles[settings.textBlocks[key][attr]]}"	
-                    `;
+                            // @ts-ignore
+                            html = html+`${attr}="${styles[settings.textBlocks[key][attr]]}"`;
                         }
                         else
                         {

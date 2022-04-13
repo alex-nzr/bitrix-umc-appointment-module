@@ -26,7 +26,7 @@ class OneCWriter extends AbstractOneCService
             $properties = [];
 
             if (!empty($params['birthday']))
-            {   //'1980-09-14T00:00:00' - format
+            {
                 $properties[] = new SoapVar(
                     '<ns2:Property name="Birthday"><ns2:Value>'.$params['birthday'].'</ns2:Value></ns2:Property>',
                     XSD_ANYXML

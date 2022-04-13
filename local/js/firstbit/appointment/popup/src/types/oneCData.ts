@@ -40,6 +40,7 @@ export interface IOrderParams{
     middleName: string | boolean,
     phone:      string | boolean,
     email:      string | boolean,
+    birthday:   string | boolean,
     address:    string | boolean,
     comment:    string | boolean,
 }

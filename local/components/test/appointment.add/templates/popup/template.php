@@ -5,19 +5,10 @@
  * @var array $arParams
  */
 
-use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\UI\Extension;
 
 Loc::loadMessages(__FILE__);
-try
-{
-    Extension::load(['firstbit.appointment.popup']);
-}
-catch (LoaderException $e)
-{
-    ShowError(Loc::getMessage('FIRSTBIT_APPOINTMENT_POPUP_EXTENSION_ERROR'));
-}
+
 ?>
 <div id="appointment-popup-root"></div>
 

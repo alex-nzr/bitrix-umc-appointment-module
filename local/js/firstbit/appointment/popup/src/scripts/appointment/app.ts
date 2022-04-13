@@ -84,6 +84,7 @@ export const AppointmentPopup: any = {
                 phone: 		!this.isReloading ? false: this.filledInputs.textValues.phone,
                 address: 	!this.isReloading ? false: this.filledInputs.textValues.address,
                 email: 	    !this.isReloading ? false: this.filledInputs.textValues.email,
+                birthday:   !this.isReloading ? false: this.filledInputs.textValues.birthday,
                 comment: 	!this.isReloading ? false: this.filledInputs.textValues.comment,
             },
         }
@@ -102,6 +103,7 @@ export const AppointmentPopup: any = {
             this.initSelectionNodes(params.selectionNodes);
             this.initTextNodes(params.textNodes);
             this.addPhoneMasks();
+            this.addCalendarSelection()
         }
         await this.start();
     },
@@ -1031,6 +1033,27 @@ export const AppointmentPopup: any = {
         });
     },
 
+    addCalendarSelection: function (){
+        const that = this;
+        const birthdayInput: HTMLInputElement = this.wrapper.querySelector('input[name="birthday"]');
+        birthdayInput.addEventListener('keydown', (e: Event) => {
+            e.preventDefault();
+            return false;
+        });
+        birthdayInput.addEventListener('click', () => {
+            // @ts-ignore
+            window.BX.calendar({
+                node: birthdayInput,
+                field: birthdayInput,
+                bTime: false,
+                callback_after: function(date: string){
+                    const timestamp = (new Date(date)).getTime();
+                    that.filledInputs.textValues.birthday = that.convertDateToISO(timestamp);
+                }
+            });
+        });
+    },
+
     maskInput: function(input: HTMLInputElement, mask: string){
         const value = input.value;
         const literalPattern = /[0]/;
@@ -1058,11 +1081,14 @@ export const AppointmentPopup: any = {
         return `${date.year}-${date.month}-${date.day}T${date.hours}:${date.minutes}:00`;
     },
 
-    convertDateToDisplay: function (timestamp: number, onlyTime: boolean = false) {
+    convertDateToDisplay: function (timestamp: number, onlyTime: boolean = false, onlyDate = false) {
         const date = this.readDateInfo(timestamp);
 
         if (onlyTime){
             return `${date.hours}:${date.minutes}`;
+        }
+        if (onlyDate){
+            return `${date.day}.${date.month}.${date.year}`;
         }
         return `${date.day}-${date.month}-${date.year}`;
     },
