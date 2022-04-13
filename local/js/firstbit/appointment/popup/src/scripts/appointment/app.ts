@@ -50,9 +50,7 @@ export const AppointmentPopup: any = {
         }
         this.eventHandlersAdded = {}
 
-        if (!this.isReloading){
-            this.requiredInputs = [];//not used now, because checking goes by this.filledInputs
-        }
+        this.requiredInputs = [];//not used now, because checking goes by this.filledInputs
 
         this.filledInputs = {
             [this.dataKeys.clinicsKey]: {
@@ -78,14 +76,14 @@ export const AppointmentPopup: any = {
                 timeEnd: false,
             },
             textValues: {
-                name: 		!this.isReloading ? false: this.filledInputs.textValues.name,
-                surname: 	!this.isReloading ? false: this.filledInputs.textValues.surname,
-                middleName: !this.isReloading ? false: this.filledInputs.textValues.middleName,
-                phone: 		!this.isReloading ? false: this.filledInputs.textValues.phone,
-                address: 	!this.isReloading ? false: this.filledInputs.textValues.address,
-                email: 	    !this.isReloading ? false: this.filledInputs.textValues.email,
-                birthday:   !this.isReloading ? false: this.filledInputs.textValues.birthday,
-                comment: 	!this.isReloading ? false: this.filledInputs.textValues.comment,
+                name: 		this.filledInputs?.textValues?.name       ?? false,
+                surname: 	this.filledInputs?.textValues?.surname    ?? false,
+                middleName: this.filledInputs?.textValues?.middleName ?? false,
+                phone: 		this.filledInputs?.textValues?.phone      ?? false,
+                address: 	this.filledInputs?.textValues?.address    ?? false,
+                email: 	    this.filledInputs?.textValues?.email      ?? false,
+                birthday:   this.filledInputs?.textValues?.birthday   ?? false,
+                comment: 	this.filledInputs?.textValues?.comment    ?? false,
             },
         }
         this.defaultText = params.defaultText;
@@ -98,13 +96,12 @@ export const AppointmentPopup: any = {
         this.submitBtn = document.getElementById(selectors.submitBtnId);
         this.resultBlock = document.getElementById(selectors.appResultBlockId);
 
-        if (!this.isReloading){
-            this.initForm(selectors.formId);
-            this.initSelectionNodes(params.selectionNodes);
-            this.initTextNodes(params.textNodes);
-            this.addPhoneMasks();
-            this.addCalendarSelection()
-        }
+        this.initForm(selectors.formId);
+        this.initSelectionNodes(params.selectionNodes);
+        this.initTextNodes(params.textNodes);
+        this.addPhoneMasks();
+        this.addCalendarSelection();
+
         await this.start();
     },
 
@@ -143,6 +140,14 @@ export const AppointmentPopup: any = {
             if (nodesData.hasOwnProperty(nodesDataKey))
             {
                 const input = this.wrapper.querySelector(`#${nodesData[nodesDataKey].inputId}`);
+
+                const currentValue = this.filledInputs.textValues[nodesDataKey];
+                input && (input.value = currentValue ? currentValue : '');
+                if (input && currentValue && (nodesDataKey === 'birthday')){
+                    const date = new Date(currentValue);
+                    input.value = this.convertDateToDisplay(date.getTime(), false, true);
+                }
+
                 input && input.addEventListener('input', (e: any)=> {
                     this.filledInputs.textValues[nodesDataKey] = e.target.value;
                 })
@@ -162,7 +167,7 @@ export const AppointmentPopup: any = {
         const loaded = await this.loadData();
         if (loaded){
             this.startRender();
-            !this.isReloading ? this.activateWidgetButton() : void(0);
+            this.activateWidgetButton();
         }else{
             this.widgetBtnWrap.classList.add(styles['hidden']);
             this.errorMessage("Loading data error")
@@ -1209,7 +1214,7 @@ export const AppointmentPopup: any = {
         this.selectionNodes[this.dataKeys.scheduleKey].listNode.scrollTo({ left: 0, top: 0});
         this.form.style.pointerEvents = '';
         this.form.classList.remove(styles['off']);
-        this.isReloading = true;
+        //this.isReloading = true;
 
         this.init(this.initParams).then(() => {
             const clickEvent = new Event('click', {bubbles:false});

@@ -10,7 +10,7 @@ use FirstBit\Appointment\Utils\Utils;
 
 Loc::loadMessages(__FILE__);
 
-class OneCReader extends AbstractOneCService
+class OneCReader extends BaseOneCService
 {
     public function getClinicsList(): array
     {

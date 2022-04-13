@@ -253,15 +253,19 @@ class AppForm extends CBitrixComponent implements Controllerable
      */
     public function configureActions(): array
     {
+        $newFilters = [
+            'prefilters' => [
+                new ActionFilter\HttpMethod([ActionFilter\HttpMethod::METHOD_POST]),
+                /*new ActionFilter\Authentication(),
+                new ActionFilter\Csrf(),*/
+            ],
+            'postfilters' => []
+        ];
+
         return [
-            'test' => [
-                'prefilters' => [
-                    new ActionFilter\HttpMethod([ActionFilter\HttpMethod::METHOD_POST]),
-                    /*new ActionFilter\Authentication(),
-                    new ActionFilter\Csrf(),*/
-                ],
-                'postfilters' => []
-            ]
+            'add'    => $newFilters,
+            'update' => $newFilters,
+            'delete' => $newFilters,
         ];
     }
 

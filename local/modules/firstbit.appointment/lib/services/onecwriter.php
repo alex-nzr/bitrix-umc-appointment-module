@@ -9,7 +9,7 @@ use SoapVar;
 
 Loc::loadMessages(__FILE__);
 
-class OneCWriter extends AbstractOneCService
+class OneCWriter extends BaseOneCService
 {
     /** make request to creating order
      * @param array $params
@@ -49,7 +49,7 @@ class OneCWriter extends AbstractOneCService
             }
 
             $paramsToReserve = [
-                'Specialization' => "",
+                'Specialization' => $params['specialty'] ?? "",
                 'Date'           => $params['orderDate'],
                 'TimeBegin'      => $params['timeBegin'],
                 'EmployeeID'     => $params['refUid'],
@@ -85,6 +85,10 @@ class OneCWriter extends AbstractOneCService
         }
     }
 
+    /**
+     * @param array $params
+     * @return string
+     */
     public function getReserveUid(array $params): string
     {
         $res = $this->send(Constants::CREATE_RESERVE_ACTION_1C, $params);
@@ -94,6 +98,41 @@ class OneCWriter extends AbstractOneCService
         else
         {
             return "";
+        }
+    }
+
+    public function addWaitingList(array $params): array
+    {
+        try {
+            if (Constants::DEMO_MODE === "Y"){
+                sleep(3);
+                return ['success' => true];
+            }
+
+            $paramsToSend = [
+                'Specialization'    => $params['specialty'] ?? "",
+                'PatientSurname'    => $params['surname'],
+                'PatientName'       => $params['name'],
+                'PatientFatherName' => $params['middleName'],
+                'Date'              => $params['orderDate'],
+                'TimeBegin'         => $params['timeBegin'],
+                'Phone'             => Utils::formatPhone($params['phone']),
+                'Email'             => $params['email'] ?? '',
+                'Address'           => $params['address'] ?? '',
+                'Clinic'            => $params['clinicUid'],
+                'Comment'           => Loc::getMessage('FIRSTBIT_APPOINTMENT_WAITING_LIST_COMMENT', [
+                    '#FULL_NAME#' => $params['name'] ." ". $params['middleName'] ." ". $params['surname'],
+                    '#PHONE#'     => Utils::formatPhone($params['phone']),
+                    '#DATE#'      => date("d.m.Y", strtotime($params['orderDate'])),
+                    '#TIME#'      => date("H:i", strtotime($params['timeBegin'])),
+                    '#COMMENT#'   => $params['comment'] ?? '',
+                ]),
+            ];
+
+            return $this->send(Constants::CREATE_WAIT_LIST_ACTION_1C, $paramsToSend);
+        }
+        catch (Exception $e){
+            return Utils::createErrorArray($e->getMessage());
         }
     }
 

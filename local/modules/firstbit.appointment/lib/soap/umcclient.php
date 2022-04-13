@@ -132,6 +132,9 @@ class UmcClient
             case Constants::CREATE_ORDER_ACTION_1C:
                 $data = $parser->prepareOrderResultData($xml);
                 break;
+            case Constants::CREATE_WAIT_LIST_ACTION_1C:
+                $data = $parser->prepareWaitListResultData($xml);
+                break;
             default:
                 break;
         }

@@ -1,10 +1,12 @@
 <?php
 namespace FirstBit\Appointment\Controllers;
 
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Engine\ActionFilter\Authentication;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Error;
+use FirstBit\Appointment\Config\Constants;
 use FirstBit\Appointment\Services\OneCReader;
 use FirstBit\Appointment\Services\OneCWriter;
 use FirstBit\Appointment\Utils\Utils;
@@ -34,6 +36,7 @@ class OneCController extends Controller
             $this->writer = $serviceLocator->get('appointment.OneCWriter');
         }
     }
+
 
     public function getClinicsAction(): ?array
     {
@@ -79,7 +82,19 @@ class OneCController extends Controller
     public function addOrderAction(string $params): ?array
     {
         $arParams = json_decode($params, true);
-        $response = $this->writer->addOrder($arParams);
+
+        $useWaitingList = Option::get(
+            Constants::APPOINTMENT_MODULE_ID,
+            'appointment_settings_use_waiting_list', "N"
+        );
+
+        if ($useWaitingList === "Y"){
+            $response = $this->writer->addWaitingList($arParams);
+        }
+        else{
+            $response = $this->writer->addOrder($arParams);
+        }
+
         if ($response['error']){
             $this->addError(new Error($response['error']));
             return null;

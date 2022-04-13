@@ -9,7 +9,7 @@ use FirstBit\Appointment\Utils\Utils;
 
 Loc::loadMessages(__FILE__);
 
-abstract class AbstractOneCService
+abstract class BaseOneCService
 {
     protected UmcClient $client;
     protected $demoData;
