@@ -189,6 +189,41 @@ class XmlParser{
     }
 
     /**
+     * @param \SimpleXMLElement $xml
+     * @return array
+     */
+    public function prepareDeleteResultData(SimpleXMLElement $xml): array
+    {
+        $xmlArr = $this->xmlToArray($xml);
+        if ($xmlArr["Результат"] === "true"){
+            return ['success' => true];
+        }
+        else {
+            return Utils::createErrorArray($xmlArr["ОписаниеОшибки"] ?? "");
+        }
+    }
+
+    /**
+     * @param \SimpleXMLElement $xml
+     * @return array
+     */
+    public function prepareStatusResultData(SimpleXMLElement $xml): array
+    {
+        $xmlArr = $this->xmlToArray($xml);
+        if ((int)$xmlArr["Результат"] > 0)
+        {
+            return [
+                'success'   => true,
+                'statusId'  => $xmlArr['Результат'],
+                'status'    => $xmlArr['ОписаниеРезультата']
+            ];
+        }
+        else {
+            return Utils::createErrorArray($xmlArr["Результат"] ." - ". $xmlArr["ОписаниеОшибки"]);
+        }
+    }
+
+    /**
      * @param SimpleXMLElement $xml
      * @return array
      */

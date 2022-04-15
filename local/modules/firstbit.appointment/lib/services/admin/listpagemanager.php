@@ -41,12 +41,14 @@ class ListPageManager
     private function setRows(string $gridId, int $offset, int $limit): array
     {
         try {
+            $defaultSelect = array_keys($this->allowedColumns);
+            $additionalSelect = ['USER_LOGIN' => 'USER.LOGIN'];
             $defaultSort = ['ID' => 'DESC'];
             $gridSort = $this->gridOptions->GetSorting(['sort' => $defaultSort]);
             $rows = [];
             $recordsRes = $this->entity::query()
                 ->setOrder($gridSort['sort'])
-                ->setSelect(array_keys($this->allowedColumns))
+                ->setSelect(array_merge($defaultSelect, $additionalSelect))
                 ->setFilter($this->getFilterValues($gridId))
                 ->setOffset($offset)
                 ->setLimit($limit)
@@ -54,23 +56,32 @@ class ListPageManager
                 ->exec();
 
             $this->pageNavObject->setRecordCount($recordsRes->getCount());
-
+            $records = $recordsRes->fetchAll();
             $deleteText = Loc::getMessage("FIRSTBIT_APPOINTMENT_BTN_DELETE_TEXT");
-            foreach ($recordsRes as $item)
+            foreach ($records as $item)
             {
+                if ((int)$item['USER_ID'] > 0)
+                {
+                    $item['USER_ID'] = $this->getUserProfileLink($item['USER_ID'], $item['USER_LOGIN']);
+                }
+                else
+                {
+                    $item['USER_ID'] = 'Anonymous';
+                }
+
                 $rows[] = [
                     'id' => $item['ID'],
-                    'data'    => $item,
+                    'data'    => array_intersect_key($item, $this->allowedColumns),
                     'actions' => [
                         [
                             'text'    => $deleteText,
                             'onclick' => 'confirm("'.$deleteText.'?") 
-                                            ? BX.FirstBit.Appointment.Admin.deleteRecord('.$item["ID"].', "'.$gridId.'") 
-                                            : void(0)'
+                                ? BX.FirstBit.Appointment.Admin.deleteRecord('.$item["ID"].', "'.$gridId.'", "'.$item['XML_ID'].'") 
+                                : void(0)'
                         ],
                         [
                             'text'    => Loc::getMessage("FIRSTBIT_APPOINTMENT_BTN_UPDATE_STATUS_TEXT"),
-                            'onclick' => 'BX.FirstBit.Appointment.Admin.updateRecord('.$item["ID"].', "'.$gridId.'")'
+                            'onclick' => 'BX.FirstBit.Appointment.Admin.updateRecord('.$item["ID"].', "'.$gridId.'", "'.$item['XML_ID'].'")'
                         ],
                     ],
                 ];
@@ -292,5 +303,15 @@ class ListPageManager
                 'type' => 'number',
             ],
         ];
+    }
+
+    /**
+     * @param $userId
+     * @param $userLogin
+     * @return string
+     */
+    public function getUserProfileLink($userId, $userLogin): string
+    {
+        return "<a href='/bitrix/admin/user_edit.php?ID=".$userId."&lang=".LANGUAGE_ID."'>[" . $userId . "]".$userLogin."</a>";
     }
 }

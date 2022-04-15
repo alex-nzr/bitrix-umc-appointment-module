@@ -4,12 +4,15 @@ namespace FirstBit\Appointment\Controllers;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Engine\ActionFilter\Authentication;
+use Bitrix\Main\Engine\ActionFilter\Csrf;
+use Bitrix\Main\Engine\ActionFilter\HttpMethod;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Error;
 use FirstBit\Appointment\Config\Constants;
 use FirstBit\Appointment\Services\OneCReader;
 use FirstBit\Appointment\Services\OneCWriter;
-use FirstBit\Appointment\Utils\Utils;
+use FirstBit\Appointment\Services\RecordTableHelper;
+use Exception;
 
 class OneCController extends Controller
 {
@@ -102,15 +105,66 @@ class OneCController extends Controller
         return $response;
     }
 
+    public function deleteOrderAction(int $id, string $orderUid): ?array
+    {
+        try
+        {
+            $response = $this->writer->deleteOrder($orderUid);
+            if ($response['error'])
+            {
+                throw new Exception($response['error']);
+            }
+            else
+            {
+                $ormRes = RecordTableHelper::deleteRecord($id);
+                return array_merge($response, $ormRes);
+            }
+        }
+        catch (Exception $e)
+        {
+            $this->addError(new Error($e->getMessage()));
+            return null;
+        }
+    }
+
+    public function getOrderStatusAction(int $id, string $orderUid): ?array
+    {
+        try
+        {
+            $response = $this->reader->getOrderStatus($orderUid);
+            if ($response['error'])
+            {
+                throw new Exception($response['error']);
+            }
+            else
+            {
+                $status = $response['status'] ?? "-";
+                $ormRes = RecordTableHelper::updateRecord($id, ['STATUS_1C' => $status]);
+                return array_merge($response, $ormRes);
+            }
+        }
+        catch (Exception $e)
+        {
+            $this->addError(new Error($e->getMessage()));
+            return null;
+        }
+    }
+
+    protected function getDefaultPreFilters(): array
+    {
+        return [
+            new HttpMethod([HttpMethod::METHOD_POST])
+        ];
+    }
+
     public function configureActions(): array
     {
         return [
-            'getClinics'        => [ 'prefilters' => [], 'postfilters' => [] ],
-            'getEmployees'      => [ 'prefilters' => [], 'postfilters' => [] ],
-            'getNomenclature'   => [ 'prefilters' => [], 'postfilters' => [] ],
-            'getSchedule'       => [ 'prefilters' => [], 'postfilters' => [] ],
-            'addOrder'          => [ 'prefilters' => [], 'postfilters' => [] ],
-            'customTest'        => [ '-prefilters' => [ new Authentication() ]
+            'deleteOrder'     => [
+                '+prefilters' => [
+                    new Authentication(),
+                    new Csrf(),
+                ],
             ],
         ];
     }

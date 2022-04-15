@@ -78,7 +78,11 @@ class OneCWriter extends BaseOneCService
                 'Params'            => $properties
             ];
 
-            return $this->send(Constants::CREATE_ORDER_ACTION_1C, $paramsToSend);
+            $res = $this->send(Constants::CREATE_ORDER_ACTION_1C, $paramsToSend);
+            if (empty($res['error'])){
+                RecordTableHelper::addRecord(array_merge($params, ['orderUid' => $xml_id]));
+            }
+            return $res;
         }
         catch (Exception $e){
             return Utils::createErrorArray($e->getMessage());
@@ -142,8 +146,6 @@ class OneCWriter extends BaseOneCService
      */
     public function deleteOrder(string $orderUid): array
     {
-        return $this->send(Constants::DELETE_ORDER_ACTION_1C, [$orderUid]);
+        return $this->send(Constants::DELETE_ORDER_ACTION_1C, ['GUID' => $orderUid]);
     }
-
-    // TODO - make methods for adding WaitList and Reserve
 }

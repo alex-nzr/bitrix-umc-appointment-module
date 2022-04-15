@@ -4,19 +4,15 @@ namespace FirstBit\Appointment\Component;
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
 use Bitrix\Main\Config\Option;
-use Bitrix\Main\Engine\Contract\Controllerable;
-use Bitrix\Main\Engine\ActionFilter;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
-use Bitrix\Main\Type\DateTime;
 use CBitrixComponent;
 use CMain;
 use Exception;
 use FirstBit\Appointment\Config\Constants;
-use FirstBit\Appointment\Model\RecordTable;
 
-class AppForm extends CBitrixComponent implements Controllerable
+class AppForm extends CBitrixComponent
 {
     private CMain $App;
     private Result $result;
@@ -145,91 +141,6 @@ class AppForm extends CBitrixComponent implements Controllerable
     }
 
     /**
-     * @param array $params
-     * @return array
-     */
-    public function addAction(array $params): array
-    {
-        try {
-            if (!$this->checkModules()){
-                throw new Exception(Loc::getMessage("FIRSTBIT_APPOINTMENT_MODULE_NOT_INCLUDED"));
-            }
-
-            if (!empty($params['DATETIME_VISIT'])){
-                $params['DATETIME_VISIT'] = DateTime::createFromTimestamp(strtotime($params['DATETIME_VISIT']));
-            }
-            $result = RecordTable::add($params);
-
-            if ($result->isSuccess()){
-                return array_merge($result->getData(), ['ID' => $result->getId()]);
-            }
-            else{
-                throw new Exception(implode("; ", $result->getErrorMessages()));
-            }
-        }
-        catch(Exception $e){
-            return [
-                'error' => $e->getMessage()
-            ];
-        }
-    }
-
-    /**
-     * @param int $id
-     * @param array $params
-     * @return array
-     */
-    public function updateAction(int $id, array $params): array
-    {
-        try {
-            if (!$this->checkModules()){
-                throw new Exception(Loc::getMessage("FIRSTBIT_APPOINTMENT_MODULE_NOT_INCLUDED"));
-            }
-
-            $result = RecordTable::update($id, $params);
-
-            if ($result->isSuccess()){
-                return array_merge($result->getData(), ['ID' => $result->getId()]);
-            }
-            else{
-                throw new Exception(implode("; ", $result->getErrorMessages()));
-            }
-        }
-        catch(Exception $e){
-            return [
-                'error' => $e->getMessage()
-            ];
-        }
-    }
-
-    /**
-     * @param int $id
-     * @return array
-     */
-    public function deleteAction(int $id): array
-    {
-        try {
-            if (!$this->checkModules()){
-                throw new Exception(Loc::getMessage("FIRSTBIT_APPOINTMENT_MODULE_NOT_INCLUDED"));
-            }
-
-            $result = RecordTable::delete($id);
-
-            if ($result->isSuccess()){
-                return array_merge($result->getData(), ['message' => 'deleted with id = '. $id]);
-            }
-            else{
-                throw new Exception(implode("; ", $result->getErrorMessages()));
-            }
-        }
-        catch(Exception $e){
-            return [
-                'error' => $e->getMessage()
-            ];
-        }
-    }
-
-    /**
      * @return bool
      */
     protected function checkModules(): bool
@@ -246,27 +157,6 @@ class AppForm extends CBitrixComponent implements Controllerable
             $this->showMessage($e->getMessage(), true);
             return false;
         }
-    }
-
-    /**
-     * @return array
-     */
-    public function configureActions(): array
-    {
-        $newFilters = [
-            'prefilters' => [
-                new ActionFilter\HttpMethod([ActionFilter\HttpMethod::METHOD_POST]),
-                /*new ActionFilter\Authentication(),
-                new ActionFilter\Csrf(),*/
-            ],
-            'postfilters' => []
-        ];
-
-        return [
-            'add'    => $newFilters,
-            'update' => $newFilters,
-            'delete' => $newFilters,
-        ];
     }
 
     /**

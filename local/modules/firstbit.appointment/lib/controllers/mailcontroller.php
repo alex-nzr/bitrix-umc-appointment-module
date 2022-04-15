@@ -1,11 +1,11 @@
 <?php
 namespace FirstBit\Appointment\Controllers;
 
+use Bitrix\Main\Engine\ActionFilter\HttpMethod;
 use FirstBit\Appointment\Services\MailerService;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Error;
-use FirstBit\Appointment\Utils\Utils;
 
 class MailController extends Controller
 {
@@ -41,7 +41,12 @@ class MailController extends Controller
     public function configureActions(): array
     {
         return [
-            'sendEmailNote'     => [ 'prefilters' => [], 'postfilters' => [] ],
+            'sendEmailNote'     => [
+                'prefilters' => [
+                    new HttpMethod([HttpMethod::METHOD_POST])
+                ],
+                'postfilters' => []
+            ],
         ];
     }
 }

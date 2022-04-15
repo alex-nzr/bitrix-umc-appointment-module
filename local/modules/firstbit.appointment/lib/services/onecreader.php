@@ -3,7 +3,6 @@ namespace FirstBit\Appointment\Services;
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Localization\Loc;
-use DateTime;
 use Exception;
 use FirstBit\Appointment\Config\Constants;
 use FirstBit\Appointment\Utils\Utils;
@@ -74,5 +73,14 @@ class OneCReader extends BaseOneCService
         );
 
         return $this->send(Constants::SCHEDULE_ACTION_1C, $period);
+    }
+
+    /** get order status from 1C
+     * @param string $orderUid
+     * @return array
+     */
+    public function getOrderStatus(string $orderUid): array
+    {
+        return $this->send(Constants::GET_ORDER_STATUS_ACTION_1C, ['GUID' => $orderUid]);
     }
 }
