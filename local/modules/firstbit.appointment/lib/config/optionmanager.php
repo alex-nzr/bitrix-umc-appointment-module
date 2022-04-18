@@ -1,10 +1,15 @@
 <?php
 namespace FirstBit\Appointment\Config;
 
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Request;
 use CAdminTabControl;
+use CControllerClient;
+use Exception;
+use function htmlSpecialCharsBx;
+use function ShowError;
 
 Loc::loadMessages($_SERVER['DOCUMENT_ROOT'] . BX_ROOT . "/modules/main/options.php");
 Loc::loadMessages(__FILE__);
@@ -24,7 +29,7 @@ class OptionManager{
         $this->setTabs();
         $this->tabControl = new CAdminTabControl('tabControl', $this->tabs);
         $this->formAction = $this->request->getRequestedPage() . "?" . http_build_query([
-            'mid'  => htmlspecialcharsbx($this->request->get('mid')),
+            'mid'  => htmlSpecialCharsBx($this->request->get('mid')),
             'lang' => $this->request->get('lang')
         ]);
     }
@@ -145,9 +150,9 @@ class OptionManager{
             ],
             [
                 'DIV'   => "access_tab",
-                'TAB'   => Loc::getMessage("MAIN_TAB_RIGHTS"),
+                'TAB'   => Loc::getMessage("FIRSTBIT_APPOINTMENT_TAB_RIGHTS"),
                 'ICON'  => '',
-                'TITLE' => Loc::getMessage("MAIN_TAB_TITLE_RIGHTS"),
+                'TITLE' => Loc::getMessage("FIRSTBIT_APPOINTMENT_TAB_TITLE_RIGHTS"),
             ]
         ];
     }
@@ -157,12 +162,30 @@ class OptionManager{
      */
     public function processRequest(): void
     {
-        if ($this->request->isPost() && $this->request->getPost('Update') && check_bitrix_sessid())
-        {
-            foreach ($this->tabs as $arTab)
+        try {
+            if ($this->request->isPost() && $this->request->getPost('Update') && check_bitrix_sessid())
             {
-                __AdmSettingsSaveOptions($this->moduleId, $arTab['OPTIONS']);
+                foreach ($this->tabs as $arTab)
+                {
+                    foreach ($arTab['OPTIONS'] as $arOption)
+                    {
+                        if(!is_array($arOption) || !empty($arOption['note']))
+                        {
+                            continue;
+                        }
+                        $optionName = $arOption[0];
+                        $optionValue = $this->request->getPost($optionName);
+                        Option::set(
+                                $this->moduleId,
+                                $optionName,
+                                is_array($optionValue) ? implode(",", $optionValue) : $optionValue
+                        );
+                    }
+                }
             }
+        }
+        catch (Exception $e){
+            ShowError($e->getMessage());
         }
     }
 
@@ -180,7 +203,7 @@ class OptionManager{
                 if(is_array($arTab['OPTIONS']))
                 {
                     $this->tabControl->BeginNextTab();
-                    __AdmSettingsDrawList($this->moduleId, $arTab['OPTIONS']);
+                    $this->drawSettingsList($this->moduleId, $arTab['OPTIONS']);
                 }
 
             }
@@ -198,5 +221,130 @@ class OptionManager{
         </form>
         <?php
         $this->tabControl->End();
+    }
+
+    /**
+     * @param $module_id
+     * @param $Option
+     */
+    protected function drawSettingsRow($module_id, $Option)
+    {
+        $arControllerOption = CControllerClient::GetInstalledOptions($module_id);
+        if($Option === null)
+        {
+            return;
+        }
+
+        if(!is_array($Option)): ?>
+            <tr class="heading">
+                <td colspan="2"><?=$Option?></td>
+            </tr>
+        <? elseif(isset($Option["note"])): ?>
+            <tr>
+                <td colspan="2">
+                    <div class="adm-info-message-wrap">
+                        <div class="adm-info-message" style="display: block"><?=$Option["note"]?></div>
+                    </div>
+                </td>
+            </tr>
+        <? else:
+            if ($Option[0] !== "")
+            {
+                $val = Option::get($module_id, $Option[0], $Option[2]);
+            }
+            else
+            {
+                $val = $Option[2];
+            }
+        ?>
+            <tr>
+                <?
+                $this->renderLabel($Option);
+                $this->renderInput($Option, $arControllerOption, $Option[0], $val);
+                ?>
+            </tr>
+        <? endif;
+    }
+
+    protected function drawSettingsList($module_id, $arParams)
+    {
+        foreach($arParams as $Option)
+        {
+            $this->drawSettingsRow($module_id, $Option);
+        }
+    }
+
+    protected function renderLabel($Option)
+    {
+        $type = $Option[3];
+        $sup_text = array_key_exists(5, $Option) ? $Option[5] : '';
+        $class = '';
+        $label = '';
+        switch ($type[0])
+        {
+            case "multiselectbox":
+            case "textarea":
+            case "statictext":
+            case "statichtml":
+                $class = 'adm-detail-valign-top';
+                break;
+            case "checkbox":
+                $label = "<label for='". htmlSpecialCharsBx($Option[0])."'>".$Option[1]."</label>";
+                break;
+            default:
+                $label = $Option[1];
+        }
+
+        ?>
+        <td class="<?=$class?>" style="width: 50%">
+            <?=$label?>
+            <? if ($sup_text !== '') : ?>
+                <span class="required"><sup><?=$sup_text?></sup></span>
+            <?endif;?>
+        </td>
+        <?
+    }
+
+    protected function renderInput($Option, $arControllerOption, $fieldName, $val)
+    {
+        $type = $Option[3];
+        $disabled = array_key_exists(4, $Option) && $Option[4] == 'Y' ? ' disabled' : '';
+        ?>
+        <td style="width: 50%">
+            <label for="<?echo htmlSpecialCharsBx($Option[0])?>">
+                <? if($type[0]=="checkbox"): ?>
+                    <input type="checkbox" <?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?>id="<?echo htmlSpecialCharsBx($Option[0])?>" name="<?=htmlSpecialCharsBx($fieldName)?>" value="Y"<?if($val=="Y")echo" checked";?><?=$disabled?><?if($type[2]<>'') echo " ".$type[2]?>>
+                <? elseif($type[0]=="text" || $type[0]=="password"): ?>
+                    <input type="<?echo $type[0]?>"<?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> size="<?echo $type[1]?>" maxlength="255" value="<?echo htmlSpecialCharsBx($val)?>" name="<?=htmlSpecialCharsBx($fieldName)?>"<?=$disabled?><?=($type[0]=="password" || $type["noautocomplete"]? ' autocomplete="new-password"':'')?>><?
+                elseif($type[0]=="selectbox"):
+                    $arr = $type[1];
+                    if(!is_array($arr))
+                        $arr = array();
+                ?>
+                    <select name="<?=htmlSpecialCharsBx($fieldName)?>" <?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> <?=$disabled?>>
+                        <? foreach($arr as $key => $v): ?>
+                            <option value="<?echo $key?>"<?if($val==$key)echo" selected"?>><?echo htmlSpecialCharsBx($v)?></option>
+                        <? endforeach; ?>
+                    </select>
+                <? elseif($type[0]=="multiselectbox"):
+                    $arr = $type[1];
+                    if(!is_array($arr))
+                        $arr = array();
+                    $arr_val = explode(",",$val);
+                ?>
+                    <select size="5" <?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> multiple name="<?=htmlSpecialCharsBx($fieldName)?>[]"<?=$disabled?>>
+                        <? foreach($arr as $key => $v): ?>
+                            <option value="<?echo $key?>"<?if(in_array($key, $arr_val)) echo " selected"?>><?echo htmlSpecialCharsBx($v)?></option>
+                        <? endforeach; ?>
+                    </select>
+                <? elseif($type[0]=="textarea"): ?>
+                    <textarea <?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> rows="<?echo $type[1]?>" cols="<?echo $type[2]?>" name="<?=htmlSpecialCharsBx($fieldName)?>"<?=$disabled?>><?echo htmlSpecialCharsBx($val)?></textarea>
+                <? elseif($type[0]=="statictext"): ?>
+                    <?=htmlSpecialCharsBx($val)?>
+                <? elseif($type[0]=="statichtml"):?>
+                    <?=$val?>
+                <?endif;?>
+            </label>
+        </td><?
     }
 }

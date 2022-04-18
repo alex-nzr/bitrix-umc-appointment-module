@@ -45,7 +45,7 @@ EventManager::getInstance()->addEventHandlerCompatible(
                             'text' => Loc::getMessage('FIRSTBIT_APPOINTMENT_MENU_SETTINGS_TITLE'),
                             'title' => Loc::getMessage('FIRSTBIT_APPOINTMENT_MENU_SETTINGS_TITLE'),
                             'sort' => 60,
-                            'url' => '/bitrix/admin/settings.php?mid='.$moduleID.'&mid_menu=1&lang='.urlencode(LANGUAGE_ID),
+                            'url' => '/bitrix/admin/firstbit.app.settings.page.php?lang=' . urlencode(LANGUAGE_ID),
                             'icon' => 'ui-icon ui-icon-service-wheel ui-icon-sm firstbit_appointment_settings_menu_icon',
                             'page_icon' => 'firstbit_appointment_settings_page_icon',
                        ),
