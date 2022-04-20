@@ -2,7 +2,9 @@
 namespace FirstBit\Appointment\Services;
 
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Result;
 use Exception;
 use FirstBit\Appointment\Config\Constants;
 use FirstBit\Appointment\Utils\Utils;
@@ -11,41 +13,49 @@ Loc::loadMessages(__FILE__);
 
 class OneCReader extends BaseOneCService
 {
-    public function getClinicsList(): array
+    public function getClinicsList(): Result
     {
         if (Constants::DEMO_MODE === "Y"){
+            $res = new Result();
             sleep(3);
             try {
-                return $this->demoData['clinics'];
+                $res->setData($this->demoData['clinics']);
             }catch (Exception $e){
-                return ['error' => Loc::getMessage("FIRSTBIT_APPOINTMENT_DEMO_MODE_ERROR") . $e->getMessage()];
+                $res->addError(new Error(Loc::getMessage("FIRSTBIT_APPOINTMENT_DEMO_MODE_ERROR") . $e->getMessage()));
             }
+            return $res;
         }
 
         return $this->send(Constants::CLINIC_ACTION_1C);
     }
 
-    public function getEmployeesList(): array
+    public function getEmployeesList(): Result
     {
         if (Constants::DEMO_MODE === "Y"){
+            $res = new Result();
+            sleep(3);
             try {
-                return $this->demoData['employees'];
+                $res->setData($this->demoData['employees']);
             }catch (Exception $e){
-                return ['error' => Loc::getMessage("FIRSTBIT_APPOINTMENT_DEMO_MODE_ERROR") . $e->getMessage()];
+                $res->addError(new Error(Loc::getMessage("FIRSTBIT_APPOINTMENT_DEMO_MODE_ERROR") . $e->getMessage()));
             }
+            return $res;
         }
 
         return $this->send(Constants::EMPLOYEES_ACTION_1C);
     }
 
-    public function getNomenclatureList($clinicGuid): array
+    public function getNomenclatureList($clinicGuid): Result
     {
         if (Constants::DEMO_MODE === "Y"){
+            $res = new Result();
+            sleep(3);
             try {
-                return $this->demoData['nomenclature'];
+                $res->setData($this->demoData['nomenclature']);
             }catch (Exception $e){
-                return ['error' => Loc::getMessage("FIRSTBIT_APPOINTMENT_DEMO_MODE_ERROR") . $e->getMessage()];
+                $res->addError(new Error(Loc::getMessage("FIRSTBIT_APPOINTMENT_DEMO_MODE_ERROR") . $e->getMessage()));
             }
+            return $res;
         }
         $params = [
             'Clinic' => $clinicGuid,
@@ -54,14 +64,17 @@ class OneCReader extends BaseOneCService
         return $this->send(Constants::NOMENCLATURE_ACTION_1C, $params);
     }
 
-    public function getSchedule(): array
+    public function getSchedule(): Result
     {
         if (Constants::DEMO_MODE === "Y"){
+            $res = new Result();
+            sleep(3);
             try {
-                return ['schedule' => $this->demoData['schedule']];
+                $res->setData($this->demoData['schedule']);
             }catch (Exception $e){
-                return ['error' => Loc::getMessage("FIRSTBIT_APPOINTMENT_DEMO_MODE_ERROR") . $e->getMessage()];
+                $res->addError(new Error(Loc::getMessage("FIRSTBIT_APPOINTMENT_DEMO_MODE_ERROR") . $e->getMessage()));
             }
+            return $res;
         }
 
         $period = Utils::getDateInterval(
@@ -77,9 +90,9 @@ class OneCReader extends BaseOneCService
 
     /** get order status from 1C
      * @param string $orderUid
-     * @return array
+     * @return \Bitrix\Main\Result
      */
-    public function getOrderStatus(string $orderUid): array
+    public function getOrderStatus(string $orderUid): Result
     {
         return $this->send(Constants::GET_ORDER_STATUS_ACTION_1C, ['GUID' => $orderUid]);
     }

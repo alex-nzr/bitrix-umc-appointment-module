@@ -116,6 +116,11 @@ class AppForm extends CBitrixComponent
                 'appointment_settings_show_doctors_without_dpt',
                 "Y"
             ),
+            "USE_CONFIRM_WITH"                => Option::get(
+                Constants::APPOINTMENT_MODULE_ID,
+                'appointment_settings_confirm_with',
+                "none"
+            ),
             "USE_EMAIL_NOTE"                  => Option::get(
                 Constants::APPOINTMENT_MODULE_ID,
                 'appointment_settings_use_email_note',

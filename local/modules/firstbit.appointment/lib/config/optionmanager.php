@@ -146,6 +146,21 @@ class OptionManager{
                         "javascript: void(0)",
                         ['text', 50]
                     ],
+
+                    [
+                        'appointment_settings_confirm_with',
+                        Loc::getMessage('FIRSTBIT_APPOINTMENT_CONFIRM_WITH'),
+                        Constants::CONFIRM_TYPE_NONE,
+                        [
+                            'selectbox',
+                            [
+                                Constants::CONFIRM_TYPE_NONE  => Loc::getMessage('FIRSTBIT_APPOINTMENT_CONFIRM_WITH_NONE'),
+                                Constants::CONFIRM_TYPE_PHONE => Loc::getMessage('FIRSTBIT_APPOINTMENT_CONFIRM_WITH_PHONE'),
+                                Constants::CONFIRM_TYPE_EMAIL => Loc::getMessage('FIRSTBIT_APPOINTMENT_CONFIRM_WITH_EMAIL')
+                            ]
+                        ]
+                    ],
+                    [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_CONFIRM_WITH_NOTE')],
                 ]
             ],
             [

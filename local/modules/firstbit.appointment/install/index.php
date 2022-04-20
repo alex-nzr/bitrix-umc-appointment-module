@@ -4,12 +4,17 @@ use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
 use Bitrix\Main\Entity\Base;
-use Bitrix\Main\EventManager;
 use Bitrix\Main\IO\Directory as Dir;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Mail\Internal\EventTypeTable;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\ORM\Fields\BooleanField;
+use Bitrix\Main\SiteTable;
+use Bitrix\Main\Sms\TemplateTable;
+use FirstBit\Appointment\Config\Constants;
 use FirstBit\Appointment\Model\RecordTable;
+use FirstBit\Appointment\Utils\Utils;
 
 Loc::loadMessages(__FILE__);
 
@@ -52,6 +57,7 @@ class firstbit_appointment extends CModule
             $this->InstallDB();
             $this->InstallEvents();
             $this->InstallFiles();
+            $this->createMessageEvents();
         }
         else{
             $this->App->ThrowException(
@@ -78,6 +84,7 @@ class firstbit_appointment extends CModule
         }
         else
         {
+            $this->deleteMessageEvents();
             $this->UnInstallFiles();
             $this->UnInstallEvents();
             if ($request->get('saveData') !== "Y"){
@@ -106,7 +113,7 @@ class firstbit_appointment extends CModule
         }
         catch (Exception $e){
             $this->App->ThrowException(
-                Loc::getMessage("FIRSTBIT_APPOINTMENT_UNINSTALL_ERROR")." - ". $e->getMessage()
+                Loc::getMessage("FIRSTBIT_APPOINTMENT_INSTALL_ERROR")." - ". $e->getMessage()
             );
         }
     }
@@ -164,14 +171,260 @@ class firstbit_appointment extends CModule
         }
     }
 
+    public function createMessageEvents(): void
+    {
+        try {
+            Loader::includeModule($this->MODULE_ID);
+
+            $emailNoteEventTypeID = $this->createEmailNoteEvent();
+            if (!($emailNoteEventTypeID > 0)){
+                throw new Exception($this->App->LAST_ERROR);
+            }
+
+            $emailConfirmEventTypeID = $this->createEmailConfirmEvent();
+            if (!($emailConfirmEventTypeID > 0)){
+                throw new Exception($this->App->LAST_ERROR);
+            }
+
+            $smsEventTypeID = $this->createSmsConfirmEvent();
+            if (!($smsEventTypeID > 0)){
+                throw new Exception($this->App->LAST_ERROR);
+            }
+
+            $siteIds = Utils::getAllSiteIds();
+            $this->createMessageEventTemplates($siteIds);
+        }
+        catch (Exception $e){
+            $this->App->ThrowException(
+                Loc::getMessage("FIRSTBIT_APPOINTMENT_INSTALL_ERROR")." - ". $e->getMessage()
+            );
+        }
+    }
+
+    public function createEmailNoteEvent(): int
+    {
+        $obEventType = new CEventType;
+        $id = $obEventType->Add([
+            "EVENT_TYPE"    => EventTypeTable::TYPE_EMAIL,
+            "EVENT_NAME"    => Constants::EMAIL_NOTE_EVENT_CODE,
+            "NAME"          => Loc::getMessage("FIRSTBIT_APPOINTMENT_EMAIL_NOTE_NAME"),
+            "LID"           => 'ru',
+            "DESCRIPTION"   =>  "#CODE# - " . Loc::getMessage("FIRSTBIT_APPOINTMENT_NOTE_DESC_TEXT") . "\n" .
+                                "#EMAIL_TO# - " . Loc::getMessage("FIRSTBIT_APPOINTMENT_NOTE_DESC_EMAIL_TO")
+        ]);
+
+        return (int)$id;
+    }
+
+    public function createEmailConfirmEvent(): int
+    {
+        $obEventType = new CEventType;
+        $id = $obEventType->Add([
+            "EVENT_TYPE"    => EventTypeTable::TYPE_EMAIL,
+            "EVENT_NAME"    => Constants::EMAIL_CONFIRM_EVENT_CODE,
+            "NAME"          => Loc::getMessage("FIRSTBIT_APPOINTMENT_EMAIL_CONFIRM_NAME"),
+            "LID"           => 'ru',
+            "DESCRIPTION"   => "#CODE# - " . Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_DESC_CODE")
+        ]);
+
+        return (int)$id;
+    }
+
+    public function createSmsConfirmEvent(): int
+    {
+        $obEventType = new CEventType;
+        $id = $obEventType->Add([
+            "EVENT_TYPE"    => EventTypeTable::TYPE_SMS,
+            "EVENT_NAME"    => Constants::SMS_CONFIRM_EVENT_CODE,
+            "NAME"          => Loc::getMessage("FIRSTBIT_APPOINTMENT_SMS_CONFIRM_NAME"),
+            "LID"           => 'ru',
+            "DESCRIPTION"   => "#CODE# - " . Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_DESC_CODE")
+        ]);
+
+        return (int)$id;
+    }
+
+    public function deleteMessageEvents(): void
+    {
+        try {
+            Loader::includeModule($this->MODULE_ID);
+            $obEventType = new CEventType;
+            $obEventType->Delete(Constants::EMAIL_NOTE_EVENT_CODE);
+            $obEventType->Delete(Constants::EMAIL_CONFIRM_EVENT_CODE);
+            $obEventType->Delete(Constants::SMS_CONFIRM_EVENT_CODE);
+            $this->deleteMessageEventTemplates();
+        }
+        catch (Exception $e){
+            $this->App->ThrowException(
+                Loc::getMessage("FIRSTBIT_APPOINTMENT_UNINSTALL_ERROR")." - ". $e->getMessage()
+            );
+        }
+    }
+
+    /**
+     * @param array $siteIds
+     * @throws \Bitrix\Main\ArgumentException
+     * @throws \Bitrix\Main\SystemException
+     */
+    public function createMessageEventTemplates(array $siteIds): void
+    {
+        $this->createEmailNoteTemplate($siteIds);
+        $this->createEmailConfirmTemplate($siteIds);
+        $this->createSmsTemplate($siteIds);
+    }
+
+    /**
+     * @param array $siteIds
+     * @return int
+     */
+    public function createEmailNoteTemplate(array $siteIds): int
+    {
+        $params = [
+            "ACTIVE"     => "Y",
+            "EVENT_NAME" => Constants::EMAIL_NOTE_EVENT_CODE,
+            "LID"        => $siteIds,
+            "LANGUAGE_ID"=> 'ru',
+            "EMAIL_FROM" => '#DEFAULT_EMAIL_FROM#',
+            "EMAIL_TO"   => "#EMAIL_TO#",
+            "BCC"        => "",
+            "SUBJECT"    => Loc::getMessage("FIRSTBIT_APPOINTMENT_EMAIL_NOTE_NAME"),
+            "BODY_TYPE"  => "text",
+            "MESSAGE"    => "#TEXT#",
+        ];
+        $obTemplate = new CEventMessage;
+        $id = $obTemplate->Add($params);
+        return (int)$id;
+    }
+
+    /**
+     * @param array $siteIds
+     * @return int
+     */
+    public function createEmailConfirmTemplate(array $siteIds): int
+    {
+        $params = [
+            "ACTIVE"     => "Y",
+            "EVENT_NAME" => Constants::EMAIL_CONFIRM_EVENT_CODE,
+            "LID"        => $siteIds,
+            "LANGUAGE_ID"=> 'ru',
+            "EMAIL_FROM" => '#DEFAULT_EMAIL_FROM#',
+            "EMAIL_TO"   => "#EMAIL_TO#",
+            "BCC"        => "",
+            "SUBJECT"    => Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_DESC_CODE"),
+            "BODY_TYPE"  => "text",
+            "MESSAGE"    => Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_DESC_CODE") . " - #CODE#",
+        ];
+        $obTemplate = new CEventMessage;
+        $id = $obTemplate->Add($params);
+        return (int)$id;
+    }
+
+    /**
+     * @throws \Bitrix\Main\SystemException
+     * @throws \Bitrix\Main\ArgumentException
+     * @throws \Exception
+     */
+    public function createSmsTemplate(array $siteIds): int
+    {
+        $params = [
+            "EVENT_NAME"    => Constants::SMS_CONFIRM_EVENT_CODE,
+            "ACTIVE"        => "Y",
+            "SENDER"        => '#DEFAULT_SENDER#',
+            "RECEIVER"      => '#USER_PHONE#',
+            "MESSAGE"       => Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_DESC_CODE") . " - #CODE#",
+            "LANGUAGE_ID"   => "ru"
+        ];
+
+        $entity = TemplateTable::getEntity();
+        $template = $entity->createObject();
+        $fields = $template->entity->getFields();
+
+        foreach($params as $fieldName => $value)
+        {
+            if($fields[$fieldName] instanceof BooleanField)
+            {
+                $value = ($value === "Y");
+            }
+            $template->set($fieldName, $value);
+        }
+
+        foreach($siteIds as $lid)
+        {
+            $site = SiteTable::getEntity()->wakeUpObject($lid);
+            $template->addToSites($site);
+        }
+
+        $result = $template->save();
+
+        if($result->isSuccess())
+        {
+            return (int)$result->getId();
+        }
+        else
+        {
+            throw new Exception(json_encode($result->getErrorMessages()));
+        }
+    }
+
+    /**
+     * @throws \Bitrix\Main\ObjectPropertyException
+     * @throws \Bitrix\Main\SystemException
+     * @throws \Bitrix\Main\ArgumentException
+     * @throws \Exception
+     */
+    public function deleteMessageEventTemplates(): void
+    {
+        $this->deleteEmailTemplates();
+        $this->deleteSmsTemplates();
+    }
+
+    public function deleteEmailTemplates(): void
+    {
+        $arFilter = [
+            "TYPE_ID" => [
+                Constants::EMAIL_CONFIRM_EVENT_CODE,
+                Constants::EMAIL_NOTE_EVENT_CODE
+            ]
+        ];
+        $by = "ID";
+        $order = "desc";
+        $obMess = new CEventMessage;
+        $rsMess = $obMess::GetList($by, $order, $arFilter);
+        while($arMess = $rsMess->GetNext())
+        {
+            $emailEventTemplateId = (int)$arMess['ID'];
+            $obMess->Delete($emailEventTemplateId);
+        }
+    }
+
+    /**
+     * @throws \Bitrix\Main\ObjectPropertyException
+     * @throws \Bitrix\Main\SystemException
+     * @throws \Bitrix\Main\ArgumentException
+     * @throws \Exception
+     */
+    public function deleteSmsTemplates(): void
+    {
+        $res = TemplateTable::query()
+            ->setSelect(['ID'])
+            ->setFilter(["EVENT_NAME"    => Constants::SMS_CONFIRM_EVENT_CODE])
+            ->exec()
+            ->fetchAll();
+        if (is_array($res) && count($res) > 0)
+        {
+            foreach ($res as $item) {
+                TemplateTable::delete($item['ID']);
+            }
+        }
+    }
+
     public function GetModuleRightList(): array
     {
         return [
-            "reference_id" => array("D","R",/*"S",*/"W"),
+            "reference_id" => array("D","R","W"),
             "reference" => array(
                 "[D] ".Loc::getMessage("FIRSTBIT_APPOINTMENT_DENIED"),
                 "[R] ".Loc::getMessage("FIRSTBIT_APPOINTMENT_READ_COMPONENT"),
-                //"[S] ".Loc::getMessage("FIRSTBIT_APPOINTMENT_WRITE_SETTINGS"),
                 "[W] ".Loc::getMessage("FIRSTBIT_APPOINTMENT_FULL"))
         ];
     }

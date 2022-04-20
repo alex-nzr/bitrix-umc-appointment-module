@@ -64,6 +64,12 @@ export interface ISelectors{
     textareaClass:	 string,
 }
 
+export interface IConfirmTypes{
+    phone: string,
+    email: string,
+    none: string,
+}
+
 export interface ISettings {
     ajaxUrl: string;
     useServices: string,
@@ -72,6 +78,8 @@ export interface ISettings {
     strictCheckingOfRelations: string,
     showDoctorsWithoutDepartment: string,
     timeStepDurationMinutes: number,
+    useConfirmWith: string;
+    confirmTypes: IConfirmTypes;
     useEmailNote: string;
     privacyPageLink: string,
     wrapperId: string,

@@ -42,6 +42,11 @@ $MESS['FIRSTBIT_APPOINTMENT_USE_EMAIL_NOTE'] = 'Отправлять инфор�
 $MESS['FIRSTBIT_APPOINTMENT_USE_WAITING_LIST'] = "Запись в лист ожидания";
 $MESS['FIRSTBIT_APPOINTMENT_USE_WAITING_LIST_NOTE'] = 'При включенной опции запись в 1С будет создаваться не как документ "Заявка", а как "Лист ожидания"';
 
+$MESS['FIRSTBIT_APPOINTMENT_CONFIRM_WITH'] = "Включить подтверждение записи";
+$MESS['FIRSTBIT_APPOINTMENT_CONFIRM_WITH_NOTE'] = 'Для смс-подтверждения необходимо выбрать и настроить провайдера SMS в настройках модуля "Служба сообщений". Затем установить отправителя по умолчанию в настройках главного модуля.';
+$MESS['FIRSTBIT_APPOINTMENT_CONFIRM_WITH_PHONE'] = "По СМС";
+$MESS['FIRSTBIT_APPOINTMENT_CONFIRM_WITH_EMAIL'] = "По email";
+$MESS['FIRSTBIT_APPOINTMENT_CONFIRM_WITH_NONE']  = "Выключено";
 
 $MESS['FIRSTBIT_APPOINTMENT_TAB_RIGHTS'] = "Доступ";
 $MESS['FIRSTBIT_APPOINTMENT_TAB_TITLE_RIGHTS'] = "Уровень доступа к модулю";

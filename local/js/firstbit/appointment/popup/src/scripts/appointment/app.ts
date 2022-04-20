@@ -23,6 +23,8 @@ export const AppointmentPopup: any = {
         this.timeStepDurationMinutes		= Number(params.timeStepDurationMinutes);
         this.strictCheckingOfRelations		= (params.strictCheckingOfRelations === "Y");
         this.showDoctorsWithoutDepartment	= (params.showDoctorsWithoutDepartment === "Y");
+        this.confirmTypes                   = params.confirmTypes;
+        this.useConfirmWith                 = (params.useConfirmWith);
         this.useEmailNote                   = (params.useEmailNote === "Y");
 
         this.isUpdate = params.isUpdate;
@@ -50,7 +52,7 @@ export const AppointmentPopup: any = {
         }
         this.eventHandlersAdded = {}
 
-        this.requiredInputs = [];//not used now, because checking goes by this.filledInputs
+        this.requiredInputs = [];
 
         this.filledInputs = {
             [this.dataKeys.clinicsKey]: {
@@ -95,6 +97,8 @@ export const AppointmentPopup: any = {
         this.messageNode = document.getElementById(selectors.messageNodeId);
         this.submitBtn = document.getElementById(selectors.submitBtnId);
         this.resultBlock = document.getElementById(selectors.appResultBlockId);
+
+        this.phoneMask = '+7(000)000-00-00';
 
         this.initForm(selectors.formId);
         this.initSelectionNodes(params.selectionNodes);
@@ -149,11 +153,16 @@ export const AppointmentPopup: any = {
                 }
 
                 input && input.addEventListener('input', (e: any)=> {
-                    this.filledInputs.textValues[nodesDataKey] = e.target.value;
+                    let val = e.target.value;
+                    if (e.target.name === 'phone' && val.length > this.phoneMask.length){
+                        val = val.substring(0, this.phoneMask.length)
+                    }
+                    this.filledInputs.textValues[nodesDataKey] = val;
                 })
                 this.textNodes[nodesDataKey] = {
                     inputNode: input,
                 }
+
                 if (nodesData[nodesDataKey].isRequired)
                 {
                     this.requiredInputs.push(this.textNodes[nodesDataKey].inputNode);
@@ -874,7 +883,15 @@ export const AppointmentPopup: any = {
                 }
             }
 
-            await this.sendOrder(orderData);
+            if (this.useConfirmWith !== this.confirmTypes.none){
+                await this.sendConfirmCode(orderData);
+                //TODO open popup to input code and add 'verifyConfirmCode()' to button in popup
+
+            }
+            else
+            {
+                await this.sendOrder(orderData);
+            }
         }
         else
         {
@@ -930,10 +947,52 @@ export const AppointmentPopup: any = {
         }
     },
 
+    sendConfirmCode: async function (params: IOrderParams) {
+        const action = 'firstbit:appointment.messageController.sendConfirmCode';
+
+        if (this.useConfirmWith === this.confirmTypes.phone){
+            this.requestParams.body.set('phone', params.phone);
+        }
+        else if (this.useConfirmWith === this.confirmTypes.email){
+            this.requestParams.body.set('email', params.email);
+        }
+
+        fetch(`${this.ajaxUrl}?action=${action}`, this.requestParams)
+            .finally(() => {
+                this.requestParams.body.delete('phone');
+                this.requestParams.body.delete('email')
+            });
+    },
+
+    verifyConfirmCode: async function (code: string, params: IOrderParams) {
+        //TODO create this action in controller and then service and operation...
+        const action = 'firstbit:appointment.messageController.verifyConfirmCode';
+
+        this.requestParams.body.set('code', code);
+
+        fetch(`${this.ajaxUrl}?action=${action}`, this.requestParams)
+            .then(res => res.json())
+            .then(json => {
+                console.log(json)
+                if (json.data?.success){
+                    this.sendOrder(params);
+                }
+                else{
+                    //mess about wrong code
+                }
+            })
+            .finally(() => {
+                this.requestParams.body.delete('phone');
+                this.requestParams.body.delete('email')
+            });
+    },
+
     sendEmailNote: async function (params: IOrderParams) {
-        const action = 'firstbit:appointment.mailController.sendEmailNote';
+        const action = 'firstbit:appointment.messageController.sendEmailNote';
         this.requestParams.body.set('params', JSON.stringify(params));
         fetch(`${this.ajaxUrl}?action=${action}`, this.requestParams)
+            //.then(res => res.json())
+            //.then(json => console.log(json))
             .finally(() => this.requestParams.body.delete('params'));
     },
 
@@ -1033,7 +1092,7 @@ export const AppointmentPopup: any = {
         const that = this;
         maskedInputs.length && maskedInputs.forEach((input: HTMLInputElement) => {
             input.addEventListener('input', (e: Event) => {
-                that.maskInput((e.currentTarget as HTMLInputElement), '+7(000)000-00-00');
+                that.maskInput((e.currentTarget as HTMLInputElement), this.phoneMask);
             });
         });
     },
@@ -1077,6 +1136,7 @@ export const AppointmentPopup: any = {
             }
             newValue += value[valueIndex++];
         }
+
         input.value = newValue;
     },
 

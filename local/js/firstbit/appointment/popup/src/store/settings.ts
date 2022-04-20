@@ -30,7 +30,7 @@ const getProjectSettings = (externalSettings: ISettings, selectors: ISelectors):
         if (attrs["name"] !== undefined){
             settings.textNodes[attrs["name"]] = {
                 "inputId": `${attrs["id"]}`,
-                "isRequired": !(attrs["name"] === "comment")
+                "isRequired": (attrs["data-required"] === "true")
             };
         }
     });

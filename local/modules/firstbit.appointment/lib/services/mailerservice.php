@@ -1,19 +1,42 @@
 <?php
 namespace FirstBit\Appointment\Services;
 
+use Bitrix\Main\Context;
 use Bitrix\Main\Mail\Event;
+use Bitrix\Main\Result;
+use Bitrix\Main\Error;
+use Exception;
+use FirstBit\Appointment\Config\Constants;
 
 class MailerService{
 
-    public function __construct(){ }
+    public function __construct(){}
+
+    /**
+     * @param string $email
+     * @param string $code
+     * @return \Bitrix\Main\Result
+     */
+    public function sendConfirmCode(string $email, string $code): Result
+    {
+        return Event::send(array(
+            "EVENT_NAME" => Constants::EMAIL_CONFIRM_EVENT_CODE,
+            "LID" => Context::getCurrent()->getSite(),
+            "C_FIELDS" => array(
+                "EMAIL_TO" => $email,
+                "CODE"     => $code,
+            ),
+        ));
+    }
 
     /**
      * @param array $params
-     * @return array
+     * @return \Bitrix\Main\Result
      */
-    public function sendEmail(array $params): array
+    public function sendEmailNote(array $params): Result
     {
-        if (is_array($params)){
+        try
+        {
             $name = htmlspecialchars($params["name"] ." ". $params["middleName"] ." ". $params["surname"]);
             $emailTo = htmlspecialchars($params["email"]);
             $phone = htmlspecialchars($params["phone"]);
@@ -45,26 +68,21 @@ class MailerService{
                     Номер телефона: $phone
                     Комментарий: $comment
                 ";
-                Event::send(array(
-                    "EVENT_NAME" => "FEEDBACK_FORM",
-                    'MESSAGE_ID' => 7,
-                    "LID" => SITE_ID,
+                return Event::send([
+                    "EVENT_NAME" => Constants::EMAIL_NOTE_EVENT_CODE,
+                    "LID" => Context::getCurrent()->getSite(),
                     "C_FIELDS" => array(
-                        "AUTHOR" => $name,
-                        "AUTHOR_EMAIL" => $emailTo,
-                        'EMAIL_TO' => $emailTo,
-                        "TEXT" => $text,
+                        "EMAIL_TO"  => $emailTo,
+                        "TEXT"      => $text,
                     ),
-                ));
-
-                return ['success' => true];
+                ]);
             }
             else {
-                return ['error' => "EmailTo is empty"];
+                throw new Exception("EmailTo is empty");
             }
         }
-        else {
-            return ['error' => "Invalid type of params. Array expected, but ". gettype($params). " given"];
+        catch (Exception $e) {
+            return (new Result)->addError(new Error($e->getMessage()));
         }
     }
 }

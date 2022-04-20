@@ -1,11 +1,12 @@
 <?php
 namespace FirstBit\Appointment\Services;
 
+use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Result;
 use Exception;
 use FirstBit\Appointment\Config\Constants;
 use FirstBit\Appointment\Soap\UmcClient;
-use FirstBit\Appointment\Utils\Utils;
 
 Loc::loadMessages(__FILE__);
 
@@ -28,9 +29,9 @@ abstract class BaseOneCService
     /** send request to 1C database
      * @param string $endpoint
      * @param array $params
-     * @return array
+     * @return \Bitrix\Main\Result
      */
-    public function send(string $endpoint, array $params = []): array
+    public function send(string $endpoint, array $params = []): Result
     {
         try
         {
@@ -42,19 +43,13 @@ abstract class BaseOneCService
                 );
             }
 
-            $res = $this->client->call($endpoint, $params);
-            if ($res->isSuccess())
-            {
-                return $res->getData();
-            }
-            else
-            {
-                return Utils::createErrorArray(implode('; ', $res->getErrorMessages()));
-            }
+            return $this->client->call($endpoint, $params);
         }
         catch (Exception $e )
         {
-            return Utils::createErrorArray($e->getMessage());
+            $result = new Result();
+            $result->addError(new Error($e->getMessage()));
+            return $result;
         }
     }
 }

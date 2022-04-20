@@ -36,7 +36,11 @@ BX.ready(function () {
                     console.log(`Error. Status code ${response.status}`);
                 }
             })
-            .then(json => void(0)/*console.log(json)*/)
+            .then(json => {
+                if (json.status === 'error'){
+                    console.log(json);
+                }
+            })
             .catch(e => console.log(e))
             .finally(() => (grid && grid.reloadTable()))
     }

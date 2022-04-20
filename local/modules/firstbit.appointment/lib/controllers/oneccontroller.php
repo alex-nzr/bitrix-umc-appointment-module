@@ -3,11 +3,13 @@ namespace FirstBit\Appointment\Controllers;
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\DI\ServiceLocator;
+use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\ActionFilter\Authentication;
 use Bitrix\Main\Engine\ActionFilter\Csrf;
 use Bitrix\Main\Engine\ActionFilter\HttpMethod;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Error;
+use Bitrix\Main\Result;
 use FirstBit\Appointment\Config\Constants;
 use FirstBit\Appointment\Services\OneCReader;
 use FirstBit\Appointment\Services\OneCWriter;
@@ -41,48 +43,27 @@ class OneCController extends Controller
     }
 
 
-    public function getClinicsAction(): ?array
+    public function getClinicsAction(): Result
     {
-
-        $response = $this->reader->getClinicsList();
-        if ($response['error']){
-            $this->addError(new Error($response['error']));
-            return null;
-        }
-        return $response;
+        return $this->reader->getClinicsList();
     }
 
-    public function getEmployeesAction(): ?array
+    public function getEmployeesAction(): Result
     {
-        $response = $this->reader->getEmployeesList();
-        if ($response['error']){
-            $this->addError(new Error($response['error']));
-            return null;
-        }
-        return $response;
+        return $this->reader->getEmployeesList();
     }
 
-    public function getNomenclatureAction(string $clinicGuid): ?array
+    public function getNomenclatureAction(string $clinicGuid): Result
     {
-        $response = $this->reader->getNomenclatureList($clinicGuid);
-        if ($response['error']){
-            $this->addError(new Error($response['error']));
-            return null;
-        }
-        return $response;
+        return $this->reader->getNomenclatureList($clinicGuid);
     }
 
-    public function getScheduleAction(): ?array
+    public function getScheduleAction(): Result
     {
-        $response = $this->reader->getSchedule();
-        if ($response['error']){
-            $this->addError(new Error($response['error']));
-            return null;
-        }
-        return $response;
+        return $this->reader->getSchedule();
     }
 
-    public function addOrderAction(string $params): ?array
+    public function addOrderAction(string $params): Result
     {
         $arParams = json_decode($params, true);
 
@@ -98,62 +79,85 @@ class OneCController extends Controller
             $response = $this->writer->addOrder($arParams);
         }
 
-        if ($response['error']){
-            $this->addError(new Error($response['error']));
-            return null;
-        }
         return $response;
     }
 
-    public function deleteOrderAction(int $id, string $orderUid): ?array
+    public function deleteOrderAction(int $id, string $orderUid): Result
     {
         try
         {
             $response = $this->writer->deleteOrder($orderUid);
-            if ($response['error'])
+            if ($response->isSuccess())
             {
-                throw new Exception($response['error']);
+                $ormRes = RecordTableHelper::deleteRecord($id);
+                $data = $response->getData();
+                $response->setData(array_merge($data, $ormRes));
+                return $response;
             }
             else
             {
-                $ormRes = RecordTableHelper::deleteRecord($id);
-                return array_merge($response, $ormRes);
+                throw new Exception(implode(", ", $response->getErrorMessages()));
             }
         }
         catch (Exception $e)
         {
-            $this->addError(new Error($e->getMessage()));
-            return null;
+            return (new Result)->addError(new Error($e->getMessage()));
         }
     }
 
-    public function getOrderStatusAction(int $id, string $orderUid): ?array
+    public function getOrderStatusAction(int $id, string $orderUid): Result
     {
         try
         {
             $response = $this->reader->getOrderStatus($orderUid);
-            if ($response['error'])
+            if ($response->isSuccess())
             {
-                throw new Exception($response['error']);
+                $data = $response->getData();
+                $status = $data['status'] ?? "-";
+                $ormRes = RecordTableHelper::updateRecord($id, ['STATUS_1C' => $status]);
+                $response->setData(array_merge($data, $ormRes));
+                return $response;
             }
             else
             {
-                $status = $response['status'] ?? "-";
-                $ormRes = RecordTableHelper::updateRecord($id, ['STATUS_1C' => $status]);
-                return array_merge($response, $ormRes);
+                throw new Exception(implode(", ", $response->getErrorMessages()));
             }
         }
         catch (Exception $e)
         {
-            $this->addError(new Error($e->getMessage()));
-            return null;
+            return (new Result)->addError(new Error($e->getMessage()));
         }
+    }
+
+    protected function processAfterAction(Action $action, $result)
+    {
+        if ($result instanceof Result)
+        {
+            if ($result->isSuccess())
+            {
+                return $result->getData();
+            }
+            else
+            {
+                $errors = $result->getErrors();
+                if (is_array($errors))
+                {
+                    foreach ($errors as $error)
+                    {
+                        $this->addError($error);
+                    }
+                }
+                return null;
+            }
+        }
+        return null;
     }
 
     protected function getDefaultPreFilters(): array
     {
         return [
-            new HttpMethod([HttpMethod::METHOD_POST])
+            new HttpMethod([HttpMethod::METHOD_POST]),
+            new Csrf(),
         ];
     }
 
@@ -162,8 +166,7 @@ class OneCController extends Controller
         return [
             'deleteOrder'     => [
                 '+prefilters' => [
-                    new Authentication(),
-                    new Csrf(),
+                    new Authentication()
                 ],
             ],
         ];

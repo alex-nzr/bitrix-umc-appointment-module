@@ -2,43 +2,13 @@
 namespace FirstBit\Appointment\Utils;
 
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\SiteTable;
 use DateTime;
 use Exception;
 use FirstBit\Appointment\Config\Constants;
 
 class Utils{
     private function __construct(){}
-
-    /** clean request params
-     * @param array $params
-     * @return array
-     */
-    public static function cleanRequestData(array $params): array
-    {
-        $cleanParams = [];
-        if (count($params)>0)
-        {
-            foreach ($params as $key => $param)
-            {
-                $cleanParam = $param;
-                if (is_string($param))
-                {
-                    $cleanParam = trim(strip_tags(htmlspecialchars($param)));
-                }
-                elseif (is_array($param))
-                {
-                    $cleanParam = self::cleanRequestData($param);
-                }
-
-                if ($key === 'phone'){
-                    $cleanParam = self::formatPhone($cleanParam);
-                }
-
-                $cleanParams[$key] = $cleanParam;
-            }
-        }
-        return $cleanParams;
-    }
 
     /** phone number formatting
      * @param string $phone
@@ -93,15 +63,6 @@ class Utils{
         $minutes = date("i", strtotime($isoTime));
         $hours = date("H", strtotime($isoTime));
         return (int)$minutes*60 + (int)$hours*3600;
-    }
-
-    /** create error message in json
-     * @param string $message
-     * @return string
-     */
-    public static function createJsonError(string $message): string
-    {
-        return json_encode(["error" => $message]);
     }
 
     /**
@@ -316,5 +277,22 @@ class Utils{
         $minutes = ($minutes > 9) ? $minutes : "0".$minutes;
 
         return "0001-01-01T".$hours.":".$minutes.":00";
+    }
+
+    /**
+     * @throws \Bitrix\Main\ObjectPropertyException
+     * @throws \Bitrix\Main\SystemException
+     * @throws \Bitrix\Main\ArgumentException
+     */
+    public static function getAllSiteIds(): array
+    {
+        $siteIds = [];
+        $sites = SiteTable::query()->setSelect(['LID'])->exec()->fetchAll();
+        if (is_array($sites) && count($sites) > 0){
+            foreach ($sites as $site) {
+                $siteIds[] = $site['LID'];
+            }
+        }
+        return $siteIds;
     }
 }

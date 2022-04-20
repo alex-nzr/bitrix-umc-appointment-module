@@ -1,4 +1,6 @@
-<?php if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php use FirstBit\Appointment\Config\Constants;
+
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /**
  * @var array $arResult
  * @var array $arParams
@@ -14,6 +16,12 @@
         "strictCheckingOfRelations"     => $arResult["STRICT_CHECKING_RELATIONS"],
         "showDoctorsWithoutDepartment"  => $arResult["SHOW_DOCTORS_WITHOUT_DEPARTMENT"],
         "useEmailNote"                  => $arResult["USE_EMAIL_NOTE"],
+        "confirmTypes"                  => [
+            'phone'   => Constants::CONFIRM_TYPE_PHONE,
+            'email'   => Constants::CONFIRM_TYPE_EMAIL,
+            'none'    => Constants::CONFIRM_TYPE_NONE,
+        ],
+        "useConfirmWith"                => $arResult["USE_CONFIRM_WITH"],
         "privacyPageLink"               => $arResult["PRIVACY_PAGE_URL"],
 
         "widgetBtnWrapId"   =>  "appointment-button-wrapper",
@@ -104,7 +112,7 @@
                 "maxlength"     => "50",
                 "class"         => "appointment-form_input",
                 "name"          => "email",
-                "data-required" =>  "false"
+                "data-required" => "false"
             ],
             [
                 "type"          => "text",
@@ -113,8 +121,7 @@
                 "maxlength"     => "10",
                 "class"         => "appointment-form_input",
                 "name"          => "birthday",
-                "data-required" =>  "false",
-                "autocomplete"  => "new-password",
+                "data-required" => "false",
             ],
             [
                 "placeholder"   => "Комментарий",

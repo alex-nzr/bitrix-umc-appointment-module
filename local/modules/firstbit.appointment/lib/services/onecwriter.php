@@ -2,6 +2,8 @@
 namespace FirstBit\Appointment\Services;
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Result;
+use Bitrix\Main\Error;
 use Exception;
 use FirstBit\Appointment\Config\Constants;
 use FirstBit\Appointment\Utils\Utils;
@@ -13,14 +15,14 @@ class OneCWriter extends BaseOneCService
 {
     /** make request to creating order
      * @param array $params
-     * @return array
+     * @return \Bitrix\Main\Result
      */
-    public function addOrder(array $params): array
+    public function addOrder(array $params): Result
     {
         try {
             if (Constants::DEMO_MODE === "Y"){
                 sleep(3);
-                return ['success' => true];
+                return (new Result())->setData(['success' => true]);
             }
 
             $properties = [];
@@ -79,13 +81,13 @@ class OneCWriter extends BaseOneCService
             ];
 
             $res = $this->send(Constants::CREATE_ORDER_ACTION_1C, $paramsToSend);
-            if (empty($res['error'])){
+            if ($res->isSuccess()){
                 RecordTableHelper::addRecord(array_merge($params, ['orderUid' => $xml_id]));
             }
             return $res;
         }
         catch (Exception $e){
-            return Utils::createErrorArray($e->getMessage());
+            return (new Result())->addError(new Error($e->getMessage()));
         }
     }
 
@@ -96,8 +98,9 @@ class OneCWriter extends BaseOneCService
     public function getReserveUid(array $params): string
     {
         $res = $this->send(Constants::CREATE_RESERVE_ACTION_1C, $params);
-        if ($res['success'] && !empty($res['XML_ID'])){
-            return $res['XML_ID'];
+        if ($res->isSuccess()){
+            $data = $res->getData();
+            return !empty($data['XML_ID']) ? $data['XML_ID'] : "";
         }
         else
         {
@@ -105,12 +108,12 @@ class OneCWriter extends BaseOneCService
         }
     }
 
-    public function addWaitingList(array $params): array
+    public function addWaitingList(array $params): Result
     {
         try {
             if (Constants::DEMO_MODE === "Y"){
                 sleep(3);
-                return ['success' => true];
+                return (new Result())->setData(['success' => true]);
             }
 
             $paramsToSend = [
@@ -136,15 +139,15 @@ class OneCWriter extends BaseOneCService
             return $this->send(Constants::CREATE_WAIT_LIST_ACTION_1C, $paramsToSend);
         }
         catch (Exception $e){
-            return Utils::createErrorArray($e->getMessage());
+            return (new Result())->addError(new Error($e->getMessage()));
         }
     }
 
     /** cancelling order in 1C
      * @param string $orderUid
-     * @return array
+     * @return \Bitrix\Main\Result
      */
-    public function deleteOrder(string $orderUid): array
+    public function deleteOrder(string $orderUid): Result
     {
         return $this->send(Constants::DELETE_ORDER_ACTION_1C, ['GUID' => $orderUid]);
     }
