@@ -167,6 +167,13 @@ export const AppointmentPopup: any = {
                 {
                     this.requiredInputs.push(this.textNodes[nodesDataKey].inputNode);
                 }
+                else
+                {
+                    if ((this.useConfirmWith === this.confirmTypes.email) && (nodesDataKey === this.confirmTypes.email))
+                    {
+                        this.requiredInputs.push(this.textNodes[nodesDataKey].inputNode);
+                    }
+                }
             }
         }
     },
@@ -884,9 +891,7 @@ export const AppointmentPopup: any = {
             }
 
             if (this.useConfirmWith !== this.confirmTypes.none){
-                await this.sendConfirmCode(orderData);
-                //TODO open popup to input code and add 'verifyConfirmCode()' to button in popup
-
+                this.sendConfirmCode(orderData);
             }
             else
             {
@@ -947,7 +952,7 @@ export const AppointmentPopup: any = {
         }
     },
 
-    sendConfirmCode: async function (params: IOrderParams) {
+    sendConfirmCode: function (params: IOrderParams) {
         const action = 'firstbit:appointment.messageController.sendConfirmCode';
 
         if (this.useConfirmWith === this.confirmTypes.phone){
@@ -957,28 +962,18 @@ export const AppointmentPopup: any = {
             this.requestParams.body.set('email', params.email);
         }
 
-        fetch(`${this.ajaxUrl}?action=${action}`, this.requestParams)
-            .finally(() => {
-                this.requestParams.body.delete('phone');
-                this.requestParams.body.delete('email')
-            });
-    },
-
-    verifyConfirmCode: async function (code: string, params: IOrderParams) {
-        //TODO create this action in controller and then service and operation...
-        const action = 'firstbit:appointment.messageController.verifyConfirmCode';
-
-        this.requestParams.body.set('code', code);
+        this.messageNode.textContent = "";
 
         fetch(`${this.ajaxUrl}?action=${action}`, this.requestParams)
-            .then(res => res.json())
-            .then(json => {
-                console.log(json)
-                if (json.data?.success){
-                    this.sendOrder(params);
+            .then(response => response.json())
+            .then(result => {
+                if(result.status === 'success')
+                {
+                    const timeExpires = result.data?.timeExpires ?? ((new Date()).getTime() / 1000).toFixed(0);
+                    this.createConfirmationForm(params, timeExpires);
                 }
                 else{
-                    //mess about wrong code
+                    this.messageNode.textContent = result.errors?.[0]?.message + ". Обратитесь к администратору сайта";
                 }
             })
             .finally(() => {
@@ -987,12 +982,144 @@ export const AppointmentPopup: any = {
             });
     },
 
+    createConfirmationForm: function (params: IOrderParams, timeExpires: number){
+        const confirmWrapperId = styles['appointment-form-confirmation-wrapper'];
+
+        const existsConfirmWrapper = document.getElementById(confirmWrapperId);
+        existsConfirmWrapper && existsConfirmWrapper.remove();
+
+        const confirmWrapper = document.createElement('div');
+        confirmWrapper.setAttribute('id', confirmWrapperId);
+        confirmWrapper.style.width = '100%';
+
+        const label = document.createElement('label');
+        label.classList.add(styles['appointment-form_input-wrapper']);
+
+        const input = document.createElement('input');
+        input.classList.add(styles["appointment-form_input"]);
+        input.setAttribute('type', 'number');
+        input.setAttribute('placeholder', 'Введите код подтверждения');
+        input.setAttribute('required', 'true');
+        input.setAttribute('autocomplete', 'new-password');
+        input.addEventListener('input', () => {
+            if (input.value && input.value.length > 4){
+                input.value = input.value.substring(0, 4);
+            }
+        });
+
+        const p = document.createElement('p');
+        p.style.cssText = 'color:orangered;text-align:center';
+
+        const btnWrap = document.createElement('div');
+        btnWrap.classList.add(styles['appointment-form_submit-wrapper']);
+        const btn = document.createElement('button');
+        btn.textContent = "Отправить";
+        btn.classList.add(styles['appointment-form_button']);
+        btn.setAttribute('type', 'button');
+        btn.addEventListener('click', () => {
+            p.textContent = '';
+            if (input.value && input.value.length === 4){
+                this.form.style.pointerEvents = 'none';
+                this.verifyConfirmCode(input.value, params, p, btn);
+            }
+            else
+            {
+                if (!input.value || (input.value.length < 4 || input.value.length > 4)){
+                    p.textContent = 'Код должен содержать четыре цифры';
+                }
+            }
+        });
+
+        const curTimeSeconds: number = Number(((new Date()).getTime() / 1000).toFixed(0));
+        let remainingTime = timeExpires - curTimeSeconds;
+
+        const repeatBtn = document.createElement('a');
+        repeatBtn.classList.add(styles['appointment-form_button-link']);
+        repeatBtn.setAttribute('href', '#');
+
+        const interval = setInterval(() => {
+            if (remainingTime <= 0){
+                repeatBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.sendConfirmCode(params);
+                });
+                clearInterval(interval);
+            }
+            else
+            {
+                remainingTime--;
+                repeatBtn.textContent = `Отправить повторно ${remainingTime > 0 ? remainingTime : ''}`;
+            }
+        }, 1000);
+
+        for (const key in this.selectionNodes) {
+            if (this.selectionNodes.hasOwnProperty(key)){
+                this.selectionNodes[key].blockNode.style.display = 'none';
+            }
+        }
+        for (const key in this.textNodes) {
+            if (this.textNodes.hasOwnProperty(key)){
+                this.textNodes[key].inputNode.closest('label').style.display = 'none';
+            }
+        }
+        this.form.style.transform = 'translateY(30vh)';
+        confirmWrapper.append(label, p, btnWrap, repeatBtn);
+        this.submitBtn.closest('div').before(confirmWrapper);
+        this.submitBtn.closest('div').style.display = 'none';
+        label.append(input);
+        btnWrap.append(btn);
+    },
+
+    verifyConfirmCode: function (code: string, params: IOrderParams, textNode: HTMLElement, btnNode: HTMLButtonElement) {
+        const action = 'firstbit:appointment.messageController.verifyConfirmCode';
+
+        this.requestParams.body.set('code', code);
+        btnNode.classList.add(styles['loading']);
+        fetch(`${this.ajaxUrl}?action=${action}`, this.requestParams)
+            .then(res => res.json())
+            .then(json => {
+                if (json.data?.success)
+                {
+                    this.sendOrder(params).finally(() => {
+                        btnNode.classList.remove(styles['loading']);
+                        const existsConfirmWrapper = document.getElementById(styles['appointment-form-confirmation-wrapper']);
+                        existsConfirmWrapper && existsConfirmWrapper.remove();
+                        this.form.style.transform = '';
+                        for (const key in this.selectionNodes) {
+                            if (this.selectionNodes.hasOwnProperty(key)){
+                                this.selectionNodes[key].blockNode.style.display = '';
+                            }
+                        }
+                        for (const key in this.textNodes) {
+                            if (this.textNodes.hasOwnProperty(key)){
+                                this.textNodes[key].inputNode.closest('label').style.display = '';
+                            }
+                        }
+                    });
+                }
+                else{
+                    console.log(json)
+                    if (json.errors?.length > 0){
+                        json.errors.forEach((error: any) => {
+                            textNode.innerHTML = ((Number(error.code) === 400) || (Number(error.code) === 406) || (Number(error.code) === 425))
+                                                    ? `${textNode.innerHTML}${error.message}<br>`
+                                                    : "Неизвестная ошибка";
+                        })
+                    }
+                }
+            })
+            .finally(() => {
+                this.requestParams.body.delete('phone');
+                this.requestParams.body.delete('email');
+            });
+    },
+
     sendEmailNote: async function (params: IOrderParams) {
         const action = 'firstbit:appointment.messageController.sendEmailNote';
         this.requestParams.body.set('params', JSON.stringify(params));
         fetch(`${this.ajaxUrl}?action=${action}`, this.requestParams)
-            //.then(res => res.json())
-            //.then(json => console.log(json))
+            .then(res => res.json())
+            .then(json => (json.status === 'error' ? console.log(json) : void(0)))
             .finally(() => this.requestParams.body.delete('params'));
     },
 

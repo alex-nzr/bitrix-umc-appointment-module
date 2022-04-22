@@ -43,6 +43,11 @@ class MessageController extends Controller
         return Operation::sendConfirmCode($this->mailer, $this->smsService, $phone, $email);
     }
 
+    public function verifyConfirmCodeAction(string $code): Result
+    {
+        return Operation::verifyConfirmCode($code);
+    }
+
     public function sendEmailNoteAction(string $params): Result
     {
         $arParams = json_decode($params, true);

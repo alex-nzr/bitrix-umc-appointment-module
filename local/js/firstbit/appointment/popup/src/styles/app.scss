@@ -3,6 +3,7 @@ body{
     padding: 0;
     margin: 0;
 }
+
 .widget-wrapper{
     position: fixed;
     top: 0;
@@ -22,6 +23,7 @@ body{
         pointer-events: none;
         box-sizing: border-box;
         font-family: Roboto, sans-serif;
+        user-select: none;
         &::-webkit-scrollbar{
             width: 2px;
             background: transparent;
@@ -53,6 +55,11 @@ body{
     & h5,& h6,& p,& label{
         margin: 0;
         padding: 0;
+    }
+    & input[type="number"]::-webkit-outer-spin-button,
+    & input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
     }
 
     & #appointment-form{
@@ -351,6 +358,23 @@ body{
             &:before{
                 opacity: 1;
             }
+        }
+    }
+    & #appointment-form-confirmation-wrapper{
+        width: 100%;
+    }
+    & .appointment-form_button-link{
+        display: block;
+        max-width: max-content;
+        margin: 0 auto;
+        color: #fff;
+        text-decoration: none;
+        transition: .3s;
+        &:hover{
+            color: #BBBBBB;
+        }
+        &.loading{
+            opacity: 0.5;
         }
     }
     & .appointment-info-message{

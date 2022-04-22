@@ -23,7 +23,7 @@ class Operation
         {
             $timeExpires = (int)$session->get('confirm_code_expires');
             if ($timeExpires > time()){
-                $result->addError(new Error(Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_CODE_NOT_EXPIRED")));
+                $result->addError(new Error(Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_CODE_NOT_EXPIRED"), 425));
                 return $result;
             }
         }
@@ -37,17 +37,46 @@ class Operation
                 break;
             case Constants::CONFIRM_TYPE_NONE:
             default:
-                $result->addError(new Error(Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_TYPE_ERROR")));
+                $result->addError(new Error(Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_TYPE_ERROR"), 400));
                 break;
         }
 
         if ($result->isSuccess()){
+            $timeExpires = time() + 60;
+            $result->setData(['timeExpires' => $timeExpires]);
             $session->set('confirm_code', $code);
-            $session->set('confirm_code_expires', time() + 60);
+            $session->set('confirm_code_expires', $timeExpires);
         }
 
         return $result;
     }
 
-
+    public static function verifyConfirmCode(string $code): Result
+    {
+        $result = new Result();
+        $session = Application::getInstance()->getSession();
+        if ($session->has('confirm_code'))
+        {
+            $timeExpires = (int)$session->get('confirm_code_expires');
+            if ($timeExpires < time()){
+                $result->addError(new Error(Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_CODE_EXPIRED"), 406));
+            }
+            else
+            {
+                $correctCode = (string)$session->get('confirm_code');
+                if ($correctCode === $code){
+                    $result->setData(['success' => true]);
+                }
+                else
+                {
+                    $result->addError(new Error(Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_CODE_INCORRECT"), 406));
+                }
+            }
+        }
+        else
+        {
+            $result->addError(new Error(Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_CODE_EXPIRED"), 406));
+        }
+        return $result;
+    }
 }
