@@ -48,5 +48,20 @@ $MESS['FIRSTBIT_APPOINTMENT_CONFIRM_WITH_PHONE'] = "По СМС";
 $MESS['FIRSTBIT_APPOINTMENT_CONFIRM_WITH_EMAIL'] = "По email";
 $MESS['FIRSTBIT_APPOINTMENT_CONFIRM_WITH_NONE']  = "Выключено";
 
+$MESS['FIRSTBIT_APPOINTMENT_TAB_VIEW'] = "Внешний вид";
+$MESS['FIRSTBIT_APPOINTMENT_TAB_TITLE_VIEW'] = "Визуальные настройки формы записи";
+$MESS['FIRSTBIT_APPOINTMENT_MAIN_BTN_SETTINGS'] = "Настройки кнопки вызова окна записи";
+$MESS['FIRSTBIT_APPOINTMENT_USE_CUSTOM_MAIN_BTN'] = "Использовать свою кнопку для вызова всплывающего окна";
+$MESS['FIRSTBIT_APPOINTMENT_CUSTOM_BTN_ID'] = 'Значение атрибута "id" собственной кнопки';
+$MESS['FIRSTBIT_APPOINTMENT_MAIN_BTN_BG_COLOR'] = "Цвет фона штатной кнопки";
+$MESS['FIRSTBIT_APPOINTMENT_MAIN_BTN_TEXT_COLOR'] = "Цвет текста штатной кнопки";
+
+$MESS['FIRSTBIT_APPOINTMENT_FORM_COLORS_SETTINGS'] = "Настройки цветов формы";
+$MESS['FIRSTBIT_APPOINTMENT_FORM_COLOR_MAIN'] = "Основной цвет формы";
+$MESS['FIRSTBIT_APPOINTMENT_FORM_COLOR_FIELD'] = "Цвет полей ввода";
+$MESS['FIRSTBIT_APPOINTMENT_FORM_COLOR_TEXT'] = "Цвет текста в полях ввода";
+$MESS['FIRSTBIT_APPOINTMENT_FORM_COLOR_BTN'] = "Цвет кнопки на форме";
+$MESS['FIRSTBIT_APPOINTMENT_FORM_COLOR_BTN_TEXT'] = "Цвет текста кнопки на форме";
+
 $MESS['FIRSTBIT_APPOINTMENT_TAB_RIGHTS'] = "Доступ";
 $MESS['FIRSTBIT_APPOINTMENT_TAB_TITLE_RIGHTS'] = "Уровень доступа к модулю";

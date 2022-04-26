@@ -1,7 +1,17 @@
 'use strict';
 
 BX.ready(function () {
-    const fBitAdmin = BX.namespace("FirstBit.Appointment.Admin");
+    if (!BX.FirstBit?.Appointment){
+        if (!BX.FirstBit){
+            BX.FirstBit = {};
+        }
+        BX.FirstBit.Appointment = { Admin: {} };
+    }
+    else{
+        BX.FirstBit.Appointment.Admin = {};
+    }
+
+    const fBitAdmin = BX.FirstBit.Appointment.Admin;
 
     fBitAdmin.deleteRecord = function (id, gridId, orderUid) {
         this.runAction(id, gridId, orderUid, 'deleteOrder')
@@ -43,5 +53,55 @@ BX.ready(function () {
             })
             .catch(e => console.log(e))
             .finally(() => (grid && grid.reloadTable()))
+    }
+
+    fBitAdmin.bindColorPickerToNode = function (nodeId, inputId, defaultColor = '') {
+        const element = BX(inputId);
+        const input = BX(inputId);
+        BX.bind(element, 'click', function () {
+            new BX.ColorPicker({
+                bindElement: element,
+                defaultColor: defaultColor ?? '#FFFFFF',
+                allowCustomColor: true,
+                onColorSelected: function (color) {
+                    input.value = color;
+                },
+                popupOptions: {
+                    angle: true,
+                    autoHide: true,
+                    closeByEsc: true,
+                    events: {
+                        onPopupClose: function () {}
+                    }
+                }
+            }).open();
+        })
+    }
+
+    fBitAdmin.runInputActions = function(){
+        const checkBox = BX('appointment_view_use_custom_main_btn');
+        this.checkInputs(checkBox);
+        checkBox.addEventListener('change', () => this.checkInputs(checkBox))
+    }
+
+    fBitAdmin.checkInputs = function(checkbox){
+        const textInput = BX('appointment_view_custom_main_btn_id');
+        const bgColorInput = BX('--appointment-start-btn-bg-color');
+        const textColorInput = BX('--appointment-start-btn-text-color');
+
+        if (checkbox.checked){
+            textInput.removeAttribute('disabled');
+            bgColorInput.setAttribute('disabled', true);
+            bgColorInput.style.opacity = '.5';
+            textColorInput.setAttribute('disabled', true);
+            textColorInput.style.opacity = '.5';
+        }
+        else {
+            textInput.setAttribute('disabled', true);
+            bgColorInput.removeAttribute('disabled');
+            bgColorInput.style.opacity = '1';
+            textColorInput.removeAttribute('disabled');
+            textColorInput.style.opacity = '1';
+        }
     }
 });

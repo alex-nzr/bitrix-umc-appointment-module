@@ -4,6 +4,7 @@ import {IClinic, IOrderParams, IScheduleItem, ITimeTableItem} from "../../types/
 import initAppSelectors from "../utils/app-selectors";
 import getProjectSettings from "../../store/settings";
 import buildAppointmentSkeleton from "../utils/app-html-skeleton";
+import {convertHexToHsl} from "../utils/functions";
 
 export const AppointmentPopup: any = {
     init: async function(params: ISettings)
@@ -91,22 +92,39 @@ export const AppointmentPopup: any = {
         this.defaultText = params.defaultText;
         this.step = '';
 
-        this.wrapper = document.getElementById(selectors.wrapperId);
+        this.useCustomMainBtn = (params.useCustomMainBtn === "Y");
+        const widgetBtnId = this.useCustomMainBtn ? params.customMainBtnId : selectors.widgetBtnId;
+
+        this.wrapperId = selectors.wrapperId;
+        this.wrapper = document.getElementById(this.wrapperId);
         this.widgetBtnWrap = document.getElementById(selectors.widgetBtnWrapId);
-        this.widgetBtn = document.getElementById(selectors.widgetBtnId);
+        this.widgetBtn = document.getElementById(widgetBtnId);
         this.messageNode = document.getElementById(selectors.messageNodeId);
         this.submitBtn = document.getElementById(selectors.submitBtnId);
         this.resultBlock = document.getElementById(selectors.appResultBlockId);
 
         this.phoneMask = '+7(000)000-00-00';
 
+        this.customColors = params.customColors ?? {};
+
+        this.loaded = false;
+
+        this.initWrapperAction();
         this.initForm(selectors.formId);
         this.initSelectionNodes(params.selectionNodes);
         this.initTextNodes(params.textNodes);
         this.addPhoneMasks();
         this.addCalendarSelection();
+        this.activateWidgetButton();
+        this.addCustomColors();
+    },
 
-        await this.start();
+    initWrapperAction: function(){
+        this.wrapper.addEventListener('click', (e: any) => {
+            if (e.target?.getAttribute('id') === this.wrapperId){
+                this.showWidget();
+            }
+        })
     },
 
     initForm: function(id: string){
@@ -180,12 +198,11 @@ export const AppointmentPopup: any = {
 
     start: async function(){
         this.toggleLoader(true);
-        const loaded = await this.loadData();
-        if (loaded){
+        this.loaded = await this.loadData();
+        if (this.loaded){
             this.startRender();
-            this.activateWidgetButton();
         }else{
-            this.widgetBtnWrap.classList.add(styles['hidden']);
+            !this.useCustomMainBtn && this.widgetBtnWrap.classList.add(styles['hidden']);
             this.errorMessage("Loading data error")
         }
     },
@@ -1194,11 +1211,8 @@ export const AppointmentPopup: any = {
     },
 
     toggleLoader: function(on = true){
-        if (on){
-            this.widgetBtnWrap.classList.add(styles['loading']);
-        }else{
-            this.widgetBtnWrap.classList.remove(styles['loading']);
-        }
+        on  ? this.form.classList.add(styles['loading'])
+            : this.form.classList.remove(styles['loading'])
     },
 
     activateWidgetButton: function (){
@@ -1207,7 +1221,13 @@ export const AppointmentPopup: any = {
 
     showWidget: function () {
         this.wrapper.classList.toggle(styles['active']);
-        this.widgetBtn.classList.toggle(styles['active']);
+        this.useCustomMainBtn ? this.widgetBtn.classList.toggle('appointment-form-visible')
+                              : this.widgetBtn.classList.toggle(styles['active']);
+        if (!this.loaded){
+            this.start()
+                .then(() => {})
+                .finally(() => {})
+        }
     },
 
     errorMessage: function(message: string){
@@ -1401,11 +1421,10 @@ export const AppointmentPopup: any = {
         this.selectionNodes[this.dataKeys.scheduleKey].listNode.scrollTo({ left: 0, top: 0});
         this.form.style.pointerEvents = '';
         this.form.classList.remove(styles['off']);
-        //this.isReloading = true;
 
         this.init(this.initParams).then(() => {
-            const clickEvent = new Event('click', {bubbles:false});
-            this.selectionNodes[this.dataKeys.clinicsKey].listNode.firstChild.dispatchEvent(clickEvent);
+            //const clickEvent = new Event('click', {bubbles:false});
+            //this.selectionNodes[this.dataKeys.clinicsKey].listNode.firstChild.dispatchEvent(clickEvent);
         });
     },
 
@@ -1430,5 +1449,37 @@ export const AppointmentPopup: any = {
         p.append(start, link, end);
         return p;
     },
+
+    addCustomColors: function (){
+        if (Object.keys(this.customColors).length > 0)
+        {
+            const style = document.createElement('style');
+            style.textContent = `.${styles['widget-wrapper']}, .${styles['appointment-button-wrapper']}{`
+            for (let key in this.customColors){
+                if (this.customColors.hasOwnProperty(key))
+                {
+                    switch (key) {
+                        case "--appointment-main-color":
+                            const hslM = convertHexToHsl(this.customColors[key]);
+                            if (hslM){
+                                style.textContent += `--main-h: ${hslM.h};--main-s: ${hslM.s};--main-l: ${hslM.l};`;
+                            }
+                            break;
+                        case "--appointment-field-color":
+                            const hslF = convertHexToHsl(this.customColors[key]);
+                            if (hslF){
+                                style.textContent += `-field-h: ${hslF.h};--field-s: ${hslF.s};--field-l: ${hslF.l};`;
+                            }
+                            break;
+                        default:
+                            style.textContent += `${key}: ${this.customColors[key]};`;
+                            break;
+                    }
+                }
+            }
+            style.textContent = style.textContent + `}`;
+            this.wrapper.after(style);
+        }
+    }
 }
 

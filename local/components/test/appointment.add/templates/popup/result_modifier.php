@@ -6,8 +6,11 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
  * @var array $arParams
  */
 
-
     $arResult["JS_SETTINGS"] = [
+        "useCustomMainBtn" => $arResult['USE_CUSTOM_MAIN_BTN'],
+        "customMainBtnId"  => $arResult['CUSTOM_MAIN_BTN_ID'],
+        "customColors"     => $arResult["CUSTOM_COLORS"],
+
         "ajaxUrl"                       => "/bitrix/services/main/ajax.php",
         "useServices"                   => $arResult["USE_NOMENCLATURE"],
         "selectDoctorBeforeService"     => $arResult["SELECT_DOCTOR_BEFORE_SERVICE"],

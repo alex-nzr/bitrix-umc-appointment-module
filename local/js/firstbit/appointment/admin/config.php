@@ -7,6 +7,6 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 return [
 	'css' => '',
 	'js' => 'dist/admin.bundle.js',
-	'rel' => [],
+	'rel' => ['color_picker'],
 	'skip_core' => false,
 ];

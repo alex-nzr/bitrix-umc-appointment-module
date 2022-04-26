@@ -7,6 +7,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Request;
 use CAdminTabControl;
 use CControllerClient;
+use CJSCore;
 use Exception;
 use function htmlSpecialCharsBx;
 use function ShowError;
@@ -161,6 +162,71 @@ class OptionManager{
                         ]
                     ],
                     [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_CONFIRM_WITH_NOTE')],
+                ]
+            ],
+            [
+                'DIV'       => "view_tab",
+                'TAB'       => Loc::getMessage("FIRSTBIT_APPOINTMENT_TAB_VIEW"),
+                'ICON'      => '',
+                'TITLE'     => Loc::getMessage("FIRSTBIT_APPOINTMENT_TAB_TITLE_VIEW"),
+                'OPTIONS'   => [
+                    Loc::getMessage("FIRSTBIT_APPOINTMENT_MAIN_BTN_SETTINGS"),
+                    [
+                        'appointment_view_use_custom_main_btn',
+                        Loc::getMessage("FIRSTBIT_APPOINTMENT_USE_CUSTOM_MAIN_BTN"),
+                        "N",
+                        ['checkbox', "N"]
+                    ],
+                    [
+                        'appointment_view_custom_main_btn_id',
+                        Loc::getMessage("FIRSTBIT_APPOINTMENT_CUSTOM_BTN_ID"),
+                        "",
+                        ['text', "50"]
+                    ],
+                    [
+                        '--appointment-start-btn-bg-color',
+                        Loc::getMessage("FIRSTBIT_APPOINTMENT_MAIN_BTN_BG_COLOR"),
+                        "#025ea1",
+                        ['colorPicker', "#025ea1"]
+                    ],
+                    [
+                        '--appointment-start-btn-text-color',
+                        Loc::getMessage("FIRSTBIT_APPOINTMENT_MAIN_BTN_TEXT_COLOR"),
+                        "#fff",
+                        ['colorPicker', "#fff"]
+                    ],
+
+                    Loc::getMessage("FIRSTBIT_APPOINTMENT_FORM_COLORS_SETTINGS"),
+                    [
+                        '--appointment-main-color',
+                        Loc::getMessage("FIRSTBIT_APPOINTMENT_FORM_COLOR_MAIN"),
+                        "#025ea1",
+                        ['colorPicker', "#025ea1"]
+                    ],
+                    [
+                        '--appointment-field-color',
+                        Loc::getMessage("FIRSTBIT_APPOINTMENT_FORM_COLOR_FIELD"),
+                        "#1B3257",
+                        ['colorPicker', "#1B3257"]
+                    ],
+                    [
+                        '--appointment-form-text-color',
+                        Loc::getMessage("FIRSTBIT_APPOINTMENT_FORM_COLOR_TEXT"),
+                        "#f5f5f5",
+                        ['colorPicker', "#f5f5f5"]
+                    ],
+                    [
+                        '--appointment-btn-bg-color',
+                        Loc::getMessage("FIRSTBIT_APPOINTMENT_FORM_COLOR_BTN"),
+                        "#12b1e3",
+                        ['colorPicker', "#12b1e3"]
+                    ],
+                    [
+                        '--appointment-btn-text-color',
+                        Loc::getMessage("FIRSTBIT_APPOINTMENT_FORM_COLOR_BTN_TEXT"),
+                        "#ffffff",
+                        ['colorPicker', "#ffffff"]
+                    ],
                 ]
             ],
             [
@@ -330,7 +396,7 @@ class OptionManager{
                 <? if($type[0]=="checkbox"): ?>
                     <input type="checkbox" <?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?>id="<?echo htmlSpecialCharsBx($Option[0])?>" name="<?=htmlSpecialCharsBx($fieldName)?>" value="Y"<?if($val=="Y")echo" checked";?><?=$disabled?><?if($type[2]<>'') echo " ".$type[2]?>>
                 <? elseif($type[0]=="text" || $type[0]=="password"): ?>
-                    <input type="<?echo $type[0]?>"<?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> size="<?echo $type[1]?>" maxlength="255" value="<?echo htmlSpecialCharsBx($val)?>" name="<?=htmlSpecialCharsBx($fieldName)?>"<?=$disabled?><?=($type[0]=="password" || $type["noautocomplete"]? ' autocomplete="new-password"':'')?>><?
+                    <input type="<?echo $type[0]?>"<?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> id="<?echo htmlSpecialCharsBx($Option[0])?>" size="<?echo $type[1]?>" maxlength="255" value="<?echo htmlSpecialCharsBx($val)?>" name="<?=htmlSpecialCharsBx($fieldName)?>"<?=$disabled?><?=($type[0]=="password" || $type["noautocomplete"]? ' autocomplete="new-password"':'')?>><?
                 elseif($type[0]=="selectbox"):
                     $arr = $type[1];
                     if(!is_array($arr))
@@ -354,12 +420,22 @@ class OptionManager{
                     </select>
                 <? elseif($type[0]=="textarea"): ?>
                     <textarea <?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> rows="<?echo $type[1]?>" cols="<?echo $type[2]?>" name="<?=htmlSpecialCharsBx($fieldName)?>"<?=$disabled?>><?echo htmlSpecialCharsBx($val)?></textarea>
-                <? elseif($type[0]=="statictext"): ?>
+                <? elseif($type[0]=="staticText"): ?>
                     <?=htmlSpecialCharsBx($val)?>
-                <? elseif($type[0]=="statichtml"):?>
+                <? elseif($type[0]=="staticHtml"):?>
                     <?=$val?>
+                <? elseif($type[0]=="colorPicker"):?>
+                    <input type="text" id="<?=$fieldName?>" name="<?=$fieldName?>" style="opacity: 1;" value="<?=($val ?? $Option[2] ?? '')?>" readonly />
+                    <script>
+                        BX.ready(function() {
+                            BX.FirstBit.Appointment.Admin.bindColorPickerToNode('<?=$fieldName?>', '<?=$fieldName?>', '<?=$Option[2]?>');
+                        });
+                    </script>
                 <?endif;?>
             </label>
+            <script>
+                BX.ready(() => BX.FirstBit.Appointment.Admin.runInputActions());
+            </script>
         </td><?
     }
 }

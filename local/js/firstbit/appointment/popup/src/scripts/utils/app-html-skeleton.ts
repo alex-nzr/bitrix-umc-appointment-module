@@ -1,19 +1,15 @@
 import {ISettings} from "../../types/settings";
 
 export default function buildAppointmentSkeleton(styles: any, settings: ISettings){
-    let html = `
-    <div class="${styles['appointment-button-wrapper']} ${styles['loading']}" id="${settings.widgetBtnWrapId}">
-            <button id="${settings.widgetBtnId}"></button>
-            <div class="${styles['appointment-loader']}">
-                <div class="${styles['wBall']}" id="${styles['wBall_1']}"><div class="${styles['wInnerBall']}"></div></div>
-                <div class="${styles['wBall']}" id="${styles['wBall_2']}"><div class="${styles['wInnerBall']}"></div></div>
-                <div class="${styles['wBall']}" id="${styles['wBall_3']}"><div class="${styles['wInnerBall']}"></div></div>
-                <div class="${styles['wBall']}" id="${styles['wBall_4']}"><div class="${styles['wInnerBall']}"></div></div>
-                <div class="${styles['wBall']}" id="${styles['wBall_5']}"><div class="${styles['wInnerBall']}"></div></div>
-            </div>
-    </div>
-    <div class="${styles['widget-wrapper']}" id="${settings.wrapperId}">
+    let mainBtnHtml = `
+        <div class="${styles['appointment-button-wrapper']}" id="${settings.widgetBtnWrapId}">
+            <button id="${settings.widgetBtnId}"><span>Запись на приём</span></button>
+        </div>
+    `;
+    let html = (settings.useCustomMainBtn === "Y") ? '' : mainBtnHtml;
+    html = html + `<div class="${styles['widget-wrapper']}" id="${settings.wrapperId}">
         <form id="${settings.formId}" class="${styles['appointment-form']}">
+            <span id="${styles['appointment-form-close']}">&#10006;</span>
     `;
         for(const key in settings.selectionNodes)
         {
@@ -53,9 +49,13 @@ export default function buildAppointmentSkeleton(styles: any, settings: ISetting
 
         html = html + `<p id="${settings.messageNodeId}"></p>
     
-            <div class="${styles['appointment-form_submit-wrapper']}">
+            <div class="${styles['appointment-button-wrapper']}">
                 <button type="submit" id="${settings.submitBtnId}" class="${styles['appointment-form_button']}">Записаться на приём</button>
             </div>
+    
+            <p class="${styles['appointment-info-message']}">
+                Отправляя данные, вы соглашаетесь с <a href="${settings.privacyPageLink}" target="_blank">политикой конфиденциальности</a> сайта
+            </p>
     
             <div id="${settings.appResultBlockId}"><p></p></div>
         </form>

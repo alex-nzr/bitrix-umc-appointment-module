@@ -71,6 +71,9 @@ export interface IConfirmTypes{
 }
 
 export interface ISettings {
+    customColors: {};
+    useCustomMainBtn: string;
+    customMainBtnId: string;
     ajaxUrl: string;
     useServices: string,
     selectDoctorBeforeService: string,

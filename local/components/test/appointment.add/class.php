@@ -88,6 +88,16 @@ class AppForm extends CBitrixComponent
         }
 
         return [
+            "USE_CUSTOM_MAIN_BTN"             => Option::get(
+                Constants::APPOINTMENT_MODULE_ID,
+                'appointment_view_use_custom_main_btn',
+                "N"
+            ),
+            "CUSTOM_MAIN_BTN_ID"              => Option::get(
+                Constants::APPOINTMENT_MODULE_ID,
+                'appointment_view_custom_main_btn_id'
+            ),
+
             "USE_NOMENCLATURE"                => Option::get(
                 Constants::APPOINTMENT_MODULE_ID,
                 'appointment_settings_use_nomenclature',
@@ -131,6 +141,44 @@ class AppForm extends CBitrixComponent
                 'appointment_settings_privacy_page_url',
                 "javascript: void(0)"
             ),
+
+            "CUSTOM_COLORS" => [
+                '--appointment-start-btn-text-color' => Option::get(
+                    Constants::APPOINTMENT_MODULE_ID,
+                    '--appointment-start-btn-text-color',
+                    "#ffffff"
+                ),
+                '--appointment-start-btn-bg-color' => Option::get(
+                    Constants::APPOINTMENT_MODULE_ID,
+                    '--appointment-start-btn-bg-color',
+                    "#025ea1"
+                ),
+                '--appointment-main-color' => Option::get(
+                    Constants::APPOINTMENT_MODULE_ID,
+                    '--appointment-main-color',
+                    "#025ea1"
+                ),
+                '--appointment-field-color' => Option::get(
+                    Constants::APPOINTMENT_MODULE_ID,
+                    '--appointment-field-color',
+                    "#1B3257"
+                ),
+                '--appointment-form-text-color' => Option::get(
+                    Constants::APPOINTMENT_MODULE_ID,
+                    '--appointment-form-text-color',
+                    "#f5f5f5"
+                ),
+                '--appointment-btn-bg-color' => Option::get(
+                    Constants::APPOINTMENT_MODULE_ID,
+                    '--appointment-btn-bg-color',
+                    "#12b1e3"
+                ),
+                '--appointment-btn-text-color' => Option::get(
+                    Constants::APPOINTMENT_MODULE_ID,
+                    '--appointment-btn-text-color',
+                    "#ffffff"
+                ),
+            ]
         ];
     }
 

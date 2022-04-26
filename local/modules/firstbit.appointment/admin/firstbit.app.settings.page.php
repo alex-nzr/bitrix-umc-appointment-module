@@ -7,6 +7,7 @@
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
@@ -20,6 +21,8 @@ try {
     if (!Loader::includeModule($moduleID)){
         throw new Exception(Loc::getMessage('FIRSTBIT_APPOINTMENT_MODULE_NOT_LOADED'));
     }
+
+    Extension::load([$moduleID.'.admin']);
 
     if ($APPLICATION->GetGroupRight($moduleID) < 'W'){
         throw new Exception(Loc::getMessage('FIRSTBIT_APPOINTMENT_ACCESS_DENIED'));
