@@ -57,6 +57,7 @@ export interface ISelectors{
     widgetBtnWrapId: string,
     widgetBtnId: string,
     formId:  string,
+    mobileCloseBtnId: string,
     messageNodeId:   string,
     submitBtnId:   string,
     appResultBlockId: string,

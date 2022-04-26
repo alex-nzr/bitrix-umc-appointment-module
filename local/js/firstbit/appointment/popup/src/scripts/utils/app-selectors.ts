@@ -6,6 +6,7 @@ export default function initAppSelectors(styles: any){
         widgetBtnWrapId:              styles["appointment-button-wrapper"],
         widgetBtnId:                  styles['appointment-button'],
         formId:                       styles['appointment-form'],
+        mobileCloseBtnId:             styles['appointment-form-close'],
         messageNodeId:                styles['appointment-form-message'],
         submitBtnId:                  styles['appointment-form-button'],
         appResultBlockId:             styles['appointment-result-block'],

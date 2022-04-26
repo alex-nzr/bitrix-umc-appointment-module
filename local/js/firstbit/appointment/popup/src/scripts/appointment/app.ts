@@ -99,6 +99,7 @@ export const AppointmentPopup: any = {
         this.wrapper = document.getElementById(this.wrapperId);
         this.widgetBtnWrap = document.getElementById(selectors.widgetBtnWrapId);
         this.widgetBtn = document.getElementById(widgetBtnId);
+        this.mobileCloseBtn = document.getElementById(selectors.mobileCloseBtnId);
         this.messageNode = document.getElementById(selectors.messageNodeId);
         this.submitBtn = document.getElementById(selectors.submitBtnId);
         this.resultBlock = document.getElementById(selectors.appResultBlockId);
@@ -130,6 +131,7 @@ export const AppointmentPopup: any = {
     initForm: function(id: string){
         this.form = this.wrapper.querySelector(`#${id}`);
         this.form.addEventListener('submit', this.submit.bind(this));
+        this.mobileCloseBtn.addEventListener('click', this.showWidget.bind(this))
     },
 
     initSelectionNodes: function(nodesData: ISelectionNodes){

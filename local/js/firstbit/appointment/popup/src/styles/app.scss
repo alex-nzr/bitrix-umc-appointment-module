@@ -618,7 +618,7 @@ body{
 @media (max-width: 767px) {
     .widget-wrapper{
         & #appointment-form{
-            padding-top: 30px;
+            padding-top: 50px;
             & #appointment-form-close{
                 display: flex;
                 justify-content: center;
@@ -632,6 +632,7 @@ body{
                 font-weight: 600;
                 line-height: 1;
                 color: var(--appointment-form-text-color);
+                cursor: pointer;
             }
         }
     }
