@@ -49,7 +49,7 @@ export default function buildAppointmentSkeleton(styles: any, settings: ISetting
 
         html = html + `<p id="${settings.messageNodeId}"></p>
     
-            <div class="${styles['appointment-button-wrapper']}">
+            <div class="${styles['appointment-form-button-wrapper']}">
                 <button type="submit" id="${settings.submitBtnId}" class="${styles['appointment-form_button']}">Записаться на приём</button>
             </div>
     

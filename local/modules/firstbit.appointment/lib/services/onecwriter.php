@@ -84,6 +84,10 @@ class OneCWriter extends BaseOneCService
             if ($res->isSuccess()){
                 RecordTableHelper::addRecord(array_merge($params, ['orderUid' => $xml_id]));
             }
+            else
+            {
+                $this->deleteOrder($xml_id);
+            }
             return $res;
         }
         catch (Exception $e){

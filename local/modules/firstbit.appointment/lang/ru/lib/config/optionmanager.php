@@ -63,5 +63,5 @@ $MESS['FIRSTBIT_APPOINTMENT_FORM_COLOR_TEXT'] = "Цвет текста в пол
 $MESS['FIRSTBIT_APPOINTMENT_FORM_COLOR_BTN'] = "Цвет кнопки на форме";
 $MESS['FIRSTBIT_APPOINTMENT_FORM_COLOR_BTN_TEXT'] = "Цвет текста кнопки на форме";
 
-$MESS['FIRSTBIT_APPOINTMENT_TAB_RIGHTS'] = "Доступ";
+$MESS['FIRSTBIT_APPOINTMENT_TAB_RIGHTS'] = "Настройки доступа";
 $MESS['FIRSTBIT_APPOINTMENT_TAB_TITLE_RIGHTS'] = "Уровень доступа к модулю";

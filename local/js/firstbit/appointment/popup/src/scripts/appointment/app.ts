@@ -505,7 +505,7 @@ export const AppointmentPopup: any = {
         }
         else
         {
-            this.errorMessage("specialties block not found")
+            this.errorMessage("services block not found")
         }
     },
 
@@ -782,7 +782,7 @@ export const AppointmentPopup: any = {
             this.addItemActions(dataKey);
         }
         else{
-            this.errorMessage('selected or list not found');
+            this.errorMessage('selected node or list node not found');
         }
     },
 
@@ -1030,7 +1030,7 @@ export const AppointmentPopup: any = {
         p.style.cssText = 'color:orangered;text-align:center';
 
         const btnWrap = document.createElement('div');
-        btnWrap.classList.add(styles['appointment-form_submit-wrapper']);
+        btnWrap.classList.add(styles['appointment-form-button-wrapper']);
         const btn = document.createElement('button');
         btn.textContent = "Отправить";
         btn.classList.add(styles['appointment-form_button']);
@@ -1117,7 +1117,8 @@ export const AppointmentPopup: any = {
                     });
                 }
                 else{
-                    console.log(json)
+                    btnNode.classList.remove(styles['loading']);
+                    //console.log(json);
                     if (json.errors?.length > 0){
                         json.errors.forEach((error: any) => {
                             textNode.innerHTML = ((Number(error.code) === 400) || (Number(error.code) === 406) || (Number(error.code) === 425))
@@ -1390,8 +1391,10 @@ export const AppointmentPopup: any = {
 
         const resTextNode = this.resultBlock.querySelector('p');
         this.form.classList.add(styles['off']);
-        if (resTextNode) {
-            if (success) {
+        if (resTextNode)
+        {
+            if (success)
+            {
                 const date = this.convertDateToDisplay(this.filledInputs[this.dataKeys.scheduleKey].timeBegin, false);
                 const time = this.convertDateToDisplay(this.filledInputs[this.dataKeys.scheduleKey].timeBegin, true);
                 const doctor = this.filledInputs[this.dataKeys.employeesKey].doctorName;
@@ -1400,9 +1403,13 @@ export const AppointmentPopup: any = {
                 resTextNode.classList.add(styles['success']);
                 this.finalAnimations();
             }
-            else{
+            else
+            {
                 resTextNode.append(errorDesc);
                 resTextNode.classList.add(styles['error']);
+                setTimeout(()=>{
+                    this.reload();
+                }, 5000);
             }
         }
     },

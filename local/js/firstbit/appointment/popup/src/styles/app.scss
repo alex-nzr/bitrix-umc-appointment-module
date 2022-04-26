@@ -75,7 +75,6 @@ body{
     }
     & a, & a:hover, & a:focus{
         text-decoration:none;
-        color:inherit;
         outline:none;
     }
     & h1,& h2,& h3,& h4,
@@ -256,7 +255,7 @@ body{
                         width: 100%;
                         white-space: nowrap;
                         font-weight: 600;
-                        color: yellowgreen;
+                        color: var(--appointment-form-text-color);
                         background-color: var(--appointment-field-color);
                         &:last-of-type{
                             margin-bottom: 5px;
@@ -363,6 +362,8 @@ body{
         font-size: 14px;
     }
 
+    & .appointment-form-button-wrapper{}
+
     & .appointment-form_button{
         position: relative;
         display: flex;
@@ -413,8 +414,10 @@ body{
     & .appointment-form_button-link{
         display: block;
         max-width: max-content;
-        margin: 0 auto;
+        margin: 10px auto 0;
         text-decoration: none;
+        color: var(--appointment-btn-bg-color);
+        border-bottom: 1px dashed var(--appointment-btn-bg-color);
         transition: .3s;
         &:hover, &:focus, &:visited{
             opacity: .7;
