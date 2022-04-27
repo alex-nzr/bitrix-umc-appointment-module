@@ -60,7 +60,7 @@ export const Admin = {
     },
 
     bindColorPickerToNode: function (nodeId, inputId, defaultColor = '') {
-        const element = BX(inputId);
+        const element = BX(nodeId);
         const input = BX(inputId);
         BX.bind(element, 'click', function () {
             new BX.ColorPicker({
