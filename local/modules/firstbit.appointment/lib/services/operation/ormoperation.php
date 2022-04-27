@@ -1,5 +1,5 @@
 <?php
-namespace FirstBit\Appointment\Services;
+namespace FirstBit\Appointment\Services\Operation;
 
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Type\DateTime;
@@ -7,7 +7,7 @@ use Exception;
 use FirstBit\Appointment\Model\RecordTable;
 use FirstBit\Appointment\Utils\Utils;
 
-class RecordTableHelper{
+class OrmOperation{
     /**
      * @param array $params
      * @return array

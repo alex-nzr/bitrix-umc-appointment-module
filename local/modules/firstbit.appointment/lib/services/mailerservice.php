@@ -2,6 +2,7 @@
 namespace FirstBit\Appointment\Services;
 
 use Bitrix\Main\Context;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Mail\Event;
 use Bitrix\Main\Result;
 use Bitrix\Main\Error;
@@ -57,17 +58,17 @@ class MailerService{
 
             if (!empty($emailTo))
             {
-                $text = "
-                    Вы успешно записались на приём
-                    Клиника: $clinic
-                    Специализация: $specialty
-                    Услуги: $service
-                    Врач: $doctor
-                    Дата/время: $dateTime
-                    ФИО: $name
-                    Номер телефона: $phone
-                    Комментарий: $comment
-                ";
+                $text = Loc::getMessage('FIRSTBIT_APPOINTMENT_MESSAGE_NOTE', [
+                    "#CLINIC#"      => $clinic,
+                    "#SPECIALTY#"   => $specialty,
+                    "#SERVICE#"     => $service,
+                    "#DOCTOR#"      => $doctor,
+                    "#DATETIME#"    => $dateTime,
+                    "#NAME#"        => $name,
+                    "#PHONE#"       => $phone,
+                    "#COMMENT#"     => $comment,
+                ]);
+
                 return Event::send([
                     "EVENT_NAME" => Constants::EMAIL_NOTE_EVENT_CODE,
                     "LID" => Context::getCurrent()->getSite(),

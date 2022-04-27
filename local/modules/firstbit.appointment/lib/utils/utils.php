@@ -74,14 +74,16 @@ class Utils{
         return ["error" => $message];
     }
 
-    /** prints message
-     * @param $message
+    /** print vars on screen
+     * @param mixed ...$vars
      */
-    public static function print($message): void
+    public static function print(...$vars): void
     {
-        echo "<pre>";
-        print_r($message);
-        echo "</pre>";
+        foreach ($vars as $var) {
+            echo "<pre>";
+            print_r($var);
+            echo "</pre>";
+        }
     }
 
     /** prints param to file

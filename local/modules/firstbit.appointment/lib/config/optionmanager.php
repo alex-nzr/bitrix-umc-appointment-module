@@ -392,7 +392,7 @@ class OptionManager{
         $disabled = array_key_exists(4, $Option) && $Option[4] == 'Y' ? ' disabled' : '';
         ?>
         <td style="width: 50%">
-            <label for="<?echo htmlSpecialCharsBx($Option[0])?>">
+            <label for="<?echo htmlSpecialCharsBx($Option[0])?>" class="firstbit-appointment-adm-label">
                 <? if($type[0]=="checkbox"): ?>
                     <input type="checkbox" <?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?>id="<?echo htmlSpecialCharsBx($Option[0])?>" name="<?=htmlSpecialCharsBx($fieldName)?>" value="Y"<?if($val=="Y")echo" checked";?><?=$disabled?><?if($type[2]<>'') echo " ".$type[2]?>>
                 <? elseif($type[0]=="text" || $type[0]=="password"): ?>
@@ -425,7 +425,7 @@ class OptionManager{
                 <? elseif($type[0]=="staticHtml"):?>
                     <?=$val?>
                 <? elseif($type[0]=="colorPicker"):?>
-                    <input type="text" id="<?=$fieldName?>" name="<?=$fieldName?>" style="opacity: 1;" value="<?=($val ?? $Option[2] ?? '')?>" readonly />
+                    <input type="text" id="<?=$fieldName?>" name="<?=$fieldName?>" value="<?=($val ?? $Option[2] ?? '')?>" readonly />
                     <script>
                         BX.ready(function() {
                             BX.FirstBit.Appointment.Admin.bindColorPickerToNode('<?=$fieldName?>', '<?=$fieldName?>', '<?=$Option[2]?>');
@@ -434,7 +434,7 @@ class OptionManager{
                 <?endif;?>
             </label>
             <script>
-                BX.ready(() => BX.FirstBit.Appointment.Admin.runInputActions());
+                BX.ready(() => BX.FirstBit.Appointment.Admin.activateInputs());
             </script>
         </td><?
     }

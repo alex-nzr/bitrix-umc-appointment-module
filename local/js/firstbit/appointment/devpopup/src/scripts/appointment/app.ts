@@ -1234,7 +1234,7 @@ export const AppointmentPopup: any = {
     },
 
     errorMessage: function(message: string){
-        console.error("App error:\n" + message);
+        //console.error("App error:\n" + message);
     },
 
     addPhoneMasks: function (){

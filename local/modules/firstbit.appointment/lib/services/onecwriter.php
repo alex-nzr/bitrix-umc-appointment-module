@@ -6,6 +6,7 @@ use Bitrix\Main\Result;
 use Bitrix\Main\Error;
 use Exception;
 use FirstBit\Appointment\Config\Constants;
+use FirstBit\Appointment\Services\Operation\OrmOperation;
 use FirstBit\Appointment\Utils\Utils;
 use SoapVar;
 
@@ -82,7 +83,7 @@ class OneCWriter extends BaseOneCService
 
             $res = $this->send(Constants::CREATE_ORDER_ACTION_1C, $paramsToSend);
             if ($res->isSuccess()){
-                RecordTableHelper::addRecord(array_merge($params, ['orderUid' => $xml_id]));
+                OrmOperation::addRecord(array_merge($params, ['orderUid' => $xml_id]));
             }
             else
             {

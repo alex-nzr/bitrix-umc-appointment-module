@@ -8,13 +8,11 @@ use Bitrix\Main\Engine\ActionFilter\Authentication;
 use Bitrix\Main\Engine\ActionFilter\Csrf;
 use Bitrix\Main\Engine\ActionFilter\HttpMethod;
 use Bitrix\Main\Engine\Controller;
-use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 use FirstBit\Appointment\Config\Constants;
 use FirstBit\Appointment\Services\OneCReader;
 use FirstBit\Appointment\Services\OneCWriter;
-use FirstBit\Appointment\Services\RecordTableHelper;
-use Exception;
+use FirstBit\Appointment\Services\Operation\AppointmentOperation;
 
 class OneCController extends Controller
 {
@@ -31,14 +29,14 @@ class OneCController extends Controller
 
         $serviceLocator = ServiceLocator::getInstance();
 
-        if ($serviceLocator->has('appointment.OneCReader'))
+        if ($serviceLocator->has(Constants::ONE_C_READER_SERVICE_ID))
         {
-            $this->reader = $serviceLocator->get('appointment.OneCReader');
+            $this->reader = $serviceLocator->get(Constants::ONE_C_READER_SERVICE_ID);
         }
 
-        if ($serviceLocator->has('appointment.OneCWriter'))
+        if ($serviceLocator->has(Constants::ONE_C_WRITER_SERVICE_ID))
         {
-            $this->writer = $serviceLocator->get('appointment.OneCWriter');
+            $this->writer = $serviceLocator->get(Constants::ONE_C_WRITER_SERVICE_ID);
         }
     }
 
@@ -66,67 +64,17 @@ class OneCController extends Controller
     public function addOrderAction(string $params): Result
     {
         $arParams = json_decode($params, true);
-
-        $useWaitingList = Option::get(
-            Constants::APPOINTMENT_MODULE_ID,
-            'appointment_settings_use_waiting_list', "N"
-        );
-
-        if ($useWaitingList === "Y"){
-            $response = $this->writer->addWaitingList($arParams);
-        }
-        else{
-            $response = $this->writer->addOrder($arParams);
-        }
-
-        return $response;
+        return AppointmentOperation::addOrder($this->writer, $arParams);
     }
 
     public function deleteOrderAction(int $id, string $orderUid): Result
     {
-        try
-        {
-            $response = $this->writer->deleteOrder($orderUid);
-            if ($response->isSuccess())
-            {
-                $ormRes = RecordTableHelper::deleteRecord($id);
-                $data = $response->getData();
-                $response->setData(array_merge($data, $ormRes));
-                return $response;
-            }
-            else
-            {
-                throw new Exception(implode(", ", $response->getErrorMessages()));
-            }
-        }
-        catch (Exception $e)
-        {
-            return (new Result)->addError(new Error($e->getMessage()));
-        }
+        return AppointmentOperation::deleteOrder($this->writer, $id, $orderUid);
     }
 
     public function getOrderStatusAction(int $id, string $orderUid): Result
     {
-        try
-        {
-            $response = $this->reader->getOrderStatus($orderUid);
-            if ($response->isSuccess())
-            {
-                $data = $response->getData();
-                $status = $data['status'] ?? "-";
-                $ormRes = RecordTableHelper::updateRecord($id, ['STATUS_1C' => $status]);
-                $response->setData(array_merge($data, $ormRes));
-                return $response;
-            }
-            else
-            {
-                throw new Exception(implode(", ", $response->getErrorMessages()));
-            }
-        }
-        catch (Exception $e)
-        {
-            return (new Result)->addError(new Error($e->getMessage()));
-        }
+        return AppointmentOperation::getOrderStatus($this->reader, $id, $orderUid);
     }
 
     protected function processAfterAction(Action $action, $result)

@@ -5,15 +5,17 @@ use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\ActionFilter\Csrf;
 use Bitrix\Main\Engine\ActionFilter\HttpMethod;
 use Bitrix\Main\Result;
+use FirstBit\Appointment\Config\Constants;
 use FirstBit\Appointment\Services\MailerService;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Engine\Controller;
-use Bitrix\Main\Error;
-use FirstBit\Appointment\Services\Operation;
+use FirstBit\Appointment\Services\Operation\ConfirmOperation;
 use FirstBit\Appointment\Services\SmsService;
 
 class MessageController extends Controller
 {
+    private string $mailerServiceId;
+    private string $smsServiceId;
     private MailerService $mailer;
     private SmsService $smsService;
 
@@ -25,27 +27,30 @@ class MessageController extends Controller
     {
         parent::__construct();
 
+        $this->mailerServiceId = Constants::MAILER_SERVICE_ID;
+        $this->smsServiceId    = Constants::SMS_SERVICE_ID;
+
         $serviceLocator = ServiceLocator::getInstance();
 
-        if ($serviceLocator->has('appointment.MailerService'))
+        if ($serviceLocator->has($this->mailerServiceId))
         {
-            $this->mailer = $serviceLocator->get('appointment.MailerService');
+            $this->mailer = $serviceLocator->get($this->mailerServiceId);
         }
 
-        if ($serviceLocator->has('appointment.SmsService'))
+        if ($serviceLocator->has($this->smsServiceId))
         {
-            $this->smsService = $serviceLocator->get('appointment.SmsService');
+            $this->smsService = $serviceLocator->get($this->smsServiceId);
         }
     }
 
     public function sendConfirmCodeAction(string $phone = "", string $email = ""): Result
     {
-        return Operation::sendConfirmCode($this->mailer, $this->smsService, $phone, $email);
+        return ConfirmOperation::sendConfirmCode($this->mailer, $this->smsService, $phone, $email);
     }
 
     public function verifyConfirmCodeAction(string $code): Result
     {
-        return Operation::verifyConfirmCode($code);
+        return ConfirmOperation::verifyConfirmCode($code);
     }
 
     public function sendEmailNoteAction(string $params): Result

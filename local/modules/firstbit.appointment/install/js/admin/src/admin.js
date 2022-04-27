@@ -1,44 +1,33 @@
 'use strict';
 
-BX.ready(function () {
-    if (!BX.FirstBit?.Appointment){
-        if (!BX.FirstBit){
-            BX.FirstBit = {};
-        }
-        BX.FirstBit.Appointment = { Admin: {} };
-    }
-    else{
-        BX.FirstBit.Appointment.Admin = {};
-    }
+import "./admin.css";
+import "color_picker";
 
-    const fBitAdmin = BX.FirstBit.Appointment.Admin;
+export const Admin = {
+    ajaxUrl: '/bitrix/services/main/ajax.php',
+    controller: 'firstbit:appointment.oneCController',
+    requestParams: {
+        method: 'POST',
+        body: '',
+    },
 
-    fBitAdmin.deleteRecord = function (id, gridId, orderUid) {
+    deleteRecord: function (id, gridId, orderUid) {
         this.runAction(id, gridId, orderUid, 'deleteOrder')
-    }
+    },
 
-    fBitAdmin.updateRecord = function (id, gridId, orderUid) {
+    updateRecord: function (id, gridId, orderUid) {
         this.runAction(id, gridId, orderUid, 'getOrderStatus')
-    }
+    },
 
-    fBitAdmin.runAction = function (id, gridId, orderUid, actionToCall) {
+    runAction: function (id, gridId, orderUid, actionToCall) {
         const grid = BX.Main.gridManager.getInstanceById(gridId);
         grid && grid.tableFade();
 
-        const ajaxUrl = '/bitrix/services/main/ajax.php';
-        const action = `firstbit:appointment.oneCController.${actionToCall}`;
+        const action = `${this.controller}.${actionToCall}`;
 
-        const formData = new FormData();
-        formData.set('id', id);
-        formData.set('orderUid', orderUid);
-        formData.set('sessid', BX.bitrix_sessid());
+        this.requestParams.body = this.createFormData({id, orderUid});
 
-        this.requestParams = {
-            method: 'POST',
-            body: formData,
-        }
-
-        fetch(`${ajaxUrl}?action=${action}`, this.requestParams)
+        fetch(`${this.ajaxUrl}?action=${action}`, this.requestParams)
             .then(response => {
                 if (response.ok) {
                     return response.json();
@@ -48,14 +37,29 @@ BX.ready(function () {
             })
             .then(json => {
                 if (json.status === 'error'){
-                    console.log(json);
+                    //console.log(json);
                 }
             })
             .catch(e => console.log(e))
             .finally(() => (grid && grid.reloadTable()))
-    }
+    },
 
-    fBitAdmin.bindColorPickerToNode = function (nodeId, inputId, defaultColor = '') {
+    createFormData: function(argsObject) {
+        const formData = new FormData();
+
+        for (let key in argsObject)
+        {
+            if (argsObject.hasOwnProperty(key))
+            {
+                formData.set(key, argsObject[key]);
+            }
+        }
+        formData.set('sessid', BX.bitrix_sessid());
+
+        return formData;
+    },
+
+    bindColorPickerToNode: function (nodeId, inputId, defaultColor = '') {
         const element = BX(inputId);
         const input = BX(inputId);
         BX.bind(element, 'click', function () {
@@ -76,32 +80,47 @@ BX.ready(function () {
                 }
             }).open();
         })
-    }
+    },
 
-    fBitAdmin.runInputActions = function(){
-        const checkBox = BX('appointment_view_use_custom_main_btn');
-        this.checkInputs(checkBox);
-        checkBox.addEventListener('change', () => this.checkInputs(checkBox))
-    }
+    activateInputs: function(){
+        const inputs = {
+            customMainBtnCheckbox: BX('appointment_view_use_custom_main_btn')
+        };
 
-    fBitAdmin.checkInputs = function(checkbox){
+        for (let key in inputs){
+            if (inputs.hasOwnProperty(key))
+            {
+                switch (key) {
+                    case "customMainBtnCheckbox":
+                        if(inputs[key]){
+                            this.changeInputsState(inputs[key]);
+                            inputs[key].addEventListener('change', () => this.changeInputsState(inputs[key]))
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+        }
+    },
+
+    changeInputsState: function(checkbox){
         const textInput = BX('appointment_view_custom_main_btn_id');
         const bgColorInput = BX('--appointment-start-btn-bg-color');
         const textColorInput = BX('--appointment-start-btn-text-color');
 
-        if (checkbox.checked){
+        if (checkbox.checked)
+        {
             textInput.removeAttribute('disabled');
             bgColorInput.setAttribute('disabled', true);
-            bgColorInput.style.opacity = '.5';
             textColorInput.setAttribute('disabled', true);
-            textColorInput.style.opacity = '.5';
         }
-        else {
+        else
+        {
             textInput.setAttribute('disabled', true);
             bgColorInput.removeAttribute('disabled');
-            bgColorInput.style.opacity = '1';
             textColorInput.removeAttribute('disabled');
-            textColorInput.style.opacity = '1';
         }
-    }
-});
+    },
+};

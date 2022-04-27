@@ -5,4 +5,5 @@ declare global {
         BX: any;
     }
 }
-window.BX.AppointmentPopup = AppointmentPopup;
+const App = window.BX.namespace('FirstBit.Appointment');
+App.Popup = AppointmentPopup;

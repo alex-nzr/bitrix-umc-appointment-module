@@ -1,5 +1,5 @@
 <?php
-namespace FirstBit\Appointment\Services;
+namespace FirstBit\Appointment\Services\Operation;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
@@ -7,8 +7,10 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use FirstBit\Appointment\Config\Constants;
+use FirstBit\Appointment\Services\MailerService;
+use FirstBit\Appointment\Services\SmsService;
 
-class Operation
+class ConfirmOperation
 {
     public function __construct(){}
 

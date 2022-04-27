@@ -5,8 +5,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 return [
-	'css' => '',
-	'js' => 'dist/admin.bundle.js',
-	'rel' => ['color_picker'],
+	'css' => 'dist/popup.bundle.css',
+	'js' => 'dist/popup.bundle.js',
+	'rel' => ['date', 'masked_input'],
 	'skip_core' => false,
 ];

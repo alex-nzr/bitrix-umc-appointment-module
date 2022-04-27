@@ -14,8 +14,8 @@ Loc::loadMessages(__FILE__);
 
 <script>
     BX.ready(function(){
-        if (BX.AppointmentPopup){
-            BX.AppointmentPopup.init(<?=CUtil::PhpToJSObject($arResult['JS_SETTINGS'])?>);
+        if (BX.FirstBit?.Appointment?.Popup){
+            BX.FirstBit.Appointment.Popup.init(<?=CUtil::PhpToJSObject($arResult['JS_SETTINGS'])?>);
         }
     })
 </script>

@@ -14,24 +14,24 @@ return [
     ],
     'services' => [
         'value' => [
-            'appointment.OneCReader' => [
+            'firstbit.appointment.oneCReader' => [
                 'constructor' => static function () {
                     return new OneCReader();
                 },
             ],
-            'appointment.OneCWriter' => [
+            'firstbit.appointment.oneCWriter' => [
                 'className' => OneCWriter::class,
                 'constructorParams' => static function (){
                     return [];
                 },
             ],
-            'appointment.MailerService' => [
+            'firstbit.appointment.mailerService' => [
                 'className' => MailerService::class,
                 'constructorParams' => static function (){
                     return [];
                 },
             ],
-            'appointment.SmsService' => [
+            'firstbit.appointment.smsService' => [
                 'className' => SmsService::class,
                 'constructorParams' => static function (){
                     return [];
