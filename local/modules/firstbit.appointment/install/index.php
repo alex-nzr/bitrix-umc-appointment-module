@@ -167,14 +167,30 @@ class firstbit_appointment extends CModule
     {
         DeleteDirFiles(__DIR__.'/admin/', $this->docRoot.'/bitrix/admin');
 
-        if (Dir::isDirectoryExists($this->docRoot . '/bitrix/components/'.$this->partnerId.'/')){
-            Dir::deleteDirectory($this->docRoot . '/bitrix/components/'.$this->partnerId.'/');
-        }
         if (Dir::isDirectoryExists($this->docRoot . '/bitrix/css/'.$this->partnerId."/".$this->moduleNameShort.'/')){
             Dir::deleteDirectory($this->docRoot . '/bitrix/css/'.$this->partnerId. "/".$this->moduleNameShort.'/');
         }
         if (Dir::isDirectoryExists($this->docRoot . '/bitrix/js/'.$this->partnerId."/".$this->moduleNameShort.'/')){
             Dir::deleteDirectory($this->docRoot . '/bitrix/js/'.$this->partnerId."/".$this->moduleNameShort.'/');
+        }
+
+        /*if (Dir::isDirectoryExists($this->docRoot . '/bitrix/components/'.$this->partnerId.'/')){
+            Dir::deleteDirectory($this->docRoot . '/bitrix/components/'.$this->partnerId.'/');
+        }*/
+        if (Dir::isDirectoryExists($path = $this->docRoot . '/bitrix/components/'.$this->partnerId.'/')) {
+            if ($dir = opendir($path)) {
+                while ($item = readdir($dir))
+                {
+                    if (strpos($item, $this->moduleNameShort.".") === 0)
+                    {
+                        if (is_dir($path . $item))
+                        {
+                            Dir::deleteDirectory($path . $item);
+                        }
+                    }
+                }
+                closedir($dir);
+            }
         }
     }
 
