@@ -1218,8 +1218,14 @@ export const AppointmentPopup: any = {
             : this.form.classList.remove(styles['loading'])
     },
 
-    activateWidgetButton: function (){
-        this.widgetBtn.addEventListener('click', this.showWidget.bind(this));
+    activateWidgetButton: function ()
+    {
+        if (this.widgetBtn){
+            this.widgetBtn.addEventListener('click', this.showWidget.bind(this));
+        }
+        else{
+            console.log(`Not found node with id "${this.initParams.customMainBtnId}"`)
+        }
     },
 
     showWidget: function () {

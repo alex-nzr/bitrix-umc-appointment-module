@@ -7,7 +7,6 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Request;
 use CAdminTabControl;
 use CControllerClient;
-use CJSCore;
 use Exception;
 use function htmlSpecialCharsBx;
 use function ShowError;
@@ -66,6 +65,15 @@ class OptionManager{
                         "123456",
                         ['text', 50]
                     ],
+
+                    Loc::getMessage("FIRSTBIT_APPOINTMENT_USE_AUTO_INJECTING"),
+                    [
+                        'firstbit_appointment_settings_use_auto_injecting',
+                        Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_AUTO_INJECTING_ON'),
+                        "Y",
+                        ['checkbox', "Y"]
+                    ],
+                    [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_AUTO_INJECTING_NOTE')],
 
                     Loc::getMessage("FIRSTBIT_APPOINTMENT_OTHER_SETTINGS"),
                     [

@@ -147,12 +147,26 @@ class firstbit_appointment extends CModule
 
     public function InstallEvents()
     {
-
+        RegisterModuleDependences(
+            'main',
+            'OnPageStart',
+            $this->MODULE_ID,
+            '\\FirstBit\\Appointment\\Utils\\Page',
+            'addJsExt',
+            1
+        );
     }
 
     public function UnInstallEvents()
     {
-
+        UnRegisterModuleDependences(
+            'main',
+            'OnPageStart',
+            $this->MODULE_ID,
+            '\\FirstBit\\Appointment\\Utils\\Page',
+            'addJsExt',
+            1
+        );
     }
 
     public function InstallFiles()

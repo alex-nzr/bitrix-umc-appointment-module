@@ -63,5 +63,12 @@ $MESS['FIRSTBIT_APPOINTMENT_FORM_COLOR_TEXT'] = "Цвет текста в пол
 $MESS['FIRSTBIT_APPOINTMENT_FORM_COLOR_BTN'] = "Цвет кнопки на форме";
 $MESS['FIRSTBIT_APPOINTMENT_FORM_COLOR_BTN_TEXT'] = "Цвет текста кнопки на форме";
 
+$MESS['FIRSTBIT_APPOINTMENT_USE_AUTO_INJECTING'] = "Автоматическое подключение";
+$MESS['FIRSTBIT_APPOINTMENT_USE_AUTO_INJECTING_ON'] = "Включить";
+$MESS['FIRSTBIT_APPOINTMENT_USE_AUTO_INJECTING_NOTE'] = 'При включенной опции скрипты формы записи будут добавлены 
+                                                         на всех страницах сайта автоматически. Если указан id собственной кнопки,
+                                                         то вызов формы будет привязан к ней, иначе на страницах появится штатная кнопка.';
+
+
 $MESS['FIRSTBIT_APPOINTMENT_TAB_RIGHTS'] = "Настройки доступа";
 $MESS['FIRSTBIT_APPOINTMENT_TAB_TITLE_RIGHTS'] = "Уровень доступа к модулю";
