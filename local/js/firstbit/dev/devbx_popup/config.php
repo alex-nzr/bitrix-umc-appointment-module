@@ -8,7 +8,9 @@ return [
 	'css' => 'dist/bx_popup.bundle.css',
 	'js'  => 'dist/bx_popup.bundle.js',
 	'rel' => [
-		'main.polyfill.core',
+		'date',
+		'main.core',
 	],
-	'skip_core' => true,
+	'skip_core' => false,
+    'lang' => ['lang/ru/js_lang_phrases.php'],
 ];

@@ -1,5 +1,5 @@
 
-export function convertHexToHsl(hex: string) {
+export function convertHexToHsl(hex) {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
 
     if (result)

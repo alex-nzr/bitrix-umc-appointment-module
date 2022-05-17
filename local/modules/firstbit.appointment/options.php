@@ -2,9 +2,11 @@
 /** @var \CMain $APPLICATION */
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Extension;
 use FirstBit\Appointment\Config\OptionManager;
 
 Loc::loadMessages(__FILE__);
+
 
 $module_id = 'firstbit.appointment';
 
@@ -14,6 +16,8 @@ try
     {
         $APPLICATION->AuthForm(Loc::getMessage("FIRSTBIT_APPOINTMENT_ACCESS_DENIED"));
     }
+
+    Extension::load([$module_id.'.admin']);
 
     if(!Loader::includeModule($module_id)){
         throw new Exception(Loc::getMessage("FIRSTBIT_APPOINTMENT_MODULE_NOT_LOADED"));

@@ -7,7 +7,6 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Exception;
 use FirstBit\Appointment\Config\Constants;
-use FirstBit\Appointment\Utils\Utils;
 use SimpleXMLElement;
 use SoapClient;
 use Bitrix\Main\Config\Option;
@@ -23,41 +22,24 @@ class UmcClient
     {
         $this->result = new Result();
         
-        try {
-            $url        = Option::get(Constants::APPOINTMENT_MODULE_ID, "appointment_api_ws_url");
-            $login      = Option::get(Constants::APPOINTMENT_MODULE_ID, "appointment_api_db_login");
-            $password   = Option::get(Constants::APPOINTMENT_MODULE_ID, "appointment_api_db_password");
-
-            if (empty($login) || empty($password)){
-                throw new Exception(Loc::getMessage("FIRSTBIT_APPOINTMENT_SOAP_AUTH_ERROR"));
-            }
-
-            if (empty($url)){
-                throw new Exception(Loc::getMessage("FIRSTBIT_APPOINTMENT_SOAP_URL_ERROR"));
-            }
-
+        try
+        {
             if ($options === null)
             {
-                $options = [
-                    'login'          => $login,
-                    'password'       => $password,
-                    'stream_context' => stream_context_create(
-                        [
-                            'ssl' => [
-                                'verify_peer'       => false,
-                                'verify_peer_name'  => false,
-                            ]
-                        ]
-                    ),
-                    'soap_version' => SOAP_1_2,
-                    'trace' => 1,
-                    'connection_timeout' => 5000,
-                    'keep_alive' => false,
-                ];
+                $options = $this->getDefaultOptions();
+            }
+            else
+            {
+                $options = array_merge($this->getDefaultOptions(), $options);
             }
 
             if (!class_exists('\SoapClient')) {
                 throw new Exception(Loc::getMessage("FIRSTBIT_APPOINTMENT_SOAP_EXT_NOT_FOUND"));
+            }
+
+            $url = Option::get(Constants::APPOINTMENT_MODULE_ID, "appointment_api_ws_url");
+            if (empty($url)){
+                throw new Exception(Loc::getMessage("FIRSTBIT_APPOINTMENT_SOAP_URL_ERROR"));
             }
 
             $this->soapClient = new SoapClient($url, $options);
@@ -161,5 +143,36 @@ class UmcClient
     public function isCreatedSuccessfully(): bool
     {
         return $this->createdSuccessfully;
+    }
+
+    /**
+     * @return array
+     * @throws \Exception
+     */
+    protected function getDefaultOptions(): array
+    {
+        $login      = Option::get(Constants::APPOINTMENT_MODULE_ID, "appointment_api_db_login");
+        $password   = Option::get(Constants::APPOINTMENT_MODULE_ID, "appointment_api_db_password");
+
+        if (empty($login) || empty($password)){
+            throw new Exception(Loc::getMessage("FIRSTBIT_APPOINTMENT_SOAP_AUTH_ERROR"));
+        }
+
+        return [
+            'login'          => $login,
+            'password'       => $password,
+            'stream_context' => stream_context_create(
+                [
+                    'ssl' => [
+                        'verify_peer'       => false,
+                        'verify_peer_name'  => false,
+                    ]
+                ]
+            ),
+            'soap_version' => SOAP_1_2,
+            'trace' => 1,
+            'connection_timeout' => 5000,
+            'keep_alive' => false,
+        ];
     }
 }

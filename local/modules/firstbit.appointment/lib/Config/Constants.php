@@ -29,9 +29,4 @@ class Constants
     const CONFIRM_TYPE_PHONE = 'phone';
     const CONFIRM_TYPE_EMAIL = 'email';
     const CONFIRM_TYPE_NONE  = 'none';
-
-    const ONE_C_READER_SERVICE_ID = 'firstbit.appointment.oneCReader';
-    const ONE_C_WRITER_SERVICE_ID = 'firstbit.appointment.oneCWriter';
-    const MAILER_SERVICE_ID       = 'firstbit.appointment.mailerService';
-    const SMS_SERVICE_ID          = 'firstbit.appointment.smsService';
 }

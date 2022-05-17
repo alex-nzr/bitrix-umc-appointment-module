@@ -1,15 +1,13 @@
 <?php
 namespace FirstBit\Appointment\Controllers;
 
-use Bitrix\Main\Config\Option;
-use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\ActionFilter\Authentication;
 use Bitrix\Main\Engine\ActionFilter\Csrf;
 use Bitrix\Main\Engine\ActionFilter\HttpMethod;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Result;
-use FirstBit\Appointment\Config\Constants;
+use FirstBit\Appointment\Services\Container;
 use FirstBit\Appointment\Services\OneCReader;
 use FirstBit\Appointment\Services\OneCWriter;
 use FirstBit\Appointment\Services\Operation\AppointmentOperation;
@@ -22,22 +20,15 @@ class OneCController extends Controller
     /**
      * OneCController constructor.
      * @throws \Bitrix\Main\ObjectNotFoundException
+     * @throws \Bitrix\Main\ArgumentException
      */
     public function __construct()
     {
         parent::__construct();
 
-        $serviceLocator = ServiceLocator::getInstance();
-
-        if ($serviceLocator->has(Constants::ONE_C_READER_SERVICE_ID))
-        {
-            $this->reader = $serviceLocator->get(Constants::ONE_C_READER_SERVICE_ID);
-        }
-
-        if ($serviceLocator->has(Constants::ONE_C_WRITER_SERVICE_ID))
-        {
-            $this->writer = $serviceLocator->get(Constants::ONE_C_WRITER_SERVICE_ID);
-        }
+        $container = Container::getInstance();
+        $this->reader = $container->getReaderService();
+        $this->writer = $container->getWriterService();
     }
 
 
@@ -98,7 +89,7 @@ class OneCController extends Controller
                 return null;
             }
         }
-        return null;
+        return $result;
     }
 
     protected function getDefaultPreFilters(): array

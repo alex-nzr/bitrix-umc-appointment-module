@@ -1,10 +1,16 @@
 <?php
 namespace FirstBit\Appointment\Component;
 
+use Bitrix\Main\Engine\ActionFilter\Csrf;
+use Bitrix\Main\Engine\ActionFilter\HttpMethod;
 use Bitrix\Main\Engine\Controller;
 use CBitrixComponent;
 use FirstBit\Appointment\Config\Constants;
 
+/**
+ * Class AppFormAjaxController
+ * @package FirstBit\Appointment\Component
+ */
 class AppFormAjaxController extends Controller
 {
     public function getResultAction(): array
@@ -147,6 +153,7 @@ class AppFormAjaxController extends Controller
                     "maxlength"     => "10",
                     "class"         => "appointment-form_input",
                     "name"          => "birthday",
+                    "autocomplete"  => "new-password",
                     "data-required" => "false",
                 ],
                 [
@@ -161,11 +168,15 @@ class AppFormAjaxController extends Controller
         ];
     }
 
-    /**
-     * @return array
-     */
     public function configureActions(): array
     {
-        return [];
+        return [
+            'getResult'     => [
+                'prefilters' => [
+                    new HttpMethod([HttpMethod::METHOD_POST]),
+                    new Csrf(),
+                ],
+            ],
+        ];
     }
 }

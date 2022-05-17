@@ -1,9 +1,15 @@
 <?php
 
+use FirstBit\Appointment\Services\Container;
 use FirstBit\Appointment\Services\SmsService;
 use FirstBit\Appointment\Services\MailerService;
 use FirstBit\Appointment\Services\OneCReader;
 use FirstBit\Appointment\Services\OneCWriter;
+
+const FIRSTBIT_APPOINTMENT_SERVICE_READER = 'firstbit.appointment.services.oneCReader';
+const FIRSTBIT_APPOINTMENT_SERVICE_WRITER = 'firstbit.appointment.services.oneCWriter';
+const FIRSTBIT_APPOINTMENT_SERVICE_MAILER = 'firstbit.appointment.services.mailerService';
+const FIRSTBIT_APPOINTMENT_SERVICE_SMS    = 'firstbit.appointment.services.smsService';
 
 return [
     'controllers' => [
@@ -14,24 +20,21 @@ return [
     ],
     'services' => [
         'value' => [
-            'firstbit.appointment.oneCReader' => [
-                'constructor' => static function () {
-                    return new OneCReader();
-                },
+            'firstBit.appointment.services.container'  => [
+                'className' => Container::class,
             ],
-            'firstbit.appointment.oneCWriter' => [
+            'firstBit.appointment.services.oneCReader' => [
+                'className' => OneCReader::class,
+            ],
+            'firstBit.appointment.services.oneCWriter' => [
                 'className' => OneCWriter::class,
-                'constructorParams' => static function (){
-                    return [];
+            ],
+            'firstBit.appointment.services.mailerService' => [
+                'constructor' => static function () {
+                    return new MailerService();
                 },
             ],
-            'firstbit.appointment.mailerService' => [
-                'className' => MailerService::class,
-                'constructorParams' => static function (){
-                    return [];
-                },
-            ],
-            'firstbit.appointment.smsService' => [
+            'firstBit.appointment.services.smsService' => [
                 'className' => SmsService::class,
                 'constructorParams' => static function (){
                     return [];
