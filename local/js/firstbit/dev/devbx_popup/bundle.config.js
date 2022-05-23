@@ -7,12 +7,12 @@ module.exports = {
     output: 'dist/bx_popup.bundle.js',
     namespace: 'BX.FirstBit.Appointment',
     browserslist: false,
-    minification: true,
+    minification: 0,
     plugins: {
         resolve: true,
         custom: [
             scss({
-                sourceMap: true,
+                sourceMap: 1,
                 outputStyle: 'compressed'
             }),
             postcss({

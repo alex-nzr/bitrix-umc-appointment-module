@@ -1,8 +1,9 @@
 // @disabled-flow
 'use strict';
 import styles from "../../styles/app.scss";
-import {convertHexToHsl} from "../utils/functions";
+import {convertHexToHsl, maskInput} from "../utils/functions";
 import "date";
+import {Event} from 'main.core';
 import {EventManager} from "../utils/eventManager";
 import {Renderer} from "../utils/renderer";
 import type {ITextObject} from "../../types/params";
@@ -10,7 +11,9 @@ import {TextInputNames} from "../../types/params";
 
 export class AppointmentSteps
 {
-    step: string                  = '';
+    selectionStep: string         = '';
+    currentFormStep: HTMLElement  = null;
+    formStepNodes: any            = {one: null, two: null, three: null}
     phoneMask: string             = '+7(000)000-00-00';
     loaded: boolean               = false;
     timeExpires: number           = 0;
@@ -18,23 +21,26 @@ export class AppointmentSteps
     initParams: any               = {};
     eventHandlersAdded            = {};
     dataKeys = {
-        clinicsKey: "clinic",
-        specialtiesKey: "specialty",
-        employeesKey: "doctor",
-        servicesKey: "service",
-        scheduleKey: "schedule",
+        clinicsKey:     "clinics",
+        specialtiesKey: "specialties",
+        employeesKey:   "employees",
+        servicesKey:    "services",
+        scheduleKey:    "schedule",
     };
     data = {
-        clinics: [],
-        employees: {},
-        services: {},
-        schedule: []
+        [this.dataKeys.clinicsKey]:     [],
+        [this.dataKeys.specialtiesKey]: {},
+        [this.dataKeys.servicesKey]:    {},
+        [this.dataKeys.employeesKey]:   {},
+        [this.dataKeys.scheduleKey]:    []
     };
+    orderData       = {};
     selectionBlocks = {};
-    selectionNodes = {};
-    textNodes = {};
-    defaultText = {};
-    isUpdate = false;//not used now, but this app prepared to make ability to update current records from public interface
+    selectionNodes  = {};
+    textNodes       = {};
+    defaultText     = {};
+
+    selectDoctorBeforeService = true;
 
     /**
      * AppointmentSteps constructor
@@ -48,7 +54,6 @@ export class AppointmentSteps
         this.selectionSteps = Object.values(this.dataKeys);
 
         this.useServices 					= (params.useServices === "Y");
-        this.selectDoctorBeforeService 		= (params.selectDoctorBeforeService === "Y");
         this.useTimeSteps 					= (params.useTimeSteps === "Y");
         this.timeStepDurationMinutes		= Number(params.timeStepDurationMinutes);
         this.strictCheckingOfRelations		= (params.strictCheckingOfRelations === "Y");
@@ -57,7 +62,7 @@ export class AppointmentSteps
         this.useConfirmWith                 = (params.useConfirmWith);
         this.useEmailNote                   = (params.useEmailNote === "Y");
 
-        this.useCustomMainBtn = (params.useCustomMainBtn === "Y");
+        this.useCustomMainBtn = (params.useCustomMainBtn === "Y") && params['customMainBtnId'];
         this.customColors     = params.customColors ?? {};
 
         this.filledInputs = {
@@ -106,10 +111,10 @@ export class AppointmentSteps
     prepareSelectionBlocksForRender(){
         this.selectionSteps.forEach(step => {
             this.selectionBlocks[step] = {
-                "blockId":      `app_${step}_block`,
-                "listId":       `app_${step}_list`,
-                "selectedId":   `app_${step}_selected`,
-                "inputId":      `app_${step}_value`,
+                "blockId":      `appointment_${step}_block`,
+                "listId":       `appointment_${step}_list`,
+                "selectedId":   `appointment_${step}_selected`,
+                "inputId":      `appointment_${step}_value`,
                 "isRequired":   !(step === this.dataKeys.servicesKey && this.initParams.useServices !== "Y")
             }
             this.defaultText[step] = BX.message(`FIRSTBIT_JS_APPOINTMENT_SELECT_${step.toUpperCase()}_TEXT`);
@@ -131,7 +136,7 @@ export class AppointmentSteps
     checkRoot(){
         if (!this.root || !BX.type.isDomNode(this.root))
         {
-            this.root = this.renderer.getDivElement(this.selectors.rootNodeId);
+            this.root = this.renderer.getRootElement();
             BX.append(this.root, document.body);
         }
         else
@@ -158,6 +163,7 @@ export class AppointmentSteps
     init(){
         try {
             this.initCustomEvents();
+            this.initFormStepNodes();
             this.initStartBtn();
             this.initBaseNodes();
             this.initOverlayAction();
@@ -177,10 +183,27 @@ export class AppointmentSteps
     /**
      * subscribing on custom js events
      */
-    initCustomEvents(){
+    initCustomEvents()
+    {
         EventManager.subscribe(EventManager.fullDataLoaded, () => {
-            this.startRender();
-        })
+            this.loaded = true;
+            try{
+                this.renderBlock(this.dataKeys.clinicsKey);
+            }
+            catch(e){
+                this.logResultErrors(e);
+            }
+        });
+
+        EventManager.subscribe(EventManager.clinicsRendered, () => this.toggleLoader(false));
+
+        EventManager.subscribe(EventManager.formStepChanged, (e) => this.changeFormStepActions(e.data));
+    }
+
+    initFormStepNodes(){
+        this.currentFormStep = this.formStepNodes.one   = BX(this.selectors.formStepIds.one);
+        this.formStepNodes.two   = BX(this.selectors.formStepIds.two);
+        this.formStepNodes.three = BX(this.selectors.formStepIds.three);
     }
 
     /**
@@ -190,7 +213,7 @@ export class AppointmentSteps
         if(!this.firstInit && this.useCustomMainBtn){
             return;
         }
-        const startBtnId = this.useCustomMainBtn ? this.initParams.customMainBtnId : this.selectors.startBtnId;
+        const startBtnId = this.useCustomMainBtn ? this.initParams['customMainBtnId'] : this.selectors.startBtnId;
         this.startBtn = BX(startBtnId);
         if (BX.type.isDomNode(this.startBtn))
         {
@@ -198,7 +221,7 @@ export class AppointmentSteps
         }
         else
         {
-            throw new Error(`${BX.message('FIRSTBIT_JS_NODE_NOT_FOUND')} "${this.initParams.customMainBtnId}"`)
+            throw new Error(`${BX.message('FIRSTBIT_JS_NODE_NOT_FOUND')} "${this.initParams['customMainBtnId']}"`)
         }
     }
 
@@ -263,19 +286,16 @@ export class AppointmentSteps
     initSelectionNodes() {
         for (const key in this.selectionBlocks)
         {
-            if (this.selectionBlocks.hasOwnProperty(key))
-            {
-                this.selectionNodes[key] = {
-                    blockNode: 		BX(this.selectionBlocks[key].blockId),
-                    listNode: 		BX(this.selectionBlocks[key].listId),
-                    selectedNode: 	BX(this.selectionBlocks[key].selectedId),
-                    inputNode: 		BX(this.selectionBlocks[key].inputId),
-                }
+            this.selectionNodes[key] = {
+                blockNode: 		BX(this.selectionBlocks[key].blockId),
+                listNode: 		BX(this.selectionBlocks[key].listId),
+                selectedNode: 	BX(this.selectionBlocks[key].selectedId),
+                inputNode: 		BX(this.selectionBlocks[key].inputId),
+            }
 
-                if (this.selectionBlocks[key].isRequired)
-                {
-                    this.requiredInputs.push(this.selectionNodes[key].inputNode);
-                }
+            if (this.selectionBlocks[key].isRequired)
+            {
+                this.requiredInputs.push(this.selectionNodes[key].inputNode);
             }
         }
     }
@@ -284,7 +304,7 @@ export class AppointmentSteps
      * find nodes, add actions and save their data to this object
      */
     initTextNodes() {
-        this.initParams.textBlocks.forEach((block: ITextObject) => {
+        this.initParams['textBlocks'].forEach((block: ITextObject) => {
             const input = BX(block.id);
             if (!input){
                 throw new Error(`${BX.message("FIRSTBIT_JS_NODE_NOT_FOUND")} ${block.id}`);
@@ -328,71 +348,53 @@ export class AppointmentSteps
      */
     start() {
         this.toggleLoader(true);
-        this.loadData()
-            .then(() => {
-                this.loaded = true;
-            })
-            .catch(res => {
-                !this.useCustomMainBtn && this.startBtnWrap.classList.add(styles['hidden']);
-                this.logResultErrors(res);
-            });
+        this.loadData();
     }
 
     /**
      * sequentially loads data from 1c
-     * @returns {Promise<any>}
      */
-    async loadData(){
-        const clinicsResponse = await this.getListClinic();
-
-        if (clinicsResponse.data?.error)
-        {
-            return Promise.reject(clinicsResponse.data?.error)
-        }
-        else
-        {
-            if (clinicsResponse.data?.length > 0)
-            {
-                this.data.clinics = clinicsResponse.data;
-
-                const employeesResponse = await this.getListEmployees();
-
-                if (employeesResponse.data?.error)
-                {
-                    return Promise.reject(employeesResponse.data?.error)
+    loadData(): void
+    {
+        this.getListClinic()
+            .then(clinicsResponse => {
+                if (clinicsResponse.data?.error) {
+                    throw new Error(clinicsResponse.data?.error);
                 }
-                else
-                {
-                    if (Object.keys(employeesResponse.data).length > 0)
-                    {
-                        this.data.employees = employeesResponse.data;
-                        const scheduleResponse = await this.getSchedule();
-
-                        if (scheduleResponse.data?.error)
-                        {
-                            return Promise.reject(scheduleResponse.data?.error)
-                        }
-                        else
-                        {
-                            if (scheduleResponse.data?.hasOwnProperty("schedule"))
-                            {
-                                this.data.schedule = scheduleResponse.data.schedule;
-                                EventManager.emit(EventManager.fullDataLoaded);
-                                return Promise.resolve();
-                            }
-                        }
-                    }
-                    else
-                    {
-                        return Promise.reject(BX.message("FIRSTBIT_JS_DOCTORS_NOT_FOUND_ERROR"))
-                    }
+                else if(clinicsResponse.data?.length === 0) {
+                    throw new Error(BX.message("FIRSTBIT_JS_CLINICS_NOT_FOUND_ERROR"));
                 }
-            }
-            else
-            {
-                return Promise.reject(BX.message("FIRSTBIT_JS_CLINICS_NOT_FOUND_ERROR"))
-            }
-        }
+                else {
+                    this.data.clinics = clinicsResponse.data;
+                    return this.getListEmployees();
+                }
+            })
+            .then(employeesResponse => {
+                if (employeesResponse.data?.error) {
+                    throw new Error(employeesResponse.data?.error);
+                }
+                else if(Object.keys(employeesResponse.data).length === 0) {
+                    throw new Error(BX.message("FIRSTBIT_JS_DOCTORS_NOT_FOUND_ERROR"));
+                }
+                else {
+                    this.data.employees = employeesResponse.data;
+                    return this.getSchedule();
+                }
+            })
+            .then(scheduleResponse => {
+                if (scheduleResponse.data?.error) {
+                    throw new Error(scheduleResponse.data?.error);
+                }
+                if (scheduleResponse.data?.hasOwnProperty("schedule"))
+                {
+                    this.data.schedule = scheduleResponse.data.schedule;
+                    EventManager.emit(EventManager.fullDataLoaded);
+                }
+            })
+            .catch(e => {
+                !this.useCustomMainBtn && this.startBtnWrap.classList.add(styles['hidden']);
+                this.logResultErrors(e);
+            })
     }
 
     /**
@@ -445,355 +447,115 @@ export class AppointmentSteps
         });
     }
 
-    startRender(){
-        const clinicsRendered = this.renderClinicList();
-        if (clinicsRendered)
-        {
-            if (this.isUpdate === "Y")
-            {
-                for (const dataKey in this.filledInputs) {
-                    if (this.filledInputs.hasOwnProperty(dataKey)
-                        && this.selectionNodes.hasOwnProperty(dataKey))
-                    {
-                        this.filledInputs[dataKey] = JSON.parse(this.selectionNodes[dataKey].inputNode.value);
-                    }
-                }
-                this.renderSpecialtiesList();
-                this.renderEmployeesList();
-                this.renderScheduleList();
-            }
-            setTimeout(() => {
-                this.toggleLoader(false);
-            }, 300)
-        }
-        else
-        {
-            throw new Error(BX.message("FIRSTBIT_JS_CLINICS_RENDER_ERROR"));
-        }
-    }
-
-    /**
-     * render clinics list
-     * @returns {boolean}
-     */
-    renderClinicList(){
-        let rendered = false;
-        if(this.data.clinics.length)
-        {
-            if (this.selectionNodes.hasOwnProperty(this.dataKeys.clinicsKey))
-            {
-                const clinicsList = this.selectionNodes[this.dataKeys.clinicsKey].listNode;
-                BX.cleanNode(clinicsList);
-                this.data.clinics.forEach((clinic) => {
-                    if (clinic.uid)
-                    {
-                        BX.append(BX.create('li', {
-                            dataset: {
-                                uid: clinic.uid,
-                                name: clinic.name,
-                            },
-                            text: clinic.name
-                        }), clinicsList);
-                    }
-                    else
-                    {
-                        throw new Error(`${BX.message("FIRSTBIT_JS_OBJECT_UID_ERROR")} ${clinic.name}`);
-                    }
-                });
-                this.addItemActions(this.dataKeys.clinicsKey);
-                rendered = true;
-            }
-            else
-            {
-                throw new Error(BX.message('FIRSTBIT_JS_CLINICS_NODE_NOT_FOUND_ERROR'));
-            }
-        }else{
-            throw new Error(BX.message('FIRSTBIT_JS_CLINICS_NOT_FOUND_ERROR'));
-        }
-        return rendered;
-    }
-
     renderSpecialtiesList(){
-        if (this.selectionNodes.hasOwnProperty(this.dataKeys.specialtiesKey))
-        {
-            const specialtiesList = this.selectionNodes[this.dataKeys.specialtiesKey].listNode;
-            BX.cleanNode(specialtiesList);
-
-            if(Object.keys(this.data.employees).length > 0)
-            {
-                for (let uid in this.data.employees)
-                {
-                    if (this.data.employees.hasOwnProperty(uid))
-                    {
-                        const clinicCondition = (this.filledInputs[this.dataKeys.clinicsKey].clinicUid === this.data.employees[uid].clinicUid);
-                        let canRender = true;
-                        if(this.strictCheckingOfRelations){
-                            canRender = clinicCondition;
-                            if (this.showDoctorsWithoutDepartment){
-                                canRender = clinicCondition || !this.data.employees[uid].clinicUid;
-                            }
-                        }
-
-                        if (canRender && this.data.employees[uid]['specialty'])
-                        {
-                            const specialty = this.data.employees[uid]['specialty'];
-                            const specialtyUid = this.createIdFromName(specialty);
-
-                            const alreadyRendered = specialtiesList.querySelector(`[data-uid="${specialtyUid}"]`);
-                            if (!alreadyRendered)
-                            {
-                                BX.append(BX.create('li', {
-                                    dataset: {
-                                        uid: specialtyUid,
-                                        name: specialty,
-                                    },
-                                    text: specialty
-                                }), specialtiesList);
-                            }
-                        }
-                    }
-                }
-                if (specialtiesList.children.length === 0){
-                    BX.append(BX.create('span', {
-                        attrs: {
-                            className: styles["empty-selection-message"]
-                        },
-                        text: BX.message('FIRSTBIT_JS_SPECIALTIES_NOT_FOUND_ERROR')
-                    }), specialtiesList);
-                }
-                this.addItemActions(this.dataKeys.specialtiesKey);
-            }
-        }
-        else
-        {
-            throw new Error(BX.message('FIRSTBIT_JS_SPECIALTIES_NODE_NOT_FOUND_ERROR'));
-        }
+        this.renderBlock(this.dataKeys.specialtiesKey);
     }
 
     renderServicesList(){
-        if (this.selectionNodes.hasOwnProperty(this.dataKeys.servicesKey))
-        {
-            const servicesList = this.selectionNodes[this.dataKeys.servicesKey].listNode;
-            BX.cleanNode(servicesList);
-
-            if(Object.keys(this.data.services).length > 0)
-            {
-                for (let uid in this.data.services)
-                {
-                    if (!this.data.services.hasOwnProperty(uid)){
-
-                    }
-
-                    let renderCondition = (this.filledInputs[this.dataKeys.specialtiesKey].specialtyUid
-                        === this.data.services[uid].specialtyUid);
-                    if (this.selectDoctorBeforeService)
-                    {
-                        const selectedEmployeeUid = this.filledInputs[this.dataKeys.employeesKey].refUid;
-                        renderCondition = renderCondition && this.data.employees[selectedEmployeeUid].services.hasOwnProperty(uid);
-                    }
-
-                    if (renderCondition)
-                    {
-                        let price = Number((this.data.services[uid]['price']).replace(/\s+/g, ''));
-
-                        if (this.data.services.hasOwnProperty(uid)){
-                            BX.append(BX.create('li', {
-                                dataset: {
-                                    uid: uid,
-                                    duration: this.data.services[uid].duration,
-                                },
-                                children: [
-                                    BX.create('p', {
-                                        html:  `${this.data.services[uid].name}<br>
-                                                ${price>0 ? "<b>"+price+"</b>&#8381;" : ""}`
-                                    })
-                                ]
-                            }), servicesList);
-                        }
-                    }
-                }
-                if (servicesList.children.length === 0){
-                    BX.append(BX.create('span', {
-                        attrs: {
-                            className: styles["empty-selection-message"]
-                        },
-                        text: BX.message('FIRSTBIT_JS_SERVICES_NOT_FOUND_ERROR')
-                    }), servicesList);
-                }
-                this.addItemActions(this.dataKeys.servicesKey);
-            }
-        }
-        else
-        {
-            throw new Error(BX.message('FIRSTBIT_JS_SERVICES_NODE_NOT_FOUND_ERROR'));
-        }
+        this.renderBlock(this.dataKeys.servicesKey);
     }
 
     renderEmployeesList() {
-        if (this.selectionNodes.hasOwnProperty(this.dataKeys.employeesKey))
-        {
-            const empList = this.selectionNodes[this.dataKeys.employeesKey].listNode;
-            empList.innerHTML = '';
-
-            if(Object.keys(this.data.employees).length > 0) {
-                for (let uid in this.data.employees)
-                {
-                    if (this.data.employees.hasOwnProperty(uid))
-                    {
-                        const selectedSpecialty = this.filledInputs[this.dataKeys.specialtiesKey].specialty;
-                        const selectedClinic = this.filledInputs[this.dataKeys.clinicsKey].clinicUid;
-                        const specialtyCondition = this.data.employees[uid]['specialty'] === selectedSpecialty;
-                        const clinicCondition = selectedClinic === this.data.employees[uid].clinicUid;
-
-                        let canRender = specialtyCondition;
-
-                        if(this.strictCheckingOfRelations){
-                            if (this.showDoctorsWithoutDepartment){
-                                canRender = (specialtyCondition && !this.data.employees[uid].clinicUid)
-                                    ||
-                                    (specialtyCondition && clinicCondition);
-                            }
-                            else
-                            {
-                                canRender = specialtyCondition && clinicCondition;
-                            }
-                        }
-
-                        if (canRender)
-                        {
-                            if (this.useServices && !this.selectDoctorBeforeService)
-                            {
-                                const selectedServiceUid = this.filledInputs[this.dataKeys.servicesKey].serviceUid;
-                                if (!this.data.employees[uid].services.hasOwnProperty(selectedServiceUid)){
-                                    continue;
-                                }
-                            }
-                            BX.append(BX.create('li', {
-                                dataset: {
-                                    uid: uid,
-                                },
-                                text:  `${this.data.employees[uid].surname} ${this.data.employees[uid].name} ${this.data.employees[uid].middleName}`
-                            }), empList);
-                        }
-                    }
-                }
-                if (empList.children.length === 0){
-                    BX.append(BX.create('span', {
-                        attrs: {
-                            className: styles["empty-selection-message"]
-                        },
-                        text: BX.message('FIRSTBIT_JS_DOCTORS_PARAMS_NOT_FOUND_ERROR')
-                    }), empList);
-                }
-                this.addItemActions(this.dataKeys.employeesKey);
-            }
-        }
-        else
-        {
-            throw new Error(BX.message('FIRSTBIT_JS_DOCTORS_NODE_NOT_FOUND_ERROR'));
-        }
+        this.renderBlock(this.dataKeys.employeesKey);
     }
 
     renderScheduleList() {
-        if (this.data.schedule.length)
+        this.renderBlock(this.dataKeys.scheduleKey);
+    }
+
+    renderBlock(dataKey)
+    {
+        const listNode = this.selectionNodes[dataKey]?.listNode;
+        if(!listNode){
+            throw new Error(BX.message(`FIRSTBIT_JS_${dataKey.toUpperCase()}_NODE_NOT_FOUND_ERROR`));
+        }
+        (dataKey === this.dataKeys.scheduleKey) ? listNode.classList.add(styles["column-mode"]) : void(0);
+        BX.cleanNode(listNode);
+
+        if(Object.keys(this.data[dataKey]).length > 0)
         {
-            const scheduleList = this.selectionNodes[this.dataKeys.scheduleKey].listNode;
-            scheduleList.classList.add(styles["column-mode"]);
-            BX.cleanNode(scheduleList);
+            const items = this.data[dataKey];
+            this.renderer.renderSelectionItems(listNode, dataKey, items);
+            (dataKey === this.dataKeys.clinicsKey) ? EventManager.emit(EventManager.clinicsRendered) : void(0);
+        }
+    }
 
-            this.data.schedule.forEach((employeeSchedule) => {
-                if (
-                    employeeSchedule.clinicUid === this.filledInputs[this.dataKeys.clinicsKey].clinicUid
-                    && employeeSchedule.refUid === this.filledInputs[this.dataKeys.employeesKey].refUid
-                )
-                {
-                    const selectedEmployee = this.data.employees[employeeSchedule.refUid];
-                    const selectedService = this.filledInputs[this.dataKeys.servicesKey];
-                    let serviceDuration = Number(selectedService.serviceDuration);
-                    if(selectedEmployee.services.hasOwnProperty(selectedService.serviceUid))
-                    {
-                        if (selectedEmployee.services[selectedService.serviceUid].hasOwnProperty("personalDuration")){
-                            const personalDuration = selectedEmployee.services[selectedService.serviceUid]["personalDuration"];
-                            serviceDuration = Number(personalDuration) > 0 ? Number(personalDuration) : serviceDuration;
-                        }
-                    }
-                    const renderCustomIntervals = this.useServices && (serviceDuration > 0);
-                    const timeKey = renderCustomIntervals ? "freeNotFormatted" : "free";
+    allowToRender(listNode: HTMLElement, dataKey: string, item: any): boolean
+    {
+        let canRender = true;
+        const selectedClinic        = this.filledInputs[this.dataKeys.clinicsKey].clinicUid;
+        const selectedSpecialtyUid  = this.filledInputs[this.dataKeys.specialtiesKey].specialtyUid;
+        const selectedEmployeeUid   = this.filledInputs[this.dataKeys.employeesKey].refUid;
+        const selectedServiceUid    = this.filledInputs[this.dataKeys.servicesKey].serviceUid;
+        let clinicCondition, specialtyCondition;
 
-                    if (employeeSchedule.timetable[timeKey].length)
-                    {
-                        let intervals = employeeSchedule.timetable[timeKey];
-
-                        if (renderCustomIntervals)
-                        {
-                            const customIntervals = this.getIntervalsForServiceDuration(intervals, serviceDuration*1000);
-
-                            if (customIntervals.length === 0)
-                            {
-                                BX.append(BX.create('span', {
-                                    attrs: {
-                                        className: styles["empty-selection-message"]
-                                    },
-                                    text: BX.message('FIRSTBIT_JS_SCHEDULE_FREE_TIME_NOT_FOUND')
-                                }), scheduleList);
-
-                                return;
-                            }
-                            else
-                            {
-                                intervals = customIntervals;
-                            }
-                        }
-
-                        let renderDate;
-                        let renderColumn = undefined;
-                        intervals.forEach((day, index) => {
-                            const isLast = (index === (intervals.length - 1));
-                            if ((day.date !== renderDate) || isLast)
-                            {
-                                renderColumn ? scheduleList.append(renderColumn) : void(0);
-                                !isLast || (intervals.length === 1) ? renderColumn = this.createDayColumn(day) : void(0);
-                                renderDate = day.date;
-                            }
-
-                            if (renderColumn)
-                            {
-                                BX.append(BX.create('span', {
-                                    dataset: {
-                                        displayDate: `${day['formattedDate']} `,
-                                        date:         day.date,
-                                        start:        day.timeBegin,
-                                        end:          day.timeEnd,
-                                    },
-                                    text: `${day['formattedTimeBegin']}`
-                                }), renderColumn);
-                            }
-                        });
-                    }else{
-                        BX.append(BX.create('span', {
-                            attrs: {
-                                className: styles["empty-selection-message"]
-                            },
-                            text: BX.message('FIRSTBIT_JS_SCHEDULE_FREE_TIME_NOT_FOUND')
-                        }), scheduleList);
+        switch (dataKey)
+        {
+            case this.dataKeys.specialtiesKey:
+                const alreadyRendered = listNode.querySelector(`[data-uid="${item.uid}"]`);
+                clinicCondition = item.clinics.includes(selectedClinic);
+                if(this.strictCheckingOfRelations){
+                    canRender = clinicCondition;
+                    if (this.showDoctorsWithoutDepartment){
+                        canRender = (clinicCondition || item.clinics.includes(''));
                     }
                 }
-            });
-            if (scheduleList.children.length === 0){
-                BX.append(BX.create('span', {
-                    attrs: {
-                        className: styles["empty-selection-message"]
-                    },
-                    text: BX.message('FIRSTBIT_JS_SCHEDULE_FREE_TIME_NOT_FOUND')
-                }), scheduleList);
-            }
-            this.addHorizontalScrollButtons();
-            this.addItemActions(this.dataKeys.scheduleKey);
+                canRender = canRender && BX.type.isNotEmptyString(item.name) && !alreadyRendered;
+                break;
+
+            case this.dataKeys.employeesKey:
+                specialtyCondition = (item.specialtyUid === selectedSpecialtyUid);
+                clinicCondition    = (selectedClinic === item.clinicUid);
+
+                canRender = specialtyCondition;
+
+                if(this.strictCheckingOfRelations){
+                    if (this.showDoctorsWithoutDepartment){
+                        canRender = (specialtyCondition && !item.clinicUid)
+                                    ||
+                                    (specialtyCondition && clinicCondition);
+                    }
+                    else
+                    {
+                        canRender = specialtyCondition && clinicCondition;
+                    }
+                }
+                if (this.useServices && !this.selectDoctorBeforeService)
+                {
+                    canRender = canRender && item.services.hasOwnProperty(selectedServiceUid);
+                }
+                break;
+
+            case this.dataKeys.servicesKey:
+                canRender = (selectedSpecialtyUid === item.specialtyUid);
+                if (this.selectDoctorBeforeService)
+                {
+                    canRender = canRender && this.data.employees[selectedEmployeeUid].services.hasOwnProperty(item.uid);
+                }
+                break;
+
+            case this.dataKeys.scheduleKey:
+                canRender = (item.clinicUid === selectedClinic) && (item.refUid === selectedEmployeeUid)
+                break;
+            default:
+                break;
+
         }
-        else
+        return canRender;
+    }
+
+    getServiceDuration(scheduleItem):number {
+        const selectedEmployee = this.data.employees[scheduleItem.refUid];
+        const selectedService = this.filledInputs[this.dataKeys.servicesKey];
+        let serviceDuration = Number(selectedService.serviceDuration);
+        if(selectedEmployee.services.hasOwnProperty(selectedService.serviceUid))
         {
-            throw new Error(BX.message('FIRSTBIT_JS_SCHEDULE_NOT_FOUND_ERROR'));
+            if (selectedEmployee.services[selectedService.serviceUid].hasOwnProperty("personalDuration")){
+                const personalDuration = selectedEmployee.services[selectedService.serviceUid]["personalDuration"];
+                serviceDuration = Number(personalDuration) > 0 ? Number(personalDuration) : serviceDuration;
+            }
         }
+        return serviceDuration;
     }
 
     getIntervalsForServiceDuration(intervals, serviceDurationMs) {
@@ -843,68 +605,7 @@ export class AppointmentSteps
         return newIntervals;
     }
 
-    createDayColumn(day){
-        const date = this.readDateInfo(day.timeBegin);
-
-        return BX.create('li', {
-            children: [
-                BX.create('p', {
-                    text: `${date.weekDay}
-                        ${day['formattedDate']}`
-                })
-            ]
-        });
-    }
-
-    addHorizontalScrollButtons(){
-        const scroller = this.selectionNodes[this.dataKeys.scheduleKey].listNode;
-        const item = scroller.querySelector('li');
-
-        if (scroller && item){
-            const itemWidth = scroller.querySelector('li').clientWidth;
-
-            BX.append(BX.create('div', {
-                attrs: {
-                    className: styles["horizontal-scroll-buttons"]
-                },
-                children: [
-                    BX.create('button', {
-                        attrs: {
-                            type: "button"
-                        },
-                        text: "<",
-                        events: {
-                            click: () => {
-                                if (scroller.scrollLeft !== 0) {
-                                    scroller.scrollBy({ left: -itemWidth*3, top: 0, behavior: 'smooth' });
-                                } else {
-                                    scroller.scrollTo({ left: scroller.scrollWidth, top: 0, behavior: 'smooth' });
-                                }
-                            }
-                        },
-                    }),
-                    BX.create('button', {
-                        attrs: {
-                            type: "button"
-                        },
-                        text: ">",
-                        events: {
-                            click: () => {
-                                if (scroller.scrollLeft < (scroller.scrollWidth - itemWidth*3 - 10)) {
-                                    scroller.scrollBy({ left: itemWidth*3, top: 0, behavior: 'smooth' });
-                                } else {
-                                    scroller.scrollTo({ left: 0, top: 0, behavior: 'smooth' });
-                                }
-                            }
-                        },
-                    }),
-                ]
-            }), scroller);
-        }
-    }
-
-    toggleSelectionList(dataKey: string, selected: HTMLElement, list: HTMLElement)
-    {
+    toggleSelectionList(dataKey: string, selected: HTMLElement, list: HTMLElement) {
         list.classList.toggle(styles['active']);
         for (const nodesKey in this.selectionNodes) {
             if (
@@ -936,8 +637,8 @@ export class AppointmentSteps
                             </span>
                         `;
 
-                        this.changeStep(dataKey, e.currentTarget);
-                        this.activateBlocks();
+                        this.changeSelectionStep(dataKey, e.currentTarget);
+                        this.activateSelectionNodes();
                     })
                 });
             }
@@ -946,14 +647,14 @@ export class AppointmentSteps
                     e.stopPropagation();
                     this.selectionNodes[dataKey].listNode.classList.remove(styles['active']);
                     this.selectionNodes[dataKey].selectedNode.innerHTML = `<span>${e.currentTarget.textContent}</span>`;
-                    this.changeStep(dataKey, e.currentTarget);
-                    this.activateBlocks();
+                    this.changeSelectionStep(dataKey, e.currentTarget);
+                    this.activateSelectionNodes();
                 })
             }
         }
     }
 
-    changeStep(dataKey, target){
+    changeSelectionStep(dataKey, target){
         this.selectionNodes[dataKey].inputNode.value = target.dataset.uid;
         switch (dataKey) {
             case this.dataKeys.clinicsKey:
@@ -961,7 +662,7 @@ export class AppointmentSteps
                 this.filledInputs[dataKey].clinicName = target.dataset.name;
                 if (this.useServices)
                 {
-                    this.form.classList.add(styles['loading']);
+                    this.toggleLoader(true);
                     this.getListNomenclature(`${target.dataset.uid}`)
                         .then((nomenclature) => {
                             if (nomenclature.data?.error){
@@ -970,28 +671,23 @@ export class AppointmentSteps
                                 if (Object.keys(nomenclature.data).length > 0){
                                     this.data.services = nomenclature.data;
                                     this.bindServicesToSpecialties();
+                                    this.renderSpecialtiesList();
                                 }
                             }
-                            this.form.classList.remove(styles['loading'])
+                            this.toggleLoader(false);
                         })
                         .catch(res => {
                             this.logResultErrors(res);
                         });
                 }
-                this.renderSpecialtiesList();
+                else
+                {
+                    this.renderSpecialtiesList();
+                }
                 break;
             case this.dataKeys.specialtiesKey:
-                this.filledInputs[dataKey].specialty = target.textContent;
+                this.filledInputs[dataKey].specialty = target.dataset.name;
                 this.filledInputs[dataKey].specialtyUid = target.dataset.uid;
-                if(this.useServices){
-                    if (this.selectDoctorBeforeService){
-                        this.renderEmployeesList();
-                    }else{
-                        this.renderServicesList();
-                    }
-                }else{
-                    this.renderEmployeesList();
-                }
                 break;
             case this.dataKeys.servicesKey:
                 this.filledInputs[dataKey].serviceName = target.textContent;
@@ -1021,7 +717,7 @@ export class AppointmentSteps
             default:
                 break;
         }
-        this.step = dataKey;
+        this.selectionStep = dataKey;
     }
 
     bindServicesToSpecialties() {
@@ -1032,16 +728,20 @@ export class AppointmentSteps
             for (const employeeUid in employees)
             {
                 if (!employees.hasOwnProperty(employeeUid)) { return; }
-                const empServices = employees[employeeUid].services;
-                if(empServices && Object.keys(empServices).length > 0){
-                    for (const empServiceUid in empServices)
-                    {
-                        if (!empServices.hasOwnProperty(empServiceUid)) { return; }
 
-                        if (services.hasOwnProperty(empServiceUid)){
-                            const specialty = employees[employeeUid]['specialty'];
-                            if (specialty){
-                                services[empServiceUid].specialtyUid = this.createIdFromName(specialty);
+                const empServices = employees[employeeUid].services;
+                const specialty   = employees[employeeUid].specialty;
+
+                if(specialty){
+                    this.addSpecialty(employees[employeeUid]);
+
+                    if(empServices && Object.keys(empServices).length > 0) {
+                        for (const empServiceUid in empServices)
+                        {
+                            if (!empServices.hasOwnProperty(empServiceUid)) { return; }
+
+                            if (services.hasOwnProperty(empServiceUid)){
+                                services[empServiceUid].specialtyUid = employees[employeeUid].specialtyUid;
                             }
                         }
                     }
@@ -1049,36 +749,70 @@ export class AppointmentSteps
             }
         }
     }
+    
+    addSpecialty(employee)
+    {
+        if(this.data[this.dataKeys.specialtiesKey][employee.specialtyUid])
+        {
+            this.addClinicToSpecialty(this.data[this.dataKeys.specialtiesKey][employee.specialtyUid], employee.clinicUid);
+        }
+        else
+        {
+            this.data[this.dataKeys.specialtiesKey][employee.specialtyUid] = {
+                uid:        employee.specialtyUid,
+                name:       employee.specialty,
+                clinics:    [employee.clinicUid]
+            }
+        }
+    }
 
-    activateBlocks(){
+    addClinicToSpecialty(specialty, clinicUid){
+        if(Array.isArray(specialty.clinics) && !specialty.clinics.includes(clinicUid))
+        {
+            specialty.clinics.push(clinicUid);
+        }
+    }
+
+    activateSelectionNodes(){
         let current = false;
         let next = false;
-        for (const nodesKey in this.selectionNodes)
-        {
+        this.selectionSteps.forEach(nodesKey => {
             if (!this.useServices && nodesKey === this.dataKeys.servicesKey){
-                continue;
+                return;
             }
 
             if (this.selectionNodes.hasOwnProperty(nodesKey))
             {
                 const block = this.selectionNodes[nodesKey].blockNode;
                 if (!current && !next){
-                    block.classList.remove(styles["hidden"])
+                    block.classList.remove(styles["disabled"]);
                 }
                 else if (current && !next){
-                    block.classList.remove(styles["hidden"])
+                    block.classList.remove(styles["disabled"])
                     this.resetValue(nodesKey);
                 }
                 else{
-                    block.classList.add(styles["hidden"]);
+                    block.classList.add(styles["disabled"]);
                     this.resetValue(nodesKey);
                 }
                 next = current;
-                if(nodesKey === this.step) {
+
+                if(nodesKey === this.selectionStep)
+                {
                     current = true;
+
+                    switch (this.selectionStep) {
+                        case this.dataKeys.specialtiesKey:
+                        case this.dataKeys.scheduleKey:
+                            this.activateStepButtons();
+                            break;
+                        default:
+                            this.deactivateStepButtons();
+                            break;
+                    }
                 }
             }
-        }
+        })
     }
 
     resetValue(nodesKey: string) {
@@ -1093,30 +827,106 @@ export class AppointmentSteps
         }
     }
 
+    setSelectionDoctorBeforeService(value: boolean){
+        if(this.filledInputs[this.dataKeys.specialtiesKey].specialty !== false)
+        {
+            this.selectDoctorBeforeService = value;
+            if(this.useServices){
+                if (value === true){
+                    BX.insertBefore(
+                        this.selectionNodes[this.dataKeys.employeesKey].blockNode,
+                        this.selectionNodes[this.dataKeys.servicesKey].blockNode
+                    );
+                    this.selectionSteps[3] = this.dataKeys.servicesKey;
+                    this.selectionSteps[2] = this.dataKeys.employeesKey;
+                    this.renderEmployeesList();
+                }else{
+                    BX.insertBefore(
+                        this.selectionNodes[this.dataKeys.servicesKey].blockNode,
+                        this.selectionNodes[this.dataKeys.employeesKey].blockNode
+                    );
+                    this.selectionSteps[2] = this.dataKeys.servicesKey;
+                    this.selectionSteps[3] = this.dataKeys.employeesKey;
+                    this.renderServicesList();
+                }
+                this.activateSelectionNodes();
+            }
+            else{
+                this.renderEmployeesList();
+            }
+            EventManager.emit(EventManager.formStepChanged, new Event.BaseEvent({
+                data: {
+                    previousStep: this.formStepNodes.one,
+                    newStep: this.formStepNodes.two,
+                },
+            }));
+        }
+        else
+        {
+            this.checkRequiredFields();
+        }
+    }
+
+    changeFormStep(nextStep: HTMLElement)
+    {
+        EventManager.emit(EventManager.formStepChanged, new Event.BaseEvent({
+            data: {
+                previousStep: this.currentFormStep,
+                newStep: nextStep,
+            },
+        }));
+    }
+
+    changeFormStepActions(data)
+    {
+        if(BX.type.isDomNode(data?.newStep)){
+            this.currentFormStep = data.newStep;
+            data.newStep.classList.remove(styles['hidden'])
+        }
+        if(BX.type.isDomNode(data?.previousStep)){
+            data.previousStep.classList.add(styles['hidden'])
+        }
+    }
+
+    activateStepButtons(){
+        if(BX.type.isDomNode(this.currentFormStep)){
+            const buttons = this.currentFormStep.querySelectorAll(`.${styles['appointment-form-button']}`);
+            buttons.length && buttons.forEach(button => button.removeAttribute('disabled'))
+        }
+    }
+
+    deactivateStepButtons(){
+        if(BX.type.isDomNode(this.currentFormStep)){
+            const buttons = this.currentFormStep.querySelectorAll(`.${styles['appointment-form-button']}`);
+            buttons.length && buttons.forEach(button => button.setAttribute('disabled', true))
+        }
+    }
+
     submit(event) {
         event.preventDefault();
 
         if (this.checkRequiredFields())
         {
             this.messageNode ? this.messageNode.textContent = "" : void(0);
-            this.form.classList.add(styles['loading']);
-            let orderData = {...this.filledInputs.textValues};
+            this.toggleLoader(true);
+            this.orderData = {...this.filledInputs.textValues};
 
             for (let key in this.selectionNodes)
             {
                 if (this.selectionNodes.hasOwnProperty(key) && this.filledInputs.hasOwnProperty(key))
                 {
                     this.selectionNodes[key].inputNode.value = JSON.stringify(this.filledInputs[key]);
-                    orderData = {...orderData, ...this.filledInputs[key]};
+                    this.orderData = {...this.orderData, ...this.filledInputs[key]};
                 }
             }
 
             if (this.useConfirmWith !== this.confirmTypes.none){
-                this.sendConfirmCode(orderData);
+                this.sendConfirmCode();
+                this.toggleLoader(false);
             }
             else
             {
-                this.sendOrder(orderData);
+                this.sendOrder();
             }
         }
         else
@@ -1130,19 +940,21 @@ export class AppointmentSteps
         }
     }
 
-    sendConfirmCode (params) {
+    sendConfirmCode (event = false) {
+        event && event.preventDefault();
+
         this.messageNode.textContent = "";
 
         BX.ajax.runAction('firstbit:appointment.messageController.sendConfirmCode', {
             data: {
-                phone: params.phone,
-                email: params.email,
+                phone: this.orderData.phone,
+                email: this.orderData.email,
                 sessid: BX.bitrix_sessid()
             }
         })
         .then(result => {
             this.timeExpires = result.data?.timeExpires ?? ((new Date()).getTime() / 1000).toFixed(0) + 60;
-            this.createConfirmationForm(params);
+            this.createConfirmationForm();
         })
         .catch(result => {
             this.messageNode.textContent = result.errors?.[0]?.message + BX.message("FIRSTBIT_JS_SOME_DISPLAY_ERROR_POSTFIX");
@@ -1150,40 +962,51 @@ export class AppointmentSteps
         });
     }
 
-    createConfirmationForm (params){
+    createConfirmationForm (){
         this.confirmWrapper && this.confirmWrapper.remove();
-        this.confirmWrapper = this.renderer.getConfirmationBlock(params);
+        this.confirmWrapper = this.renderer.getConfirmationBlock();
         this.form.classList.add(styles['appointment-form-confirmation-mode']);
-        BX.insertBefore(this.confirmWrapper, this.submitBtn.closest('div'))
+        BX.append(this.confirmWrapper, this.form);
     }
 
-    verifyConfirmCode (code, params, textNode, btnNode) {
-        btnNode.classList.add(styles['loading']);
+    verifyConfirmCode (code, confirmWarningNode, btnNode)
+    {
+        if (confirmWarningNode && btnNode){
+            confirmWarningNode.textContent = '';
+            if (code?.length === 4)
+            {
+                btnNode.classList.add(styles['loading']);
 
-        BX.ajax.runAction('firstbit:appointment.messageController.verifyConfirmCode', {
-            data: {
-                code: code,
-                email: params.email,
-                sessid: BX.bitrix_sessid()
-            }
-        })
-        .then(() => this.sendOrder(params))
-        .catch(result => {
-            btnNode.classList.remove(styles['loading']);
-            if (result.errors?.length > 0){
-                result.errors.forEach((error) => {
-                    textNode.innerHTML = ((Number(error.code) === 400) || (Number(error.code) === 406) || (Number(error.code) === 425))
-                        ? `${textNode.innerHTML}${error.message}<br>`
-                        : BX.message("FIRSTBIT_JS_APPLICATION_ERROR");
+                BX.ajax.runAction('firstbit:appointment.messageController.verifyConfirmCode', {
+                    data: {
+                        code: code,
+                        email: this.orderData.email,
+                        sessid: BX.bitrix_sessid()
+                    }
                 })
+                .then(() => this.sendOrder())
+                .catch(result => {
+                    btnNode.classList.remove(styles['loading']);
+                    if (result.errors?.length > 0){
+                        result.errors.forEach((error) => {
+                            confirmWarningNode.innerHTML = ((Number(error.code) === 400) || (Number(error.code) === 406) || (Number(error.code) === 425))
+                                    ? `${confirmWarningNode.innerHTML}${error.message}<br>`
+                                    : BX.message("FIRSTBIT_JS_APPLICATION_ERROR");
+                        })
+                    }
+                });
             }
-        });
+            else
+            {
+                confirmWarningNode.textContent = BX.message("FIRSTBIT_JS_CONFIRM_CODE_LENGTH");
+            }
+        }
     }
 
-    sendOrder(params) {
+    sendOrder() {
         BX.ajax.runAction('firstbit:appointment.oneCController.addOrder', {
             data: {
-                params: JSON.stringify(params),
+                params: JSON.stringify(this.orderData),
                 sessid: BX.bitrix_sessid()
             }
         })
@@ -1198,9 +1021,9 @@ export class AppointmentSteps
             }
             else
             {
-                if (this.useEmailNote && params.email)
+                if (this.useEmailNote && this.orderData.email)
                 {
-                    this.sendEmailNote(params);
+                    this.sendEmailNote();
                 }
                 this.finalizingWidget(true);
             }
@@ -1208,13 +1031,31 @@ export class AppointmentSteps
         .catch(result => this.logResultErrors(result));
     }
 
-    sendEmailNote(params) {
+    sendEmailNote() {
         BX.ajax.runAction('firstbit:appointment.messageController.sendEmailNote', {
             data: {
-                params: JSON.stringify(params),
+                params: JSON.stringify(this.orderData),
                 sessid: BX.bitrix_sessid()
             }
         }).then().catch();
+    }
+
+    startCodeTimerActions(confirmRepeatBtn: HTMLElement){
+        const curTimeSeconds: number = Number(((new Date()).getTime() / 1000).toFixed(0));
+        let remainingTime = this.timeExpires - curTimeSeconds;
+        const interval = setInterval(() => {
+            if (remainingTime <= 0)
+            {
+                EventManager.bind(confirmRepeatBtn, 'click', this.sendConfirmCode.bind(this));
+                clearInterval(interval);
+            }
+            else
+            {
+                remainingTime--;
+                confirmRepeatBtn.textContent = `${BX.message("FIRSTBIT_JS_CONFIRM_CODE_SEND_AGAIN")} 
+                                                ${remainingTime > 0 ? remainingTime : ''}`;
+            }
+        }, 1000);
     }
 
     finalizingWidget(success) {
@@ -1226,9 +1067,9 @@ export class AppointmentSteps
         {
             if (success)
             {
-                const date = this.convertDateToDisplay(this.filledInputs[this.dataKeys.scheduleKey].timeBegin, false);
-                const time = this.convertDateToDisplay(this.filledInputs[this.dataKeys.scheduleKey].timeBegin, true);
-                const doctor = this.filledInputs[this.dataKeys.employeesKey].doctorName;
+                const date = this.convertDateToDisplay(this.orderData.timeBegin, false);
+                const time = this.convertDateToDisplay(this.orderData.timeBegin, true);
+                const doctor = this.orderData.doctorName;
                 resTextNode.innerHTML = `${BX.message("FIRSTBIT_JS_APPOINTMENT_SUCCESS")}
                                          <br>${date} ${time}
                                          <br>${BX.message("FIRSTBIT_JS_APPOINTMENT_DOCTOR")} - ${doctor}` ;
@@ -1251,7 +1092,7 @@ export class AppointmentSteps
         this.startBtn.classList.add(styles['success']);
         setTimeout(()=>{
             this.reload();
-        }, 4000);
+        }, 5000);
     }
 
     reload(event = false){
@@ -1320,10 +1161,9 @@ export class AppointmentSteps
      */
     addPhoneMasks(){
         const maskedInputs = this.overlay.querySelectorAll('input[type="tel"]');
-        const that = this;
         maskedInputs.length && maskedInputs.forEach((input: HTMLInputElement) => {
             input.addEventListener('input', (e) => {
-                that.maskInput(e.currentTarget, this.phoneMask);
+                maskInput(e.currentTarget, this.phoneMask);
             });
         });
     }
@@ -1408,33 +1248,6 @@ export class AppointmentSteps
     }
 
     /**
-     * add phone mask
-     * @param input
-     * @param mask
-     */
-    maskInput(input, mask){
-        const value = input.value;
-        const literalPattern = /[0]/;
-        const numberPattern = /[0-9]/;
-
-        let newValue = "";
-
-        let valueIndex = 0;
-
-        for (let i = 0; i < mask.length; i++) {
-                if (i >= value.length) break;
-                if (mask[i] === "0" && !numberPattern.test(value[valueIndex])) break;
-                while (!literalPattern.test(mask[i])) {
-                if (value[valueIndex] === mask[i]) break;
-                newValue += mask[i++];
-            }
-            newValue += value[valueIndex++];
-        }
-
-        input.value = newValue;
-    }
-
-    /**
      * convert date to ISO format without seconds
      * @param timestamp
      * @returns {string}
@@ -1509,15 +1322,6 @@ export class AppointmentSteps
     }
 
     /**
-     * make unique code from string
-     * @param str
-     * @returns {*}
-     */
-    createIdFromName(str) {
-        return window.btoa(window.unescape(encodeURIComponent(str)));
-    }
-
-    /**
      * make the first letter of a string uppercase
      * @param str
      * @returns {string|*}
@@ -1562,7 +1366,12 @@ export class AppointmentSteps
             appResultBlockId:   stylesObject['appointment-result-block'],
             inputClass:         stylesObject['appointment-form_input'],
             textareaClass:      stylesObject['appointment-form_textarea'],
-            confirmWrapperId:   stylesObject['appointment-form-confirmation-wrapper']
+            confirmWrapperId:   stylesObject['appointment-form-confirmation-wrapper'],
+            formStepIds: {
+                one:    'appointment-form-step-one',
+                two:    'appointment-form-step-two',
+                three:  'appointment-form-step-three',
+            }
         }
     }
 }

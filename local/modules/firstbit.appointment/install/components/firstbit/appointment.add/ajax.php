@@ -42,7 +42,7 @@ class AppFormAjaxController extends Controller
 
             "ajaxUrl"                       => "/bitrix/services/main/ajax.php",
             "useServices"                   => $params["USE_NOMENCLATURE"],
-            "selectDoctorBeforeService"     => $params["SELECT_DOCTOR_BEFORE_SERVICE"],
+            //"selectDoctorBeforeService"     => $params["SELECT_DOCTOR_BEFORE_SERVICE"],
             "useTimeSteps"                  => $params["USE_TIME_STEPS"],
             "timeStepDurationMinutes"       => $params["TIME_STEP_DURATION"],
             "strictCheckingOfRelations"     => $params["STRICT_CHECKING_RELATIONS"],

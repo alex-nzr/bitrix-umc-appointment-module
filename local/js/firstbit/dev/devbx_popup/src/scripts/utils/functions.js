@@ -1,5 +1,34 @@
+//@flow
 
-export function convertHexToHsl(hex) {
+/**
+ * add phone mask
+ * @param input
+ * @param mask
+ */
+export function maskInput(input: HTMLInputElement, mask: string): void
+{
+    const value = input.value;
+    const literalPattern = /[0]/;
+    const numberPattern = /[0-9]/;
+
+    let newValue = "";
+
+    let valueIndex = 0;
+
+    for (let i = 0; i < mask.length; i++) {
+        if (i >= value.length) break;
+        if (mask[i] === "0" && !numberPattern.test(value[valueIndex])) break;
+        while (!literalPattern.test(mask[i])) {
+            if (value[valueIndex] === mask[i]) break;
+            newValue += mask[i++];
+        }
+        newValue += value[valueIndex++];
+    }
+
+    input.value = newValue;
+}
+
+export function convertHexToHsl(hex: string): any {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
 
     if (result)

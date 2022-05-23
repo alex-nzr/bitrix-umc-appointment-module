@@ -199,7 +199,11 @@ class firstbit_appointment extends CModule
                     {
                         if (is_dir($path . $item))
                         {
-                            Dir::deleteDirectory($path . $item);
+                            try {
+                                Dir::deleteDirectory($path . $item);
+                            }catch(Exception $e){
+                                continue;
+                            }
                         }
                     }
                 }

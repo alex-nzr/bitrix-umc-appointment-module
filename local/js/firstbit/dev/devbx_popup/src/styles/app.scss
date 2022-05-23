@@ -31,6 +31,15 @@ body{
     color: var(--appointment-form-text-color);
 }
 
+@mixin confirmationModeStyles(){
+    margin-top: 0;
+    top: 50%;
+    transform: translateY(-60%);
+    &>*:not(#appointment-form-confirmation-wrapper){
+        display: none;
+    }
+}
+
 .appointment-popup-overlay{
     @include vars();
     position: fixed;
@@ -99,7 +108,8 @@ body{
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin-top: 30px;
+        margin-top: 0;
+        top: 50%;
         padding: 20px 10px;
         width: 100%;
         max-width: 600px;
@@ -131,6 +141,7 @@ body{
                 width: 100px;
                 height: 100px;
                 transform: translate(-50%, -50%);
+                z-index: 3;
                 & .default-loader-circular {
                     display: block;
                     position: absolute;
@@ -140,7 +151,7 @@ body{
                     bottom: 0;
                     animation: loader-rotate 2s linear infinite;
                     transform-origin: center center;
-                    z-index: 3;
+                    z-index: 4;
                 }
                 & .default-loader-path{
                     stroke: #bfc3c8;
@@ -177,22 +188,12 @@ body{
             pointer-events: none;
         }
         &.appointment-form-confirmation-mode{
-            transform: translateY(30vh);
-            &>.selection-block,
-            &>.appointment-form_input-wrapper,
-            &>.appointment-form-button-wrapper,
-            &>.appointment-info-message,
-            &>.default-loader-circular{
-                display: none;
-            }
+            @include confirmationModeStyles();
         }
         & ::placeholder{
             color: var(--appointment-form-text-color);
         }
-        & #appointment-form-close{
-            display: none;
-        }
-
+        & #appointment-form-close,
         & .default-loader-circular{
             display: none;
         }
@@ -204,8 +205,31 @@ body{
             pointer-events: auto;
         }
         & #appointment-form{
-            transform: translateY(0);
+            transform: translateY(-50%);
             opacity: 1;
+            &.appointment-form-confirmation-mode{
+                @include confirmationModeStyles();
+            }
+        }
+    }
+
+    .appointment-form-step{
+        position: relative;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        transition: opacity .3s;
+        &.hidden {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0s;
+            z-index: 0;
+            & *{
+                pointer-events: none;
+            }
         }
     }
 
@@ -223,14 +247,25 @@ body{
         &.error{
             box-shadow: inset 0 0 0 2px red;
         }
-        &.hidden{
-            max-height: 0;
-            margin-bottom: 0;
-            transform-origin: center top;
-            transform: scaleY(0);
+        &.disabled{
+            position: relative;
+            opacity: .7;
+            cursor: not-allowed;
+            &:before{
+                content: '';
+                display: block;
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 1;
+            }
         }
     }
-    &  .selection-item{
+    & .selection-item{
         &-selected{
             position: relative;
             width: 100%;
@@ -409,7 +444,7 @@ body{
         border-radius: 6px;
     }
     &  #appointment-form-message{
-        margin-bottom: 15px;
+        margin: 10px auto 5px;
         color: orangered;
         text-align: center;
         font-size: 14px;
@@ -417,6 +452,20 @@ body{
 
     & .appointment-form-button-wrapper{
         position: relative;
+        padding-top: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        & button{
+            margin: 0;
+            &:nth-of-type(2){
+                margin-left: 20px;
+            }
+            &[disabled]{
+                opacity: .7;
+                cursor: not-allowed;
+            }
+        }
     }
 
     & .appointment-form-button{
@@ -546,11 +595,16 @@ body{
     }
 }
 
-@media (max-width: 575px) {
-    .appointment-popup-overlay #appointment-form{
+@media (max-width: 767px) {
+    .appointment-popup-overlay.active #appointment-form{
         margin: 0;
         min-height: 100vh;
         border-radius: 0;
+        &.appointment-form-confirmation-mode{
+            margin-top: 0;
+            top: 0;
+            transform: translateY(0);
+        }
     }
 }
 

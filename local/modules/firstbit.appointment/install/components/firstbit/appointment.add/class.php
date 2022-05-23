@@ -103,11 +103,11 @@ class AppForm extends CBitrixComponent
                 'appointment_settings_use_nomenclature',
                 "Y"
             ),
-            "SELECT_DOCTOR_BEFORE_SERVICE"    => Option::get(
+            /*"SELECT_DOCTOR_BEFORE_SERVICE"    => Option::get(
                 Constants::APPOINTMENT_MODULE_ID,
                 'appointment_settings_select_doctor_before_service',
                 "N"
-            ),
+            ),*/
             "USE_TIME_STEPS"                  => Option::get(
                 Constants::APPOINTMENT_MODULE_ID,
                 'appointment_settings_use_time_steps',

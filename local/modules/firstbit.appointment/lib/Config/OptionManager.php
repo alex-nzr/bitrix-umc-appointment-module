@@ -96,13 +96,13 @@ class OptionManager{
                     ],
                     [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_NOMENCLATURE_WARNING')],
 
-                    [
+                    /*[
                         'appointment_settings_select_doctor_before_service',
                         Loc::getMessage('FIRSTBIT_APPOINTMENT_SELECT_DOCTOR_BEFORE_SERVICE'),
                         "Y",
                         ['checkbox', "Y"]
                     ],
-                    [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_SELECT_DOCTOR_BEFORE_SERVICE_NOTE')],
+                    [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_SELECT_DOCTOR_BEFORE_SERVICE_NOTE')],*/
 
                     [
                         'appointment_settings_use_time_steps',

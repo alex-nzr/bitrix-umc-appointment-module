@@ -27,83 +27,168 @@ export class Renderer
                             },
                             html: '&#10006;'
                         }),
-
-                        ...(this.getSelectionNodes()),
-
-                        ...(this.getTextNodes()),
-
-                        BX.create('p', {
-                            attrs: {
-                                id: this.application.selectors.messageNodeId,
-                            },
-                        }),
-
-                        BX.create('div', {
-                            attrs: {
-                                className: this.styles['appointment-form-button-wrapper'],
-                            },
-                            children: [
-                                BX.create('button', {
-                                    attrs: {
-                                        type: "submit",
-                                        id: this.application.selectors.submitBtnId,
-                                        className: this.styles['appointment-form-button'],
-                                    },
-                                    text: BX.message('FIRSTBIT_JS_FORM_BTN_TEXT')
-                                }),
-                            ]
-                        }),
-
-                        BX.create('p', {
-                            attrs: {
-                                className: this.styles['appointment-info-message'],
-                            },
-                            children: [
-                                BX.create('span', {
-                                    text: `${BX.message('FIRSTBIT_JS_FORM_CONFIRM_INFO_TEXT')} `
-                                }),
-                                BX.create('a', {
-                                    attrs: {
-                                        href: this.application.initParams.privacyPageLink,
-                                        target: '_blank'
-                                    },
-                                    text: BX.message('FIRSTBIT_JS_FORM_CONFIRM_INFO_LINK')
-                                }),
-                            ]
-                        }),
-
-                        BX.create('div', {
-                            attrs: {
-                                id: this.application.selectors.appResultBlockId
-                            },
-                            children: [
-                                BX.create('p', {
-                                    text: ''
-                                }),
-                            ]
-                        }),
-
-                        BX.create('div', {
-                            attrs: {
-                                className: this.styles['default-loader-wrapper']
-                            },
-                            html:   `<svg class="${this.styles['default-loader-circular']}" viewBox="25 25 50 50">
-                                        <circle class="${this.styles['default-loader-path']}" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"></circle>
-                                    </svg>`
-                        }),
+                        this.getFormFirstBlock(),
+                        this.getFormSecondBlock(),
+                        this.getFormThirdBlock(),
+                        this.getFormMessageBlock(),
+                        this.getFormPrivacyBlock(),
+                        this.getFormResultBlock(),
+                        this.getFormLoaderBlock(),
                     ]
                 })
             ]
         });
     }
 
-    getSelectionNodes()
+    getFormFirstBlock(){
+        const doctorBtn = this.getFormBtn(BX.message("FIRSTBIT_JS_FORM_BTN_DOCTOR_FIRST"), () => {
+            this.application.setSelectionDoctorBeforeService(true);
+        });
+        const serviceBtn = this.getFormBtn(BX.message("FIRSTBIT_JS_FORM_BTN_SERVICE_FIRST"), () => {
+            this.application.setSelectionDoctorBeforeService(false);
+        });
+        return BX.create('div', {
+            attrs: {
+                className: styles['appointment-form-step'],
+                id: this.application.selectors.formStepIds.one
+            },
+            children: [
+                ...(this.getSelectionNodes(
+                    [this.application.dataKeys.clinicsKey, this.application.dataKeys.specialtiesKey]
+                )),
+                this.getFormButtonsBlock([doctorBtn, serviceBtn])
+            ]
+        });
+    }
+
+    getFormSecondBlock(){
+        const btnPrev = this.getFormBtn(BX.message('FIRSTBIT_JS_FORM_BTN_PREV'), () => {
+            this.application.changeFormStep(this.application.formStepNodes.one);
+        });
+        const btnNext = this.getFormBtn(BX.message('FIRSTBIT_JS_FORM_BTN_NEXT'), () => {
+            this.application.changeFormStep(this.application.formStepNodes.three);
+        });
+        return BX.create('div', {
+            attrs: {
+                className: `${styles['appointment-form-step']} ${styles['hidden']}`,
+                id: this.application.selectors.formStepIds.two
+            },
+            children: [
+                ...(this.getSelectionNodes([
+                    this.application.dataKeys.employeesKey,
+                    this.application.dataKeys.servicesKey,
+                    this.application.dataKeys.scheduleKey
+                ])),
+                this.getFormButtonsBlock([btnPrev, btnNext])
+            ]
+        });
+    }
+
+    getFormThirdBlock(){
+        return BX.create('div', {
+            attrs: {
+                className: `${styles['appointment-form-step']} ${styles['hidden']}`,
+                id: this.application.selectors.formStepIds.three
+            },
+            children: [
+                ...(this.getTextNodes()),
+                this.getFormButtonsBlock([this.getFormSubmitBtn()])
+            ]
+        });
+    }
+
+    getFormMessageBlock(){
+        return BX.create('p', {
+            attrs: {
+                id: this.application.selectors.messageNodeId,
+            },
+        });
+    }
+
+    getFormButtonsBlock(buttons: HTMLElement[]){
+        return BX.create('div', {
+            attrs: {
+                className: this.styles['appointment-form-button-wrapper'],
+            },
+            children: buttons
+        });
+    }
+
+    getFormSubmitBtn(){
+        return BX.create('button', {
+            attrs: {
+                type: "submit",
+                id: this.application.selectors.submitBtnId,
+                className: this.styles['appointment-form-button'],
+            },
+            text: BX.message('FIRSTBIT_JS_FORM_BTN_TEXT')
+        });
+    }
+
+    getFormBtn(text, handler){
+        return BX.create('button', {
+            attrs: {
+                type: "button",
+                className: this.styles['appointment-form-button'],
+                disabled: "true"
+            },
+            text: text,
+            events: {
+                click: handler
+            }
+        });
+    }
+
+    getFormPrivacyBlock(){
+        return BX.create('p', {
+            attrs: {
+                className: this.styles['appointment-info-message'],
+            },
+            children: [
+                BX.create('span', {
+                    text: `${BX.message('FIRSTBIT_JS_FORM_CONFIRM_INFO_TEXT')} `
+                }),
+                BX.create('a', {
+                    attrs: {
+                        href: this.application.initParams['privacyPageLink'],
+                        target: '_blank'
+                    },
+                    text: BX.message('FIRSTBIT_JS_FORM_CONFIRM_INFO_LINK')
+                }),
+            ]
+        });
+    }
+
+    getFormResultBlock(){
+        return BX.create('div', {
+            attrs: {
+                id: this.application.selectors.appResultBlockId
+            },
+            children: [
+                BX.create('p', {
+                    text: ''
+                }),
+            ]
+        });
+    }
+
+    getFormLoaderBlock(){
+        return BX.create('div', {
+            attrs: {
+                className: this.styles['default-loader-wrapper']
+            },
+            html: `<svg class="${this.styles['default-loader-circular']}" viewBox="25 25 50 50">
+                     <circle class="${this.styles['default-loader-path']}" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"></circle>
+                   </svg>`
+        });
+    }
+
+    getSelectionNodes(blockKeys: string[])
     {
         const arNodes = [];
-        for(const key in this.application.selectionBlocks)
-        {
+        blockKeys.length && blockKeys.forEach(key => {
             if (!this.application.selectionBlocks.hasOwnProperty(key)){
-                continue;
+                return;
             }
 
             const selected = BX.create('p', {
@@ -131,25 +216,26 @@ export class Renderer
                 }
             });
 
+            const additionalClass = (key === this.application.dataKeys.clinicsKey) ? '' : this.styles['disabled'];
             arNodes.push(
                 BX.create('div', {
                     attrs: {
                         id: this.application.selectionBlocks[key].blockId,
-                        className: `${this.styles['selection-block']} ${key === this.application.dataKeys.clinicsKey ? '' : this.styles['hidden']}`
+                        className: `${this.styles['selection-block']} ${additionalClass}`
                     },
                     children: [ selected, list, input ]
                 })
             );
-        }
+        });
         return arNodes;
     }
 
     getTextNodes() {
         const arNodes = [];
 
-        for(const key in this.application.initParams.textBlocks)
+        for(const key in this.application.initParams['textBlocks'])
         {
-            if (!this.application.initParams.textBlocks.hasOwnProperty(key)){
+            if (!this.application.initParams['textBlocks'].hasOwnProperty(key)){
                 continue;
             }
             arNodes.push(
@@ -159,8 +245,8 @@ export class Renderer
                     },
                     children: [
                         BX.create({
-                            tag: this.application.initParams.textBlocks[key]["type"] ? 'input' : 'textarea',
-                            attrs: this.getTextInputAttrs(this.application.initParams.textBlocks[key])
+                            tag: this.application.initParams['textBlocks'][key]["type"] ? 'input' : 'textarea',
+                            attrs: this.getTextInputAttrs(this.application.initParams['textBlocks'][key])
                         })
                     ]
                 }),
@@ -214,15 +300,165 @@ export class Renderer
         });
     }
 
-    getDivElement(id) {
+    getRootElement() {
         return BX.create('div', {
             attrs: {
-                id: id
+                id: this.application.selectors.rootNodeId
             }
         });
     }
 
-    getConfirmationBlock(orderData)
+    renderSelectionItems(listNode, dataKey, items) {
+        for(let key in items)
+        {
+            if(!items.hasOwnProperty(key)) continue;
+            if(!this.application.allowToRender(listNode, dataKey, items[key])) continue;
+
+            if(dataKey === this.application.dataKeys.scheduleKey)
+            {
+                this.renderScheduleItem(listNode, items[key]);
+            }
+            else
+            {
+                if(items[key].hasOwnProperty('price')){
+                    const price = Number(items[key]['price']) > 0 ? `<b>${items[key]['price']}</b>&#8381;` : "";
+                    items[key].fullName = `<p>${items[key].name}<br> <b>${price}</b></p>`;
+                }
+                const dataAttrs = {
+                    uid:  items[key].uid ?? key,
+                    name: items[key].fullName ?? items[key].name,
+                }
+                items[key].duration ? (dataAttrs.duration = items[key].duration): void(0);
+
+                BX.append(BX.create('li', {
+                    dataset: dataAttrs,
+                    html: items[key].fullName ?? items[key].name
+                }), listNode);
+            }
+        }
+
+        if (listNode.children.length === 0){
+            BX.append(
+                this.createEmptySelectionNode(BX.message(`FIRSTBIT_JS_${dataKey.toUpperCase()}_NOT_FOUND_ERROR`)),
+                listNode
+            );
+        }
+        else
+        {
+            if(dataKey === this.application.dataKeys.scheduleKey){
+                this.addHorizontalScrollButtons(listNode);
+            }
+            this.application.addItemActions(dataKey);
+        }
+    }
+
+    renderScheduleItem(scheduleList, scheduleItem) {
+        const serviceDuration = this.application.getServiceDuration(scheduleItem);
+        const renderCustomIntervals = this.application.useServices && (serviceDuration > 0);
+        const timeKey = renderCustomIntervals ? "freeNotFormatted" : "free";
+
+        if (scheduleItem['timetable']?.[timeKey]?.length)
+        {
+            let intervals = scheduleItem['timetable'][timeKey];
+
+            if (renderCustomIntervals)
+            {
+                const customIntervals = this.application.getIntervalsForServiceDuration(intervals, serviceDuration*1000);
+                if (customIntervals.length === 0) {
+                    return;
+                }
+                else {
+                    intervals = customIntervals;
+                }
+            }
+
+            let renderDate;
+            let renderColumn = undefined;
+            intervals.forEach((day, index) => {
+                const isLast = (index === (intervals.length - 1));
+                if ((day.date !== renderDate) || isLast)
+                {
+                    renderColumn ? scheduleList.append(renderColumn) : void(0);
+                    !isLast || (intervals.length === 1) ? renderColumn = this.createDayColumn(day) : void(0);
+                    renderDate = day.date;
+                }
+
+                if (renderColumn)
+                {
+                    BX.append(BX.create('span', {
+                        dataset: {
+                            displayDate: `${day['formattedDate']} `,
+                            date:         day.date,
+                            start:        day.timeBegin,
+                            end:          day.timeEnd,
+                        },
+                        text: `${day['formattedTimeBegin']}`
+                    }), renderColumn);
+                }
+            });
+        }
+    }
+
+    createDayColumn(day){
+        const date = this.application.readDateInfo(day.timeBegin);
+
+        return BX.create('li', {
+            children: [
+                BX.create('p', {
+                    text: `${date.weekDay}
+                        ${day['formattedDate']}`
+                })
+            ]
+        });
+    }
+
+    addHorizontalScrollButtons(scroller){
+        const item = scroller.querySelector('li');
+
+        if (scroller && item){
+            const itemWidth = scroller.querySelector('li').clientWidth;
+
+            BX.append(BX.create('div', {
+                attrs: {
+                    className: styles["horizontal-scroll-buttons"]
+                },
+                children: [
+                    BX.create('button', {
+                        attrs: {
+                            type: "button"
+                        },
+                        text: "<",
+                        events: {
+                            click: () => {
+                                if (scroller.scrollLeft !== 0) {
+                                    scroller.scrollBy({ left: -itemWidth*3, top: 0, behavior: 'smooth' });
+                                } else {
+                                    scroller.scrollTo({ left: scroller.scrollWidth, top: 0, behavior: 'smooth' });
+                                }
+                            }
+                        },
+                    }),
+                    BX.create('button', {
+                        attrs: {
+                            type: "button"
+                        },
+                        text: ">",
+                        events: {
+                            click: () => {
+                                if (scroller.scrollLeft < (scroller.scrollWidth - itemWidth*3 - 10)) {
+                                    scroller.scrollBy({ left: itemWidth*3, top: 0, behavior: 'smooth' });
+                                } else {
+                                    scroller.scrollTo({ left: 0, top: 0, behavior: 'smooth' });
+                                }
+                            }
+                        },
+                    }),
+                ]
+            }), scroller);
+        }
+    }
+
+    getConfirmationBlock()
     {
         const confirmWarningNode = BX.create('p', {
             attrs: {
@@ -259,21 +495,7 @@ export class Renderer
                     },
                     text: BX.message("FIRSTBIT_JS_SEND_BTN_TEXT"),
                     events: {
-                        click: (e) => {
-                            if (confirmInputNode && confirmWarningNode){
-                                confirmWarningNode.textContent = '';
-                                if (confirmInputNode.value && confirmInputNode.value.length === 4){
-                                    this.application.form.classList.add(styles['sending']);
-                                    this.application.verifyConfirmCode(confirmInputNode.value, orderData, confirmWarningNode, e.target);
-                                }
-                                else
-                                {
-                                    if (!confirmInputNode.value || (confirmInputNode.value.length !== 4)){
-                                        confirmWarningNode.textContent = BX.message("FIRSTBIT_JS_CONFIRM_CODE_LENGTH");
-                                    }
-                                }
-                            }
-                        }
+                        click: (e) => this.application.verifyConfirmCode(confirmInputNode.value, confirmWarningNode, e.target)
                     },
                 }),
             ]
@@ -306,26 +528,20 @@ export class Renderer
             ]
         });
 
-        const curTimeSeconds: number = Number(((new Date()).getTime() / 1000).toFixed(0));
-        let remainingTime = this.application.timeExpires - curTimeSeconds;
 
-        const interval = setInterval(() => {
-            if (remainingTime <= 0)
-            {
-                confirmRepeatBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    this.application.sendConfirmCode(orderData);
-                });
-                clearInterval(interval);
-            }
-            else
-            {
-                remainingTime--;
-                confirmRepeatBtn.textContent = `${BX.message("FIRSTBIT_JS_CONFIRM_CODE_SEND_AGAIN")} 
-                                         ${remainingTime > 0 ? remainingTime : ''}`;
-            }
-        }, 1000);
+
+        this.application.startCodeTimerActions(confirmRepeatBtn);
+
 
         return confirmWrapper;
+    }
+
+    createEmptySelectionNode(message: string) {
+        return BX.create('span', {
+            attrs: {
+                className: styles["empty-selection-message"]
+            },
+            text: message
+        });
     }
 }

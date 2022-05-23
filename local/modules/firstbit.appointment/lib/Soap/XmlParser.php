@@ -24,7 +24,7 @@ class XmlParser{
                     $clinic = [];
                     $clinic['uid'] = $item['УИД'];
                     $clinic['name'] = $item['Наименование'];
-                    $clinics[] = $clinic;
+                    $clinics[$item['УИД']] = $clinic;
                 }
             }
 
@@ -52,15 +52,19 @@ class XmlParser{
                 {
                     $employee = [];
                     $clinicUid = ($item['Организация'] == "00000000-0000-0000-0000-000000000000") ? "" : $item['Организация'];
+                    $uid = is_array($item['UID']) ? current($item['UID']) : $item['UID'];
 
-                    $employee['name']        = $item['Имя'];
-                    $employee['surname']     = $item['Фамилия'];
-                    $employee['middleName']  = $item['Отчество'];
-                    $employee['clinicUid']   = $clinicUid;
-                    $employee['photo']       = $item['Фото'];
-                    $employee['description'] = $item['КраткоеОписание'];
-                    $employee['specialty']   = $item['Специализация'];
-                    $employee['services']    = [];
+                    $employee['uid']          = $uid;
+                    $employee['name']         = $item['Имя'];
+                    $employee['surname']      = $item['Фамилия'];
+                    $employee['middleName']   = $item['Отчество'];
+                    $employee['fullName']     = $item['Фамилия'] ." ". $item['Имя'] ." ". $item['Отчество'];
+                    $employee['clinicUid']    = $clinicUid;
+                    $employee['photo']        = $item['Фото'];
+                    $employee['description']  = $item['КраткоеОписание'];
+                    $employee['specialty']    = $item['Специализация'];
+                    $employee['specialtyUid'] = base64_encode($item['Специализация']);
+                    $employee['services']     = [];
 
                     if (is_array($item['ОсновныеУслуги']['ОсновнаяУслуга']))
                     {
@@ -73,7 +77,7 @@ class XmlParser{
                         }
                     }
 
-                    $employees[$item['UID'][0]] = $employee;
+                    $employees[$uid] = $employee;
                 }
             }
             return $employees;
@@ -101,13 +105,16 @@ class XmlParser{
                     if ($item['ЭтоПапка'] === true){
                         continue;
                     }
+                    $uid = is_array($item['UID']) ? current($item['UID']) : $item['UID'];
+
                     $product = [];
-                    $product['name'] = $item['Наименование'];
-                    $product['typeOfItem'] = $item['Вид'];
-                    $product['artNumber'] = $item['Артикул'];
-                    $product['price'] = $item['Цена'];
-                    $product['duration'] = Utils::formatDurationToSeconds($item['Продолжительность']);
-                    $nomenclature[$item['UID'][0]] = $product;
+                    $product['uid']         = $uid;
+                    $product['name']        = $item['Наименование'];
+                    $product['typeOfItem']  = $item['Вид'];
+                    $product['artNumber']   = $item['Артикул'];
+                    $product['price']       = str_replace("[^0-9]", '', $item['Цена']);
+                    $product['duration']    = Utils::formatDurationToSeconds($item['Продолжительность']);
+                    $nomenclature[$uid]     = $product;
                 }
             }
 
