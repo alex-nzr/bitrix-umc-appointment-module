@@ -13,7 +13,7 @@ export class AppointmentSteps
 {
     selectionStep: string         = '';
     currentFormStep: HTMLElement  = null;
-    formStepNodes: any            = {one: null, two: null, three: null}
+    formStepNodes: any            = {one: null, two: null, userData: null}
     phoneMask: string             = '+7(000)000-00-00';
     loaded: boolean               = false;
     timeExpires: number           = 0;
@@ -203,7 +203,7 @@ export class AppointmentSteps
     initFormStepNodes(){
         this.currentFormStep = this.formStepNodes.one   = BX(this.selectors.formStepIds.one);
         this.formStepNodes.two   = BX(this.selectors.formStepIds.two);
-        this.formStepNodes.three = BX(this.selectors.formStepIds.three);
+        this.formStepNodes.userData = BX(this.selectors.formStepIds.userData);
     }
 
     /**
@@ -867,8 +867,7 @@ export class AppointmentSteps
         }
     }
 
-    changeFormStep(nextStep: HTMLElement)
-    {
+    changeFormStep(nextStep: HTMLElement) {
         EventManager.emit(EventManager.formStepChanged, new Event.BaseEvent({
             data: {
                 previousStep: this.currentFormStep,
@@ -881,23 +880,27 @@ export class AppointmentSteps
     {
         if(BX.type.isDomNode(data?.newStep)){
             this.currentFormStep = data.newStep;
-            data.newStep.classList.remove(styles['hidden'])
+            data.newStep.classList.remove(styles['hidden']);
         }
         if(BX.type.isDomNode(data?.previousStep)){
-            data.previousStep.classList.add(styles['hidden'])
+            data.previousStep.classList.add(styles['hidden']);
         }
     }
 
     activateStepButtons(){
         if(BX.type.isDomNode(this.currentFormStep)){
-            const buttons = this.currentFormStep.querySelectorAll(`.${styles['appointment-form-button']}`);
+            const buttons = this.currentFormStep.querySelectorAll(
+                `.${styles['appointment-form-button']}:not([data-readonly="Y"])`
+            );
             buttons.length && buttons.forEach(button => button.removeAttribute('disabled'))
         }
     }
 
     deactivateStepButtons(){
         if(BX.type.isDomNode(this.currentFormStep)){
-            const buttons = this.currentFormStep.querySelectorAll(`.${styles['appointment-form-button']}`);
+            const buttons = this.currentFormStep.querySelectorAll(
+                `.${styles['appointment-form-button']}:not([data-readonly="Y"])`
+            );
             buttons.length && buttons.forEach(button => button.setAttribute('disabled', true))
         }
     }
@@ -1351,6 +1354,8 @@ export class AppointmentSteps
 
     /**
      * init elements selectors
+     * @param stylesObject
+     * @returns object
      */
     getAppSelectors(stylesObject)
     {
@@ -1368,9 +1373,9 @@ export class AppointmentSteps
             textareaClass:      stylesObject['appointment-form_textarea'],
             confirmWrapperId:   stylesObject['appointment-form-confirmation-wrapper'],
             formStepIds: {
-                one:    'appointment-form-step-one',
-                two:    'appointment-form-step-two',
-                three:  'appointment-form-step-three',
+                one:        'appointment-form-step-one',
+                two:        'appointment-form-step-two',
+                userData:   'appointment-form-step-userData',
             }
         }
     }

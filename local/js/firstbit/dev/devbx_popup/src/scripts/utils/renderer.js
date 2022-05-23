@@ -21,15 +21,11 @@ export class Renderer
                         className: this.styles['appointment-form']
                     },
                     children: [
-                        BX.create('span', {
-                            attrs: {
-                                id: this.styles['appointment-form-close'],
-                            },
-                            html: '&#10006;'
-                        }),
+                        this.getLogoBlock(),
+                        this.getCloseButton(),
                         this.getFormFirstBlock(),
                         this.getFormSecondBlock(),
-                        this.getFormThirdBlock(),
+                        this.getFormUserDataBlock(),
                         this.getFormMessageBlock(),
                         this.getFormPrivacyBlock(),
                         this.getFormResultBlock(),
@@ -37,6 +33,31 @@ export class Renderer
                     ]
                 })
             ]
+        });
+    }
+
+    getLogoBlock(){
+        return BX.create('div', {
+            attrs: {
+                className: this.styles['appointment-form-head'],
+            },
+            children: [
+                BX.create('span', {
+                    attrs: {
+                        className: this.styles['appointment-form-head-logo'],
+                    },
+                    text: 'LOGO IMAGE'
+                })
+            ]
+        });
+    }
+
+    getCloseButton(){
+        return BX.create('span', {
+            attrs: {
+                id: this.styles['appointment-form-close'],
+            },
+            html: '&#10006;'
         });
     }
 
@@ -64,9 +85,9 @@ export class Renderer
     getFormSecondBlock(){
         const btnPrev = this.getFormBtn(BX.message('FIRSTBIT_JS_FORM_BTN_PREV'), () => {
             this.application.changeFormStep(this.application.formStepNodes.one);
-        });
+        }, false, true);
         const btnNext = this.getFormBtn(BX.message('FIRSTBIT_JS_FORM_BTN_NEXT'), () => {
-            this.application.changeFormStep(this.application.formStepNodes.three);
+            this.application.changeFormStep(this.application.formStepNodes.userData);
         });
         return BX.create('div', {
             attrs: {
@@ -84,11 +105,11 @@ export class Renderer
         });
     }
 
-    getFormThirdBlock(){
+    getFormUserDataBlock(){
         return BX.create('div', {
             attrs: {
                 className: `${styles['appointment-form-step']} ${styles['hidden']}`,
-                id: this.application.selectors.formStepIds.three
+                id: this.application.selectors.formStepIds.userData
             },
             children: [
                 ...(this.getTextNodes()),
@@ -125,12 +146,15 @@ export class Renderer
         });
     }
 
-    getFormBtn(text, handler){
+    getFormBtn(text: string, handler: Function, disabled: boolean = true, readonly = false){
         return BX.create('button', {
             attrs: {
                 type: "button",
                 className: this.styles['appointment-form-button'],
-                disabled: "true"
+                disabled: disabled
+            },
+            dataset: {
+                "readonly": readonly ? "Y" : "N"
             },
             text: text,
             events: {

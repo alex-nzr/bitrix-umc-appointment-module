@@ -113,6 +113,7 @@ body{
         padding: 20px 10px;
         width: 100%;
         max-width: 600px;
+        min-height: 500px;
         background: var(--appointment-main-color);
         box-shadow: 0 0 5px 1px var(--appointment-main-color);
         border-radius: 6px;
@@ -154,7 +155,7 @@ body{
                     z-index: 4;
                 }
                 & .default-loader-path{
-                    stroke: #bfc3c8;
+                    stroke: #025ea1;
                     stroke-width: 2.5;
                     stroke-dasharray: 20,200;
                     stroke-dashoffset: 0;
@@ -197,6 +198,48 @@ body{
         & .default-loader-circular{
             display: none;
         }
+
+        & .appointment-form-head{
+            position: relative;
+            padding: 20px;
+            &-logo{
+                min-height: 50px;
+                font-size: 45px;
+                &-img{
+                    width: auto;
+                    height: auto;
+                    max-width: 100%;
+                    max-height: 100px;
+                    object-position: top center;
+                    object-fit: cover;
+                }
+            }
+        }
+
+        & .appointment-form-step{
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            width: 100%;
+            height: 100%;
+            min-height: 200px;
+            z-index: 1;
+            transition: opacity .3s;
+            &.hidden {
+                position: absolute;
+                top: 0;
+                left: 0;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0s;
+                z-index: 0;
+                & *{
+                    pointer-events: none;
+                }
+            }
+        }
     }
 
     &.active{
@@ -209,26 +252,6 @@ body{
             opacity: 1;
             &.appointment-form-confirmation-mode{
                 @include confirmationModeStyles();
-            }
-        }
-    }
-
-    .appointment-form-step{
-        position: relative;
-        width: 100%;
-        height: 100%;
-        z-index: 1;
-        transition: opacity .3s;
-        &.hidden {
-            position: absolute;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0s;
-            z-index: 0;
-            & *{
-                pointer-events: none;
             }
         }
     }
@@ -451,11 +474,13 @@ body{
     }
 
     & .appointment-form-button-wrapper{
+        flex-grow: 1;
+        margin-top: auto;
         position: relative;
         padding-top: 5px;
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: flex-end;
         & button{
             margin: 0;
             &:nth-of-type(2){
@@ -595,19 +620,6 @@ body{
     }
 }
 
-@media (max-width: 767px) {
-    .appointment-popup-overlay.active #appointment-form{
-        margin: 0;
-        min-height: 100vh;
-        border-radius: 0;
-        &.appointment-form-confirmation-mode{
-            margin-top: 0;
-            top: 0;
-            transform: translateY(0);
-        }
-    }
-}
-
 @keyframes rotating {
     from{
         transform: translate(-50%, -50%) rotate(0);
@@ -731,6 +743,8 @@ body{
     .appointment-popup-overlay{
         & #appointment-form{
             padding-top: 50px;
+            transform: translateY(0);
+            top: 0;
             & #appointment-form-close{
                 display: flex;
                 justify-content: center;
@@ -745,6 +759,22 @@ body{
                 line-height: 1;
                 color: var(--appointment-form-text-color);
                 cursor: pointer;
+            }
+
+            & .appointment-form-head{
+                padding-top: 0;
+            }
+        }
+        &.active #appointment-form{
+            margin: 0;
+            top: 0;
+            min-height: 100vh;
+            border-radius: 0;
+            transform: translateY(0);
+            &.appointment-form-confirmation-mode{
+                margin-top: 0;
+                top: 0;
+                transform: translateY(0);
             }
         }
     }
