@@ -42,12 +42,15 @@ export class Renderer
                 className: this.styles['appointment-form-head'],
             },
             children: [
-                BX.create('span', {
-                    attrs: {
-                        className: this.styles['appointment-form-head-logo'],
-                    },
-                    text: 'LOGO IMAGE'
-                })
+                this.application.companyLogo ?
+                    BX.create('img', {
+                        attrs: {
+                            className: this.styles['appointment-form-head-logo'],
+                            src: this.application.companyLogo,
+                            alt: 'company logo',
+                        },
+                    })
+                : '',
             ]
         });
     }
@@ -68,16 +71,22 @@ export class Renderer
         const serviceBtn = this.getFormBtn(BX.message("FIRSTBIT_JS_FORM_BTN_SERVICE_FIRST"), () => {
             this.application.setSelectionDoctorBeforeService(false);
         });
+
+        const buttons = this.application.useServices ? [doctorBtn, serviceBtn] : [doctorBtn];
+
         return BX.create('div', {
             attrs: {
                 className: styles['appointment-form-step'],
                 id: this.application.selectors.formStepIds.one
             },
+            dataset: {
+                services: !this.application.useServices ? 'disabled' : false
+            },
             children: [
                 ...(this.getSelectionNodes(
                     [this.application.dataKeys.clinicsKey, this.application.dataKeys.specialtiesKey]
                 )),
-                this.getFormButtonsBlock([doctorBtn, serviceBtn])
+                this.getFormButtonsBlock(buttons)
             ]
         });
     }

@@ -62,6 +62,7 @@ export class AppointmentSteps
         this.useConfirmWith                 = (params.useConfirmWith);
         this.useEmailNote                   = (params.useEmailNote === "Y");
 
+        this.companyLogo      = params.companyLogo ?? false;
         this.useCustomMainBtn = (params.useCustomMainBtn === "Y") && params['customMainBtnId'];
         this.customColors     = params.customColors ?? {};
 
@@ -925,7 +926,6 @@ export class AppointmentSteps
 
             if (this.useConfirmWith !== this.confirmTypes.none){
                 this.sendConfirmCode();
-                this.toggleLoader(false);
             }
             else
             {
@@ -958,6 +958,7 @@ export class AppointmentSteps
         .then(result => {
             this.timeExpires = result.data?.timeExpires ?? ((new Date()).getTime() / 1000).toFixed(0) + 60;
             this.createConfirmationForm();
+            this.toggleLoader(false);
         })
         .catch(result => {
             this.messageNode.textContent = result.errors?.[0]?.message + BX.message("FIRSTBIT_JS_SOME_DISPLAY_ERROR_POSTFIX");
@@ -1015,7 +1016,8 @@ export class AppointmentSteps
         })
         .then((result) => {
             this.confirmWrapper && this.confirmWrapper.remove();
-            this.form.classList.remove(styles['appointment-form-confirmation-mode'], styles['loading']);
+            this.form.classList.remove(styles['appointment-form-confirmation-mode']);
+            this.toggleLoader(false);
 
             if (result.data?.error)
             {

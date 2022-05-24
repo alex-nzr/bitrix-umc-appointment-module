@@ -70,10 +70,13 @@ class XmlParser{
                     {
                         foreach ($item['ОсновныеУслуги']['ОсновнаяУслуга'] as $service)
                         {
-                            $employee['services'][$service['UID']] = [
-                                'title'            => 'deprecated field',
-                                'personalDuration' => strtotime($service['Продолжительность'])-strtotime('0001-01-01T00:00:00')
-                            ];
+                            if (!empty($service['UID']))
+                            {
+                                $employee['services'][$service['UID']] = [
+                                    'title'            => 'deprecated field',
+                                    'personalDuration' => strtotime($service['Продолжительность'])-strtotime('0001-01-01T00:00:00')
+                                ];
+                            }
                         }
                     }
 

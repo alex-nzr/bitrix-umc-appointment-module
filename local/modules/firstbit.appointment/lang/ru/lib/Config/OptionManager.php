@@ -50,6 +50,7 @@ $MESS['FIRSTBIT_APPOINTMENT_CONFIRM_WITH_NONE']  = "Выключено";
 
 $MESS['FIRSTBIT_APPOINTMENT_TAB_VIEW'] = "Внешний вид";
 $MESS['FIRSTBIT_APPOINTMENT_TAB_TITLE_VIEW'] = "Визуальные настройки формы записи";
+$MESS['FIRSTBIT_APPOINTMENT_LOGO_UPLOAD'] = "Логотип компании";
 $MESS['FIRSTBIT_APPOINTMENT_MAIN_BTN_SETTINGS'] = "Настройки кнопки вызова окна записи";
 $MESS['FIRSTBIT_APPOINTMENT_USE_CUSTOM_MAIN_BTN'] = "Использовать свою кнопку для вызова всплывающего окна";
 $MESS['FIRSTBIT_APPOINTMENT_CUSTOM_BTN_ID'] = 'Значение атрибута "id" собственной кнопки';

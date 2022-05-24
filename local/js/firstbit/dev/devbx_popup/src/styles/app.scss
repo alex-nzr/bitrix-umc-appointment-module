@@ -32,10 +32,8 @@ body{
 }
 
 @mixin confirmationModeStyles(){
-    margin-top: 0;
-    top: 50%;
-    transform: translateY(-60%);
-    &>*:not(#appointment-form-confirmation-wrapper){
+    min-height: auto;
+    &>*:not(#appointment-form-confirmation-wrapper):not(.appointment-form-head){
         display: none;
     }
 }
@@ -201,22 +199,21 @@ body{
 
         & .appointment-form-head{
             position: relative;
-            padding: 20px;
+            padding: 0 20px 20px;
             &-logo{
                 min-height: 50px;
                 font-size: 45px;
-                &-img{
-                    width: auto;
-                    height: auto;
-                    max-width: 100%;
-                    max-height: 100px;
-                    object-position: top center;
-                    object-fit: cover;
-                }
+                width: auto;
+                height: auto;
+                max-width: 100%;
+                max-height: 150px;
+                object-position: top center;
+                object-fit: cover;
             }
         }
 
         & .appointment-form-step{
+            padding-top: 30px;
             position: relative;
             display: flex;
             flex-direction: column;
@@ -238,6 +235,9 @@ body{
                 & *{
                     pointer-events: none;
                 }
+            }
+            & ~ .appointment-form-step{
+                padding-top: 0;
             }
         }
     }
@@ -759,10 +759,6 @@ body{
                 line-height: 1;
                 color: var(--appointment-form-text-color);
                 cursor: pointer;
-            }
-
-            & .appointment-form-head{
-                padding-top: 0;
             }
         }
         &.active #appointment-form{

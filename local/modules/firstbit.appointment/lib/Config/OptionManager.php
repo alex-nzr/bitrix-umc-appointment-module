@@ -7,6 +7,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Request;
 use CAdminTabControl;
 use CControllerClient;
+use CFile;
 use Exception;
 use function htmlSpecialCharsBx;
 use function ShowError;
@@ -68,10 +69,10 @@ class OptionManager{
 
                     Loc::getMessage("FIRSTBIT_APPOINTMENT_USE_AUTO_INJECTING"),
                     [
-                        'firstbit_appointment_settings_use_auto_injecting',
+                        'appointment_settings_use_auto_injecting',
                         Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_AUTO_INJECTING_ON'),
-                        "Y",
-                        ['checkbox', "Y"]
+                        "N",
+                        ['checkbox', "N"]
                     ],
                     [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_AUTO_INJECTING_NOTE')],
 
@@ -91,7 +92,7 @@ class OptionManager{
                     [
                         'appointment_settings_use_nomenclature',
                         Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_NOMENCLATURE'),
-                        "Y",
+                        "N",
                         ['checkbox', "Y"]
                     ],
                     [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_NOMENCLATURE_WARNING')],
@@ -99,7 +100,7 @@ class OptionManager{
                     /*[
                         'appointment_settings_select_doctor_before_service',
                         Loc::getMessage('FIRSTBIT_APPOINTMENT_SELECT_DOCTOR_BEFORE_SERVICE'),
-                        "Y",
+                        "N",
                         ['checkbox', "Y"]
                     ],
                     [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_SELECT_DOCTOR_BEFORE_SERVICE_NOTE')],*/
@@ -121,7 +122,7 @@ class OptionManager{
                     [
                         'appointment_settings_strict_checking_relations',
                         Loc::getMessage('FIRSTBIT_APPOINTMENT_STRICT_CHECKING_RELATIONS'),
-                        "Y",
+                        "N",
                         ['checkbox', "Y"]
                     ],
                     [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_STRICT_CHECKING_RELATIONS_NOTE')],
@@ -129,7 +130,7 @@ class OptionManager{
                     [
                         'appointment_settings_show_doctors_without_dpt',
                         Loc::getMessage('FIRSTBIT_APPOINTMENT_SHOW_DOCTORS_WITHOUT_DEPARTMENT'),
-                        "Y",
+                        "N",
                         ['checkbox', "Y"]
                     ],
                     [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_SHOW_DOCTORS_WITHOUT_DEPARTMENT_NOTE')],
@@ -145,7 +146,7 @@ class OptionManager{
                     [
                         'appointment_settings_use_email_note',
                         Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_EMAIL_NOTE'),
-                        "Y",
+                        "N",
                         ['checkbox', "Y"]
                     ],
 
@@ -178,6 +179,13 @@ class OptionManager{
                 'ICON'      => '',
                 'TITLE'     => Loc::getMessage("FIRSTBIT_APPOINTMENT_TAB_TITLE_VIEW"),
                 'OPTIONS'   => [
+                    Loc::getMessage("FIRSTBIT_APPOINTMENT_LOGO_UPLOAD"),
+                    [
+                        'appointment_view_logo_image',
+                        Loc::getMessage("FIRSTBIT_APPOINTMENT_LOGO_UPLOAD"),
+                        "",
+                        ['file', ""]
+                    ],
                     Loc::getMessage("FIRSTBIT_APPOINTMENT_MAIN_BTN_SETTINGS"),
                     [
                         'appointment_view_use_custom_main_btn',
@@ -264,10 +272,32 @@ class OptionManager{
                         }
                         $optionName = $arOption[0];
                         $optionValue = $this->request->getPost($optionName);
+                        if ($optionName === 'appointment_view_logo_image')
+                        {
+                            $moduleId = Constants::APPOINTMENT_MODULE_ID;
+                            $currentValue = Option::get($moduleId, $optionName);
+                            $optionValue = $this->request->getFile($optionName);
+
+                            if (empty($optionValue['name']) && !empty($currentValue)){
+                                continue;
+                            }
+
+                            $arImage = $optionValue;
+                            $arImage["MODULE_ID"] = $moduleId;
+
+                            if (strlen($arImage["name"]) > 0)
+                            {
+                                $fid = CFile::SaveFile(
+                                        $arImage, $arImage["MODULE_ID"],
+                                    false, false, '', false
+                                );
+                                $optionValue = (int)$fid > 0 ? $fid : '';
+                            }
+                        }
                         Option::set(
-                                $this->moduleId,
-                                $optionName,
-                                is_array($optionValue) ? implode(",", $optionValue) : $optionValue
+                            $this->moduleId,
+                            $optionName,
+                            is_array($optionValue) ? implode(",", $optionValue) : $optionValue
                         );
                     }
                 }
@@ -285,7 +315,7 @@ class OptionManager{
     {
         $this->tabControl->Begin();
         ?>
-        <form method="POST" action="<?=$this->formAction?>" name="firstbit_appointment_settings">
+        <form method="POST" action="<?=$this->formAction?>" name="firstbit_appointment_settings" enctype="multipart/form-data">
         <?php
             foreach ($this->tabs as $arTab)
             {
@@ -439,6 +469,17 @@ class OptionManager{
                             BX.FirstBit.Appointment.Admin.bindColorPickerToNode('<?=$fieldName?>', '<?=$fieldName?>', '<?=$Option[2]?>');
                         });
                     </script>
+                <? elseif($type[0]=="file"):?>
+                    <?php
+                        $link = false;
+                        if (is_numeric($val) && (int)$val > 0){
+                            $link = CFile::GetPath($val);
+                        }
+                    ?>
+                    <?if ($link):?>
+                        <div><img src="<?=$link?>" alt="logo" width="200"></div>
+                    <?endif;?>
+                    <input type="file" name="<?=$fieldName?>" id="<?=$fieldName?>">
                 <?endif;?>
             </label>
             <script>

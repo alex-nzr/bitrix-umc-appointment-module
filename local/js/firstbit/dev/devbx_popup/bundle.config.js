@@ -8,6 +8,7 @@ module.exports = {
     namespace: 'BX.FirstBit.Appointment',
     browserslist: false,
     minification: 0,
+    sourceMaps: false,
     plugins: {
         resolve: true,
         custom: [

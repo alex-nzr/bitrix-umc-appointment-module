@@ -11,6 +11,7 @@ use CBitrixComponent;
 use CMain;
 use Exception;
 use FirstBit\Appointment\Config\Constants;
+use YandexPay\Pay\Ui\UserField\EnumerationType;
 
 class AppForm extends CBitrixComponent
 {
@@ -88,10 +89,13 @@ class AppForm extends CBitrixComponent
         }
 
         return [
+            "LOGO_FILE"                       => Option::get(
+                Constants::APPOINTMENT_MODULE_ID,
+                'appointment_view_logo_image',
+            ),
             "USE_CUSTOM_MAIN_BTN"             => Option::get(
                 Constants::APPOINTMENT_MODULE_ID,
                 'appointment_view_use_custom_main_btn',
-                "N"
             ),
             "CUSTOM_MAIN_BTN_ID"              => Option::get(
                 Constants::APPOINTMENT_MODULE_ID,
@@ -101,17 +105,14 @@ class AppForm extends CBitrixComponent
             "USE_NOMENCLATURE"                => Option::get(
                 Constants::APPOINTMENT_MODULE_ID,
                 'appointment_settings_use_nomenclature',
-                "Y"
             ),
-            /*"SELECT_DOCTOR_BEFORE_SERVICE"    => Option::get(
+            "SELECT_DOCTOR_BEFORE_SERVICE"    => Option::get(
                 Constants::APPOINTMENT_MODULE_ID,
                 'appointment_settings_select_doctor_before_service',
-                "N"
-            ),*/
+            ),
             "USE_TIME_STEPS"                  => Option::get(
                 Constants::APPOINTMENT_MODULE_ID,
                 'appointment_settings_use_time_steps',
-                "N"
             ),
 
             "TIME_STEP_DURATION"              => $timeStepDuration,
@@ -119,12 +120,10 @@ class AppForm extends CBitrixComponent
             "STRICT_CHECKING_RELATIONS"       => Option::get(
                 Constants::APPOINTMENT_MODULE_ID,
                 'appointment_settings_strict_checking_relations',
-                "Y"
             ),
             "SHOW_DOCTORS_WITHOUT_DEPARTMENT" => Option::get(
                 Constants::APPOINTMENT_MODULE_ID,
                 'appointment_settings_show_doctors_without_dpt',
-                "Y"
             ),
             "USE_CONFIRM_WITH"                => Option::get(
                 Constants::APPOINTMENT_MODULE_ID,
@@ -134,7 +133,6 @@ class AppForm extends CBitrixComponent
             "USE_EMAIL_NOTE"                  => Option::get(
                 Constants::APPOINTMENT_MODULE_ID,
                 'appointment_settings_use_email_note',
-                "Y"
             ),
             "PRIVACY_PAGE_URL"                => Option::get(
                 Constants::APPOINTMENT_MODULE_ID,
@@ -185,11 +183,11 @@ class AppForm extends CBitrixComponent
     public function getTemplateKeys(): array
     {
         return [
-            "CLINICS_KEY"     => "clinics",
-            "SPECIALTIES_KEY" => "specialties",
-            "SERVICES_KEY"    => "services",
-            "EMPLOYEES_KEY"   => "employees",
-            "SCHEDULE_KEY"    => "schedule",
+            "CLINICS_KEY"     => "firstbit_appointment_clinics",
+            "SPECIALTIES_KEY" => "firstbit_appointment_specialties",
+            "SERVICES_KEY"    => "firstbit_appointment_services",
+            "EMPLOYEES_KEY"   => "firstbit_appointment_employees",
+            "SCHEDULE_KEY"    => "firstbit_appointment_schedule",
         ];
     }
 

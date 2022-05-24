@@ -1,10 +1,12 @@
 <?php
 namespace FirstBit\Appointment\Component;
 
+use Bitrix\Main\Engine\ActionFilter\Authentication;
 use Bitrix\Main\Engine\ActionFilter\Csrf;
 use Bitrix\Main\Engine\ActionFilter\HttpMethod;
 use Bitrix\Main\Engine\Controller;
 use CBitrixComponent;
+use CFile;
 use FirstBit\Appointment\Config\Constants;
 
 /**
@@ -36,13 +38,13 @@ class AppFormAjaxController extends Controller
     protected function getPreparedTemplateParameters(array $params): array
     {
         return [
+            "companyLogo"      => $params['LOGO_FILE'] > 0 ? CFile::GetPath($params['LOGO_FILE']) : '',
             "useCustomMainBtn" => $params['USE_CUSTOM_MAIN_BTN'],
             "customMainBtnId"  => $params['CUSTOM_MAIN_BTN_ID'],
             "customColors"     => $params["CUSTOM_COLORS"],
 
-            "ajaxUrl"                       => "/bitrix/services/main/ajax.php",
             "useServices"                   => $params["USE_NOMENCLATURE"],
-            //"selectDoctorBeforeService"     => $params["SELECT_DOCTOR_BEFORE_SERVICE"],
+            "selectDoctorBeforeService"     => $params["SELECT_DOCTOR_BEFORE_SERVICE"],
             "useTimeSteps"                  => $params["USE_TIME_STEPS"],
             "timeStepDurationMinutes"       => $params["TIME_STEP_DURATION"],
             "strictCheckingOfRelations"     => $params["STRICT_CHECKING_RELATIONS"],
@@ -53,51 +55,9 @@ class AppFormAjaxController extends Controller
                 'email'   => Constants::CONFIRM_TYPE_EMAIL,
                 'none'    => Constants::CONFIRM_TYPE_NONE,
             ],
-            "useConfirmWith"                => $params["USE_CONFIRM_WITH"],
-            "privacyPageLink"               => $params["PRIVACY_PAGE_URL"],
+            "useConfirmWith"    => $params["USE_CONFIRM_WITH"],
+            "privacyPageLink"   => $params["PRIVACY_PAGE_URL"],
 
-            "widgetBtnWrapId"   =>  "appointment-button-wrapper",
-            "wrapperId"         =>        "appointment-widget-wrapper",
-            "formId"            =>           "appointment-form",
-            "widgetBtnId"       =>      "appointment-button",
-            "messageNodeId"     =>    "appointment-form-message",
-            "submitBtnId"       =>      "appointment-form-button",
-            "appResultBlockId"  => "appointment-result-block",
-
-            "selectionNodes" => [],
-            "defaultText"    => [],
-            "textNodes"      => [],
-            "isUpdate"       => false,
-            "dataKeys"       => [
-                "clinicsKey"     => $params["CLINICS_KEY"],
-                "specialtiesKey" => $params["SPECIALTIES_KEY"],
-                "servicesKey"    => $params["SERVICES_KEY"],
-                "employeesKey"   => $params["EMPLOYEES_KEY"],
-                "scheduleKey"    => $params["SCHEDULE_KEY"],
-            ],
-
-            "selectionBlocks" => [
-                "clinicsBlock"      => [
-                    "id"    => $params["CLINICS_KEY"],
-                    "name"  => "Выберите клинику"
-                ],
-                "specialtiesBlock"  => [
-                    "id"    => $params["SPECIALTIES_KEY"],
-                    "name"  => "Выберите направление"
-                ],
-                "servicesBlock"     => [
-                    "id"    => $params["SERVICES_KEY"],
-                    "name"  => "Выберите услугу"
-                ],
-                "employeesBlock"    => [
-                    "id"    => $params["EMPLOYEES_KEY"],
-                    "name"  => "Выберите врача"
-                ],
-                "scheduleBlock"     => [
-                    "id"    => $params["SCHEDULE_KEY"],
-                    "name"  => "Выберите время"
-                ]
-            ],
             "textBlocks" => [
                 [
                     "type"          => "text",

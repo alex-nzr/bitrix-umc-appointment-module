@@ -15,7 +15,7 @@ class Page
     {
         if (!Context::getCurrent()->getRequest()->isAdminSection())
         {
-            $optionKey = 'firstbit_appointment_settings_use_auto_injecting';
+            $optionKey = 'appointment_settings_use_auto_injecting';
             if (Option::get(Constants::APPOINTMENT_MODULE_ID, $optionKey) === "Y")
             {
                 try {
