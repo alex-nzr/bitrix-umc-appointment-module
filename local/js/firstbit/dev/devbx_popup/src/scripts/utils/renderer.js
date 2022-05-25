@@ -93,7 +93,7 @@ export class Renderer
 
     getFormSecondBlock(){
         const btnPrev = this.getFormBtn(BX.message('FIRSTBIT_JS_FORM_BTN_PREV'), () => {
-            this.application.changeFormStep(this.application.formStepNodes.one);
+            this.application.changeFormStep(this.application.formStepNodes.one, true);
         }, false, true);
         const btnNext = this.getFormBtn(BX.message('FIRSTBIT_JS_FORM_BTN_NEXT'), () => {
             this.application.changeFormStep(this.application.formStepNodes.userData);

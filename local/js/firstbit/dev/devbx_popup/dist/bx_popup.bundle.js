@@ -257,7 +257,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
         var _this2 = this;
 
         var btnPrev = this.getFormBtn(BX.message('FIRSTBIT_JS_FORM_BTN_PREV'), function () {
-          _this2.application.changeFormStep(_this2.application.formStepNodes.one);
+          _this2.application.changeFormStep(_this2.application.formStepNodes.one, true);
         }, false, true);
         var btnNext = this.getFormBtn(BX.message('FIRSTBIT_JS_FORM_BTN_NEXT'), function () {
           _this2.application.changeFormStep(_this2.application.formStepNodes.userData);
@@ -937,7 +937,9 @@ this.BX.FirstBit = this.BX.FirstBit || {};
           _this2.toggleLoader(false);
         });
         EventManager.subscribe(EventManager.formStepChanged, function (e) {
-          return _this2.changeFormStepActions(e.data);
+          !e.data.isBack && _this2.activateSelectionNodes();
+
+          _this2.changeFormStepActions(e.data);
         });
       }
     }, {
@@ -1639,18 +1641,13 @@ this.BX.FirstBit = this.BX.FirstBit || {};
 
             if (nodesKey === _this9.selectionStep) {
               current = true;
+              var selectedSpecialty = _this9.filledInputs[_this9.dataKeys.specialtiesKey].specialtyUid;
+              var selectedDate = _this9.filledInputs[_this9.dataKeys.scheduleKey].orderDate;
 
-              switch (_this9.selectionStep) {
-                case _this9.dataKeys.specialtiesKey:
-                case _this9.dataKeys.scheduleKey:
-                  _this9.activateStepButtons();
-
-                  break;
-
-                default:
-                  _this9.deactivateStepButtons();
-
-                  break;
+              if (_this9.currentFormStep === _this9.formStepNodes.one && selectedSpecialty || _this9.currentFormStep === _this9.formStepNodes.two && selectedDate) {
+                _this9.activateStepButtons();
+              } else {
+                _this9.deactivateStepButtons();
               }
             }
           }
@@ -1688,8 +1685,6 @@ this.BX.FirstBit = this.BX.FirstBit || {};
               this.selectionSteps[3] = this.dataKeys.employeesKey;
               this.renderServicesList();
             }
-
-            this.activateSelectionNodes();
           } else {
             this.renderEmployeesList();
           }
@@ -1707,10 +1702,12 @@ this.BX.FirstBit = this.BX.FirstBit || {};
     }, {
       key: "changeFormStep",
       value: function changeFormStep(nextStep) {
+        var isBack = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         EventManager.emit(EventManager.formStepChanged, new main_core.Event.BaseEvent({
           data: {
             previousStep: this.currentFormStep,
-            newStep: nextStep
+            newStep: nextStep,
+            isBack: isBack
           }
         }));
       }

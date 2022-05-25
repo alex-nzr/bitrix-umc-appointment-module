@@ -202,7 +202,10 @@ export class AppointmentSteps
             this.toggleLoader(false);
         });
 
-        EventManager.subscribe(EventManager.formStepChanged, (e) => this.changeFormStepActions(e.data));
+        EventManager.subscribe(EventManager.formStepChanged, (e) => {
+            !e.data.isBack && this.activateSelectionNodes();
+            this.changeFormStepActions(e.data);
+        });
     }
 
     initFormStepNodes(){
@@ -829,14 +832,16 @@ export class AppointmentSteps
                 {
                     current = true;
 
-                    switch (this.selectionStep) {
-                        case this.dataKeys.specialtiesKey:
-                        case this.dataKeys.scheduleKey:
-                            this.activateStepButtons();
-                            break;
-                        default:
-                            this.deactivateStepButtons();
-                            break;
+                    const selectedSpecialty = this.filledInputs[this.dataKeys.specialtiesKey].specialtyUid;
+                    const selectedDate      = this.filledInputs[this.dataKeys.scheduleKey].orderDate;
+
+                    if( ((this.currentFormStep === this.formStepNodes.one) && selectedSpecialty)
+                        || ((this.currentFormStep === this.formStepNodes.two) && selectedDate)
+                    ){
+                        this.activateStepButtons();
+                    }
+                    else{
+                        this.deactivateStepButtons();
                     }
                 }
             }
@@ -877,7 +882,6 @@ export class AppointmentSteps
                     this.selectionSteps[3] = this.dataKeys.employeesKey;
                     this.renderServicesList();
                 }
-                this.activateSelectionNodes();
             }
             else{
                 this.renderEmployeesList();
@@ -895,11 +899,12 @@ export class AppointmentSteps
         }
     }
 
-    changeFormStep(nextStep: HTMLElement) {
+    changeFormStep(nextStep: HTMLElement, isBack: boolean = false) {
         EventManager.emit(EventManager.formStepChanged, new Event.BaseEvent({
             data: {
                 previousStep: this.currentFormStep,
                 newStep: nextStep,
+                isBack: isBack
             },
         }));
     }
