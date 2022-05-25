@@ -62,7 +62,7 @@ class OneCWriter extends BaseOneCService
             $xml_id = $this->getReserveUid($paramsToReserve);
 
             if (!strlen($xml_id) > 0){
-                throw new Exception("FIRSTBIT_APPOINTMENT_RESERVE_ERROR");
+                throw new Exception(Loc::getMessage("FIRSTBIT_APPOINTMENT_RESERVE_ERROR"));
             }
 
             $paramsToSend = [

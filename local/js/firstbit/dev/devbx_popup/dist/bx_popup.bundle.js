@@ -267,7 +267,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
             className: "".concat(styles['appointment-form-step'], " ").concat(styles['hidden']),
             id: this.application.selectors.formStepIds.two
           },
-          children: [].concat(babelHelpers.toConsumableArray(this.getSelectionNodes([this.application.dataKeys.employeesKey, this.application.dataKeys.servicesKey, this.application.dataKeys.scheduleKey])), [this.getFormButtonsBlock([btnPrev, btnNext])])
+          children: [].concat(babelHelpers.toConsumableArray(this.getSelectionNodes([this.application.dataKeys.employeesKey, this.application.useServices ? this.application.dataKeys.servicesKey : null, this.application.dataKeys.scheduleKey])), [this.getFormButtonsBlock([btnPrev, btnNext])])
         });
       }
     }, {
@@ -772,6 +772,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
       babelHelpers.defineProperty(this, "requiredInputs", []);
       babelHelpers.defineProperty(this, "initParams", {});
       babelHelpers.defineProperty(this, "eventHandlersAdded", {});
+      babelHelpers.defineProperty(this, "servicesStorage", {});
       babelHelpers.defineProperty(this, "dataKeys", {
         clinicsKey: "clinics",
         specialtiesKey: "specialties",
@@ -931,7 +932,9 @@ this.BX.FirstBit = this.BX.FirstBit || {};
           }
         });
         EventManager.subscribe(EventManager.clinicsRendered, function () {
-          return _this2.toggleLoader(false);
+          _this2.createSpecialtiesList();
+
+          _this2.toggleLoader(false);
         });
         EventManager.subscribe(EventManager.formStepChanged, function (e) {
           return _this2.changeFormStepActions(e.data);
@@ -1393,7 +1396,9 @@ this.BX.FirstBit = this.BX.FirstBit || {};
 
         for (var nodesKey in this.selectionNodes) {
           if (this.selectionNodes.hasOwnProperty(nodesKey) && nodesKey !== dataKey) {
-            this.selectionNodes[nodesKey].listNode.classList.remove(styles['active']);
+            var _this$selectionNodes$2, _this$selectionNodes$3;
+
+            (_this$selectionNodes$2 = this.selectionNodes[nodesKey]) === null || _this$selectionNodes$2 === void 0 ? void 0 : (_this$selectionNodes$3 = _this$selectionNodes$2.listNode) === null || _this$selectionNodes$3 === void 0 ? void 0 : _this$selectionNodes$3.classList.remove(styles['active']);
           }
         }
       }
@@ -1459,30 +1464,38 @@ this.BX.FirstBit = this.BX.FirstBit || {};
 
         switch (dataKey) {
           case this.dataKeys.clinicsKey:
-            this.filledInputs[dataKey].clinicUid = target.dataset.uid;
+            var clinicUid = target.dataset.uid;
+            this.filledInputs[dataKey].clinicUid = clinicUid;
             this.filledInputs[dataKey].clinicName = target.dataset.name;
 
             if (this.useServices) {
-              this.toggleLoader(true);
-              this.getListNomenclature("".concat(target.dataset.uid)).then(function (nomenclature) {
-                var _nomenclature$data;
+              if (this.servicesStorage[clinicUid]) {
+                this.data.services = _objectSpread({}, this.servicesStorage[clinicUid]);
+                this.renderSpecialtiesList();
+              } else {
+                this.toggleLoader(true);
+                this.getListNomenclature("".concat(clinicUid)).then(function (nomenclature) {
+                  var _nomenclature$data;
 
-                if ((_nomenclature$data = nomenclature.data) !== null && _nomenclature$data !== void 0 && _nomenclature$data.error) {
-                  throw new Error(nomenclature.data.error);
-                } else {
-                  if (Object.keys(nomenclature.data).length > 0) {
-                    _this8.data.services = nomenclature.data;
+                  if ((_nomenclature$data = nomenclature.data) !== null && _nomenclature$data !== void 0 && _nomenclature$data.error) {
+                    throw new Error(nomenclature.data.error);
+                  } else {
+                    if (Object.keys(nomenclature.data).length > 0) {
+                      _this8.data.services = nomenclature.data;
 
-                    _this8.bindServicesToSpecialties();
+                      _this8.bindServicesToSpecialties();
 
-                    _this8.renderSpecialtiesList();
+                      _this8.renderSpecialtiesList();
+
+                      _this8.servicesStorage[clinicUid] = _objectSpread({}, _this8.data.services);
+                    }
                   }
-                }
 
-                _this8.toggleLoader(false);
-              })["catch"](function (res) {
-                _this8.logResultErrors(res);
-              });
+                  _this8.toggleLoader(false);
+                })["catch"](function (res) {
+                  _this8.logResultErrors(res);
+                });
+              }
             } else {
               this.renderSpecialtiesList();
             }
@@ -1546,8 +1559,6 @@ this.BX.FirstBit = this.BX.FirstBit || {};
             var specialty = employees[employeeUid].specialty;
 
             if (specialty) {
-              this.addSpecialty(employees[employeeUid]);
-
               if (empServices && Object.keys(empServices).length > 0) {
                 for (var empServiceUid in empServices) {
                   if (!empServices.hasOwnProperty(empServiceUid)) {
@@ -1559,6 +1570,20 @@ this.BX.FirstBit = this.BX.FirstBit || {};
                   }
                 }
               }
+            }
+          }
+        }
+      }
+    }, {
+      key: "createSpecialtiesList",
+      value: function createSpecialtiesList() {
+        var employees = this.data.employees;
+
+        if (Object.keys(employees).length > 0) {
+          for (var uid in employees) {
+            if (employees.hasOwnProperty(uid)) {
+              var specialty = employees[uid].specialty;
+              specialty && this.addSpecialty(employees[uid]);
             }
           }
         }
@@ -1732,6 +1757,10 @@ this.BX.FirstBit = this.BX.FirstBit || {};
           this.orderData = _objectSpread({}, this.filledInputs.textValues);
 
           for (var key in this.selectionNodes) {
+            if (!this.useServices && key === this.dataKeys.servicesKey) {
+              continue;
+            }
+
             if (this.selectionNodes.hasOwnProperty(key) && this.filledInputs.hasOwnProperty(key)) {
               this.selectionNodes[key].inputNode.value = JSON.stringify(this.filledInputs[key]);
               this.orderData = _objectSpread(_objectSpread({}, this.orderData), this.filledInputs[key]);
@@ -1779,6 +1808,8 @@ this.BX.FirstBit = this.BX.FirstBit || {};
           _this10.messageNode.textContent = ((_result$errors = result.errors) === null || _result$errors === void 0 ? void 0 : (_result$errors$ = _result$errors[0]) === null || _result$errors$ === void 0 ? void 0 : _result$errors$.message) + BX.message("FIRSTBIT_JS_SOME_DISPLAY_ERROR_POSTFIX");
 
           _this10.logResultErrors(result);
+
+          _this10.toggleLoader(false);
         });
       }
     }, {
@@ -1836,16 +1867,12 @@ this.BX.FirstBit = this.BX.FirstBit || {};
         }).then(function (result) {
           var _result$data2;
 
-          _this12.confirmWrapper && _this12.confirmWrapper.remove();
-
-          _this12.form.classList.remove(styles['appointment-form-confirmation-mode']);
+          _this12.destroyConfirmationForm();
 
           _this12.toggleLoader(false);
 
           if ((_result$data2 = result.data) !== null && _result$data2 !== void 0 && _result$data2.error) {
-            _this12.logResultErrors(result.data.error);
-
-            _this12.finalizingWidget(false);
+            throw new Error(result.data.error);
           } else {
             if (_this12.useEmailNote && _this12.orderData.email) {
               _this12.sendEmailNote();
@@ -1854,7 +1881,13 @@ this.BX.FirstBit = this.BX.FirstBit || {};
             _this12.finalizingWidget(true);
           }
         })["catch"](function (result) {
-          return _this12.logResultErrors(result);
+          _this12.destroyConfirmationForm();
+
+          _this12.toggleLoader(false);
+
+          _this12.logResultErrors(result);
+
+          _this12.finalizingWidget(false);
         });
       }
     }, {
@@ -1883,6 +1916,12 @@ this.BX.FirstBit = this.BX.FirstBit || {};
             confirmRepeatBtn.textContent = "".concat(BX.message("FIRSTBIT_JS_CONFIRM_CODE_SEND_AGAIN"), " \n                                                ").concat(remainingTime > 0 ? remainingTime : '');
           }
         }, 1000);
+      }
+    }, {
+      key: "destroyConfirmationForm",
+      value: function destroyConfirmationForm() {
+        this.confirmWrapper && this.confirmWrapper.remove();
+        this.form.classList.remove(styles['appointment-form-confirmation-mode']);
       }
     }, {
       key: "finalizingWidget",

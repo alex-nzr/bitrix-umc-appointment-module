@@ -106,7 +106,7 @@ export class Renderer
             children: [
                 ...(this.getSelectionNodes([
                     this.application.dataKeys.employeesKey,
-                    this.application.dataKeys.servicesKey,
+                    this.application.useServices ? this.application.dataKeys.servicesKey : null,
                     this.application.dataKeys.scheduleKey
                 ])),
                 this.getFormButtonsBlock([btnPrev, btnNext])

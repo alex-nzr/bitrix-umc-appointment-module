@@ -20,6 +20,7 @@ export class AppointmentSteps
     requiredInputs: HTMLElement[] = [];
     initParams: any               = {};
     eventHandlersAdded            = {};
+    servicesStorage               = {};
     dataKeys = {
         clinicsKey:     "clinics",
         specialtiesKey: "specialties",
@@ -196,7 +197,10 @@ export class AppointmentSteps
             }
         });
 
-        EventManager.subscribe(EventManager.clinicsRendered, () => this.toggleLoader(false));
+        EventManager.subscribe(EventManager.clinicsRendered, () => {
+            this.createSpecialtiesList();
+            this.toggleLoader(false);
+        });
 
         EventManager.subscribe(EventManager.formStepChanged, (e) => this.changeFormStepActions(e.data));
     }
@@ -613,7 +617,7 @@ export class AppointmentSteps
                 this.selectionNodes.hasOwnProperty(nodesKey)
                 && nodesKey !== dataKey
             ){
-                this.selectionNodes[nodesKey].listNode.classList.remove(styles['active']);
+                this.selectionNodes[nodesKey]?.listNode?.classList.remove(styles['active']);
             }
         }
     }
@@ -659,27 +663,37 @@ export class AppointmentSteps
         this.selectionNodes[dataKey].inputNode.value = target.dataset.uid;
         switch (dataKey) {
             case this.dataKeys.clinicsKey:
-                this.filledInputs[dataKey].clinicUid = target.dataset.uid;
+                const clinicUid = target.dataset.uid;
+                this.filledInputs[dataKey].clinicUid = clinicUid;
                 this.filledInputs[dataKey].clinicName = target.dataset.name;
                 if (this.useServices)
                 {
-                    this.toggleLoader(true);
-                    this.getListNomenclature(`${target.dataset.uid}`)
-                        .then((nomenclature) => {
-                            if (nomenclature.data?.error){
-                                throw new Error(nomenclature.data.error);
-                            }else{
-                                if (Object.keys(nomenclature.data).length > 0){
-                                    this.data.services = nomenclature.data;
-                                    this.bindServicesToSpecialties();
-                                    this.renderSpecialtiesList();
+                    if(this.servicesStorage[clinicUid])
+                    {
+                        this.data.services = {...this.servicesStorage[clinicUid]};
+                        this.renderSpecialtiesList();
+                    }
+                    else
+                    {
+                        this.toggleLoader(true);
+                        this.getListNomenclature(`${clinicUid}`)
+                            .then((nomenclature) => {
+                                if (nomenclature.data?.error){
+                                    throw new Error(nomenclature.data.error);
+                                }else{
+                                    if (Object.keys(nomenclature.data).length > 0){
+                                        this.data.services = nomenclature.data;
+                                        this.bindServicesToSpecialties();
+                                        this.renderSpecialtiesList();
+                                        this.servicesStorage[clinicUid] = {...this.data.services}
+                                    }
                                 }
-                            }
-                            this.toggleLoader(false);
-                        })
-                        .catch(res => {
-                            this.logResultErrors(res);
-                        });
+                                this.toggleLoader(false);
+                            })
+                            .catch(res => {
+                                this.logResultErrors(res);
+                            });
+                    }
                 }
                 else
                 {
@@ -734,8 +748,6 @@ export class AppointmentSteps
                 const specialty   = employees[employeeUid].specialty;
 
                 if(specialty){
-                    this.addSpecialty(employees[employeeUid]);
-
                     if(empServices && Object.keys(empServices).length > 0) {
                         for (const empServiceUid in empServices)
                         {
@@ -746,6 +758,21 @@ export class AppointmentSteps
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    createSpecialtiesList(){
+        const employees = this.data.employees;
+        if(Object.keys(employees).length > 0)
+        {
+            for (const uid in employees)
+            {
+                if (employees.hasOwnProperty(uid))
+                {
+                    const specialty = employees[uid].specialty;
+                    specialty && this.addSpecialty(employees[uid]);
                 }
             }
         }
@@ -917,6 +944,10 @@ export class AppointmentSteps
 
             for (let key in this.selectionNodes)
             {
+                if(!this.useServices && (key === this.dataKeys.servicesKey)) {
+                    continue;
+                }
+
                 if (this.selectionNodes.hasOwnProperty(key) && this.filledInputs.hasOwnProperty(key))
                 {
                     this.selectionNodes[key].inputNode.value = JSON.stringify(this.filledInputs[key]);
@@ -963,6 +994,7 @@ export class AppointmentSteps
         .catch(result => {
             this.messageNode.textContent = result.errors?.[0]?.message + BX.message("FIRSTBIT_JS_SOME_DISPLAY_ERROR_POSTFIX");
             this.logResultErrors(result);
+            this.toggleLoader(false);
         });
     }
 
@@ -1015,14 +1047,12 @@ export class AppointmentSteps
             }
         })
         .then((result) => {
-            this.confirmWrapper && this.confirmWrapper.remove();
-            this.form.classList.remove(styles['appointment-form-confirmation-mode']);
+            this.destroyConfirmationForm();
             this.toggleLoader(false);
 
             if (result.data?.error)
             {
-                this.logResultErrors(result.data.error);
-                this.finalizingWidget(false);
+                throw new Error(result.data.error);
             }
             else
             {
@@ -1033,7 +1063,12 @@ export class AppointmentSteps
                 this.finalizingWidget(true);
             }
         })
-        .catch(result => this.logResultErrors(result));
+        .catch(result => {
+            this.destroyConfirmationForm();
+            this.toggleLoader(false);
+            this.logResultErrors(result);
+            this.finalizingWidget(false);
+        });
     }
 
     sendEmailNote() {
@@ -1061,6 +1096,11 @@ export class AppointmentSteps
                                                 ${remainingTime > 0 ? remainingTime : ''}`;
             }
         }, 1000);
+    }
+
+    destroyConfirmationForm(){
+        this.confirmWrapper && this.confirmWrapper.remove();
+        this.form.classList.remove(styles['appointment-form-confirmation-mode']);
     }
 
     finalizingWidget(success) {
