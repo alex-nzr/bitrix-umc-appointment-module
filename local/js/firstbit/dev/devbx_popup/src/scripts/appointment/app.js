@@ -203,8 +203,9 @@ export class AppointmentSteps
         });
 
         EventManager.subscribe(EventManager.formStepChanged, (e) => {
-            !e.data.isBack && this.activateSelectionNodes();
+            e.data.isBack ? (this.selectionStep = this.dataKeys.specialtiesKey) : void(0);
             this.changeFormStepActions(e.data);
+            this.activateSelectionNodes();
         });
     }
 
@@ -656,7 +657,14 @@ export class AppointmentSteps
                     this.selectionNodes[dataKey].listNode.classList.remove(styles['active']);
                     this.selectionNodes[dataKey].selectedNode.innerHTML = `<span>${e.currentTarget.textContent}</span>`;
                     this.changeSelectionStep(dataKey, e.currentTarget);
-                    this.activateSelectionNodes();
+                    if(dataKey !== this.dataKeys.specialtiesKey)
+                    {
+                        this.activateSelectionNodes();
+                    }
+                    else
+                    {
+                        this.activateStepButtons();
+                    }
                 })
             }
         }
@@ -811,7 +819,7 @@ export class AppointmentSteps
             if (!this.useServices && nodesKey === this.dataKeys.servicesKey){
                 return;
             }
-
+            console.log(nodesKey,current,next)
             if (this.selectionNodes.hasOwnProperty(nodesKey))
             {
                 const block = this.selectionNodes[nodesKey].blockNode;
@@ -835,8 +843,10 @@ export class AppointmentSteps
                     const selectedSpecialty = this.filledInputs[this.dataKeys.specialtiesKey].specialtyUid;
                     const selectedDate      = this.filledInputs[this.dataKeys.scheduleKey].orderDate;
 
-                    if( ((this.currentFormStep === this.formStepNodes.one) && selectedSpecialty)
-                        || ((this.currentFormStep === this.formStepNodes.two) && selectedDate)
+                    const specialtyCondition = (nodesKey === this.dataKeys.specialtiesKey) && selectedSpecialty;
+                    const dateCondition      = (nodesKey === this.dataKeys.scheduleKey) && selectedDate;
+                    if( ((this.currentFormStep === this.formStepNodes.one) && specialtyCondition)
+                        || ((this.currentFormStep === this.formStepNodes.two) && dateCondition)
                     ){
                         this.activateStepButtons();
                     }
@@ -863,8 +873,13 @@ export class AppointmentSteps
     setSelectionDoctorBeforeService(value: boolean){
         if(this.filledInputs[this.dataKeys.specialtiesKey].specialty !== false)
         {
+            this.resetValue(this.dataKeys.employeesKey);
+
             this.selectDoctorBeforeService = value;
-            if(this.useServices){
+            if(this.useServices)
+            {
+                this.resetValue(this.dataKeys.servicesKey);
+
                 if (value === true){
                     BX.insertBefore(
                         this.selectionNodes[this.dataKeys.employeesKey].blockNode,

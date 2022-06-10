@@ -69,4 +69,12 @@ class RecordTable extends DataManager
             )
         ];
     }
+
+    /**
+     * @return string
+     */
+    public static function getUfId()
+    {
+        return "FB_APP_RECORD";
+    }
 }

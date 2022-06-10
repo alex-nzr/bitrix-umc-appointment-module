@@ -6,11 +6,6 @@ use FirstBit\Appointment\Services\MailerService;
 use FirstBit\Appointment\Services\OneCReader;
 use FirstBit\Appointment\Services\OneCWriter;
 
-const FIRSTBIT_APPOINTMENT_SERVICE_READER = 'firstbit.appointment.services.oneCReader';
-const FIRSTBIT_APPOINTMENT_SERVICE_WRITER = 'firstbit.appointment.services.oneCWriter';
-const FIRSTBIT_APPOINTMENT_SERVICE_MAILER = 'firstbit.appointment.services.mailerService';
-const FIRSTBIT_APPOINTMENT_SERVICE_SMS    = 'firstbit.appointment.services.smsService';
-
 return [
     'controllers' => [
         'value' => [

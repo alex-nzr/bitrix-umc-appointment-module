@@ -309,6 +309,9 @@ this.BX.FirstBit = this.BX.FirstBit || {};
             id: this.application.selectors.submitBtnId,
             className: this.styles['appointment-form-button']
           },
+          dataset: {
+            "readonly": "Y"
+          },
           text: BX.message('FIRSTBIT_JS_FORM_BTN_TEXT')
         });
       }
@@ -937,9 +940,11 @@ this.BX.FirstBit = this.BX.FirstBit || {};
           _this2.toggleLoader(false);
         });
         EventManager.subscribe(EventManager.formStepChanged, function (e) {
-          !e.data.isBack && _this2.activateSelectionNodes();
+          e.data.isBack ? _this2.selectionStep = _this2.dataKeys.specialtiesKey : void 0;
 
           _this2.changeFormStepActions(e.data);
+
+          _this2.activateSelectionNodes();
         });
       }
     }, {
@@ -1447,7 +1452,11 @@ this.BX.FirstBit = this.BX.FirstBit || {};
 
                 _this7.changeSelectionStep(dataKey, e.currentTarget);
 
-                _this7.activateSelectionNodes();
+                if (dataKey !== _this7.dataKeys.specialtiesKey) {
+                  _this7.activateSelectionNodes();
+                } else {
+                  _this7.activateStepButtons();
+                }
               });
             }
           }
@@ -1622,6 +1631,8 @@ this.BX.FirstBit = this.BX.FirstBit || {};
             return;
           }
 
+          console.log(nodesKey, current, next);
+
           if (_this9.selectionNodes.hasOwnProperty(nodesKey)) {
             var block = _this9.selectionNodes[nodesKey].blockNode;
 
@@ -1643,8 +1654,10 @@ this.BX.FirstBit = this.BX.FirstBit || {};
               current = true;
               var selectedSpecialty = _this9.filledInputs[_this9.dataKeys.specialtiesKey].specialtyUid;
               var selectedDate = _this9.filledInputs[_this9.dataKeys.scheduleKey].orderDate;
+              var specialtyCondition = nodesKey === _this9.dataKeys.specialtiesKey && selectedSpecialty;
+              var dateCondition = nodesKey === _this9.dataKeys.scheduleKey && selectedDate;
 
-              if (_this9.currentFormStep === _this9.formStepNodes.one && selectedSpecialty || _this9.currentFormStep === _this9.formStepNodes.two && selectedDate) {
+              if (_this9.currentFormStep === _this9.formStepNodes.one && specialtyCondition || _this9.currentFormStep === _this9.formStepNodes.two && dateCondition) {
                 _this9.activateStepButtons();
               } else {
                 _this9.deactivateStepButtons();
@@ -1671,9 +1684,12 @@ this.BX.FirstBit = this.BX.FirstBit || {};
       key: "setSelectionDoctorBeforeService",
       value: function setSelectionDoctorBeforeService(value) {
         if (this.filledInputs[this.dataKeys.specialtiesKey].specialty !== false) {
+          this.resetValue(this.dataKeys.employeesKey);
           this.selectDoctorBeforeService = value;
 
           if (this.useServices) {
+            this.resetValue(this.dataKeys.servicesKey);
+
             if (value === true) {
               BX.insertBefore(this.selectionNodes[this.dataKeys.employeesKey].blockNode, this.selectionNodes[this.dataKeys.servicesKey].blockNode);
               this.selectionSteps[3] = this.dataKeys.servicesKey;

@@ -4,6 +4,7 @@ namespace FirstBit\Appointment\Services;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Localization\Loc;
+use FirstBit\Appointment\Model\RecordTable;
 
 class Container
 {
@@ -24,6 +25,14 @@ class Container
     {
         $instanceId = static::getServiceIdByClassName(static::class);
         return ServiceLocator::getInstance()->get($instanceId);
+    }
+
+    /**
+     * @return \FirstBit\Appointment\Model\RecordTable | string
+     */
+    public function getRecordDataClass(): string
+    {
+        return RecordTable::class;
     }
 
     /**

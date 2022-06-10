@@ -151,6 +151,9 @@ export class Renderer
                 id: this.application.selectors.submitBtnId,
                 className: this.styles['appointment-form-button'],
             },
+            dataset: {
+                "readonly": "Y"
+            },
             text: BX.message('FIRSTBIT_JS_FORM_BTN_TEXT')
         });
     }

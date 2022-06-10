@@ -1,0 +1,3 @@
+<?php
+$MESS["FIRSTBIT_APPOINTMENT_SMS_CONFIRM_NAME"]      = "SMS-подтверждение";
+$MESS["FIRSTBIT_APPOINTMENT_CONFIRM_DESC_CODE"]     = "Код подтверждения";

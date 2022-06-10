@@ -9,8 +9,8 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
-use FirstBit\Appointment\Model\RecordTable;
 use FirstBit\Appointment\Services\Admin\ListPageManager;
+use FirstBit\Appointment\Services\Container;
 
 $APPLICATION->SetTitle(Loc::getMessage('FIRSTBIT_ADMIN_LIST_PAGE_TITLE'));
 
@@ -28,8 +28,10 @@ try {
 
     Extension::load(['ui.buttons', $moduleID.'.admin']);
 
+    $recordDataClass = Container::getInstance()->getRecordDataClass();
+
     $gridId = 'firstbit_appointment_admin_grid';
-    $listPageManager = new ListPageManager(RecordTable::class, $gridId);
+    $listPageManager = new ListPageManager($recordDataClass, $gridId);
     $navObject = $listPageManager->getPageNavigation();
     $columns = $listPageManager->getColumns();
     $rows = $listPageManager->getRows();
