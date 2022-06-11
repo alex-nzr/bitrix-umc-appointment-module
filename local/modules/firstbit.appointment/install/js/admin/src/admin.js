@@ -41,7 +41,15 @@ export const Admin = {
                 }
             })
             .catch(e => console.log(e))
-            .finally(() => (grid && grid.reloadTable()))
+            .finally(() => {
+                if (grid)
+                {
+                    const reloadParams = { apply_filter: 'Y', clear_nav: 'N' };
+                    const pageParams = {[gridId]: `page-${this.getGridCurrentPage(grid)}`};
+                    grid.baseUrl = BX.Grid.Utils.addUrlParams(grid.baseUrl, pageParams);
+                    grid.reloadTable('POST', reloadParams);
+                }
+            })
     },
 
     createFormData: function(argsObject) {
@@ -57,6 +65,18 @@ export const Admin = {
         formData.set('sessid', BX.bitrix_sessid());
 
         return formData;
+    },
+
+    getGridCurrentPage(gridInstance) {
+        let curPage = 0;
+        if (BX.type.isDomNode(gridInstance?.data?.pagination))
+        {
+            const curPageNode = gridInstance.data.pagination.querySelector('.main-ui-pagination-active');
+            if (curPageNode){
+                curPage = !isNaN(parseInt(curPageNode.textContent)) ? parseInt(curPageNode.textContent) : 0;
+            }
+        }
+        return curPage;
     },
 
     bindColorPickerToNode: function (nodeId, inputId, defaultColor = '') {

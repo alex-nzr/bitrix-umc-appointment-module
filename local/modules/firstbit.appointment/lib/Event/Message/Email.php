@@ -7,6 +7,7 @@ namespace FirstBit\Appointment\Event\Message;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Mail\Internal\EventTypeTable;
 use CEventMessage;
+use CEventType;
 use FirstBit\Appointment\Config\Constants;
 
 class Email
@@ -90,6 +91,14 @@ class Email
         $obTemplate = new CEventMessage;
         $id = $obTemplate->Add($params);
         return (int)$id;
+    }
+
+    public function deleteEmailEvents()
+    {
+        $obEventType = new CEventType;
+
+        $obEventType->Delete(Constants::EMAIL_NOTE_EVENT_CODE);
+        $obEventType->Delete(Constants::EMAIL_CONFIRM_EVENT_CODE);
     }
 
     public function deleteEmailTemplates(): void

@@ -18,6 +18,7 @@ class ListPageManager
     private PageNavigation $pageNavObject;
     private array $rows;
     private GridOptions $gridOptions;
+    private string $gridId;
 
     /**
      * ListPageManager constructor.
@@ -26,6 +27,7 @@ class ListPageManager
      */
     public function __construct(string $entityClass, string $gridId){
         $this->entity = new $entityClass;
+        $this->gridId = $gridId;
         $this->allowedColumns = $this->getAllowedColumns();
         $this->gridOptions = new GridOptions($gridId);
         $this->pageNavObject = $this->setPageNavigation($gridId);
@@ -313,5 +315,10 @@ class ListPageManager
     public function getUserProfileLink($userId, $userLogin): string
     {
         return "<a href='/bitrix/admin/user_edit.php?ID=".$userId."&lang=".LANGUAGE_ID."'>[" . $userId . "]".$userLogin."</a>";
+    }
+
+    public function getGroupActionPanel(): array
+    {
+        return [];
     }
 }

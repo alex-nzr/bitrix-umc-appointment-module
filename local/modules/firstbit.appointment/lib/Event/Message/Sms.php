@@ -78,6 +78,12 @@ class Sms
         }
     }
 
+    public function deleteSmsEvents()
+    {
+        $obEventType = new CEventType;
+        $obEventType->Delete(Constants::SMS_CONFIRM_EVENT_CODE);
+    }
+
     /**
      * @throws \Exception
      */

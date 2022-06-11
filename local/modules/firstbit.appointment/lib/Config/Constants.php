@@ -4,6 +4,7 @@ namespace FirstBit\Appointment\Config;
 class Constants
 {
     const APPOINTMENT_MODULE_ID      = 'firstbit.appointment';
+    const APPOINTMENT_JS_EXTENSION   = "firstbit.dev.bx_popup";
 
     const CLINIC_ACTION_1C           = "GetListClinic";
     const EMPLOYEES_ACTION_1C        = "GetListEmployees";

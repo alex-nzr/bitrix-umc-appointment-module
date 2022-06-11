@@ -1631,8 +1631,6 @@ this.BX.FirstBit = this.BX.FirstBit || {};
             return;
           }
 
-          console.log(nodesKey, current, next);
-
           if (_this9.selectionNodes.hasOwnProperty(nodesKey)) {
             var block = _this9.selectionNodes[nodesKey].blockNode;
 

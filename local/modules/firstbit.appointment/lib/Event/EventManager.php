@@ -15,7 +15,7 @@ class EventManager
         [
             'module'    => 'main',
             'eventType' => 'OnPageStart',
-            'class'     => '\\FirstBit\\Appointment\\Utils\\Page',
+            'class'     => '\\FirstBit\\Appointment\\Event\\Handlers\\Page',
             'method'    => 'addJsExt',
             'sort'      => 100
         ],
@@ -79,13 +79,11 @@ class EventManager
     {
         $obSms       = new Sms();
         $obEmail     = new Email();
-        $obEventType = new CEventType;
 
-        $obEventType->Delete(Constants::EMAIL_NOTE_EVENT_CODE);
-        $obEventType->Delete(Constants::EMAIL_CONFIRM_EVENT_CODE);
-        $obEventType->Delete(Constants::SMS_CONFIRM_EVENT_CODE);
-
+        $obEmail->deleteEmailEvents();
         $obEmail->deleteEmailTemplates();
+
+        $obSms->deleteSmsEvents();
         $obSms->deleteSmsTemplates();
     }
 }

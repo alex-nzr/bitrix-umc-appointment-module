@@ -819,7 +819,7 @@ export class AppointmentSteps
             if (!this.useServices && nodesKey === this.dataKeys.servicesKey){
                 return;
             }
-            console.log(nodesKey,current,next)
+
             if (this.selectionNodes.hasOwnProperty(nodesKey))
             {
                 const block = this.selectionNodes[nodesKey].blockNode;

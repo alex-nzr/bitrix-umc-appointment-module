@@ -1,5 +1,5 @@
 <?php
-namespace FirstBit\Appointment\Utils;
+namespace FirstBit\Appointment\Event\Handlers;
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
@@ -9,7 +9,7 @@ use FirstBit\Appointment\Config\Constants;
 
 class Page
 {
-    private static string $extensionId = "firstbit.dev.devbx_popup";
+    private static string $extensionId = Constants::APPOINTMENT_JS_EXTENSION;
 
     public static function addJsExt()
     {

@@ -69,6 +69,7 @@ try {
         'SHOW_TOTAL_COUNTER'        => true,
         'SHOW_PAGESIZE'             => true,
         'SHOW_ACTION_PANEL'         => true,
+        'ACTION_PANEL'              => $listPageManager->getGroupActionPanel(),
         'ALLOW_COLUMNS_SORT'        => true,
         'ALLOW_COLUMNS_RESIZE'      => true,
         'ALLOW_HORIZONTAL_SCROLL'   => true,
@@ -88,7 +89,7 @@ try {
                 "",
                 $filterParams,
                 false,
-                array("HIDE_ICONS" => true)
+                ["HIDE_ICONS" => true]
             );?>
         </div>
     </div>
