@@ -23,7 +23,7 @@ class Email
             "EVENT_NAME"    => Constants::EMAIL_NOTE_EVENT_CODE,
             "NAME"          => Loc::getMessage("FIRSTBIT_APPOINTMENT_EMAIL_NOTE_NAME"),
             "LID"           => 'ru',
-            "DESCRIPTION"   =>  "#CODE# - " . Loc::getMessage("FIRSTBIT_APPOINTMENT_NOTE_DESC_TEXT") . "\n" .
+            "DESCRIPTION"   =>  "#TEXT# - " . Loc::getMessage("FIRSTBIT_APPOINTMENT_NOTE_DESC_TEXT") . "\n" .
                 "#EMAIL_TO# - " . Loc::getMessage("FIRSTBIT_APPOINTMENT_NOTE_DESC_EMAIL_TO")
         ];
         $result = EventTypeTable::add($arFields);

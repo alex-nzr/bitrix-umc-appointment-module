@@ -4,35 +4,26 @@ namespace FirstBit\Appointment\Controllers;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\ActionFilter\Csrf;
 use Bitrix\Main\Engine\ActionFilter\HttpMethod;
+use Bitrix\Main\Error;
 use Bitrix\Main\Result;
+use Exception;
 use FirstBit\Appointment\Services\Container;
-use FirstBit\Appointment\Services\MailerService;
 use Bitrix\Main\Engine\Controller;
 use FirstBit\Appointment\Services\Operation\ConfirmOperation;
-use FirstBit\Appointment\Services\SmsService;
 
 class MessageController extends Controller
 {
-    private MailerService $mailerService;
-    private SmsService $smsService;
-
     /**
-     * OneCController constructor.
-     * @throws \Bitrix\Main\ObjectNotFoundException
-     * @throws \Bitrix\Main\ArgumentException
+     * MessageController constructor.
      */
     public function __construct()
     {
         parent::__construct();
-
-        $container = Container::getInstance();
-        $this->mailerService = $container->getMailerService();
-        $this->smsService = $container->getSmsService();
     }
 
     public function sendConfirmCodeAction(string $phone = "", string $email = ""): Result
     {
-        return ConfirmOperation::sendConfirmCode($this->mailerService, $this->smsService, $phone, $email);
+        return ConfirmOperation::sendConfirmCode($phone, $email);
     }
 
     public function verifyConfirmCodeAction(string $code): Result
@@ -40,10 +31,21 @@ class MessageController extends Controller
         return ConfirmOperation::verifyConfirmCode($code);
     }
 
+    /**
+     * @param string $params
+     * @return \Bitrix\Main\Result
+     */
     public function sendEmailNoteAction(string $params): Result
     {
-        $arParams = json_decode($params, true);
-        return $this->mailerService->sendEmailNote($arParams);
+        try {
+            $arParams = json_decode($params, true);
+            $mailerService = Container::getInstance()->getMailerService();
+            return $mailerService->sendEmailNote($arParams);
+        }
+        catch (Exception $e)
+        {
+            return (new Result)->addError(new Error($e->getMessage()));
+        }
     }
 
     protected function getDefaultPreFilters(): array

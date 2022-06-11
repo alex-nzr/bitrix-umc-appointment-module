@@ -1,5 +1,5 @@
 <?php
-namespace FirstBit\Appointment\Services;
+namespace FirstBit\Appointment\Services\Message;
 
 use Bitrix\Main\Context;
 use Bitrix\Main\Localization\Loc;

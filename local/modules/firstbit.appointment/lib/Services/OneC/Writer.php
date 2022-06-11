@@ -1,5 +1,5 @@
 <?php
-namespace FirstBit\Appointment\Services;
+namespace FirstBit\Appointment\Services\OneC;
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
@@ -12,7 +12,7 @@ use SoapVar;
 
 Loc::loadMessages(__FILE__);
 
-class OneCWriter extends BaseOneCService
+class Writer extends BaseOneCService
 {
     /** make request to creating order
      * @param array $params

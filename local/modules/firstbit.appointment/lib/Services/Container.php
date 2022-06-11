@@ -5,6 +5,10 @@ use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Localization\Loc;
 use FirstBit\Appointment\Model\RecordTable;
+use FirstBit\Appointment\Services\Message\MailerService;
+use FirstBit\Appointment\Services\Message\SmsService;
+use FirstBit\Appointment\Services\OneC\Reader;
+use FirstBit\Appointment\Services\OneC\Writer;
 
 class Container
 {
@@ -36,27 +40,27 @@ class Container
     }
 
     /**
-     * @return \FirstBit\Appointment\Services\OneCReader
+     * @return \FirstBit\Appointment\Services\OneC\Reader
      * @throws \Bitrix\Main\ObjectNotFoundException
      * @throws \Bitrix\Main\ArgumentException
      */
-    public function getReaderService(): OneCReader
+    public function getReaderService(): Reader
     {
-        return $this->serviceLocator->get(static::getServiceIdByClassName(OneCReader::class));
+        return $this->serviceLocator->get(static::getServiceIdByClassName(Reader::class));
     }
 
     /**
-     * @return \FirstBit\Appointment\Services\OneCWriter
+     * @return \FirstBit\Appointment\Services\OneC\Writer
      * @throws \Bitrix\Main\ObjectNotFoundException
      * @throws \Bitrix\Main\ArgumentException
      */
-    public function getWriterService(): OneCWriter
+    public function getWriterService(): Writer
     {
-        return $this->serviceLocator->get(static::getServiceIdByClassName(OneCWriter::class));
+        return $this->serviceLocator->get(static::getServiceIdByClassName(Writer::class));
     }
 
     /**
-     * @return \FirstBit\Appointment\Services\SmsService
+     * @return \FirstBit\Appointment\Services\Message\SmsService
      * @throws \Bitrix\Main\ObjectNotFoundException
      * @throws \Bitrix\Main\ArgumentException
      */
@@ -66,7 +70,7 @@ class Container
     }
 
     /**
-     * @return \FirstBit\Appointment\Services\MailerService
+     * @return \FirstBit\Appointment\Services\Message\MailerService
      * @throws \Bitrix\Main\ObjectNotFoundException
      * @throws \Bitrix\Main\ArgumentException
      */

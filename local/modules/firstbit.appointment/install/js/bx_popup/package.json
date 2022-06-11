@@ -1,0 +1,19 @@
+{
+  "name": "firstbit_appointment_step_application",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bundle.config.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "flow-bin": "^0.178.0",
+    "postcss": "^8.4.13",
+    "postcss-url": "^10.1.3",
+    "rollup-plugin-postcss": "^4.0.2",
+    "rollup-plugin-scss": "^2.6.1"
+  },
+  "dependencies": {}
+}

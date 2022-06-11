@@ -1,5 +1,5 @@
 <?php
-namespace FirstBit\Appointment\Services;
+namespace FirstBit\Appointment\Services\OneC;
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
@@ -11,7 +11,7 @@ use FirstBit\Appointment\Utils\Utils;
 
 Loc::loadMessages(__FILE__);
 
-class OneCReader extends BaseOneCService
+class Reader extends BaseOneCService
 {
     public function getClinicsList(): Result
     {

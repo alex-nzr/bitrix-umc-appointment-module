@@ -1,10 +1,10 @@
 <?php
 
 use FirstBit\Appointment\Services\Container;
-use FirstBit\Appointment\Services\SmsService;
-use FirstBit\Appointment\Services\MailerService;
-use FirstBit\Appointment\Services\OneCReader;
-use FirstBit\Appointment\Services\OneCWriter;
+use FirstBit\Appointment\Services\Message\SmsService;
+use FirstBit\Appointment\Services\Message\MailerService;
+use FirstBit\Appointment\Services\OneC\Reader;
+use FirstBit\Appointment\Services\OneC\Writer;
 
 return [
     'controllers' => [
@@ -18,18 +18,18 @@ return [
             'firstBit.appointment.services.container'  => [
                 'className' => Container::class,
             ],
-            'firstBit.appointment.services.oneCReader' => [
-                'className' => OneCReader::class,
+            'firstBit.appointment.services.oneC.reader' => [
+                'className' => Reader::class,
             ],
-            'firstBit.appointment.services.oneCWriter' => [
-                'className' => OneCWriter::class,
+            'firstBit.appointment.services.oneC.writer' => [
+                'className' => Writer::class,
             ],
-            'firstBit.appointment.services.mailerService' => [
+            'firstBit.appointment.services.message.mailerService' => [
                 'constructor' => static function () {
                     return new MailerService();
                 },
             ],
-            'firstBit.appointment.services.smsService' => [
+            'firstBit.appointment.services.message.smsService' => [
                 'className' => SmsService::class,
                 'constructorParams' => static function (){
                     return [];

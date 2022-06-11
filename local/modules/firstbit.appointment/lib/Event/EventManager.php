@@ -2,7 +2,6 @@
 namespace FirstBit\Appointment\Event;
 
 use Bitrix\Main\EventManager as BitrixEventManager;
-use CEventType;
 use FirstBit\Appointment\Config\Constants;
 use FirstBit\Appointment\Event\Message\Email;
 use FirstBit\Appointment\Event\Message\Sms;

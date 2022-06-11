@@ -1,5 +1,5 @@
 <?php
-namespace FirstBit\Appointment\Services;
+namespace FirstBit\Appointment\Services\OneC;
 
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;

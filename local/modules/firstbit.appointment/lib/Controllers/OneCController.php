@@ -8,14 +8,12 @@ use Bitrix\Main\Engine\ActionFilter\HttpMethod;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Result;
 use FirstBit\Appointment\Services\Container;
-use FirstBit\Appointment\Services\OneCReader;
-use FirstBit\Appointment\Services\OneCWriter;
+use FirstBit\Appointment\Services\OneC\Reader;
 use FirstBit\Appointment\Services\Operation\AppointmentOperation;
 
 class OneCController extends Controller
 {
-    private OneCReader $reader;
-    private OneCWriter $writer;
+    private Reader $reader;
 
     /**
      * OneCController constructor.
@@ -28,7 +26,6 @@ class OneCController extends Controller
 
         $container = Container::getInstance();
         $this->reader = $container->getReaderService();
-        $this->writer = $container->getWriterService();
     }
 
 
@@ -55,17 +52,17 @@ class OneCController extends Controller
     public function addOrderAction(string $params): Result
     {
         $arParams = json_decode($params, true);
-        return AppointmentOperation::addOrder($this->writer, $arParams);
+        return AppointmentOperation::addOrder($arParams);
     }
 
     public function deleteOrderAction(int $id, string $orderUid): Result
     {
-        return AppointmentOperation::deleteOrder($this->writer, $id, $orderUid);
+        return AppointmentOperation::deleteOrder($id, $orderUid);
     }
 
     public function getOrderStatusAction(int $id, string $orderUid): Result
     {
-        return AppointmentOperation::getOrderStatus($this->reader, $id, $orderUid);
+        return AppointmentOperation::getOrderStatus($id, $orderUid);
     }
 
     protected function processAfterAction(Action $action, $result)
