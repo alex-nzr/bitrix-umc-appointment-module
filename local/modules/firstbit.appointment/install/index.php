@@ -86,6 +86,7 @@ class firstbit_appointment extends CModule
                 if ($request->get('saveData') !== "Y"){
                     $this->UnInstallDB();
                 }
+                Option::delete($this->MODULE_ID);
                 ModuleManager::unRegisterModule($this->MODULE_ID);
 
                 $this->App->IncludeAdminFile(
@@ -130,7 +131,6 @@ class firstbit_appointment extends CModule
             Loader::includeModule($this->MODULE_ID);
 
             $recordDataClass = Container::getInstance()->getRecordDataClass();
-            Option::delete($this->MODULE_ID);
             $connection = Application::getConnection();
             $recordTableName = Base::getInstance($recordDataClass)->getDBTableName();
             if($connection->isTableExists($recordTableName))

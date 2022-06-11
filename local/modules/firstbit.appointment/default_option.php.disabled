@@ -1,0 +1,19 @@
+<?php
+
+$firstbit_appointment_default_option = [
+    'appointment_api_ws_url' => "http://localhost:3500/umc_corp/ws/ws1.1cws?wsdl",
+    'appointment_api_db_login' => "siteIntegration",
+    'appointment_api_db_password' => "123456",
+    'appointment_settings_use_auto_injecting' => "Y",
+    'appointment_api_schedule_days' => 14,
+    'appointment_settings_default_duration' => 1800,
+    'appointment_settings_use_nomenclature' => "Y",
+    'appointment_settings_use_time_steps' => "N",
+    'appointment_settings_time_step_duration' => "15",
+    'appointment_settings_strict_checking_relations' => "Y",
+    'appointment_settings_show_doctors_without_dpt' => "Y",
+    'appointment_settings_use_waiting_list' => "N",
+    'appointment_settings_use_email_note' => "Y",
+    'appointment_settings_privacy_page_url' => "#",
+    'appointment_settings_confirm_with' => 'none',
+];

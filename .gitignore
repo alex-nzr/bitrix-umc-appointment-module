@@ -10,6 +10,7 @@
 /upload/
 /local/php_interface
 /local/templates
+/local/js
 /.access.php
 /.htaccess
 /404.php

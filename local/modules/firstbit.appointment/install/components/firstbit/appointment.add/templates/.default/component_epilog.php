@@ -3,11 +3,12 @@
 use Bitrix\Main\LoaderException;
 use Bitrix\Main\UI\Extension;
 use Bitrix\Main\Localization\Loc;
+use FirstBit\Appointment\Config\Constants;
 
 Loc::loadMessages(__FILE__);
 try
 {
-    Extension::load(['firstbit.appointment.popup']);
+    Extension::load([Constants::APPOINTMENT_JS_EXTENSION]);
 }
 catch (LoaderException $e)
 {

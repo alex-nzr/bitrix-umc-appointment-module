@@ -6,7 +6,6 @@ use Bitrix\Main\Context;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Request;
 use CAdminTabControl;
-use CControllerClient;
 use CFile;
 use Exception;
 use function htmlSpecialCharsBx;
@@ -72,7 +71,7 @@ class OptionManager{
                         'appointment_settings_use_auto_injecting',
                         Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_AUTO_INJECTING_ON'),
                         "N",
-                        ['checkbox', "N"]
+                        ['checkbox']
                     ],
                     [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_AUTO_INJECTING_NOTE')],
 
@@ -93,7 +92,7 @@ class OptionManager{
                         'appointment_settings_use_nomenclature',
                         Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_NOMENCLATURE'),
                         "N",
-                        ['checkbox', "Y"]
+                        ['checkbox']
                     ],
                     [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_NOMENCLATURE_WARNING')],
 
@@ -101,7 +100,7 @@ class OptionManager{
                         'appointment_settings_select_doctor_before_service',
                         Loc::getMessage('FIRSTBIT_APPOINTMENT_SELECT_DOCTOR_BEFORE_SERVICE'),
                         "N",
-                        ['checkbox', "Y"]
+                        ['checkbox']
                     ],
                     [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_SELECT_DOCTOR_BEFORE_SERVICE_NOTE')],*/
 
@@ -109,7 +108,7 @@ class OptionManager{
                         'appointment_settings_use_time_steps',
                         Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_TIME_STEPS'),
                         "N",
-                        ['checkbox', "N"]
+                        ['checkbox']
                     ],
                     [
                         'appointment_settings_time_step_duration',
@@ -123,7 +122,7 @@ class OptionManager{
                         'appointment_settings_strict_checking_relations',
                         Loc::getMessage('FIRSTBIT_APPOINTMENT_STRICT_CHECKING_RELATIONS'),
                         "N",
-                        ['checkbox', "Y"]
+                        ['checkbox']
                     ],
                     [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_STRICT_CHECKING_RELATIONS_NOTE')],
 
@@ -131,7 +130,7 @@ class OptionManager{
                         'appointment_settings_show_doctors_without_dpt',
                         Loc::getMessage('FIRSTBIT_APPOINTMENT_SHOW_DOCTORS_WITHOUT_DEPARTMENT'),
                         "N",
-                        ['checkbox', "Y"]
+                        ['checkbox']
                     ],
                     [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_SHOW_DOCTORS_WITHOUT_DEPARTMENT_NOTE')],
 
@@ -139,7 +138,7 @@ class OptionManager{
                         'appointment_settings_use_waiting_list',
                         Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_WAITING_LIST'),
                         "N",
-                        ['checkbox', "N"]
+                        ['checkbox']
                     ],
                     [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_WAITING_LIST_NOTE')],
 
@@ -147,13 +146,13 @@ class OptionManager{
                         'appointment_settings_use_email_note',
                         Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_EMAIL_NOTE'),
                         "N",
-                        ['checkbox', "Y"]
+                        ['checkbox']
                     ],
 
                     [
                         'appointment_settings_privacy_page_url',
                         Loc::getMessage('FIRSTBIT_APPOINTMENT_PRIVACY_PAGE_URL'),
-                        "javascript: void(0)",
+                        "#",
                         ['text', 50]
                     ],
 
@@ -162,7 +161,7 @@ class OptionManager{
                         Loc::getMessage('FIRSTBIT_APPOINTMENT_CONFIRM_WITH'),
                         Constants::CONFIRM_TYPE_NONE,
                         [
-                            'selectbox',
+                            'select',
                             [
                                 Constants::CONFIRM_TYPE_NONE  => Loc::getMessage('FIRSTBIT_APPOINTMENT_CONFIRM_WITH_NONE'),
                                 Constants::CONFIRM_TYPE_PHONE => Loc::getMessage('FIRSTBIT_APPOINTMENT_CONFIRM_WITH_PHONE'),
@@ -184,14 +183,14 @@ class OptionManager{
                         'appointment_view_logo_image',
                         Loc::getMessage("FIRSTBIT_APPOINTMENT_LOGO_UPLOAD"),
                         "",
-                        ['file', ""]
+                        ['file']
                     ],
                     Loc::getMessage("FIRSTBIT_APPOINTMENT_MAIN_BTN_SETTINGS"),
                     [
                         'appointment_view_use_custom_main_btn',
                         Loc::getMessage("FIRSTBIT_APPOINTMENT_USE_CUSTOM_MAIN_BTN"),
                         "N",
-                        ['checkbox', "N"]
+                        ['checkbox']
                     ],
                     [
                         'appointment_view_custom_main_btn_id',
@@ -203,13 +202,13 @@ class OptionManager{
                         '--appointment-start-btn-bg-color',
                         Loc::getMessage("FIRSTBIT_APPOINTMENT_MAIN_BTN_BG_COLOR"),
                         "#025ea1",
-                        ['colorPicker', "#025ea1"]
+                        ['colorPicker']
                     ],
                     [
                         '--appointment-start-btn-text-color',
                         Loc::getMessage("FIRSTBIT_APPOINTMENT_MAIN_BTN_TEXT_COLOR"),
                         "#fff",
-                        ['colorPicker', "#fff"]
+                        ['colorPicker']
                     ],
 
                     Loc::getMessage("FIRSTBIT_APPOINTMENT_FORM_COLORS_SETTINGS"),
@@ -217,31 +216,31 @@ class OptionManager{
                         '--appointment-main-color',
                         Loc::getMessage("FIRSTBIT_APPOINTMENT_FORM_COLOR_MAIN"),
                         "#025ea1",
-                        ['colorPicker', "#025ea1"]
+                        ['colorPicker']
                     ],
                     [
                         '--appointment-field-color',
                         Loc::getMessage("FIRSTBIT_APPOINTMENT_FORM_COLOR_FIELD"),
                         "#1B3257",
-                        ['colorPicker', "#1B3257"]
+                        ['colorPicker']
                     ],
                     [
                         '--appointment-form-text-color',
                         Loc::getMessage("FIRSTBIT_APPOINTMENT_FORM_COLOR_TEXT"),
                         "#f5f5f5",
-                        ['colorPicker', "#f5f5f5"]
+                        ['colorPicker']
                     ],
                     [
                         '--appointment-btn-bg-color',
                         Loc::getMessage("FIRSTBIT_APPOINTMENT_FORM_COLOR_BTN"),
                         "#12b1e3",
-                        ['colorPicker', "#12b1e3"]
+                        ['colorPicker']
                     ],
                     [
                         '--appointment-btn-text-color',
                         Loc::getMessage("FIRSTBIT_APPOINTMENT_FORM_COLOR_BTN_TEXT"),
                         "#ffffff",
-                        ['colorPicker', "#ffffff"]
+                        ['colorPicker']
                     ],
                 ]
             ],
@@ -297,7 +296,7 @@ class OptionManager{
                         Option::set(
                             $this->moduleId,
                             $optionName,
-                            is_array($optionValue) ? implode(",", $optionValue) : $optionValue
+                            is_array($optionValue) ? json_encode($optionValue) : $optionValue
                         );
                     }
                 }
@@ -324,7 +323,6 @@ class OptionManager{
                     $this->tabControl->BeginNextTab();
                     $this->drawSettingsList($this->moduleId, $arTab['OPTIONS']);
                 }
-
             }
     }
 
@@ -343,49 +341,38 @@ class OptionManager{
     }
 
     /**
-     * @param $module_id
-     * @param $Option
+     * @param string $module_id
+     * @param $option
      */
-    protected function drawSettingsRow($module_id, $Option)
+    protected function drawSettingsRow(string $module_id, $option)
     {
-        $arControllerOption = CControllerClient::GetInstalledOptions($module_id);
-        if($Option === null)
-        {
-            return;
-        }
+        if(empty($option))return;
 
-        if(!is_array($Option)): ?>
-            <tr class="heading">
-                <td colspan="2"><?=$Option?></td>
-            </tr>
-        <? elseif(isset($Option["note"])): ?>
-            <tr>
-                <td colspan="2">
-                    <div class="adm-info-message-wrap">
-                        <div class="adm-info-message" style="display: block"><?=$Option["note"]?></div>
-                    </div>
-                </td>
-            </tr>
-        <? else:
-            if ($Option[0] !== "")
-            {
-                $val = Option::get($module_id, $Option[0], $Option[2]);
-            }
-            else
-            {
-                $val = $Option[2];
-            }
-        ?>
-            <tr>
-                <?
-                $this->renderLabel($Option);
-                $this->renderInput($Option, $arControllerOption, $Option[0], $val);
-                ?>
-            </tr>
-        <? endif;
+        if(!is_array($option))
+        {
+            echo "<tr class='heading'><td colspan='2'>$option</td></tr>";
+        }
+        elseif(isset($option["note"]))
+        {
+            echo    "<tr>
+                        <td colspan='2'>
+                            <div class='adm-info-message-wrap'>
+                                <div class='adm-info-message'>{$option["note"]}</div>
+                            </div>
+                        </td>
+                    </tr>";
+        }
+        else
+        {
+            $currentVal = Option::get($module_id, $option[0], $option[2]);
+            echo "<tr>";
+            $this->renderTitle($option[1]);
+            $this->renderInput($option, $currentVal ?? '');
+            echo "</tr>";
+        }
     }
 
-    protected function drawSettingsList($module_id, $arParams)
+    protected function drawSettingsList(string $module_id, array $arParams)
     {
         foreach($arParams as $Option)
         {
@@ -393,94 +380,77 @@ class OptionManager{
         }
     }
 
-    protected function renderLabel($Option)
+    protected function renderTitle(string $text)
     {
-        $type = $Option[3];
-        $sup_text = array_key_exists(5, $Option) ? $Option[5] : '';
-        $class = '';
-        $label = '';
-        switch ($type[0])
-        {
-            case "multiselectbox":
-            case "textarea":
-            case "statictext":
-            case "statichtml":
-                $class = 'adm-detail-valign-top';
-                break;
-            case "checkbox":
-                $label = "<label for='". htmlSpecialCharsBx($Option[0])."'>".$Option[1]."</label>";
-                break;
-            default:
-                $label = $Option[1];
-        }
-
-        ?>
-        <td class="<?=$class?>" style="width: 50%">
-            <?=$label?>
-            <? if ($sup_text !== '') : ?>
-                <span class="required"><sup><?=$sup_text?></sup></span>
-            <?endif;?>
-        </td>
-        <?
+        echo "<td><span>$text</span></td>";
     }
 
-    protected function renderInput($Option, $arControllerOption, $fieldName, $val)
+    protected function renderInput(array $option, string $val)
     {
-        $type = $Option[3];
-        $disabled = array_key_exists(4, $Option) && $Option[4] == 'Y' ? ' disabled' : '';
+        $name  = $option[0];
+        $type  = $option[3];
         ?>
         <td style="width: 50%">
-            <label for="<?echo htmlSpecialCharsBx($Option[0])?>" class="firstbit-appointment-adm-label">
-                <? if($type[0]=="checkbox"): ?>
-                    <input type="checkbox" <?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?>id="<?echo htmlSpecialCharsBx($Option[0])?>" name="<?=htmlSpecialCharsBx($fieldName)?>" value="Y"<?if($val=="Y")echo" checked";?><?=$disabled?><?if($type[2]<>'') echo " ".$type[2]?>>
-                <? elseif($type[0]=="text" || $type[0]=="password"): ?>
-                    <input type="<?echo $type[0]?>"<?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> id="<?echo htmlSpecialCharsBx($Option[0])?>" size="<?echo $type[1]?>" maxlength="255" value="<?echo htmlSpecialCharsBx($val)?>" name="<?=htmlSpecialCharsBx($fieldName)?>"<?=$disabled?><?=($type[0]=="password" || $type["noautocomplete"]? ' autocomplete="new-password"':'')?>><?
-                elseif($type[0]=="selectbox"):
-                    $arr = $type[1];
-                    if(!is_array($arr))
-                        $arr = array();
-                ?>
-                    <select name="<?=htmlSpecialCharsBx($fieldName)?>" <?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> <?=$disabled?>>
-                        <? foreach($arr as $key => $v): ?>
-                            <option value="<?echo $key?>"<?if($val==$key)echo" selected"?>><?echo htmlSpecialCharsBx($v)?></option>
-                        <? endforeach; ?>
-                    </select>
-                <? elseif($type[0]=="multiselectbox"):
-                    $arr = $type[1];
-                    if(!is_array($arr))
-                        $arr = array();
-                    $arr_val = explode(",",$val);
-                ?>
-                    <select size="5" <?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> multiple name="<?=htmlSpecialCharsBx($fieldName)?>[]"<?=$disabled?>>
-                        <? foreach($arr as $key => $v): ?>
-                            <option value="<?echo $key?>"<?if(in_array($key, $arr_val)) echo " selected"?>><?echo htmlSpecialCharsBx($v)?></option>
-                        <? endforeach; ?>
-                    </select>
-                <? elseif($type[0]=="textarea"): ?>
-                    <textarea <?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> rows="<?echo $type[1]?>" cols="<?echo $type[2]?>" name="<?=htmlSpecialCharsBx($fieldName)?>"<?=$disabled?>><?echo htmlSpecialCharsBx($val)?></textarea>
-                <? elseif($type[0]=="staticText"): ?>
-                    <?=htmlSpecialCharsBx($val)?>
-                <? elseif($type[0]=="staticHtml"):?>
-                    <?=$val?>
-                <? elseif($type[0]=="colorPicker"):?>
-                    <input type="text" id="<?=$fieldName?>" name="<?=$fieldName?>" value="<?=($val ?? $Option[2] ?? '')?>" readonly />
-                    <script>
-                        BX.ready(function() {
-                            BX.FirstBit.Appointment.Admin.bindColorPickerToNode('<?=$fieldName?>', '<?=$fieldName?>', '<?=$Option[2]?>');
-                        });
-                    </script>
-                <? elseif($type[0]=="file"):?>
-                    <?php
-                        $link = false;
+            <label for="<?=$name?>" class="firstbit-appointment-adm-label">
+                <?
+                switch ($type[0])
+                {
+                    case "checkbox":
+                        $checked = ($val === "Y") ? "checked" : '';
+                        echo "<input type='checkbox' id='$name' name='$name' value='Y' $checked>";
+                        break;
+                    case "text":
+                    case "password":
+                        $autocomplete = $type[0] === 'password' ? 'autocomplete="new-password"' : '';
+                        echo "<input type='$type[0]' id='$name' name='$name' value='$val' size='$type[1]' maxlength='255' $autocomplete>";
+                        break;
+                    case "select":
+                        $arr = is_array($type[1]) ? $type[1] : [];
+                        echo "<select name='$name'>";
+                        foreach($arr as $optionVal => $displayVal)
+                        {
+                            $selected = ($val === $optionVal) ? "selected" : '';
+                            echo "<option value='$optionVal' $selected>$displayVal</option>";
+                        }
+                        echo "</select>";
+                        break;
+                    case "multiselect":
+                        $arr = is_array($type[1]) ? $type[1] : [];
+                        $name .= '[]';
+                        $arr_val = json_decode($val);
+                        echo "<select name='$name' size='5' multiple>";
+                        foreach($arr as $optionVal => $displayVal)
+                        {
+                            $selected = (in_array($optionVal, $arr_val)) ? "selected" : '';
+                            echo "<option value='$optionVal' $selected>$displayVal</option>";
+                        }
+                        echo "</select>";
+                        break;
+                    case "textarea":
+                        echo "<textarea rows='$type[1]' cols='$type[2]' name='$name'>$val</textarea>";
+                        break;
+                    case "staticText":
+                        echo "<span>$val</span>";
+                        break;
+                    case "colorPicker":
+                        echo "<input type='text' id='$name' name='$name' value='$val' readonly/>
+                              <script>
+                                BX.ready(function() {
+                                    BX.FirstBit.Appointment.Admin.bindColorPickerToNode('$name', '$name', '$option[2]');
+                                });
+                              </script>";
+                        break;
+                    case "file":
                         if (is_numeric($val) && (int)$val > 0){
                             $link = CFile::GetPath($val);
+                            if (!empty($link)){
+                                echo "<div><img src='$link' alt='logo' width='200'></div>";
+                            }
                         }
-                    ?>
-                    <?if ($link):?>
-                        <div><img src="<?=$link?>" alt="logo" width="200"></div>
-                    <?endif;?>
-                    <input type="file" name="<?=$fieldName?>" id="<?=$fieldName?>">
-                <?endif;?>
+                        echo "<input type='file' id='$name' name='$name'/>";
+                        break;
+                }
+                ?>
             </label>
             <script>
                 BX.ready(() => BX.FirstBit.Appointment.Admin.activateInputs());
