@@ -18,7 +18,7 @@ class ListPageManager
     private PageNavigation $pageNavObject;
     private array $rows;
     private GridOptions $gridOptions;
-    private string $gridId;
+    //private string $gridId;
 
     /**
      * ListPageManager constructor.
@@ -27,7 +27,7 @@ class ListPageManager
      */
     public function __construct(string $entityClass, string $gridId){
         $this->entity = new $entityClass;
-        $this->gridId = $gridId;
+        //$this->gridId = $gridId;
         $this->allowedColumns = $this->getAllowedColumns();
         $this->gridOptions = new GridOptions($gridId);
         $this->pageNavObject = $this->setPageNavigation($gridId);
