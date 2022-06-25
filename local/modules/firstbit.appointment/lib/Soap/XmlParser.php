@@ -1,7 +1,11 @@
 <?php
 namespace FirstBit\Appointment\Soap;
 
+use Bitrix\Main\Event;
+use Bitrix\Main\EventResult;
 use Exception;
+use FirstBit\Appointment\Config\Constants;
+use FirstBit\Appointment\Event\EventType;
 use FirstBit\Appointment\Utils\Utils;
 use SimpleXMLElement;
 
@@ -18,6 +22,7 @@ class XmlParser{
         try
         {
             $xmlArr = $this->xmlToArray($xml);
+            $xmlArr = $this->getEventHandlersResult(EventType::ON_BEFORE_CLINICS_PARSED, $xmlArr);
             $clinics = [];
             if (is_array($xmlArr['Клиника'])){
                 foreach ($xmlArr['Клиника'] as $item) {
@@ -27,8 +32,7 @@ class XmlParser{
                     $clinics[$item['УИД']] = $clinic;
                 }
             }
-
-            return $clinics;
+            return $this->getEventHandlersResult(EventType::ON_AFTER_CLINICS_PARSED, $clinics);
         }
         catch (Exception $e)
         {
@@ -237,8 +241,63 @@ class XmlParser{
      * @param SimpleXMLElement $xml
      * @return array
      */
-    public static function xmlToArray(SimpleXMLElement $xml): array
+    public function xmlToArray(SimpleXMLElement $xml): array
     {
         return json_decode(json_encode($xml), true);
+    }
+
+    /**
+     * @param string $eventName
+     * @param $params
+     * @return array|null
+     * @throws \Exception
+     */
+    protected function getEventHandlersResult(string $eventName, $params): ?array
+    {
+        return $this->sendEvent($eventName, $params);
+    }
+
+    /**
+     * @param string $eventName
+     * @param $params
+     * @return array|null
+     * @throws \Exception
+     */
+    protected function sendEvent(string $eventName, $params): ?array
+    {
+        $event = new Event(
+            Constants::APPOINTMENT_MODULE_ID,
+            $eventName,
+            $params
+        );
+        $event->send();
+
+        return $this->processEventResult($event);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    protected function processEventResult(Event $event): ?array
+    {
+        $result = $event->getParameters();
+        foreach ($event->getResults() as $eventResult)
+        {
+            switch($eventResult->getType())
+            {
+                case EventResult::ERROR:
+                    throw new Exception(json_encode($event->getParameters()));
+                case EventResult::SUCCESS:
+                    $handlerResult = $eventResult->getParameters();
+                    if (is_array($handlerResult)){
+                        $result = array_merge($result, $handlerResult);
+                    }
+                    break;
+                case EventResult::UNDEFINED:
+                    // handle unexpected unknown result
+                    break;
+            }
+        }
+        return $result;
     }
 }

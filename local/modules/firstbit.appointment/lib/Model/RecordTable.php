@@ -73,8 +73,16 @@ class RecordTable extends DataManager
     /**
      * @return string
      */
-    public static function getUfId()
+    public static function getUfId(): string
     {
         return "FB_APP_RECORD";
+    }
+
+    /**
+     * @return string
+     */
+    public static function getObjectClass(): string
+    {
+        return Record::class;
     }
 }
