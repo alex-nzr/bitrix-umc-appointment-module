@@ -397,8 +397,9 @@ export class AppointmentSteps
                 if (scheduleResponse.data?.hasOwnProperty("schedule"))
                 {
                     this.data.schedule = scheduleResponse.data.schedule;
-                    EventManager.emit(EventManager.fullDataLoaded);
+                    this.messageNode.textContent = "";
                 }
+                EventManager.emit(EventManager.fullDataLoaded);
             })
             .catch(e => {
                 !this.useCustomMainBtn && this.startBtnWrap.classList.add(styles['hidden']);
@@ -481,12 +482,12 @@ export class AppointmentSteps
         (dataKey === this.dataKeys.scheduleKey) ? listNode.classList.add(styles["column-mode"]) : void(0);
         BX.cleanNode(listNode);
 
-        if(Object.keys(this.data[dataKey]).length > 0)
-        {
+        //if(Object.keys(this.data[dataKey]).length > 0)
+        //{
             const items = this.data[dataKey];
             this.renderer.renderSelectionItems(listNode, dataKey, items);
             (dataKey === this.dataKeys.clinicsKey) ? EventManager.emit(EventManager.clinicsRendered) : void(0);
-        }
+        //}
     }
 
     allowToRender(listNode: HTMLElement, dataKey: string, item: any): boolean
@@ -967,7 +968,7 @@ export class AppointmentSteps
 
         if (this.checkRequiredFields())
         {
-            this.messageNode ? this.messageNode.textContent = "" : void(0);
+            this.messageNode ? (this.messageNode.textContent = "") : void(0);
             this.toggleLoader(true);
             this.orderData = {...this.filledInputs.textValues};
 
@@ -994,12 +995,7 @@ export class AppointmentSteps
         }
         else
         {
-            if (this.messageNode){
-                this.messageNode.textContent = BX.message("FIRSTBIT_JS_ORDER_CHECK_FIELDS_ERROR");
-            }
-            else {
-                this.logResultErrors(BX.message("FIRSTBIT_JS_ORDER_CHECK_FIELDS_ERROR"));
-            }
+            this.showError(BX.message("FIRSTBIT_JS_ORDER_CHECK_FIELDS_ERROR"));
         }
     }
 
@@ -1448,6 +1444,15 @@ export class AppointmentSteps
                 two:        'appointment-form-step-two',
                 userData:   'appointment-form-step-userData',
             }
+        }
+    }
+
+    showError(message) {
+        if (this.messageNode){
+            this.messageNode.textContent = message;
+        }
+        else {
+            this.logResultErrors(message);
         }
     }
 }

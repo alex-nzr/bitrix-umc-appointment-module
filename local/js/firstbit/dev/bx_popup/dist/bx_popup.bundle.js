@@ -1162,8 +1162,10 @@ this.BX.FirstBit = this.BX.FirstBit || {};
 
           if ((_scheduleResponse$dat3 = scheduleResponse.data) !== null && _scheduleResponse$dat3 !== void 0 && _scheduleResponse$dat3.hasOwnProperty("schedule")) {
             _this5.data.schedule = scheduleResponse.data.schedule;
-            EventManager.emit(EventManager.fullDataLoaded);
+            _this5.messageNode.textContent = "";
           }
+
+          EventManager.emit(EventManager.fullDataLoaded);
         })["catch"](function (e) {
           !_this5.useCustomMainBtn && _this5.startBtnWrap.classList.add(styles['hidden']);
 
@@ -1260,13 +1262,12 @@ this.BX.FirstBit = this.BX.FirstBit || {};
         }
 
         dataKey === this.dataKeys.scheduleKey ? listNode.classList.add(styles["column-mode"]) : void 0;
-        BX.cleanNode(listNode);
+        BX.cleanNode(listNode); //if(Object.keys(this.data[dataKey]).length > 0)
+        //{
 
-        if (Object.keys(this.data[dataKey]).length > 0) {
-          var items = this.data[dataKey];
-          this.renderer.renderSelectionItems(listNode, dataKey, items);
-          dataKey === this.dataKeys.clinicsKey ? EventManager.emit(EventManager.clinicsRendered) : void 0;
-        }
+        var items = this.data[dataKey];
+        this.renderer.renderSelectionItems(listNode, dataKey, items);
+        dataKey === this.dataKeys.clinicsKey ? EventManager.emit(EventManager.clinicsRendered) : void 0; //}
       }
     }, {
       key: "allowToRender",
@@ -1792,11 +1793,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
             this.sendOrder();
           }
         } else {
-          if (this.messageNode) {
-            this.messageNode.textContent = BX.message("FIRSTBIT_JS_ORDER_CHECK_FIELDS_ERROR");
-          } else {
-            this.logResultErrors(BX.message("FIRSTBIT_JS_ORDER_CHECK_FIELDS_ERROR"));
-          }
+          this.showError(BX.message("FIRSTBIT_JS_ORDER_CHECK_FIELDS_ERROR"));
         }
       }
     }, {
@@ -2303,6 +2300,15 @@ this.BX.FirstBit = this.BX.FirstBit || {};
             userData: 'appointment-form-step-userData'
           }
         };
+      }
+    }, {
+      key: "showError",
+      value: function showError(message) {
+        if (this.messageNode) {
+          this.messageNode.textContent = message;
+        } else {
+          this.logResultErrors(message);
+        }
       }
     }]);
     return AppointmentSteps;

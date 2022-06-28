@@ -1,10 +1,8 @@
 <?php
 namespace FirstBit\Appointment\Soap;
 
-use Bitrix\Main\Event;
-use Bitrix\Main\EventResult;
 use Exception;
-use FirstBit\Appointment\Config\Constants;
+use FirstBit\Appointment\Event\Event;
 use FirstBit\Appointment\Event\EventType;
 use FirstBit\Appointment\Utils\Utils;
 use SimpleXMLElement;
@@ -22,7 +20,7 @@ class XmlParser{
         try
         {
             $xmlArr = $this->xmlToArray($xml);
-            $xmlArr = $this->getEventHandlersResult(EventType::ON_BEFORE_CLINICS_PARSED, $xmlArr);
+            $xmlArr = Event::getEventHandlersResult(EventType::ON_BEFORE_CLINICS_PARSED, $xmlArr);
             $clinics = [];
             if (is_array($xmlArr['Клиника'])){
                 foreach ($xmlArr['Клиника'] as $item) {
@@ -32,7 +30,7 @@ class XmlParser{
                     $clinics[$item['УИД']] = $clinic;
                 }
             }
-            return $this->getEventHandlersResult(EventType::ON_AFTER_CLINICS_PARSED, $clinics);
+            return Event::getEventHandlersResult(EventType::ON_AFTER_CLINICS_PARSED, $clinics);
         }
         catch (Exception $e)
         {
@@ -49,6 +47,7 @@ class XmlParser{
         try
         {
             $xmlArr = $this->xmlToArray($xml);
+            $xmlArr = Event::getEventHandlersResult(EventType::ON_BEFORE_EMPLOYEES_PARSED, $xmlArr);
             $employees = [];
             if (is_array($xmlArr['Сотрудник']))
             {
@@ -87,7 +86,7 @@ class XmlParser{
                     $employees[$uid] = $employee;
                 }
             }
-            return $employees;
+            return Event::getEventHandlersResult(EventType::ON_AFTER_EMPLOYEES_PARSED, $employees);
         }
         catch (Exception $e)
         {
@@ -104,6 +103,7 @@ class XmlParser{
         try
         {
             $xmlArr = $this->xmlToArray($xml);
+            $xmlArr = Event::getEventHandlersResult(EventType::ON_BEFORE_NOMENCLATURE_PARSED, $xmlArr);
             $nomenclature = [];
             if (is_array($xmlArr['Каталог']))
             {
@@ -124,8 +124,7 @@ class XmlParser{
                     $nomenclature[$uid]     = $product;
                 }
             }
-
-            return $nomenclature;
+            return Event::getEventHandlersResult(EventType::ON_AFTER_NOMENCLATURE_PARSED, $nomenclature);
         }
         catch (Exception $e)
         {
@@ -142,11 +141,12 @@ class XmlParser{
         try
         {
             $xmlArr = $this->xmlToArray($xml);
+            $xmlArr = Event::getEventHandlersResult(EventType::ON_BEFORE_SCHEDULE_PARSED, $xmlArr);
             $schedule = [];
             if (is_array($xmlArr['ГрафикДляСайта'])){
                 $schedule = Utils::prepareScheduleData($xmlArr['ГрафикДляСайта']);
             }
-            return $schedule;
+            return Event::getEventHandlersResult(EventType::ON_AFTER_SCHEDULE_PARSED, $schedule);
         }
         catch (Exception $e)
         {
@@ -244,60 +244,5 @@ class XmlParser{
     public function xmlToArray(SimpleXMLElement $xml): array
     {
         return json_decode(json_encode($xml), true);
-    }
-
-    /**
-     * @param string $eventName
-     * @param $params
-     * @return array|null
-     * @throws \Exception
-     */
-    protected function getEventHandlersResult(string $eventName, $params): ?array
-    {
-        return $this->sendEvent($eventName, $params);
-    }
-
-    /**
-     * @param string $eventName
-     * @param $params
-     * @return array|null
-     * @throws \Exception
-     */
-    protected function sendEvent(string $eventName, $params): ?array
-    {
-        $event = new Event(
-            Constants::APPOINTMENT_MODULE_ID,
-            $eventName,
-            $params
-        );
-        $event->send();
-
-        return $this->processEventResult($event);
-    }
-
-    /**
-     * @throws \Exception
-     */
-    protected function processEventResult(Event $event): ?array
-    {
-        $result = $event->getParameters();
-        foreach ($event->getResults() as $eventResult)
-        {
-            switch($eventResult->getType())
-            {
-                case EventResult::ERROR:
-                    throw new Exception(json_encode($event->getParameters()));
-                case EventResult::SUCCESS:
-                    $handlerResult = $eventResult->getParameters();
-                    if (is_array($handlerResult)){
-                        $result = array_merge($result, $handlerResult);
-                    }
-                    break;
-                case EventResult::UNDEFINED:
-                    // handle unexpected unknown result
-                    break;
-            }
-        }
-        return $result;
     }
 }

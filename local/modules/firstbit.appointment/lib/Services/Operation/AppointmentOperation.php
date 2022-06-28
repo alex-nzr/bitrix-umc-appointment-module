@@ -6,6 +6,8 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 use Exception;
 use FirstBit\Appointment\Config\Constants;
+use FirstBit\Appointment\Event\Event;
+use FirstBit\Appointment\Event\EventType;
 use FirstBit\Appointment\Services\Container;
 
 class AppointmentOperation
@@ -26,10 +28,13 @@ class AppointmentOperation
                 'appointment_settings_use_waiting_list', "N"
             );
 
-            if ($useWaitingList === "Y"){
+            if ($useWaitingList === "Y")
+            {
                 $response = $writer->addWaitingList($arParams);
             }
-            else{
+            else
+            {
+                $arParams = Event::getEventHandlersResult(EventType::ON_BEFORE_ORDER_SEND, $arParams);
                 $response = $writer->addOrder($arParams);
             }
 
