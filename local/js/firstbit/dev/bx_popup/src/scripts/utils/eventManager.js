@@ -1,3 +1,13 @@
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - eventManager.js
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 import {Event} from 'main.core';
 
 export class EventManager extends Event.EventEmitter{

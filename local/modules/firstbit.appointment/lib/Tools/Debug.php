@@ -17,8 +17,8 @@ namespace FirstBit\Appointment\Tools;
  */
 class Debug extends \Bitrix\Main\Diag\Debug
 {
-    const PATH_TO_LOG_FILE = __DIR__."/../../log.txt";
-
+    const PATH_TO_LOG_FILE       = __DIR__."/../../log.txt";
+    const PATH_TO_LOG_FILE_SHORT = '/local/modules/firstbit.appointment/log.txt';
     /**
      * print vars on screen
      * @param mixed ...$vars
@@ -41,7 +41,7 @@ class Debug extends \Bitrix\Main\Diag\Debug
     {
         foreach ($vars as $var)
         {
-            static::writeToFile($var, '', static::PATH_TO_LOG_FILE);
+            static::writeToFile($var, '', static::PATH_TO_LOG_FILE_SHORT);
         }
     }
 }

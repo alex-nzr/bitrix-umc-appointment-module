@@ -38,7 +38,7 @@ class OrmOperation{
             $newRecord->setClinicTitle($params['clinicName']);
             $newRecord->setSpecialty($params['specialty']);
             $newRecord->setDoctorName($params['doctorName']);
-            $newRecord->setServiceTitle($params['serviceName']);
+            $newRecord->setServiceTitle($params['serviceName'] ?? '-');
             $newRecord->setDatetimeVisit(DateTime::createFromTimestamp(strtotime($params['timeBegin'])));
             $newRecord->setPatientName($params['surname'] ." ". $params['name'] ." ". $params['middleName']);
             $newRecord->setPatientPhone(Utils::formatPhone($params['phone']));
