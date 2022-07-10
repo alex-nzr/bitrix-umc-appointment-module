@@ -1,3 +1,13 @@
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - index.js
+ * 10.07.2022 23:48
+ * ==================================================
+ */
 'use strict';
 import {AppointmentSteps} from './appointment/app';
 
