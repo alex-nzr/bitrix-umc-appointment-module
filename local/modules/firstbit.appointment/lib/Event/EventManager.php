@@ -1,13 +1,26 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - EventManager.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 namespace FirstBit\Appointment\Event;
 
 use Bitrix\Main\EventManager as BitrixEventManager;
 use FirstBit\Appointment\Config\Constants;
 use FirstBit\Appointment\Event\Message\Email;
 use FirstBit\Appointment\Event\Message\Sms;
-use FirstBit\Appointment\Utils\Utils;
+use FirstBit\Appointment\Tools\Utils;
 
-
+/**
+ * Class EventManager
+ * @package FirstBit\Appointment\Event
+ */
 class EventManager
 {
     protected static array $events = [

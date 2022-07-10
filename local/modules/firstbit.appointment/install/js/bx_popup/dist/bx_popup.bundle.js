@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.FirstBit = this.BX.FirstBit || {};
-(function (exports,date,main_core) {
+(function (exports,date,main_core,ui_dialogs_messagebox) {
   'use strict';
 
   function styleInject(css, ref) {
@@ -1170,6 +1170,8 @@ this.BX.FirstBit = this.BX.FirstBit || {};
           !_this5.useCustomMainBtn && _this5.startBtnWrap.classList.add(styles['hidden']);
 
           _this5.logResultErrors(e);
+
+          _this5.alertError(BX.message("FIRSTBIT_JS_APPLICATION_ERROR_CONNECTION"));
         });
       }
       /**
@@ -2310,6 +2312,20 @@ this.BX.FirstBit = this.BX.FirstBit || {};
           this.logResultErrors(message);
         }
       }
+    }, {
+      key: "alertError",
+      value: function alertError(message) {
+        var that = this;
+        ui_dialogs_messagebox.MessageBox.show({
+          message: message,
+          modal: true,
+          buttons: ui_dialogs_messagebox.MessageBoxButtons.OK,
+          onOk: function onOk(messageBox) {
+            that.reload();
+            messageBox.close();
+          }
+        });
+      }
     }]);
     return AppointmentSteps;
   }();
@@ -2335,4 +2351,4 @@ this.BX.FirstBit = this.BX.FirstBit || {};
     }
   });
 
-}((this.BX.FirstBit.Appointment = this.BX.FirstBit.Appointment || {}),BX,BX));
+}((this.BX.FirstBit.Appointment = this.BX.FirstBit.Appointment || {}),BX,BX,BX.UI.Dialogs));

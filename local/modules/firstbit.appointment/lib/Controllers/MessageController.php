@@ -1,4 +1,14 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - MessageController.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 namespace FirstBit\Appointment\Controllers;
 
 use Bitrix\Main\Engine\Action;
@@ -11,6 +21,10 @@ use FirstBit\Appointment\Services\Container;
 use Bitrix\Main\Engine\Controller;
 use FirstBit\Appointment\Services\Operation\ConfirmOperation;
 
+/**
+ * Class MessageController
+ * @package FirstBit\Appointment\Controllers
+ */
 class MessageController extends Controller
 {
     /**

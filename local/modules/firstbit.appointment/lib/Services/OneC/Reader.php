@@ -1,4 +1,14 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - Reader.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 namespace FirstBit\Appointment\Services\OneC;
 
 use Bitrix\Main\Config\Option;
@@ -7,11 +17,15 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Exception;
 use FirstBit\Appointment\Config\Constants;
-use FirstBit\Appointment\Utils\Utils;
+use FirstBit\Appointment\Tools\Utils;
 
 Loc::loadMessages(__FILE__);
 
-class Reader extends BaseOneCService
+/**
+ * Class Reader
+ * @package FirstBit\Appointment\Services\OneC
+ */
+class Reader extends BaseService
 {
     public function getClinicsList(): Result
     {

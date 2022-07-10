@@ -1,4 +1,14 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - ListPageManager.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 namespace FirstBit\Appointment\Services\Admin;
 
 use Bitrix\Main\Grid\Options as GridOptions;
@@ -8,8 +18,10 @@ use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\UI\PageNavigation;
 use Exception;
 
-Loc::loadMessages(__FILE__);
-
+/**
+ * Class ListPageManager
+ * @package FirstBit\Appointment\Services\Admin
+ */
 class ListPageManager
 {
     private array $allowedColumns;
@@ -25,7 +37,9 @@ class ListPageManager
      * @param string $entityClass
      * @param string $gridId
      */
-    public function __construct(string $entityClass, string $gridId){
+    public function __construct(string $entityClass, string $gridId)
+    {
+        Loc::loadMessages(__FILE__);
         $this->entity = new $entityClass;
         //$this->gridId = $gridId;
         $this->allowedColumns = $this->getAllowedColumns();

@@ -1,4 +1,14 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - Page.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 namespace FirstBit\Appointment\Event\Handlers;
 
 use Bitrix\Main\Config\Option;
@@ -7,6 +17,10 @@ use Bitrix\Main\UI\Extension;
 use Exception;
 use FirstBit\Appointment\Config\Constants;
 
+/**
+ * Class Page
+ * @package FirstBit\Appointment\Event\Handlers
+ */
 class Page
 {
     private static string $extensionId = Constants::APPOINTMENT_JS_EXTENSION;

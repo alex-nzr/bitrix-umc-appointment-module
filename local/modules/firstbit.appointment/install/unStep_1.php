@@ -1,4 +1,14 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - unStep_1.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 global $APPLICATION;
 use Bitrix\Main\Localization\Loc;
 Loc::loadMessages(__FILE__);

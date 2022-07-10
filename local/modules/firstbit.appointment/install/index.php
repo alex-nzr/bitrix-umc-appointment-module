@@ -1,5 +1,14 @@
 <?php
-
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - install.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
@@ -228,7 +237,7 @@ class firstbit_appointment extends CModule
         }
 
         $requireModules = [
-            'main'  => '21.0.0',
+            'main'  => '22.0.0',
         ];
 
         foreach ($requireModules as $moduleName => $moduleVersion)

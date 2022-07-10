@@ -1,4 +1,15 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - menu.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
+
 use Bitrix\Main\EventManager;
 use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;

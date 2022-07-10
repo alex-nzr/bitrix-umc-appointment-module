@@ -1,4 +1,14 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - class.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 namespace FirstBit\Appointment\Component;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
@@ -13,6 +23,10 @@ use Exception;
 use FirstBit\Appointment\Config\Constants;
 use YandexPay\Pay\Ui\UserField\EnumerationType;
 
+/**
+ * Class AppForm
+ * @package FirstBit\Appointment\Component
+ */
 class AppForm extends CBitrixComponent
 {
     private CMain $App;

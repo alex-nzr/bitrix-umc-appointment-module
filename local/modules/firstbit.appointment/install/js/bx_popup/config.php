@@ -10,6 +10,7 @@ return [
 	'rel' => [
 		'date',
 		'main.core',
+		'ui.dialogs.messagebox',
 	],
 	'skip_core' => false,
     'lang' => ['lang/ru/js_lang_phrases.php'],

@@ -1,4 +1,14 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - OrmOperation.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 namespace FirstBit\Appointment\Services\Operation;
 
 use Bitrix\Main\Engine\CurrentUser;
@@ -7,8 +17,12 @@ use Bitrix\Main\Result;
 use Bitrix\Main\Type\DateTime;
 use Exception;
 use FirstBit\Appointment\Services\Container;
-use FirstBit\Appointment\Utils\Utils;
+use FirstBit\Appointment\Tools\Utils;
 
+/**
+ * Class OrmOperation
+ * @package FirstBit\Appointment\Services\Operation
+ */
 class OrmOperation{
     /**
      * @param array $params
@@ -38,7 +52,7 @@ class OrmOperation{
                 $addResult->setData(['ID' => $result->getId()]);
             }
             else{
-                $addResult->addErrors($result->getErrorMessages());
+                $addResult->addErrors($result->getErrors());
             }
         }
         catch(Exception $e){

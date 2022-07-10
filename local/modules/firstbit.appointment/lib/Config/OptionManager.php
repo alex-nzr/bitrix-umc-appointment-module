@@ -1,4 +1,14 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - OptionManager.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 namespace FirstBit\Appointment\Config;
 
 use Bitrix\Main\Config\Option;
@@ -14,6 +24,10 @@ use function ShowError;
 Loc::loadMessages($_SERVER['DOCUMENT_ROOT'] . BX_ROOT . "/modules/main/options.php");
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class OptionManager
+ * @package FirstBit\Appointment\Config
+ */
 class OptionManager{
 
     private Request $request;

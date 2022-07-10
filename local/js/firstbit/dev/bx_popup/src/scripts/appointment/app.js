@@ -5,6 +5,7 @@ import {convertHexToHsl, maskInput} from "../utils/functions";
 import "date";
 import {Event} from 'main.core';
 import {EventManager} from "../utils/eventManager";
+import {MessageBox, MessageBoxButtons} from 'ui.dialogs.messagebox';
 import {Renderer} from "../utils/renderer";
 import type {ITextObject} from "../../types/params";
 import {TextInputNames} from "../../types/params";
@@ -404,6 +405,7 @@ export class AppointmentSteps
             .catch(e => {
                 !this.useCustomMainBtn && this.startBtnWrap.classList.add(styles['hidden']);
                 this.logResultErrors(e);
+                this.alertError(BX.message("FIRSTBIT_JS_APPLICATION_ERROR_CONNECTION"));
             })
     }
 
@@ -696,9 +698,9 @@ export class AppointmentSteps
                                     if (Object.keys(nomenclature.data).length > 0){
                                         this.data.services = nomenclature.data;
                                         this.bindServicesToSpecialties();
-                                        this.renderSpecialtiesList();
                                         this.servicesStorage[clinicUid] = {...this.data.services}
                                     }
+                                    this.renderSpecialtiesList();
                                 }
                                 this.toggleLoader(false);
                             })
@@ -792,16 +794,19 @@ export class AppointmentSteps
     
     addSpecialty(employee)
     {
-        if(this.data[this.dataKeys.specialtiesKey][employee.specialtyUid])
+        if (employee.specialtyUid)
         {
-            this.addClinicToSpecialty(this.data[this.dataKeys.specialtiesKey][employee.specialtyUid], employee.clinicUid);
-        }
-        else
-        {
-            this.data[this.dataKeys.specialtiesKey][employee.specialtyUid] = {
-                uid:        employee.specialtyUid,
-                name:       employee.specialty,
-                clinics:    [employee.clinicUid]
+            if(this.data[this.dataKeys.specialtiesKey][employee.specialtyUid])
+            {
+                this.addClinicToSpecialty(this.data[this.dataKeys.specialtiesKey][employee.specialtyUid], employee.clinicUid);
+            }
+            else
+            {
+                this.data[this.dataKeys.specialtiesKey][employee.specialtyUid] = {
+                    uid:        employee.specialtyUid,
+                    name:       employee.specialty,
+                    clinics:    [employee.clinicUid]
+                }
             }
         }
     }
@@ -1454,5 +1459,21 @@ export class AppointmentSteps
         else {
             this.logResultErrors(message);
         }
+    }
+
+    alertError(message) {
+        const that = this;
+        MessageBox.show(
+            {
+                message: message,
+                modal: true,
+                buttons: MessageBoxButtons.OK,
+                onOk: function(messageBox)
+                {
+                    that.reload();
+                    messageBox.close();
+                }
+            }
+        );
     }
 }

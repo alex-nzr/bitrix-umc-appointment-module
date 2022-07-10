@@ -1,10 +1,24 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - Event.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 namespace FirstBit\Appointment\Event;
 
 use Bitrix\Main\EventResult;
 use Exception;
 use FirstBit\Appointment\Config\Constants;
 
+/**
+ * Class Event
+ * @package FirstBit\Appointment\Event
+ */
 class Event extends \Bitrix\Main\Event
 {
     /**

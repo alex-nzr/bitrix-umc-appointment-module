@@ -1,4 +1,14 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - ConfirmOperation.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 namespace FirstBit\Appointment\Services\Operation;
 
 use Bitrix\Main\Application;
@@ -10,6 +20,10 @@ use Exception;
 use FirstBit\Appointment\Config\Constants;
 use FirstBit\Appointment\Services\Container;
 
+/**
+ * Class ConfirmOperation
+ * @package FirstBit\Appointment\Services\Operation
+ */
 class ConfirmOperation
 {
     public function __construct(){}

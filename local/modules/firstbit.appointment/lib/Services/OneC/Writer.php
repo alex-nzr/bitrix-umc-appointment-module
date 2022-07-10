@@ -1,4 +1,14 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - Writer.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 namespace FirstBit\Appointment\Services\OneC;
 
 use Bitrix\Main\Localization\Loc;
@@ -7,12 +17,16 @@ use Bitrix\Main\Error;
 use Exception;
 use FirstBit\Appointment\Config\Constants;
 use FirstBit\Appointment\Services\Operation\OrmOperation;
-use FirstBit\Appointment\Utils\Utils;
+use FirstBit\Appointment\Tools\Utils;
 use SoapVar;
 
 Loc::loadMessages(__FILE__);
 
-class Writer extends BaseOneCService
+/**
+ * Class Writer
+ * @package FirstBit\Appointment\Services\OneC
+ */
+class Writer extends BaseService
 {
     /** make request to creating order
      * @param array $params

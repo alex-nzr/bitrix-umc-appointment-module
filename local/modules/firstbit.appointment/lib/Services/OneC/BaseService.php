@@ -1,4 +1,14 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - BaseService.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 namespace FirstBit\Appointment\Services\OneC;
 
 use Bitrix\Main\Error;
@@ -7,10 +17,13 @@ use Bitrix\Main\Result;
 use Exception;
 use FirstBit\Appointment\Config\Constants;
 use FirstBit\Appointment\Soap\UmcClient;
-
 Loc::loadMessages(__FILE__);
 
-abstract class BaseOneCService
+/**
+ * Class BaseService
+ * @package FirstBit\Appointment\Services\OneC
+ */
+abstract class BaseService
 {
     protected UmcClient $client;
     protected $demoData;

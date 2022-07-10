@@ -1,4 +1,14 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - OneCController.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 namespace FirstBit\Appointment\Controllers;
 
 use Bitrix\Main\Engine\Action;
@@ -11,6 +21,10 @@ use FirstBit\Appointment\Services\Container;
 use FirstBit\Appointment\Services\OneC\Reader;
 use FirstBit\Appointment\Services\Operation\AppointmentOperation;
 
+/**
+ * Class OneCController
+ * @package FirstBit\Appointment\Controllers
+ */
 class OneCController extends Controller
 {
     private Reader $reader;

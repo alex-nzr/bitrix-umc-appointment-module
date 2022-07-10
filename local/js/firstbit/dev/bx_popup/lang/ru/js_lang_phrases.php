@@ -10,6 +10,7 @@ $MESS['FIRSTBIT_JS_FORM_BTN_DOCTOR_FIRST']   = "Выбрать доктора";
 $MESS['FIRSTBIT_JS_FORM_BTN_SERVICE_FIRST']  = "Выбрать услугу";
 
 $MESS['FIRSTBIT_JS_APPLICATION_ERROR']              = 'Ошибка в работе приложения';
+$MESS['FIRSTBIT_JS_APPLICATION_ERROR_CONNECTION']   = 'Ошибка соединения с сервером. Пожалуйста, повторите попытку позднее.';
 $MESS['FIRSTBIT_JS_CLINICS_NOT_FOUND_ERROR']        = 'Филиалы не найдены или отсутствуют';
 $MESS['FIRSTBIT_JS_EMPLOYEES_NOT_FOUND_ERROR']      = 'По выбранным параметрам не найдено доступных врачей';
 $MESS['FIRSTBIT_JS_SPECIALTIES_NOT_FOUND_ERROR']    = 'В выбранном филиале не найдено доступных специализаций';

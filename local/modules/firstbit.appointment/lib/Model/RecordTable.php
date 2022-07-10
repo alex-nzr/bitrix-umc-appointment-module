@@ -1,4 +1,14 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - RecordTable.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 namespace FirstBit\Appointment\Model;
 
 use Bitrix\Main\Entity\DataManager;
@@ -10,6 +20,10 @@ use Bitrix\Main\Entity\StringField;
 use Bitrix\Main\Entity\TextField;
 use Bitrix\Main\Type;
 
+/**
+ * Class RecordTable
+ * @package FirstBit\Appointment\Model
+ */
 class RecordTable extends DataManager
 {
     public static function getTableName(): string

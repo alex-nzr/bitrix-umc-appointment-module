@@ -1,5 +1,14 @@
 <?php
-
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - UmcClient.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 namespace FirstBit\Appointment\Soap;
 
 use Bitrix\Main\Error;
@@ -11,7 +20,10 @@ use SimpleXMLElement;
 use SoapClient;
 use Bitrix\Main\Config\Option;
 
-
+/**
+ * Class UmcClient
+ * @package FirstBit\Appointment\Soap
+ */
 class UmcClient
 {
     private SoapClient  $soapClient;
@@ -71,12 +83,13 @@ class UmcClient
                 throw new Exception($e->getMessage() . " | " . $response->return);
             }
 
-            $data = $this->handleXML($endpoint, $xml);
-            if (!empty($data['error'])){
-                $this->result->addError(new Error($data['error']));
+            $xmlRes = $this->handleXML($endpoint, $xml);
+            if (!$xmlRes->isSuccess())
+            {
+                $this->result->addErrors($xmlRes->getErrors());
             }
             else{
-                $this->result->setData($data);
+                $this->result->setData($xmlRes->getData());
             }
         }
         catch (Exception $e){
@@ -88,45 +101,46 @@ class UmcClient
     /**
      * @param $endpoint
      * @param \SimpleXMLElement $xml
-     * @return array
+     * @return \Bitrix\Main\Result
      */
-    protected function handleXML($endpoint, SimpleXMLElement $xml): array
+    protected function handleXML($endpoint, SimpleXMLElement $xml): Result
     {
         $parser = new XmlParser();
-        $data = [];
+        $result = new Result();
         switch ($endpoint)
         {
             case Constants::CLINIC_ACTION_1C:
-                $data = $parser->prepareClinicData($xml);
+                $result = $parser->prepareClinicData($xml);
                 break;
             case Constants::EMPLOYEES_ACTION_1C:
-                $data = $parser->prepareEmployeesData($xml);
+                $result = $parser->prepareEmployeesData($xml);
                 break;
             case Constants::NOMENCLATURE_ACTION_1C:
-                $data = $parser->prepareNomenclatureData($xml);
+                $result = $parser->prepareNomenclatureData($xml);
                 break;
             case Constants::SCHEDULE_ACTION_1C:
-                $data = $parser->prepareScheduleData($xml);
+                $result = $parser->prepareScheduleData($xml);
                 break;
             case Constants::CREATE_RESERVE_ACTION_1C:
-                $data = $parser->prepareReserveResultData($xml);
+                $result = $parser->prepareReserveResultData($xml);
                 break;
             case Constants::CREATE_ORDER_ACTION_1C:
-                $data = $parser->prepareOrderResultData($xml);
+                $result = $parser->prepareOrderResultData($xml);
                 break;
             case Constants::CREATE_WAIT_LIST_ACTION_1C:
-                $data = $parser->prepareWaitListResultData($xml);
+                $result = $parser->prepareWaitListResultData($xml);
                 break;
             case Constants::DELETE_ORDER_ACTION_1C:
-                $data = $parser->prepareDeleteResultData($xml);
+                $result = $parser->prepareDeleteResultData($xml);
                 break;
             case Constants::GET_ORDER_STATUS_ACTION_1C:
-                $data = $parser->prepareStatusResultData($xml);
+                $result = $parser->prepareStatusResultData($xml);
                 break;
             default:
+                $result->addError(new Error('Unknown endpoint. Can not determine way to process xml'));
                 break;
         }
-        return $data;
+        return $result;
     }
 
     /**

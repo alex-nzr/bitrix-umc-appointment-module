@@ -1,6 +1,20 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - Record.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 namespace FirstBit\Appointment\Model;
 
+/**
+ * Class Record
+ * @package FirstBit\Appointment\Model
+ */
 class Record extends EO_Record
 {
     /**

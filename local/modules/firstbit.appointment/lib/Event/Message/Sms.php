@@ -1,8 +1,15 @@
 <?php
-
-
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - Sms.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 namespace FirstBit\Appointment\Event\Message;
-
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Mail\Internal\EventTypeTable;
@@ -13,6 +20,10 @@ use CEventType;
 use Exception;
 use FirstBit\Appointment\Config\Constants;
 
+/**
+ * Class Sms
+ * @package FirstBit\Appointment\Event\Message
+ */
 class Sms
 {
     /**

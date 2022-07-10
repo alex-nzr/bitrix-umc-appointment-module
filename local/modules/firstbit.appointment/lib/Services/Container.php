@@ -1,4 +1,14 @@
 <?php
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - Container.php
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 namespace FirstBit\Appointment\Services;
 
 use Bitrix\Main\ArgumentException;
@@ -10,6 +20,10 @@ use FirstBit\Appointment\Services\Message\SmsService;
 use FirstBit\Appointment\Services\OneC\Reader;
 use FirstBit\Appointment\Services\OneC\Writer;
 
+/**
+ * Class Container
+ * @package FirstBit\Appointment\Services
+ */
 class Container
 {
     protected ServiceLocator $serviceLocator;
