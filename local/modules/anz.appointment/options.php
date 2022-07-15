@@ -22,7 +22,7 @@ use Bitrix\Main\UI\Extension;
 Loc::loadMessages(__FILE__);
 
 
-$module_id = Constants::APPOINTMENT_MODULE_ID;
+$module_id = 'anz.appointment';
 
 try
 {

@@ -51,7 +51,7 @@ class Email
         $arFields = [
             "EVENT_TYPE"    => EventTypeTable::TYPE_EMAIL,
             "EVENT_NAME"    => Constants::EMAIL_CONFIRM_EVENT_CODE,
-            "NAME"          => Loc::getMessage("ANZANZANZANZ_APPOINTMENT_EMAIL_CONFIRM_NAME"),
+            "NAME"          => Loc::getMessage("ANZ_APPOINTMENT_EMAIL_CONFIRM_NAME"),
             "LID"           => 'ru',
             "DESCRIPTION"   => "#CODE# - " . Loc::getMessage("ANZ_APPOINTMENT_CONFIRM_DESC_CODE")
         ];

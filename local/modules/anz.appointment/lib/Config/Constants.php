@@ -18,7 +18,7 @@ namespace ANZ\Appointment\Config;
 class Constants
 {
     const APPOINTMENT_MODULE_ID      = 'anz.appointment';
-    const APPOINTMENT_JS_EXTENSION   = "anz.dev.bx_popup";
+    const APPOINTMENT_JS_EXTENSION   = "anz.appointment.bx_popup";
 
     const CLINIC_ACTION_1C           = "GetListClinic";
     const EMPLOYEES_ACTION_1C        = "GetListEmployees";
@@ -36,9 +36,9 @@ class Constants
     const DEFAULT_SCHEDULE_PERIOD_DAYS = 14;
     const DEFAULT_APPOINTMENT_DURATION_SEC = 1800;
 
-    const EMAIL_NOTE_EVENT_CODE    = "FIRSTBIT_APPOINTMENT_EMAIL_NOTE";
-    const EMAIL_CONFIRM_EVENT_CODE = "FIRSTBIT_APPOINTMENT_EMAIL_CONFIRM";
-    const SMS_CONFIRM_EVENT_CODE   = "FIRSTBIT_APPOINTMENT_SMS_CONFIRM";
+    const EMAIL_NOTE_EVENT_CODE    = "ANZ_APPOINTMENT_EMAIL_NOTE";
+    const EMAIL_CONFIRM_EVENT_CODE = "ANZ_APPOINTMENT_EMAIL_CONFIRM";
+    const SMS_CONFIRM_EVENT_CODE   = "ANZ_APPOINTMENT_SMS_CONFIRM";
 
     const CONFIRM_TYPE_PHONE = 'phone';
     const CONFIRM_TYPE_EMAIL = 'email';

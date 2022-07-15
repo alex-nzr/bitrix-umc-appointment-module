@@ -106,10 +106,17 @@ class Container
         $serviceId = '';
         foreach ($words as $word)
         {
-            $word = lcfirst($word);
-            if (!empty($serviceId))
+            if ($word === 'ANZ')
             {
-                $serviceId .= '.';
+                $word = strtolower($word);
+            }
+            else
+            {
+                $word = lcfirst($word);
+                if (!empty($serviceId))
+                {
+                    $serviceId .= '.';
+                }
             }
             $serviceId .= $word;
         }

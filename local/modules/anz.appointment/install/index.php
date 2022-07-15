@@ -41,16 +41,16 @@ class anz_appointment extends CModule
         $this->MODULE_ID            = $this->partnerId.".".$this->moduleNameShort;
         $this->MODULE_VERSION       = $arModuleVersion["VERSION"];
         $this->MODULE_VERSION_DATE  = $arModuleVersion["VERSION_DATE"];
-        $this->MODULE_NAME          = Loc::getMessage("ANZANZANZANZANZANZANZANZANZANZANZANZANZANZANZ_APPOINTMENT_MODULE_NAME");
-        $this->MODULE_DESCRIPTION   = Loc::getMessage("ANZANZANZANZANZANZANZANZANZANZANZANZANZANZANZ_APPOINTMENT_MODULE_DESCRIPTION");
-        $this->PARTNER_NAME         = Loc::getMessage("ANZANZANZANZANZANZANZANZANZANZANZANZANZANZANZ_APPOINTMENT_PARTNER_NAME");
+        $this->MODULE_NAME          = Loc::getMessage("ANZ_APPOINTMENT_MODULE_NAME");
+        $this->MODULE_DESCRIPTION   = Loc::getMessage("ANZ_APPOINTMENT_MODULE_DESCRIPTION");
+        $this->PARTNER_NAME         = Loc::getMessage("ANZ_APPOINTMENT_PARTNER_NAME");
         $this->PARTNER_URI          = Loc::getMessage("ANZ_APPOINTMENT_PARTNER_URI");
         $this->MODULE_SORT          = 100;
         $this->MODULE_GROUP_RIGHTS  = "Y";
         $this->SHOW_SUPER_ADMIN_GROUP_RIGHTS = "Y";
     }
 
-    public function DoInstall(): void
+    public function DoInstall(): bool
     {
         try
         {
@@ -67,19 +67,23 @@ class anz_appointment extends CModule
                 Loc::getMessage("ANZ_APPOINTMENT_INSTALL_TITLE"),
                 __DIR__."/step.php"
             );
+            return true;
         }
         catch (Exception $e)
         {
             $this->App->ThrowException($e->getMessage());
+            $this->DoUninstall();
+            return false;
         }
     }
 
-    public function DoUninstall(): void
+    public function DoUninstall(): bool
     {
         try {
+            Loader::includeModule($this->MODULE_ID);
             $request = Context::getCurrent()->getRequest();
 
-            if ($request->get('step') < 2)
+            if ((int)$request->get('step') < 2)
             {
                 $this->App->IncludeAdminFile(
                     Loc::getMessage("ANZ_APPOINTMENT_UNINSTALL_TITLE"),
@@ -88,14 +92,12 @@ class anz_appointment extends CModule
             }
             else
             {
-                Loader::includeModule($this->MODULE_ID);
-
                 $this->UnInstallFiles();
                 $this->UnInstallEvents();
                 if ($request->get('saveData') !== "Y"){
                     $this->UnInstallDB();
                 }
-                Option::delete($this->MODULE_ID);
+
                 ModuleManager::unRegisterModule($this->MODULE_ID);
 
                 $this->App->IncludeAdminFile(
@@ -103,10 +105,12 @@ class anz_appointment extends CModule
                     __DIR__."/unStep_2.php"
                 );
             }
+            return true;
         }
         catch (Exception $e)
         {
             $this->App->ThrowException($e->getMessage());
+            return false;
         }
     }
 
@@ -146,6 +150,8 @@ class anz_appointment extends CModule
             {
                 $connection->dropTable($recordTableName);
             }
+
+            Option::delete($this->MODULE_ID);
         }
         catch(Exception $e){
             throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_UNINSTALL_ERROR")." - ". $e->getMessage());
