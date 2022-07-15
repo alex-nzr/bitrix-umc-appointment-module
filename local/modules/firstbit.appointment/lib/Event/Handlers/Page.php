@@ -9,17 +9,17 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Event\Handlers;
+namespace ANZ\Appointment\Event\Handlers;
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
 use Bitrix\Main\UI\Extension;
 use Exception;
-use FirstBit\Appointment\Config\Constants;
+use ANZ\Appointment\Config\Constants;
 
 /**
  * Class Page
- * @package FirstBit\Appointment\Event\Handlers
+ * @package ANZ\Appointment\Event\Handlers
  */
 class Page
 {

@@ -1,2 +1,2 @@
 <?php
-$MESS["FIRSTBIT_APPOINTMENT_DEMO_MODE_ERROR"] = "Demo mode error: ";
+$MESS["ANZ_APPOINTMENT_DEMO_MODE_ERROR"] = "Demo mode error: ";

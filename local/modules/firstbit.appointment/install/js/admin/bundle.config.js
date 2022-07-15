@@ -11,7 +11,7 @@
 module.exports = {
     input: 'src/admin.js',
     output: 'dist/admin.bundle.js',
-    namespace: 'BX.FirstBit.Appointment',
+    namespace: 'BX.Anz.Appointment',
     browserslist: false,
     minification: true,
     plugins: {

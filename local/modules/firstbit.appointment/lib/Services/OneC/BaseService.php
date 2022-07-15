@@ -9,19 +9,19 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Services\OneC;
+namespace ANZ\Appointment\Services\OneC;
 
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Exception;
-use FirstBit\Appointment\Config\Constants;
-use FirstBit\Appointment\Soap\UmcClient;
+use ANZ\Appointment\Config\Constants;
+use ANZ\Appointment\Soap\UmcClient;
 Loc::loadMessages(__FILE__);
 
 /**
  * Class BaseService
- * @package FirstBit\Appointment\Services\OneC
+ * @package ANZ\Appointment\Services\OneC
  */
 abstract class BaseService
 {
@@ -51,7 +51,7 @@ abstract class BaseService
             if (!$this->client->isCreatedSuccessfully())
             {
                 throw new Exception(
-                    Loc::getMessage("FIRSTBIT_APPOINTMENT_CLIENT_FAILED") .
+                    Loc::getMessage("ANZ_APPOINTMENT_CLIENT_FAILED") .
                     implode('; ', $this->client->getResult()->getErrorMessages())
                 );
             }

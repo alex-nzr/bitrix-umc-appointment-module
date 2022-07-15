@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-this.BX.FirstBit = this.BX.FirstBit || {};
+this.BX.Anz = this.BX.Anz || {};
 (function (exports,date,main_core,ui_dialogs_messagebox) {
   'use strict';
 
@@ -77,6 +77,17 @@ this.BX.FirstBit = this.BX.FirstBit || {};
     "appointmentPulse": "app_appointmentPulse__j9AYC"
   };
   styleInject(css_248z);
+
+  /**
+   * ==================================================
+   * Developer: Alexey Nazarov
+   * E-mail: jc1988x@gmail.com
+   * Copyright (c) 2019 - 2022
+   * ==================================================
+   * "Bit.Umc - Bitrix integration" - functions.js
+   * 10.07.2022 22:37
+   * ==================================================
+   */
 
   /**
    * add phone mask
@@ -159,6 +170,16 @@ this.BX.FirstBit = this.BX.FirstBit || {};
     return null;
   }
 
+  /**
+   * ==================================================
+   * Developer: Alexey Nazarov
+   * E-mail: jc1988x@gmail.com
+   * Copyright (c) 2019 - 2022
+   * ==================================================
+   * "Bit.Umc - Bitrix integration" - eventManager.js
+   * 10.07.2022 22:37
+   * ==================================================
+   */
   var EventManager = /*#__PURE__*/function (_Event$EventEmitter) {
     babelHelpers.inherits(EventManager, _Event$EventEmitter);
 
@@ -175,10 +196,20 @@ this.BX.FirstBit = this.BX.FirstBit || {};
     }]);
     return EventManager;
   }(main_core.Event.EventEmitter);
-  babelHelpers.defineProperty(EventManager, "fullDataLoaded", 'BX.FirstBit.Appointment:dataLoaded');
-  babelHelpers.defineProperty(EventManager, "clinicsRendered", 'BX.FirstBit.Appointment:clinicsRendered');
-  babelHelpers.defineProperty(EventManager, "formStepChanged", 'BX.FirstBit.Appointment:formStepChanged');
+  babelHelpers.defineProperty(EventManager, "fullDataLoaded", 'BX.Anz.Appointment:dataLoaded');
+  babelHelpers.defineProperty(EventManager, "clinicsRendered", 'BX.Anz.Appointment:clinicsRendered');
+  babelHelpers.defineProperty(EventManager, "formStepChanged", 'BX.Anz.Appointment:formStepChanged');
 
+  /**
+   * ==================================================
+   * Developer: Alexey Nazarov
+   * E-mail: jc1988x@gmail.com
+   * Copyright (c) 2019 - 2022
+   * ==================================================
+   * "Bit.Umc - Bitrix integration" - renderer.js
+   * 10.07.2022 22:37
+   * ==================================================
+   */
   var Renderer = /*#__PURE__*/function () {
     function Renderer(styles$$1, application) {
       babelHelpers.classCallCheck(this, Renderer);
@@ -234,10 +265,10 @@ this.BX.FirstBit = this.BX.FirstBit || {};
       value: function getFormFirstBlock() {
         var _this = this;
 
-        var doctorBtn = this.getFormBtn(BX.message("FIRSTBIT_JS_FORM_BTN_DOCTOR_FIRST"), function () {
+        var doctorBtn = this.getFormBtn(BX.message("ANZ_JS_FORM_BTN_DOCTOR_FIRST"), function () {
           _this.application.setSelectionDoctorBeforeService(true);
         });
-        var serviceBtn = this.getFormBtn(BX.message("FIRSTBIT_JS_FORM_BTN_SERVICE_FIRST"), function () {
+        var serviceBtn = this.getFormBtn(BX.message("ANZ_JS_FORM_BTN_SERVICE_FIRST"), function () {
           _this.application.setSelectionDoctorBeforeService(false);
         });
         var buttons = this.application.useServices ? [doctorBtn, serviceBtn] : [doctorBtn];
@@ -257,10 +288,10 @@ this.BX.FirstBit = this.BX.FirstBit || {};
       value: function getFormSecondBlock() {
         var _this2 = this;
 
-        var btnPrev = this.getFormBtn(BX.message('FIRSTBIT_JS_FORM_BTN_PREV'), function () {
+        var btnPrev = this.getFormBtn(BX.message('ANZ_JS_FORM_BTN_PREV'), function () {
           _this2.application.changeFormStep(_this2.application.formStepNodes.one, true);
         }, false, true);
-        var btnNext = this.getFormBtn(BX.message('FIRSTBIT_JS_FORM_BTN_NEXT'), function () {
+        var btnNext = this.getFormBtn(BX.message('ANZ_JS_FORM_BTN_NEXT'), function () {
           _this2.application.changeFormStep(_this2.application.formStepNodes.userData);
         });
         return BX.create('div', {
@@ -313,7 +344,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
           dataset: {
             "readonly": "Y"
           },
-          text: BX.message('FIRSTBIT_JS_FORM_BTN_TEXT')
+          text: BX.message('ANZ_JS_FORM_BTN_TEXT')
         });
       }
     }, {
@@ -344,13 +375,13 @@ this.BX.FirstBit = this.BX.FirstBit || {};
             className: this.styles['appointment-info-message']
           },
           children: [BX.create('span', {
-            text: "".concat(BX.message('FIRSTBIT_JS_FORM_CONFIRM_INFO_TEXT'), " ")
+            text: "".concat(BX.message('ANZ_JS_FORM_CONFIRM_INFO_TEXT'), " ")
           }), BX.create('a', {
             attrs: {
               href: this.application.initParams['privacyPageLink'],
               target: '_blank'
             },
-            text: BX.message('FIRSTBIT_JS_FORM_CONFIRM_INFO_LINK')
+            text: BX.message('ANZ_JS_FORM_CONFIRM_INFO_LINK')
           })]
         });
       }
@@ -482,7 +513,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
               id: this.application.selectors.startBtnId
             },
             children: [BX.create('span', {
-              text: BX.message('FIRSTBIT_JS_START_BTN_TEXT')
+              text: BX.message('ANZ_JS_START_BTN_TEXT')
             })]
           })]
         });
@@ -526,7 +557,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
         }
 
         if (listNode.children.length === 0) {
-          BX.append(this.createEmptySelectionNode(BX.message("FIRSTBIT_JS_".concat(dataKey.toUpperCase(), "_NOT_FOUND_ERROR"))), listNode);
+          BX.append(this.createEmptySelectionNode(BX.message("ANZ_JS_".concat(dataKey.toUpperCase(), "_NOT_FOUND_ERROR"))), listNode);
         } else {
           if (dataKey === this.application.dataKeys.scheduleKey) {
             this.addHorizontalScrollButtons(listNode);
@@ -663,7 +694,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
             className: styles['appointment-warning-text']
           }
         });
-        var placeholder = this.application.useConfirmWith === this.application.confirmTypes.email ? BX.message("FIRSTBIT_JS_CONFIRM_CODE_EMAIL_MESSAGE") : BX.message("FIRSTBIT_JS_CONFIRM_CODE_SMS_MESSAGE");
+        var placeholder = this.application.useConfirmWith === this.application.confirmTypes.email ? BX.message("ANZ_JS_CONFIRM_CODE_EMAIL_MESSAGE") : BX.message("ANZ_JS_CONFIRM_CODE_SMS_MESSAGE");
         var confirmInputNode = BX.create('input', {
           attrs: {
             type: 'number',
@@ -691,7 +722,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
               className: styles['appointment-form-button'],
               type: 'button'
             },
-            text: BX.message("FIRSTBIT_JS_SEND_BTN_TEXT"),
+            text: BX.message("ANZ_JS_SEND_BTN_TEXT"),
             events: {
               click: function click(e) {
                 return _this5.application.verifyConfirmCode(confirmInputNode.value, confirmWarningNode, e.target);
@@ -734,6 +765,16 @@ this.BX.FirstBit = this.BX.FirstBit || {};
     return Renderer;
   }();
 
+  /**
+   * ==================================================
+   * Developer: Alexey Nazarov
+   * E-mail: jc1988x@gmail.com
+   * Copyright (c) 2019 - 2022
+   * ==================================================
+   * "Bit.Umc - Bitrix integration" - params.js
+   * 10.07.2022 23:48
+   * ==================================================
+   */
   var TextInputNames = {
     name: "name",
     middleName: "middleName",
@@ -856,7 +897,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
             "inputId": "appointment_".concat(step, "_value"),
             "isRequired": !(step === _this.dataKeys.servicesKey && _this.initParams.useServices !== "Y")
           };
-          _this.defaultText[step] = BX.message("FIRSTBIT_JS_APPOINTMENT_SELECT_".concat(step.toUpperCase(), "_TEXT"));
+          _this.defaultText[step] = BX.message("ANZ_JS_APPOINTMENT_SELECT_".concat(step.toUpperCase(), "_TEXT"));
         });
       }
       /**
@@ -973,7 +1014,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
         if (BX.type.isDomNode(this.startBtn)) {
           EventManager.bind(this.startBtn, 'click', this.togglePopup.bind(this));
         } else {
-          throw new Error("".concat(BX.message('FIRSTBIT_JS_NODE_NOT_FOUND'), " \"").concat(this.initParams['customMainBtnId'], "\""));
+          throw new Error("".concat(BX.message('ANZ_JS_NODE_NOT_FOUND'), " \"").concat(this.initParams['customMainBtnId'], "\""));
         }
       }
       /**
@@ -1021,7 +1062,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
         if (this.form) {
           EventManager.bind(this.form, 'submit', this.submit.bind(this));
         } else {
-          throw new Error("".concat(BX.message('FIRSTBIT_JS_NODE_NOT_FOUND'), " ").concat(this.selectors.formId));
+          throw new Error("".concat(BX.message('ANZ_JS_NODE_NOT_FOUND'), " ").concat(this.selectors.formId));
         }
       }
       /**
@@ -1034,7 +1075,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
         if (this.mobileCloseBtn) {
           EventManager.bind(this.mobileCloseBtn, 'click', this.togglePopup.bind(this));
         } else {
-          throw new Error("".concat(BX.message('FIRSTBIT_JS_NODE_NOT_FOUND'), " ").concat(this.selectors.mobileCloseBtnId));
+          throw new Error("".concat(BX.message('ANZ_JS_NODE_NOT_FOUND'), " ").concat(this.selectors.mobileCloseBtnId));
         }
       }
       /**
@@ -1070,7 +1111,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
           var input = BX(block.id);
 
           if (!input) {
-            throw new Error("".concat(BX.message("FIRSTBIT_JS_NODE_NOT_FOUND"), " ").concat(block.id));
+            throw new Error("".concat(BX.message("ANZ_JS_NODE_NOT_FOUND"), " ").concat(block.id));
           }
 
           var currentValue = _this4.filledInputs.textValues[block.name];
@@ -1133,7 +1174,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
 
             throw new Error((_clinicsResponse$data2 = clinicsResponse.data) === null || _clinicsResponse$data2 === void 0 ? void 0 : _clinicsResponse$data2.error);
           } else if (((_clinicsResponse$data3 = clinicsResponse.data) === null || _clinicsResponse$data3 === void 0 ? void 0 : _clinicsResponse$data3.length) === 0) {
-            throw new Error(BX.message("FIRSTBIT_JS_CLINICS_NOT_FOUND_ERROR"));
+            throw new Error(BX.message("ANZ_JS_CLINICS_NOT_FOUND_ERROR"));
           } else {
             _this5.data.clinics = clinicsResponse.data;
             return _this5.getListEmployees();
@@ -1146,7 +1187,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
 
             throw new Error((_employeesResponse$da2 = employeesResponse.data) === null || _employeesResponse$da2 === void 0 ? void 0 : _employeesResponse$da2.error);
           } else if (Object.keys(employeesResponse.data).length === 0) {
-            throw new Error(BX.message("FIRSTBIT_JS_DOCTORS_NOT_FOUND_ERROR"));
+            throw new Error(BX.message("ANZ_JS_DOCTORS_NOT_FOUND_ERROR"));
           } else {
             _this5.data.employees = employeesResponse.data;
             return _this5.getSchedule();
@@ -1171,7 +1212,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
 
           _this5.logResultErrors(e);
 
-          _this5.alertError(BX.message("FIRSTBIT_JS_APPLICATION_ERROR_CONNECTION"));
+          _this5.alertError(BX.message("ANZ_JS_APPLICATION_ERROR_CONNECTION"));
         });
       }
       /**
@@ -1182,7 +1223,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
     }, {
       key: "getListClinic",
       value: function getListClinic() {
-        return BX.ajax.runAction('firstbit:appointment.oneCController.getClinics', {
+        return BX.ajax.runAction('anz:appointment.oneCController.getClinics', {
           data: {
             sessid: BX.bitrix_sessid()
           }
@@ -1196,7 +1237,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
     }, {
       key: "getListEmployees",
       value: function getListEmployees() {
-        return BX.ajax.runAction('firstbit:appointment.oneCController.getEmployees', {
+        return BX.ajax.runAction('anz:appointment.oneCController.getEmployees', {
           data: {
             sessid: BX.bitrix_sessid()
           }
@@ -1210,7 +1251,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
     }, {
       key: "getSchedule",
       value: function getSchedule() {
-        return BX.ajax.runAction('firstbit:appointment.oneCController.getSchedule', {
+        return BX.ajax.runAction('anz:appointment.oneCController.getSchedule', {
           data: {
             sessid: BX.bitrix_sessid()
           }
@@ -1225,7 +1266,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
     }, {
       key: "getListNomenclature",
       value: function getListNomenclature(clinicGuid) {
-        return BX.ajax.runAction('firstbit:appointment.oneCController.getNomenclature', {
+        return BX.ajax.runAction('anz:appointment.oneCController.getNomenclature', {
           data: {
             sessid: BX.bitrix_sessid(),
             clinicGuid: clinicGuid
@@ -1260,7 +1301,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
         var listNode = (_this$selectionNodes$ = this.selectionNodes[dataKey]) === null || _this$selectionNodes$ === void 0 ? void 0 : _this$selectionNodes$.listNode;
 
         if (!listNode) {
-          throw new Error(BX.message("FIRSTBIT_JS_".concat(dataKey.toUpperCase(), "_NODE_NOT_FOUND_ERROR")));
+          throw new Error(BX.message("ANZ_JS_".concat(dataKey.toUpperCase(), "_NODE_NOT_FOUND_ERROR")));
         }
 
         dataKey === this.dataKeys.scheduleKey ? listNode.classList.add(styles["column-mode"]) : void 0;
@@ -1501,10 +1542,10 @@ this.BX.FirstBit = this.BX.FirstBit || {};
 
                       _this8.bindServicesToSpecialties();
 
-                      _this8.renderSpecialtiesList();
-
                       _this8.servicesStorage[clinicUid] = _objectSpread({}, _this8.data.services);
                     }
+
+                    _this8.renderSpecialtiesList();
                   }
 
                   _this8.toggleLoader(false);
@@ -1607,14 +1648,16 @@ this.BX.FirstBit = this.BX.FirstBit || {};
     }, {
       key: "addSpecialty",
       value: function addSpecialty(employee) {
-        if (this.data[this.dataKeys.specialtiesKey][employee.specialtyUid]) {
-          this.addClinicToSpecialty(this.data[this.dataKeys.specialtiesKey][employee.specialtyUid], employee.clinicUid);
-        } else {
-          this.data[this.dataKeys.specialtiesKey][employee.specialtyUid] = {
-            uid: employee.specialtyUid,
-            name: employee.specialty,
-            clinics: [employee.clinicUid]
-          };
+        if (employee.specialtyUid) {
+          if (this.data[this.dataKeys.specialtiesKey][employee.specialtyUid]) {
+            this.addClinicToSpecialty(this.data[this.dataKeys.specialtiesKey][employee.specialtyUid], employee.clinicUid);
+          } else {
+            this.data[this.dataKeys.specialtiesKey][employee.specialtyUid] = {
+              uid: employee.specialtyUid,
+              name: employee.specialty,
+              clinics: [employee.clinicUid]
+            };
+          }
         }
       }
     }, {
@@ -1795,7 +1838,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
             this.sendOrder();
           }
         } else {
-          this.showError(BX.message("FIRSTBIT_JS_ORDER_CHECK_FIELDS_ERROR"));
+          this.showError(BX.message("ANZ_JS_ORDER_CHECK_FIELDS_ERROR"));
         }
       }
     }, {
@@ -1806,7 +1849,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
         var event = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
         event && event.preventDefault();
         this.messageNode.textContent = "";
-        BX.ajax.runAction('firstbit:appointment.messageController.sendConfirmCode', {
+        BX.ajax.runAction('anz:appointment.messageController.sendConfirmCode', {
           data: {
             phone: this.orderData.phone,
             email: this.orderData.email,
@@ -1823,7 +1866,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
         })["catch"](function (result) {
           var _result$errors, _result$errors$;
 
-          _this10.messageNode.textContent = ((_result$errors = result.errors) === null || _result$errors === void 0 ? void 0 : (_result$errors$ = _result$errors[0]) === null || _result$errors$ === void 0 ? void 0 : _result$errors$.message) + BX.message("FIRSTBIT_JS_SOME_DISPLAY_ERROR_POSTFIX");
+          _this10.messageNode.textContent = ((_result$errors = result.errors) === null || _result$errors === void 0 ? void 0 : (_result$errors$ = _result$errors[0]) === null || _result$errors$ === void 0 ? void 0 : _result$errors$.message) + BX.message("ANZ_JS_SOME_DISPLAY_ERROR_POSTFIX");
 
           _this10.logResultErrors(result);
 
@@ -1848,7 +1891,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
 
           if ((code === null || code === void 0 ? void 0 : code.length) === 4) {
             btnNode.classList.add(styles['loading']);
-            BX.ajax.runAction('firstbit:appointment.messageController.verifyConfirmCode', {
+            BX.ajax.runAction('anz:appointment.messageController.verifyConfirmCode', {
               data: {
                 code: code,
                 email: this.orderData.email,
@@ -1863,12 +1906,12 @@ this.BX.FirstBit = this.BX.FirstBit || {};
 
               if (((_result$errors2 = result.errors) === null || _result$errors2 === void 0 ? void 0 : _result$errors2.length) > 0) {
                 result.errors.forEach(function (error) {
-                  confirmWarningNode.innerHTML = Number(error.code) === 400 || Number(error.code) === 406 || Number(error.code) === 425 ? "".concat(confirmWarningNode.innerHTML).concat(error.message, "<br>") : BX.message("FIRSTBIT_JS_APPLICATION_ERROR");
+                  confirmWarningNode.innerHTML = Number(error.code) === 400 || Number(error.code) === 406 || Number(error.code) === 425 ? "".concat(confirmWarningNode.innerHTML).concat(error.message, "<br>") : BX.message("ANZ_JS_APPLICATION_ERROR");
                 });
               }
             });
           } else {
-            confirmWarningNode.textContent = BX.message("FIRSTBIT_JS_CONFIRM_CODE_LENGTH");
+            confirmWarningNode.textContent = BX.message("ANZ_JS_CONFIRM_CODE_LENGTH");
           }
         }
       }
@@ -1877,7 +1920,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
       value: function sendOrder() {
         var _this12 = this;
 
-        BX.ajax.runAction('firstbit:appointment.oneCController.addOrder', {
+        BX.ajax.runAction('anz:appointment.oneCController.addOrder', {
           data: {
             params: JSON.stringify(this.orderData),
             sessid: BX.bitrix_sessid()
@@ -1911,7 +1954,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
     }, {
       key: "sendEmailNote",
       value: function sendEmailNote() {
-        BX.ajax.runAction('firstbit:appointment.messageController.sendEmailNote', {
+        BX.ajax.runAction('anz:appointment.messageController.sendEmailNote', {
           data: {
             params: JSON.stringify(this.orderData),
             sessid: BX.bitrix_sessid()
@@ -1931,7 +1974,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
             clearInterval(interval);
           } else {
             remainingTime--;
-            confirmRepeatBtn.textContent = "".concat(BX.message("FIRSTBIT_JS_CONFIRM_CODE_SEND_AGAIN"), " \n                                                ").concat(remainingTime > 0 ? remainingTime : '');
+            confirmRepeatBtn.textContent = "".concat(BX.message("ANZ_JS_CONFIRM_CODE_SEND_AGAIN"), " \n                                                ").concat(remainingTime > 0 ? remainingTime : '');
           }
         }, 1000);
       }
@@ -1955,7 +1998,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
             var date$$1 = this.convertDateToDisplay(this.orderData.timeBegin, false);
             var time = this.convertDateToDisplay(this.orderData.timeBegin, true);
             var doctor = this.orderData.doctorName;
-            resTextNode.innerHTML = "".concat(BX.message("FIRSTBIT_JS_APPOINTMENT_SUCCESS"), "\n                                         <br>").concat(date$$1, " ").concat(time, "\n                                         <br>").concat(BX.message("FIRSTBIT_JS_APPOINTMENT_DOCTOR"), " - ").concat(doctor);
+            resTextNode.innerHTML = "".concat(BX.message("ANZ_JS_APPOINTMENT_SUCCESS"), "\n                                         <br>").concat(date$$1, " ").concat(time, "\n                                         <br>").concat(BX.message("ANZ_JS_APPOINTMENT_DOCTOR"), " - ").concat(doctor);
             resTextNode.classList.add(styles['success']);
             this.finalAnimations();
           } else {
@@ -1995,19 +2038,19 @@ this.BX.FirstBit = this.BX.FirstBit || {};
 
         return BX.create('p', {
           children: [BX.create('span', {
-            html: BX.message('FIRSTBIT_JS_APPOINTMENT_FINAL_ERROR_START')
+            html: BX.message('ANZ_JS_APPOINTMENT_FINAL_ERROR_START')
           }), BX.create('a', {
             attrs: {
               href: "#"
             },
-            text: BX.message('FIRSTBIT_JS_APPOINTMENT_FINAL_ERROR_LINK'),
+            text: BX.message('ANZ_JS_APPOINTMENT_FINAL_ERROR_LINK'),
             events: {
               click: function click(e) {
                 return _this16.reload(e);
               }
             }
           }), BX.create('span', {
-            html: BX.message('FIRSTBIT_JS_APPOINTMENT_FINAL_ERROR_END')
+            html: BX.message('ANZ_JS_APPOINTMENT_FINAL_ERROR_END')
           })]
         });
       }
@@ -2266,12 +2309,12 @@ this.BX.FirstBit = this.BX.FirstBit || {};
       value: function logResultErrors(res) {
         if (res.errors && Array.isArray(res.errors) && res.errors.length > 0) {
           res.errors.forEach(function (error) {
-            console.log("".concat(BX.message("FIRSTBIT_JS_APPLICATION_ERROR"), " - ").concat(error.message));
+            console.log("".concat(BX.message("ANZ_JS_APPLICATION_ERROR"), " - ").concat(error.message));
           });
         } else {
           var _res$message;
 
-          console.log(BX.message("FIRSTBIT_JS_APPLICATION_ERROR") + "\r\n", (_res$message = res.message) !== null && _res$message !== void 0 ? _res$message : res);
+          console.log(BX.message("ANZ_JS_APPLICATION_ERROR") + "\r\n", (_res$message = res.message) !== null && _res$message !== void 0 ? _res$message : res);
         }
       }
       /**
@@ -2284,7 +2327,7 @@ this.BX.FirstBit = this.BX.FirstBit || {};
       key: "getAppSelectors",
       value: function getAppSelectors(stylesObject) {
         return {
-          rootNodeId: 'firstbit-appointment-application-root',
+          rootNodeId: 'anz-appointment-application-root',
           overlayId: 'appointment-popup-steps-overlay',
           startBtnWrapId: stylesObject['appointment-button-wrapper'],
           startBtnId: stylesObject['appointment-button'],
@@ -2330,13 +2373,23 @@ this.BX.FirstBit = this.BX.FirstBit || {};
     return AppointmentSteps;
   }();
 
-  BX.ajax.runComponentAction('firstbit:appointment.add', 'getResult', {
+  /**
+   * ==================================================
+   * Developer: Alexey Nazarov
+   * E-mail: jc1988x@gmail.com
+   * Copyright (c) 2019 - 2022
+   * ==================================================
+   * "Bit.Umc - Bitrix integration" - index.js
+   * 10.07.2022 23:48
+   * ==================================================
+   */
+  BX.ajax.runComponentAction('anz:appointment.add', 'getResult', {
     mode: 'ajax',
     data: {
       sessid: BX.bitrix_sessid()
     }
   }).then(function (response) {
-    var AppPlace = BX.namespace('FirstBit.Appointment');
+    var AppPlace = BX.namespace('Anz.Appointment');
     AppPlace.AppointmentSteps = new AppointmentSteps(response.data);
     AppPlace.AppointmentSteps.run();
   })["catch"](function (e) {
@@ -2351,4 +2404,4 @@ this.BX.FirstBit = this.BX.FirstBit || {};
     }
   });
 
-}((this.BX.FirstBit.Appointment = this.BX.FirstBit.Appointment || {}),BX,BX,BX.UI.Dialogs));
+}((this.BX.Anz.Appointment = this.BX.Anz.Appointment || {}),BX,BX,BX.UI.Dialogs));

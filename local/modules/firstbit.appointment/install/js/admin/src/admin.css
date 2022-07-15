@@ -1,6 +1,6 @@
-label.firstbit-appointment-adm-label input[disabled][readonly]{
+label.anz-appointment-adm-label input[disabled][readonly]{
     opacity: .5;
 }
-label.firstbit-appointment-adm-label input[readonly]{
+label.anz-appointment-adm-label input[readonly]{
     opacity: 1;
 }

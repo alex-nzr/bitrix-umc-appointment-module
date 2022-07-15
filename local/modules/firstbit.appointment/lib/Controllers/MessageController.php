@@ -9,7 +9,7 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Controllers;
+namespace ANZ\Appointment\Controllers;
 
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\ActionFilter\Csrf;
@@ -17,13 +17,13 @@ use Bitrix\Main\Engine\ActionFilter\HttpMethod;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 use Exception;
-use FirstBit\Appointment\Services\Container;
+use ANZ\Appointment\Services\Container;
 use Bitrix\Main\Engine\Controller;
-use FirstBit\Appointment\Services\Operation\ConfirmOperation;
+use ANZ\Appointment\Services\Operation\ConfirmOperation;
 
 /**
  * Class MessageController
- * @package FirstBit\Appointment\Controllers
+ * @package ANZ\Appointment\Controllers
  */
 class MessageController extends Controller
 {

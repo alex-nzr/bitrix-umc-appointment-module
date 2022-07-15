@@ -9,21 +9,21 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Services\OneC;
+namespace ANZ\Appointment\Services\OneC;
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Exception;
-use FirstBit\Appointment\Config\Constants;
-use FirstBit\Appointment\Tools\Utils;
+use ANZ\Appointment\Config\Constants;
+use ANZ\Appointment\Tools\Utils;
 
 Loc::loadMessages(__FILE__);
 
 /**
  * Class Reader
- * @package FirstBit\Appointment\Services\OneC
+ * @package ANZ\Appointment\Services\OneC
  */
 class Reader extends BaseService
 {
@@ -35,7 +35,7 @@ class Reader extends BaseService
             try {
                 $res->setData($this->demoData['clinics']);
             }catch (Exception $e){
-                $res->addError(new Error(Loc::getMessage("FIRSTBIT_APPOINTMENT_DEMO_MODE_ERROR") . $e->getMessage()));
+                $res->addError(new Error(Loc::getMessage("ANZ_APPOINTMENT_DEMO_MODE_ERROR") . $e->getMessage()));
             }
             return $res;
         }
@@ -51,7 +51,7 @@ class Reader extends BaseService
             try {
                 $res->setData($this->demoData['employees']);
             }catch (Exception $e){
-                $res->addError(new Error(Loc::getMessage("FIRSTBIT_APPOINTMENT_DEMO_MODE_ERROR") . $e->getMessage()));
+                $res->addError(new Error(Loc::getMessage("ANZ_APPOINTMENT_DEMO_MODE_ERROR") . $e->getMessage()));
             }
             return $res;
         }
@@ -67,7 +67,7 @@ class Reader extends BaseService
             try {
                 $res->setData($this->demoData['nomenclature']);
             }catch (Exception $e){
-                $res->addError(new Error(Loc::getMessage("FIRSTBIT_APPOINTMENT_DEMO_MODE_ERROR") . $e->getMessage()));
+                $res->addError(new Error(Loc::getMessage("ANZ_APPOINTMENT_DEMO_MODE_ERROR") . $e->getMessage()));
             }
             return $res;
         }
@@ -86,7 +86,7 @@ class Reader extends BaseService
             try {
                 $res->setData($this->demoData['schedule']);
             }catch (Exception $e){
-                $res->addError(new Error(Loc::getMessage("FIRSTBIT_APPOINTMENT_DEMO_MODE_ERROR") . $e->getMessage()));
+                $res->addError(new Error(Loc::getMessage("ANZ_APPOINTMENT_DEMO_MODE_ERROR") . $e->getMessage()));
             }
             return $res;
         }

@@ -9,7 +9,7 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Event\Message;
+namespace ANZ\Appointment\Event\Message;
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Mail\Internal\EventTypeTable;
@@ -18,11 +18,11 @@ use Bitrix\Main\SiteTable;
 use Bitrix\Main\Sms\TemplateTable;
 use CEventType;
 use Exception;
-use FirstBit\Appointment\Config\Constants;
+use ANZ\Appointment\Config\Constants;
 
 /**
  * Class Sms
- * @package FirstBit\Appointment\Event\Message
+ * @package ANZ\Appointment\Event\Message
  */
 class Sms
 {
@@ -34,9 +34,9 @@ class Sms
         $arFields = [
             "EVENT_TYPE"    => EventTypeTable::TYPE_SMS,
             "EVENT_NAME"    => Constants::SMS_CONFIRM_EVENT_CODE,
-            "NAME"          => Loc::getMessage("FIRSTBIT_APPOINTMENT_SMS_CONFIRM_NAME"),
+            "NAME"          => Loc::getMessage("ANZ_APPOINTMENT_SMS_CONFIRM_NAME"),
             "LID"           => 'ru',
-            "DESCRIPTION"   => "#CODE# - " . Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_DESC_CODE")
+            "DESCRIPTION"   => "#CODE# - " . Loc::getMessage("ANZ_APPOINTMENT_CONFIRM_DESC_CODE")
         ];
         $result = EventTypeTable::add($arFields);
         return $result->getId();
@@ -54,7 +54,7 @@ class Sms
             "ACTIVE"        => "Y",
             "SENDER"        => '#DEFAULT_SENDER#',
             "RECEIVER"      => '#USER_PHONE#',
-            "MESSAGE"       => Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_DESC_CODE") . " - #CODE#",
+            "MESSAGE"       => Loc::getMessage("ANZ_APPOINTMENT_CONFIRM_DESC_CODE") . " - #CODE#",
             "LANGUAGE_ID"   => "ru"
         ];
 

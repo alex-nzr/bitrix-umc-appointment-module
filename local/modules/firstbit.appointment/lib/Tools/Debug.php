@@ -9,16 +9,16 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Tools;
+namespace ANZ\Appointment\Tools;
 
 /**
  * Class Debug
- * @package FirstBit\Appointment\Tools
+ * @package ANZ\Appointment\Tools
  */
 class Debug extends \Bitrix\Main\Diag\Debug
 {
     const PATH_TO_LOG_FILE       = __DIR__."/../../log.txt";
-    const PATH_TO_LOG_FILE_SHORT = '/local/modules/firstbit.appointment/log.txt';
+    const PATH_TO_LOG_FILE_SHORT = '/local/modules/anz.appointment/log.txt';
     /**
      * print vars on screen
      * @param mixed ...$vars

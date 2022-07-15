@@ -9,20 +9,20 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Services\Operation;
+namespace ANZ\Appointment\Services\Operation;
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 use Exception;
-use FirstBit\Appointment\Config\Constants;
-use FirstBit\Appointment\Event\Event;
-use FirstBit\Appointment\Event\EventType;
-use FirstBit\Appointment\Services\Container;
+use ANZ\Appointment\Config\Constants;
+use ANZ\Appointment\Event\Event;
+use ANZ\Appointment\Event\EventType;
+use ANZ\Appointment\Services\Container;
 
 /**
  * Class AppointmentOperation
- * @package FirstBit\Appointment\Services\Operation
+ * @package ANZ\Appointment\Services\Operation
  */
 class AppointmentOperation
 {

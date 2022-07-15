@@ -9,7 +9,7 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Model;
+namespace ANZ\Appointment\Model;
 
 use Bitrix\Main\Entity\DataManager;
 use Bitrix\Main\Entity\DatetimeField;
@@ -22,13 +22,13 @@ use Bitrix\Main\Type;
 
 /**
  * Class RecordTable
- * @package FirstBit\Appointment\Model
+ * @package ANZ\Appointment\Model
  */
 class RecordTable extends DataManager
 {
     public static function getTableName(): string
     {
-        return "firstbit_appointment_record";
+        return "anz_appointment_record";
     }
 
     /**

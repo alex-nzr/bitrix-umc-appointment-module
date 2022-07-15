@@ -9,17 +9,17 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Event;
+namespace ANZ\Appointment\Event;
 
 use Bitrix\Main\EventManager as BitrixEventManager;
-use FirstBit\Appointment\Config\Constants;
-use FirstBit\Appointment\Event\Message\Email;
-use FirstBit\Appointment\Event\Message\Sms;
-use FirstBit\Appointment\Tools\Utils;
+use ANZ\Appointment\Config\Constants;
+use ANZ\Appointment\Event\Message\Email;
+use ANZ\Appointment\Event\Message\Sms;
+use ANZ\Appointment\Tools\Utils;
 
 /**
  * Class EventManager
- * @package FirstBit\Appointment\Event
+ * @package ANZ\Appointment\Event
  */
 class EventManager
 {
@@ -27,7 +27,7 @@ class EventManager
         [
             'module'    => 'main',
             'eventType' => 'OnPageStart',
-            'class'     => '\\FirstBit\\Appointment\\Event\\Handlers\\Page',
+            'class'     => '\\ANZ\\Appointment\\Event\\Handlers\\Page',
             'method'    => 'addJsExt',
             'sort'      => 100
         ],

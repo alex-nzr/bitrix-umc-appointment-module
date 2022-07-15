@@ -9,15 +9,15 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Tools;
+namespace ANZ\Appointment\Tools;
 
 use Bitrix\Main\SiteTable;
 use DateTime;
-use FirstBit\Appointment\Config\Constants;
+use ANZ\Appointment\Config\Constants;
 
 /**
  * Class Utils
- * @package FirstBit\Appointment\Tools
+ * @package ANZ\Appointment\Tools
  */
 class Utils
 {

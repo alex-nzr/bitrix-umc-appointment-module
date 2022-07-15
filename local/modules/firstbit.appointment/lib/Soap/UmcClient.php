@@ -9,20 +9,20 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Soap;
+namespace ANZ\Appointment\Soap;
 
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Exception;
-use FirstBit\Appointment\Config\Constants;
+use ANZ\Appointment\Config\Constants;
 use SimpleXMLElement;
 use SoapClient;
 use Bitrix\Main\Config\Option;
 
 /**
  * Class UmcClient
- * @package FirstBit\Appointment\Soap
+ * @package ANZ\Appointment\Soap
  */
 class UmcClient
 {
@@ -46,12 +46,12 @@ class UmcClient
             }
 
             if (!class_exists('\SoapClient')) {
-                throw new Exception(Loc::getMessage("FIRSTBIT_APPOINTMENT_SOAP_EXT_NOT_FOUND"));
+                throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_SOAP_EXT_NOT_FOUND"));
             }
 
             $url = Option::get(Constants::APPOINTMENT_MODULE_ID, "appointment_api_ws_url");
             if (empty($url)){
-                throw new Exception(Loc::getMessage("FIRSTBIT_APPOINTMENT_SOAP_URL_ERROR"));
+                throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_SOAP_URL_ERROR"));
             }
 
             $this->soapClient = new SoapClient($url, $options);
@@ -169,7 +169,7 @@ class UmcClient
         $password   = Option::get(Constants::APPOINTMENT_MODULE_ID, "appointment_api_db_password");
 
         if (empty($login) || empty($password)){
-            throw new Exception(Loc::getMessage("FIRSTBIT_APPOINTMENT_SOAP_AUTH_ERROR"));
+            throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_SOAP_AUTH_ERROR"));
         }
 
         return [

@@ -9,21 +9,21 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Soap;
+namespace ANZ\Appointment\Soap;
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 use Exception;
-use FirstBit\Appointment\Config\Constants;
-use FirstBit\Appointment\Event\Event;
-use FirstBit\Appointment\Event\EventType;
-use FirstBit\Appointment\Tools\Utils;
+use ANZ\Appointment\Config\Constants;
+use ANZ\Appointment\Event\Event;
+use ANZ\Appointment\Event\EventType;
+use ANZ\Appointment\Tools\Utils;
 use SimpleXMLElement;
 
 /**
  * Class XmlParser
- * @package FirstBit\Appointment\Soap
+ * @package ANZ\Appointment\Soap
  */
 class XmlParser{
 

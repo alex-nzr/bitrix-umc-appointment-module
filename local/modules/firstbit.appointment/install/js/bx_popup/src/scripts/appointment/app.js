@@ -1,4 +1,14 @@
 // @disabled-flow
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - app.js
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 'use strict';
 import styles from "../../styles/app.scss";
 import {convertHexToHsl, maskInput} from "../utils/functions";
@@ -120,7 +130,7 @@ export class AppointmentSteps
                 "inputId":      `appointment_${step}_value`,
                 "isRequired":   !(step === this.dataKeys.servicesKey && this.initParams.useServices !== "Y")
             }
-            this.defaultText[step] = BX.message(`FIRSTBIT_JS_APPOINTMENT_SELECT_${step.toUpperCase()}_TEXT`);
+            this.defaultText[step] = BX.message(`ANZ_JS_APPOINTMENT_SELECT_${step.toUpperCase()}_TEXT`);
         });
     }
 
@@ -231,7 +241,7 @@ export class AppointmentSteps
         }
         else
         {
-            throw new Error(`${BX.message('FIRSTBIT_JS_NODE_NOT_FOUND')} "${this.initParams['customMainBtnId']}"`)
+            throw new Error(`${BX.message('ANZ_JS_NODE_NOT_FOUND')} "${this.initParams['customMainBtnId']}"`)
         }
     }
 
@@ -272,7 +282,7 @@ export class AppointmentSteps
         }
         else
         {
-            throw new Error(`${BX.message('FIRSTBIT_JS_NODE_NOT_FOUND')} ${this.selectors.formId}`)
+            throw new Error(`${BX.message('ANZ_JS_NODE_NOT_FOUND')} ${this.selectors.formId}`)
         }
     }
 
@@ -286,7 +296,7 @@ export class AppointmentSteps
         }
         else
         {
-            throw new Error(`${BX.message('FIRSTBIT_JS_NODE_NOT_FOUND')} ${this.selectors.mobileCloseBtnId}`)
+            throw new Error(`${BX.message('ANZ_JS_NODE_NOT_FOUND')} ${this.selectors.mobileCloseBtnId}`)
         }
     }
 
@@ -317,7 +327,7 @@ export class AppointmentSteps
         this.initParams['textBlocks'].forEach((block: ITextObject) => {
             const input = BX(block.id);
             if (!input){
-                throw new Error(`${BX.message("FIRSTBIT_JS_NODE_NOT_FOUND")} ${block.id}`);
+                throw new Error(`${BX.message("ANZ_JS_NODE_NOT_FOUND")} ${block.id}`);
             }
 
             const currentValue = this.filledInputs.textValues[block.name];
@@ -372,7 +382,7 @@ export class AppointmentSteps
                     throw new Error(clinicsResponse.data?.error);
                 }
                 else if(clinicsResponse.data?.length === 0) {
-                    throw new Error(BX.message("FIRSTBIT_JS_CLINICS_NOT_FOUND_ERROR"));
+                    throw new Error(BX.message("ANZ_JS_CLINICS_NOT_FOUND_ERROR"));
                 }
                 else {
                     this.data.clinics = clinicsResponse.data;
@@ -384,7 +394,7 @@ export class AppointmentSteps
                     throw new Error(employeesResponse.data?.error);
                 }
                 else if(Object.keys(employeesResponse.data).length === 0) {
-                    throw new Error(BX.message("FIRSTBIT_JS_DOCTORS_NOT_FOUND_ERROR"));
+                    throw new Error(BX.message("ANZ_JS_DOCTORS_NOT_FOUND_ERROR"));
                 }
                 else {
                     this.data.employees = employeesResponse.data;
@@ -405,7 +415,7 @@ export class AppointmentSteps
             .catch(e => {
                 !this.useCustomMainBtn && this.startBtnWrap.classList.add(styles['hidden']);
                 this.logResultErrors(e);
-                this.alertError(BX.message("FIRSTBIT_JS_APPLICATION_ERROR_CONNECTION"));
+                this.alertError(BX.message("ANZ_JS_APPLICATION_ERROR_CONNECTION"));
             })
     }
 
@@ -414,7 +424,7 @@ export class AppointmentSteps
      * @returns {Promise<any>}
      */
     getListClinic(){
-        return BX.ajax.runAction('firstbit:appointment.oneCController.getClinics', {
+        return BX.ajax.runAction('anz:appointment.oneCController.getClinics', {
             data: {
                 sessid: BX.bitrix_sessid()
             }
@@ -426,7 +436,7 @@ export class AppointmentSteps
      * @returns {Promise<any>}
      */
     getListEmployees(){
-        return BX.ajax.runAction('firstbit:appointment.oneCController.getEmployees', {
+        return BX.ajax.runAction('anz:appointment.oneCController.getEmployees', {
             data: {
                 sessid: BX.bitrix_sessid()
             }
@@ -438,7 +448,7 @@ export class AppointmentSteps
      * @returns {Promise<any>}
      */
     getSchedule(){
-        return BX.ajax.runAction('firstbit:appointment.oneCController.getSchedule', {
+        return BX.ajax.runAction('anz:appointment.oneCController.getSchedule', {
             data: {
                 sessid: BX.bitrix_sessid()
             }
@@ -451,7 +461,7 @@ export class AppointmentSteps
      * @returns {Promise<any>}
      */
     getListNomenclature(clinicGuid){
-        return BX.ajax.runAction('firstbit:appointment.oneCController.getNomenclature', {
+        return BX.ajax.runAction('anz:appointment.oneCController.getNomenclature', {
             data: {
                 sessid: BX.bitrix_sessid(),
                 clinicGuid: clinicGuid,
@@ -479,7 +489,7 @@ export class AppointmentSteps
     {
         const listNode = this.selectionNodes[dataKey]?.listNode;
         if(!listNode){
-            throw new Error(BX.message(`FIRSTBIT_JS_${dataKey.toUpperCase()}_NODE_NOT_FOUND_ERROR`));
+            throw new Error(BX.message(`ANZ_JS_${dataKey.toUpperCase()}_NODE_NOT_FOUND_ERROR`));
         }
         (dataKey === this.dataKeys.scheduleKey) ? listNode.classList.add(styles["column-mode"]) : void(0);
         BX.cleanNode(listNode);
@@ -698,9 +708,9 @@ export class AppointmentSteps
                                     if (Object.keys(nomenclature.data).length > 0){
                                         this.data.services = nomenclature.data;
                                         this.bindServicesToSpecialties();
-                                        this.renderSpecialtiesList();
                                         this.servicesStorage[clinicUid] = {...this.data.services}
                                     }
+                                    this.renderSpecialtiesList();
                                 }
                                 this.toggleLoader(false);
                             })
@@ -794,16 +804,19 @@ export class AppointmentSteps
     
     addSpecialty(employee)
     {
-        if(this.data[this.dataKeys.specialtiesKey][employee.specialtyUid])
+        if (employee.specialtyUid)
         {
-            this.addClinicToSpecialty(this.data[this.dataKeys.specialtiesKey][employee.specialtyUid], employee.clinicUid);
-        }
-        else
-        {
-            this.data[this.dataKeys.specialtiesKey][employee.specialtyUid] = {
-                uid:        employee.specialtyUid,
-                name:       employee.specialty,
-                clinics:    [employee.clinicUid]
+            if(this.data[this.dataKeys.specialtiesKey][employee.specialtyUid])
+            {
+                this.addClinicToSpecialty(this.data[this.dataKeys.specialtiesKey][employee.specialtyUid], employee.clinicUid);
+            }
+            else
+            {
+                this.data[this.dataKeys.specialtiesKey][employee.specialtyUid] = {
+                    uid:        employee.specialtyUid,
+                    name:       employee.specialty,
+                    clinics:    [employee.clinicUid]
+                }
             }
         }
     }
@@ -997,7 +1010,7 @@ export class AppointmentSteps
         }
         else
         {
-            this.showError(BX.message("FIRSTBIT_JS_ORDER_CHECK_FIELDS_ERROR"));
+            this.showError(BX.message("ANZ_JS_ORDER_CHECK_FIELDS_ERROR"));
         }
     }
 
@@ -1006,7 +1019,7 @@ export class AppointmentSteps
 
         this.messageNode.textContent = "";
 
-        BX.ajax.runAction('firstbit:appointment.messageController.sendConfirmCode', {
+        BX.ajax.runAction('anz:appointment.messageController.sendConfirmCode', {
             data: {
                 phone: this.orderData.phone,
                 email: this.orderData.email,
@@ -1019,7 +1032,7 @@ export class AppointmentSteps
             this.toggleLoader(false);
         })
         .catch(result => {
-            this.messageNode.textContent = result.errors?.[0]?.message + BX.message("FIRSTBIT_JS_SOME_DISPLAY_ERROR_POSTFIX");
+            this.messageNode.textContent = result.errors?.[0]?.message + BX.message("ANZ_JS_SOME_DISPLAY_ERROR_POSTFIX");
             this.logResultErrors(result);
             this.toggleLoader(false);
         });
@@ -1040,7 +1053,7 @@ export class AppointmentSteps
             {
                 btnNode.classList.add(styles['loading']);
 
-                BX.ajax.runAction('firstbit:appointment.messageController.verifyConfirmCode', {
+                BX.ajax.runAction('anz:appointment.messageController.verifyConfirmCode', {
                     data: {
                         code: code,
                         email: this.orderData.email,
@@ -1054,20 +1067,20 @@ export class AppointmentSteps
                         result.errors.forEach((error) => {
                             confirmWarningNode.innerHTML = ((Number(error.code) === 400) || (Number(error.code) === 406) || (Number(error.code) === 425))
                                     ? `${confirmWarningNode.innerHTML}${error.message}<br>`
-                                    : BX.message("FIRSTBIT_JS_APPLICATION_ERROR");
+                                    : BX.message("ANZ_JS_APPLICATION_ERROR");
                         })
                     }
                 });
             }
             else
             {
-                confirmWarningNode.textContent = BX.message("FIRSTBIT_JS_CONFIRM_CODE_LENGTH");
+                confirmWarningNode.textContent = BX.message("ANZ_JS_CONFIRM_CODE_LENGTH");
             }
         }
     }
 
     sendOrder() {
-        BX.ajax.runAction('firstbit:appointment.oneCController.addOrder', {
+        BX.ajax.runAction('anz:appointment.oneCController.addOrder', {
             data: {
                 params: JSON.stringify(this.orderData),
                 sessid: BX.bitrix_sessid()
@@ -1099,7 +1112,7 @@ export class AppointmentSteps
     }
 
     sendEmailNote() {
-        BX.ajax.runAction('firstbit:appointment.messageController.sendEmailNote', {
+        BX.ajax.runAction('anz:appointment.messageController.sendEmailNote', {
             data: {
                 params: JSON.stringify(this.orderData),
                 sessid: BX.bitrix_sessid()
@@ -1119,7 +1132,7 @@ export class AppointmentSteps
             else
             {
                 remainingTime--;
-                confirmRepeatBtn.textContent = `${BX.message("FIRSTBIT_JS_CONFIRM_CODE_SEND_AGAIN")} 
+                confirmRepeatBtn.textContent = `${BX.message("ANZ_JS_CONFIRM_CODE_SEND_AGAIN")} 
                                                 ${remainingTime > 0 ? remainingTime : ''}`;
             }
         }, 1000);
@@ -1142,9 +1155,9 @@ export class AppointmentSteps
                 const date = this.convertDateToDisplay(this.orderData.timeBegin, false);
                 const time = this.convertDateToDisplay(this.orderData.timeBegin, true);
                 const doctor = this.orderData.doctorName;
-                resTextNode.innerHTML = `${BX.message("FIRSTBIT_JS_APPOINTMENT_SUCCESS")}
+                resTextNode.innerHTML = `${BX.message("ANZ_JS_APPOINTMENT_SUCCESS")}
                                          <br>${date} ${time}
-                                         <br>${BX.message("FIRSTBIT_JS_APPOINTMENT_DOCTOR")} - ${doctor}` ;
+                                         <br>${BX.message("ANZ_JS_APPOINTMENT_DOCTOR")} - ${doctor}` ;
                 resTextNode.classList.add(styles['success']);
                 this.finalAnimations();
             }
@@ -1179,19 +1192,19 @@ export class AppointmentSteps
         return BX.create('p', {
             children: [
                 BX.create('span', {
-                    html: BX.message('FIRSTBIT_JS_APPOINTMENT_FINAL_ERROR_START')
+                    html: BX.message('ANZ_JS_APPOINTMENT_FINAL_ERROR_START')
                 }),
                 BX.create('a', {
                     attrs: {
                         href: "#"
                     },
-                    text: BX.message('FIRSTBIT_JS_APPOINTMENT_FINAL_ERROR_LINK'),
+                    text: BX.message('ANZ_JS_APPOINTMENT_FINAL_ERROR_LINK'),
                     events: {
                         click: (e) => this.reload(e)
                     }
                 }),
                 BX.create('span', {
-                    html: BX.message('FIRSTBIT_JS_APPOINTMENT_FINAL_ERROR_END')
+                    html: BX.message('ANZ_JS_APPOINTMENT_FINAL_ERROR_END')
                 })
             ]
         });
@@ -1412,12 +1425,12 @@ export class AppointmentSteps
         if (res.errors && Array.isArray(res.errors) && res.errors.length > 0)
         {
             res.errors.forEach(error => {
-                console.log(`${BX.message("FIRSTBIT_JS_APPLICATION_ERROR")} - ${error.message}`)
+                console.log(`${BX.message("ANZ_JS_APPLICATION_ERROR")} - ${error.message}`)
             })
         }
         else
         {
-            console.log(BX.message("FIRSTBIT_JS_APPLICATION_ERROR") + "\r\n", res.message ?? res);
+            console.log(BX.message("ANZ_JS_APPLICATION_ERROR") + "\r\n", res.message ?? res);
         }
     }
 
@@ -1429,7 +1442,7 @@ export class AppointmentSteps
     getAppSelectors(stylesObject)
     {
         return {
-            rootNodeId:         'firstbit-appointment-application-root',
+            rootNodeId:         'anz-appointment-application-root',
             overlayId:          'appointment-popup-steps-overlay',
             startBtnWrapId:     stylesObject['appointment-button-wrapper'],
             startBtnId:         stylesObject['appointment-button'],

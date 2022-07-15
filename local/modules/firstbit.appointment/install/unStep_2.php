@@ -20,14 +20,14 @@ if ($ex = $APPLICATION->GetException())
 {
     CAdminMessage::ShowMessage(array(
         "TYPE" => "ERROR",
-        "MESSAGE" => Loc::getMessage("FIRSTBIT_APPOINTMENT_UNINSTALL_ERROR"),
+        "MESSAGE" => Loc::getMessage("ANZ_APPOINTMENT_UNINSTALL_ERROR"),
         "DETAILS" => $ex->GetString(),
         "HTML" => true,
     ));
 }
 else
 {
-    CAdminMessage::ShowNote(Loc::getMessage("FIRSTBIT_APPOINTMENT_UNINSTALL_OK"));
+    CAdminMessage::ShowNote(Loc::getMessage("ANZ_APPOINTMENT_UNINSTALL_OK"));
 }
 ?>
 <form action="<?=$APPLICATION->GetCurPage();?>">

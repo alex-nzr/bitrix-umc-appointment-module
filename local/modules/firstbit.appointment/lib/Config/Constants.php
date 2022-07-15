@@ -9,16 +9,16 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Config;
+namespace ANZ\Appointment\Config;
 
 /**
  * Class Constants
- * @package FirstBit\Appointment\Config
+ * @package ANZ\Appointment\Config
  */
 class Constants
 {
-    const APPOINTMENT_MODULE_ID      = 'firstbit.appointment';
-    const APPOINTMENT_JS_EXTENSION   = "firstbit.dev.bx_popup";
+    const APPOINTMENT_MODULE_ID      = 'anz.appointment';
+    const APPOINTMENT_JS_EXTENSION   = "anz.dev.bx_popup";
 
     const CLINIC_ACTION_1C           = "GetListClinic";
     const EMPLOYEES_ACTION_1C        = "GetListEmployees";

@@ -9,19 +9,19 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Services\Operation;
+namespace ANZ\Appointment\Services\Operation;
 
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 use Bitrix\Main\Type\DateTime;
 use Exception;
-use FirstBit\Appointment\Services\Container;
-use FirstBit\Appointment\Tools\Utils;
+use ANZ\Appointment\Services\Container;
+use ANZ\Appointment\Tools\Utils;
 
 /**
  * Class OrmOperation
- * @package FirstBit\Appointment\Services\Operation
+ * @package ANZ\Appointment\Services\Operation
  */
 class OrmOperation{
     /**

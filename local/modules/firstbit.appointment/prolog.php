@@ -1,2 +1,2 @@
 <?php
-const ADMIN_MODULE_NAME = "firstbit.appointment";
+const ADMIN_MODULE_NAME = "anz.appointment";

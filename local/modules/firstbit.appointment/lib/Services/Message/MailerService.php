@@ -9,7 +9,7 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Services\Message;
+namespace ANZ\Appointment\Services\Message;
 
 use Bitrix\Main\Context;
 use Bitrix\Main\Localization\Loc;
@@ -17,11 +17,11 @@ use Bitrix\Main\Mail\Event;
 use Bitrix\Main\Result;
 use Bitrix\Main\Error;
 use Exception;
-use FirstBit\Appointment\Config\Constants;
+use ANZ\Appointment\Config\Constants;
 
 /**
  * Class MailerService
- * @package FirstBit\Appointment\Services\Message
+ * @package ANZ\Appointment\Services\Message
  */
 class MailerService{
 
@@ -72,7 +72,7 @@ class MailerService{
 
             if (!empty($emailTo))
             {
-                $text = Loc::getMessage('FIRSTBIT_APPOINTMENT_MESSAGE_NOTE', [
+                $text = Loc::getMessage('ANZ_APPOINTMENT_MESSAGE_NOTE', [
                     "#CLINIC#"      => $clinic,
                     "#SPECIALTY#"   => $specialty,
                     "#SERVICE#"     => $service,

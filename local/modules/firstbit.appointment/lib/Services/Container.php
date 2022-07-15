@@ -9,20 +9,20 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Services;
+namespace ANZ\Appointment\Services;
 
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Localization\Loc;
-use FirstBit\Appointment\Model\RecordTable;
-use FirstBit\Appointment\Services\Message\MailerService;
-use FirstBit\Appointment\Services\Message\SmsService;
-use FirstBit\Appointment\Services\OneC\Reader;
-use FirstBit\Appointment\Services\OneC\Writer;
+use ANZ\Appointment\Model\RecordTable;
+use ANZ\Appointment\Services\Message\MailerService;
+use ANZ\Appointment\Services\Message\SmsService;
+use ANZ\Appointment\Services\OneC\Reader;
+use ANZ\Appointment\Services\OneC\Writer;
 
 /**
  * Class Container
- * @package FirstBit\Appointment\Services
+ * @package ANZ\Appointment\Services
  */
 class Container
 {
@@ -46,7 +46,7 @@ class Container
     }
 
     /**
-     * @return \FirstBit\Appointment\Model\RecordTable | string
+     * @return \ANZ\Appointment\Model\RecordTable | string
      */
     public function getRecordDataClass(): string
     {
@@ -54,7 +54,7 @@ class Container
     }
 
     /**
-     * @return \FirstBit\Appointment\Services\OneC\Reader
+     * @return \ANZ\Appointment\Services\OneC\Reader
      * @throws \Bitrix\Main\ObjectNotFoundException
      * @throws \Bitrix\Main\ArgumentException
      */
@@ -64,7 +64,7 @@ class Container
     }
 
     /**
-     * @return \FirstBit\Appointment\Services\OneC\Writer
+     * @return \ANZ\Appointment\Services\OneC\Writer
      * @throws \Bitrix\Main\ObjectNotFoundException
      * @throws \Bitrix\Main\ArgumentException
      */
@@ -74,7 +74,7 @@ class Container
     }
 
     /**
-     * @return \FirstBit\Appointment\Services\Message\SmsService
+     * @return \ANZ\Appointment\Services\Message\SmsService
      * @throws \Bitrix\Main\ObjectNotFoundException
      * @throws \Bitrix\Main\ArgumentException
      */
@@ -84,7 +84,7 @@ class Container
     }
 
     /**
-     * @return \FirstBit\Appointment\Services\Message\MailerService
+     * @return \ANZ\Appointment\Services\Message\MailerService
      * @throws \Bitrix\Main\ObjectNotFoundException
      * @throws \Bitrix\Main\ArgumentException
      */
@@ -95,7 +95,7 @@ class Container
 
     /**
      * Returns service identifier in ServiceLocator by the provided class name
-     * For example, \FirstBit\Appointment\Services\Container -> firstbit.appointment.services.container
+     * For example, \ANZ\Appointment\Services\Container -> anz.appointment.services.container
      * @param string $className
      * @return string
      * @throws \Bitrix\Main\ArgumentException
@@ -116,7 +116,7 @@ class Container
 
         if (empty($serviceId))
         {
-            throw new ArgumentException(Loc::getMessage("FIRSTBIT_APPOINTMENT_CONTAINER_CLASSNAME_ERROR"));
+            throw new ArgumentException(Loc::getMessage("ANZ_APPOINTMENT_CONTAINER_CLASSNAME_ERROR"));
         }
 
         return $serviceId;

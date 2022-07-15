@@ -9,7 +9,7 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Config;
+namespace ANZ\Appointment\Config;
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
@@ -26,7 +26,7 @@ Loc::loadMessages(__FILE__);
 
 /**
  * Class OptionManager
- * @package FirstBit\Appointment\Config
+ * @package ANZ\Appointment\Config
  */
 class OptionManager{
 
@@ -56,203 +56,203 @@ class OptionManager{
         $this->tabs = [
             [
                 'DIV'   => "settings_tab",
-                'TAB'   => Loc::getMessage("FIRSTBIT_APPOINTMENT_MODULE_SETTINGS"),
+                'TAB'   => Loc::getMessage("ANZ_APPOINTMENT_MODULE_SETTINGS"),
                 'ICON'  => '',
-                'TITLE' => Loc::getMessage("FIRSTBIT_APPOINTMENT_MODULE_SETTINGS"),
+                'TITLE' => Loc::getMessage("ANZ_APPOINTMENT_MODULE_SETTINGS"),
                 "OPTIONS" => [
-                    Loc::getMessage("FIRSTBIT_APPOINTMENT_API_SETTINGS"),
+                    Loc::getMessage("ANZ_APPOINTMENT_API_SETTINGS"),
                     [
                         'appointment_api_ws_url',
-                        Loc::getMessage("FIRSTBIT_APPOINTMENT_API_ADDRESS"),
+                        Loc::getMessage("ANZ_APPOINTMENT_API_ADDRESS"),
                         "http://localhost:3500/umc_corp/ws/ws1.1cws?wsdl",
                         ['text', 50]
                     ],
                     [
                         'appointment_api_db_login',
-                        Loc::getMessage("FIRSTBIT_APPOINTMENT_API_LOGIN"),
+                        Loc::getMessage("ANZ_APPOINTMENT_API_LOGIN"),
                         "siteIntegration",
                         ['text', 50]
                     ],
                     [
                         'appointment_api_db_password',
-                        Loc::getMessage("FIRSTBIT_APPOINTMENT_API_PASSWORD"),
+                        Loc::getMessage("ANZ_APPOINTMENT_API_PASSWORD"),
                         "123456",
                         ['text', 50]
                     ],
 
-                    Loc::getMessage("FIRSTBIT_APPOINTMENT_USE_AUTO_INJECTING"),
+                    Loc::getMessage("ANZ_APPOINTMENT_USE_AUTO_INJECTING"),
                     [
                         'appointment_settings_use_auto_injecting',
-                        Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_AUTO_INJECTING_ON'),
+                        Loc::getMessage('ANZ_APPOINTMENT_USE_AUTO_INJECTING_ON'),
                         "N",
                         ['checkbox']
                     ],
-                    [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_AUTO_INJECTING_NOTE')],
+                    [ 'note' => Loc::getMessage('ANZ_APPOINTMENT_USE_AUTO_INJECTING_NOTE')],
 
-                    Loc::getMessage("FIRSTBIT_APPOINTMENT_OTHER_SETTINGS"),
+                    Loc::getMessage("ANZ_APPOINTMENT_OTHER_SETTINGS"),
                     [
                         'appointment_api_schedule_days',
-                        Loc::getMessage('FIRSTBIT_APPOINTMENT_SCHEDULE_PERIOD'),
+                        Loc::getMessage('ANZ_APPOINTMENT_SCHEDULE_PERIOD'),
                         Constants::DEFAULT_SCHEDULE_PERIOD_DAYS,
                         ['text', 5]
                     ],
                     [
                         'appointment_settings_default_duration',
-                        Loc::getMessage('FIRSTBIT_APPOINTMENT_DEFAULT_DURATION'),
+                        Loc::getMessage('ANZ_APPOINTMENT_DEFAULT_DURATION'),
                         Constants::DEFAULT_APPOINTMENT_DURATION_SEC,
                         ['text', 5]
                     ],
                     [
                         'appointment_settings_use_nomenclature',
-                        Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_NOMENCLATURE'),
+                        Loc::getMessage('ANZ_APPOINTMENT_USE_NOMENCLATURE'),
                         "N",
                         ['checkbox']
                     ],
-                    [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_NOMENCLATURE_WARNING')],
+                    [ 'note' => Loc::getMessage('ANZ_APPOINTMENT_USE_NOMENCLATURE_WARNING')],
 
                     /*[
                         'appointment_settings_select_doctor_before_service',
-                        Loc::getMessage('FIRSTBIT_APPOINTMENT_SELECT_DOCTOR_BEFORE_SERVICE'),
+                        Loc::getMessage('ANZ_APPOINTMENT_SELECT_DOCTOR_BEFORE_SERVICE'),
                         "N",
                         ['checkbox']
                     ],
-                    [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_SELECT_DOCTOR_BEFORE_SERVICE_NOTE')],*/
+                    [ 'note' => Loc::getMessage('ANZ_APPOINTMENT_SELECT_DOCTOR_BEFORE_SERVICE_NOTE')],*/
 
                     [
                         'appointment_settings_use_time_steps',
-                        Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_TIME_STEPS'),
+                        Loc::getMessage('ANZ_APPOINTMENT_USE_TIME_STEPS'),
                         "N",
                         ['checkbox']
                     ],
                     [
                         'appointment_settings_time_step_duration',
-                        Loc::getMessage('FIRSTBIT_APPOINTMENT_TIME_STEP_DURATION'),
+                        Loc::getMessage('ANZ_APPOINTMENT_TIME_STEP_DURATION'),
                         "15",
                         ['text', 5]
                     ],
-                    [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_TIME_STEPS_NOTE')],
+                    [ 'note' => Loc::getMessage('ANZ_APPOINTMENT_USE_TIME_STEPS_NOTE')],
 
                     [
                         'appointment_settings_strict_checking_relations',
-                        Loc::getMessage('FIRSTBIT_APPOINTMENT_STRICT_CHECKING_RELATIONS'),
+                        Loc::getMessage('ANZ_APPOINTMENT_STRICT_CHECKING_RELATIONS'),
                         "N",
                         ['checkbox']
                     ],
-                    [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_STRICT_CHECKING_RELATIONS_NOTE')],
+                    [ 'note' => Loc::getMessage('ANZ_APPOINTMENT_STRICT_CHECKING_RELATIONS_NOTE')],
 
                     [
                         'appointment_settings_show_doctors_without_dpt',
-                        Loc::getMessage('FIRSTBIT_APPOINTMENT_SHOW_DOCTORS_WITHOUT_DEPARTMENT'),
+                        Loc::getMessage('ANZ_APPOINTMENT_SHOW_DOCTORS_WITHOUT_DEPARTMENT'),
                         "N",
                         ['checkbox']
                     ],
-                    [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_SHOW_DOCTORS_WITHOUT_DEPARTMENT_NOTE')],
+                    [ 'note' => Loc::getMessage('ANZ_APPOINTMENT_SHOW_DOCTORS_WITHOUT_DEPARTMENT_NOTE')],
 
                     [
                         'appointment_settings_use_waiting_list',
-                        Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_WAITING_LIST'),
+                        Loc::getMessage('ANZ_APPOINTMENT_USE_WAITING_LIST'),
                         "N",
                         ['checkbox']
                     ],
-                    [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_WAITING_LIST_NOTE')],
+                    [ 'note' => Loc::getMessage('ANZ_APPOINTMENT_USE_WAITING_LIST_NOTE')],
 
                     [
                         'appointment_settings_use_email_note',
-                        Loc::getMessage('FIRSTBIT_APPOINTMENT_USE_EMAIL_NOTE'),
+                        Loc::getMessage('ANZ_APPOINTMENT_USE_EMAIL_NOTE'),
                         "N",
                         ['checkbox']
                     ],
 
                     [
                         'appointment_settings_privacy_page_url',
-                        Loc::getMessage('FIRSTBIT_APPOINTMENT_PRIVACY_PAGE_URL'),
+                        Loc::getMessage('ANZ_APPOINTMENT_PRIVACY_PAGE_URL'),
                         "#",
                         ['text', 50]
                     ],
 
                     [
                         'appointment_settings_confirm_with',
-                        Loc::getMessage('FIRSTBIT_APPOINTMENT_CONFIRM_WITH'),
+                        Loc::getMessage('ANZ_APPOINTMENT_CONFIRM_WITH'),
                         Constants::CONFIRM_TYPE_NONE,
                         [
                             'select',
                             [
-                                Constants::CONFIRM_TYPE_NONE  => Loc::getMessage('FIRSTBIT_APPOINTMENT_CONFIRM_WITH_NONE'),
-                                Constants::CONFIRM_TYPE_PHONE => Loc::getMessage('FIRSTBIT_APPOINTMENT_CONFIRM_WITH_PHONE'),
-                                Constants::CONFIRM_TYPE_EMAIL => Loc::getMessage('FIRSTBIT_APPOINTMENT_CONFIRM_WITH_EMAIL')
+                                Constants::CONFIRM_TYPE_NONE  => Loc::getMessage('ANZ_APPOINTMENT_CONFIRM_WITH_NONE'),
+                                Constants::CONFIRM_TYPE_PHONE => Loc::getMessage('ANZ_APPOINTMENT_CONFIRM_WITH_PHONE'),
+                                Constants::CONFIRM_TYPE_EMAIL => Loc::getMessage('ANZ_APPOINTMENT_CONFIRM_WITH_EMAIL')
                             ]
                         ]
                     ],
-                    [ 'note' => Loc::getMessage('FIRSTBIT_APPOINTMENT_CONFIRM_WITH_NOTE')],
+                    [ 'note' => Loc::getMessage('ANZ_APPOINTMENT_CONFIRM_WITH_NOTE')],
                 ]
             ],
             [
                 'DIV'       => "view_tab",
-                'TAB'       => Loc::getMessage("FIRSTBIT_APPOINTMENT_TAB_VIEW"),
+                'TAB'       => Loc::getMessage("ANZ_APPOINTMENT_TAB_VIEW"),
                 'ICON'      => '',
-                'TITLE'     => Loc::getMessage("FIRSTBIT_APPOINTMENT_TAB_TITLE_VIEW"),
+                'TITLE'     => Loc::getMessage("ANZ_APPOINTMENT_TAB_TITLE_VIEW"),
                 'OPTIONS'   => [
-                    Loc::getMessage("FIRSTBIT_APPOINTMENT_LOGO_UPLOAD"),
+                    Loc::getMessage("ANZ_APPOINTMENT_LOGO_UPLOAD"),
                     [
                         'appointment_view_logo_image',
-                        Loc::getMessage("FIRSTBIT_APPOINTMENT_LOGO_UPLOAD"),
+                        Loc::getMessage("ANZ_APPOINTMENT_LOGO_UPLOAD"),
                         "",
                         ['file']
                     ],
-                    Loc::getMessage("FIRSTBIT_APPOINTMENT_MAIN_BTN_SETTINGS"),
+                    Loc::getMessage("ANZ_APPOINTMENT_MAIN_BTN_SETTINGS"),
                     [
                         'appointment_view_use_custom_main_btn',
-                        Loc::getMessage("FIRSTBIT_APPOINTMENT_USE_CUSTOM_MAIN_BTN"),
+                        Loc::getMessage("ANZ_APPOINTMENT_USE_CUSTOM_MAIN_BTN"),
                         "N",
                         ['checkbox']
                     ],
                     [
                         'appointment_view_custom_main_btn_id',
-                        Loc::getMessage("FIRSTBIT_APPOINTMENT_CUSTOM_BTN_ID"),
+                        Loc::getMessage("ANZ_APPOINTMENT_CUSTOM_BTN_ID"),
                         "",
                         ['text', "50"]
                     ],
                     [
                         '--appointment-start-btn-bg-color',
-                        Loc::getMessage("FIRSTBIT_APPOINTMENT_MAIN_BTN_BG_COLOR"),
+                        Loc::getMessage("ANZ_APPOINTMENT_MAIN_BTN_BG_COLOR"),
                         "#025ea1",
                         ['colorPicker']
                     ],
                     [
                         '--appointment-start-btn-text-color',
-                        Loc::getMessage("FIRSTBIT_APPOINTMENT_MAIN_BTN_TEXT_COLOR"),
+                        Loc::getMessage("ANZ_APPOINTMENT_MAIN_BTN_TEXT_COLOR"),
                         "#fff",
                         ['colorPicker']
                     ],
 
-                    Loc::getMessage("FIRSTBIT_APPOINTMENT_FORM_COLORS_SETTINGS"),
+                    Loc::getMessage("ANZ_APPOINTMENT_FORM_COLORS_SETTINGS"),
                     [
                         '--appointment-main-color',
-                        Loc::getMessage("FIRSTBIT_APPOINTMENT_FORM_COLOR_MAIN"),
+                        Loc::getMessage("ANZ_APPOINTMENT_FORM_COLOR_MAIN"),
                         "#025ea1",
                         ['colorPicker']
                     ],
                     [
                         '--appointment-field-color',
-                        Loc::getMessage("FIRSTBIT_APPOINTMENT_FORM_COLOR_FIELD"),
+                        Loc::getMessage("ANZ_APPOINTMENT_FORM_COLOR_FIELD"),
                         "#1B3257",
                         ['colorPicker']
                     ],
                     [
                         '--appointment-form-text-color',
-                        Loc::getMessage("FIRSTBIT_APPOINTMENT_FORM_COLOR_TEXT"),
+                        Loc::getMessage("ANZ_APPOINTMENT_FORM_COLOR_TEXT"),
                         "#f5f5f5",
                         ['colorPicker']
                     ],
                     [
                         '--appointment-btn-bg-color',
-                        Loc::getMessage("FIRSTBIT_APPOINTMENT_FORM_COLOR_BTN"),
+                        Loc::getMessage("ANZ_APPOINTMENT_FORM_COLOR_BTN"),
                         "#12b1e3",
                         ['colorPicker']
                     ],
                     [
                         '--appointment-btn-text-color',
-                        Loc::getMessage("FIRSTBIT_APPOINTMENT_FORM_COLOR_BTN_TEXT"),
+                        Loc::getMessage("ANZ_APPOINTMENT_FORM_COLOR_BTN_TEXT"),
                         "#ffffff",
                         ['colorPicker']
                     ],
@@ -260,9 +260,9 @@ class OptionManager{
             ],
             [
                 'DIV'   => "access_tab",
-                'TAB'   => Loc::getMessage("FIRSTBIT_APPOINTMENT_TAB_RIGHTS"),
+                'TAB'   => Loc::getMessage("ANZ_APPOINTMENT_TAB_RIGHTS"),
                 'ICON'  => '',
-                'TITLE' => Loc::getMessage("FIRSTBIT_APPOINTMENT_TAB_TITLE_RIGHTS"),
+                'TITLE' => Loc::getMessage("ANZ_APPOINTMENT_TAB_TITLE_RIGHTS"),
             ]
         ];
     }
@@ -328,7 +328,7 @@ class OptionManager{
     {
         $this->tabControl->Begin();
         ?>
-        <form method="POST" action="<?=$this->formAction?>" name="firstbit_appointment_settings" enctype="multipart/form-data">
+        <form method="POST" action="<?=$this->formAction?>" name="anz_appointment_settings" enctype="multipart/form-data">
         <?php
             foreach ($this->tabs as $arTab)
             {
@@ -405,7 +405,7 @@ class OptionManager{
         $type  = $option[3];
         ?>
         <td style="width: 50%">
-            <label for="<?=$name?>" class="firstbit-appointment-adm-label">
+            <label for="<?=$name?>" class="anz-appointment-adm-label">
                 <?
                 switch ($type[0])
                 {
@@ -450,7 +450,7 @@ class OptionManager{
                         echo "<input type='text' id='$name' name='$name' value='$val' readonly/>
                               <script>
                                 BX.ready(function() {
-                                    BX.FirstBit.Appointment.Admin.bindColorPickerToNode('$name', '$name', '$option[2]');
+                                    BX.Anz.Appointment.Admin.bindColorPickerToNode('$name', '$name', '$option[2]');
                                 });
                               </script>";
                         break;
@@ -467,7 +467,7 @@ class OptionManager{
                 ?>
             </label>
             <script>
-                BX.ready(() => BX.FirstBit.Appointment.Admin.activateInputs());
+                BX.ready(() => BX.Anz.Appointment.Admin.activateInputs());
             </script>
         </td><?
     }

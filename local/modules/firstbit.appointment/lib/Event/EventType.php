@@ -9,11 +9,11 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Event;
+namespace ANZ\Appointment\Event;
 
 /**
  * Class EventType
- * @package FirstBit\Appointment\Event
+ * @package ANZ\Appointment\Event
  */
 class EventType
 {

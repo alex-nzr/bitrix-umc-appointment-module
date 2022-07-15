@@ -9,7 +9,7 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Services\Admin;
+namespace ANZ\Appointment\Services\Admin;
 
 use Bitrix\Main\Grid\Options as GridOptions;
 use Bitrix\Main\UI\Filter\Options as FilterOptions;
@@ -20,7 +20,7 @@ use Exception;
 
 /**
  * Class ListPageManager
- * @package FirstBit\Appointment\Services\Admin
+ * @package ANZ\Appointment\Services\Admin
  */
 class ListPageManager
 {
@@ -73,7 +73,7 @@ class ListPageManager
 
             $this->pageNavObject->setRecordCount($recordsRes->getCount());
             $records = $recordsRes->fetchAll();
-            $deleteText = Loc::getMessage("FIRSTBIT_APPOINTMENT_BTN_DELETE_TEXT");
+            $deleteText = Loc::getMessage("ANZ_APPOINTMENT_BTN_DELETE_TEXT");
             foreach ($records as $item)
             {
                 if ((int)$item['USER_ID'] > 0)
@@ -92,12 +92,12 @@ class ListPageManager
                         [
                             'text'    => $deleteText,
                             'onclick' => 'confirm("'.$deleteText.'?") 
-                                ? BX.FirstBit.Appointment.Admin.deleteRecord('.$item["ID"].', "'.$gridId.'", "'.$item['XML_ID'].'") 
+                                ? BX.Anz.Appointment.Admin.deleteRecord('.$item["ID"].', "'.$gridId.'", "'.$item['XML_ID'].'") 
                                 : void(0)'
                         ],
                         [
-                            'text'    => Loc::getMessage("FIRSTBIT_APPOINTMENT_BTN_UPDATE_STATUS_TEXT"),
-                            'onclick' => 'BX.FirstBit.Appointment.Admin.updateRecord('.$item["ID"].', "'.$gridId.'", "'.$item['XML_ID'].'")'
+                            'text'    => Loc::getMessage("ANZ_APPOINTMENT_BTN_UPDATE_STATUS_TEXT"),
+                            'onclick' => 'BX.Anz.Appointment.Admin.updateRecord('.$item["ID"].', "'.$gridId.'", "'.$item['XML_ID'].'")'
                         ],
                     ],
                 ];
@@ -234,7 +234,7 @@ class ListPageManager
             if (isset($this->allowedColumns[$name])){
                 $columns[] = [
                     'id'      => $name,
-                    'name'    => Loc::getMessage('FIRSTBIT_APPOINTMENT_TABLE_' . $name),
+                    'name'    => Loc::getMessage('ANZ_APPOINTMENT_TABLE_' . $name),
                     'default' => true,
                     'sort'    => $name === "COMMENT" ? false : $name,
                 ];
@@ -259,63 +259,63 @@ class ListPageManager
     {
         return [
             'ID'             => [
-                'name' => Loc::getMessage("FIRSTBIT_APPOINTMENT_TABLE_ID"),
+                'name' => Loc::getMessage("ANZ_APPOINTMENT_TABLE_ID"),
                 'type' => 'number',
             ],
             'XML_ID'             => [
-                'name' => Loc::getMessage("FIRSTBIT_APPOINTMENT_TABLE_XML_ID"),
+                'name' => Loc::getMessage("ANZ_APPOINTMENT_TABLE_XML_ID"),
                 'type' => 'number',
             ],
             'DATE_CREATE'    => [
-                'name' => Loc::getMessage("FIRSTBIT_APPOINTMENT_TABLE_DATE_CREATE"),
+                'name' => Loc::getMessage("ANZ_APPOINTMENT_TABLE_DATE_CREATE"),
                 'type' => 'date',
             ],
             'DATETIME_VISIT' => [
-                'name' => Loc::getMessage("FIRSTBIT_APPOINTMENT_TABLE_DATETIME_VISIT"),
+                'name' => Loc::getMessage("ANZ_APPOINTMENT_TABLE_DATETIME_VISIT"),
                 'type' => 'date',
             ],
             'DAYS_LEFT'      => [
-                'name' => Loc::getMessage("FIRSTBIT_APPOINTMENT_TABLE_DAYS_LEFT"),
+                'name' => Loc::getMessage("ANZ_APPOINTMENT_TABLE_DAYS_LEFT"),
                 'type' => 'number',
             ],
             'CLINIC_TITLE'   => [
-                'name' => Loc::getMessage("FIRSTBIT_APPOINTMENT_TABLE_CLINIC_TITLE"),
+                'name' => Loc::getMessage("ANZ_APPOINTMENT_TABLE_CLINIC_TITLE"),
                 'type' => 'string',
             ],
             'SPECIALTY'      => [
-                'name' => Loc::getMessage("FIRSTBIT_APPOINTMENT_TABLE_SPECIALTY"),
+                'name' => Loc::getMessage("ANZ_APPOINTMENT_TABLE_SPECIALTY"),
                 'type' => 'string',
             ],
             'DOCTOR_NAME'    => [
-                'name' => Loc::getMessage("FIRSTBIT_APPOINTMENT_TABLE_DOCTOR_NAME"),
+                'name' => Loc::getMessage("ANZ_APPOINTMENT_TABLE_DOCTOR_NAME"),
                 'type' => 'string',
             ],
             'SERVICE_TITLE'  => [
-                'name' => Loc::getMessage("FIRSTBIT_APPOINTMENT_TABLE_SERVICE_TITLE"),
+                'name' => Loc::getMessage("ANZ_APPOINTMENT_TABLE_SERVICE_TITLE"),
                 'type' => 'string',
             ],
             'PATIENT_NAME'   => [
-                'name' => Loc::getMessage("FIRSTBIT_APPOINTMENT_TABLE_PATIENT_NAME"),
+                'name' => Loc::getMessage("ANZ_APPOINTMENT_TABLE_PATIENT_NAME"),
                 'type' => 'string',
             ],
             'PATIENT_PHONE'  => [
-                'name' => Loc::getMessage("FIRSTBIT_APPOINTMENT_TABLE_PATIENT_PHONE"),
+                'name' => Loc::getMessage("ANZ_APPOINTMENT_TABLE_PATIENT_PHONE"),
                 'type' => 'string',
             ],
             'PATIENT_EMAIL'  => [
-                'name' => Loc::getMessage("FIRSTBIT_APPOINTMENT_TABLE_PATIENT_EMAIL"),
+                'name' => Loc::getMessage("ANZ_APPOINTMENT_TABLE_PATIENT_EMAIL"),
                 'type' => 'string',
             ],
             'COMMENT'        => [
-                'name' => Loc::getMessage("FIRSTBIT_APPOINTMENT_TABLE_COMMENT"),
+                'name' => Loc::getMessage("ANZ_APPOINTMENT_TABLE_COMMENT"),
                 'type' => 'string',
             ],
             'STATUS_1C'      => [
-                'name' => Loc::getMessage("FIRSTBIT_APPOINTMENT_TABLE_STATUS_1C"),
+                'name' => Loc::getMessage("ANZ_APPOINTMENT_TABLE_STATUS_1C"),
                 'type' => 'string',
             ],
             'USER_ID'        => [
-                'name' => Loc::getMessage("FIRSTBIT_APPOINTMENT_TABLE_USER_ID"),
+                'name' => Loc::getMessage("ANZ_APPOINTMENT_TABLE_USER_ID"),
                 'type' => 'number',
             ],
         ];

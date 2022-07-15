@@ -9,22 +9,22 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Services\OneC;
+namespace ANZ\Appointment\Services\OneC;
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Bitrix\Main\Error;
 use Exception;
-use FirstBit\Appointment\Config\Constants;
-use FirstBit\Appointment\Services\Operation\OrmOperation;
-use FirstBit\Appointment\Tools\Utils;
+use ANZ\Appointment\Config\Constants;
+use ANZ\Appointment\Services\Operation\OrmOperation;
+use ANZ\Appointment\Tools\Utils;
 use SoapVar;
 
 Loc::loadMessages(__FILE__);
 
 /**
  * Class Writer
- * @package FirstBit\Appointment\Services\OneC
+ * @package ANZ\Appointment\Services\OneC
  */
 class Writer extends BaseService
 {
@@ -76,7 +76,7 @@ class Writer extends BaseService
             $xml_id = $this->getReserveUid($paramsToReserve);
 
             if (!strlen($xml_id) > 0){
-                throw new Exception(Loc::getMessage("FIRSTBIT_APPOINTMENT_RESERVE_ERROR"));
+                throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_RESERVE_ERROR"));
             }
 
             $paramsToSend = [
@@ -146,7 +146,7 @@ class Writer extends BaseService
                 'Email'             => $params['email'] ?? '',
                 'Address'           => $params['address'] ?? '',
                 'Clinic'            => $params['clinicUid'],
-                'Comment'           => Loc::getMessage('FIRSTBIT_APPOINTMENT_WAITING_LIST_COMMENT', [
+                'Comment'           => Loc::getMessage('ANZ_APPOINTMENT_WAITING_LIST_COMMENT', [
                     '#FULL_NAME#' => $params['name'] ." ". $params['middleName'] ." ". $params['surname'],
                     '#PHONE#'     => Utils::formatPhone($params['phone']),
                     '#DATE#'      => date("d.m.Y", strtotime($params['orderDate'])),

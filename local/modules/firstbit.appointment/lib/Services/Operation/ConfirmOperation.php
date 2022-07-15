@@ -9,7 +9,7 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Services\Operation;
+namespace ANZ\Appointment\Services\Operation;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
@@ -17,12 +17,12 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Exception;
-use FirstBit\Appointment\Config\Constants;
-use FirstBit\Appointment\Services\Container;
+use ANZ\Appointment\Config\Constants;
+use ANZ\Appointment\Services\Container;
 
 /**
  * Class ConfirmOperation
- * @package FirstBit\Appointment\Services\Operation
+ * @package ANZ\Appointment\Services\Operation
  */
 class ConfirmOperation
 {
@@ -48,7 +48,7 @@ class ConfirmOperation
             {
                 $timeExpires = (int)$session->get('confirm_code_expires');
                 if ($timeExpires > time()){
-                    $result->addError(new Error(Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_CODE_NOT_EXPIRED"), 425));
+                    $result->addError(new Error(Loc::getMessage("ANZ_APPOINTMENT_CONFIRM_CODE_NOT_EXPIRED"), 425));
                     return $result;
                 }
             }
@@ -62,7 +62,7 @@ class ConfirmOperation
                     break;
                 case Constants::CONFIRM_TYPE_NONE:
                 default:
-                    $result->addError(new Error(Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_TYPE_ERROR"), 400));
+                    $result->addError(new Error(Loc::getMessage("ANZ_APPOINTMENT_CONFIRM_TYPE_ERROR"), 400));
                     break;
             }
 
@@ -93,7 +93,7 @@ class ConfirmOperation
         {
             $timeExpires = (int)$session->get('confirm_code_expires');
             if ($timeExpires < time()){
-                $result->addError(new Error(Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_CODE_EXPIRED"), 406));
+                $result->addError(new Error(Loc::getMessage("ANZ_APPOINTMENT_CONFIRM_CODE_EXPIRED"), 406));
             }
             else
             {
@@ -103,13 +103,13 @@ class ConfirmOperation
                 }
                 else
                 {
-                    $result->addError(new Error(Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_CODE_INCORRECT"), 406));
+                    $result->addError(new Error(Loc::getMessage("ANZ_APPOINTMENT_CONFIRM_CODE_INCORRECT"), 406));
                 }
             }
         }
         else
         {
-            $result->addError(new Error(Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_CODE_EXPIRED"), 406));
+            $result->addError(new Error(Loc::getMessage("ANZ_APPOINTMENT_CONFIRM_CODE_EXPIRED"), 406));
         }
         return $result;
     }

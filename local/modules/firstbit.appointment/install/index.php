@@ -17,12 +17,12 @@ use Bitrix\Main\IO\Directory as Dir;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
-use FirstBit\Appointment\Services\Container;
-use FirstBit\Appointment\Event\EventManager as FirstBitEventManager;
+use ANZ\Appointment\Services\Container;
+use ANZ\Appointment\Event\EventManager as ANZEventManager;
 
 Loc::loadMessages(__FILE__);
 
-class firstbit_appointment extends CModule
+class anz_appointment extends CModule
 {
     private CMain $App;
     private ?string $docRoot;
@@ -32,7 +32,7 @@ class firstbit_appointment extends CModule
     public function __construct(){
         $this->App = $GLOBALS['APPLICATION'];
         $this->docRoot = Application::getDocumentRoot();
-        $this->partnerId = 'firstbit';
+        $this->partnerId = 'anz';
         $this->moduleNameShort = 'appointment';
 
         $arModuleVersion = [];
@@ -41,10 +41,10 @@ class firstbit_appointment extends CModule
         $this->MODULE_ID            = $this->partnerId.".".$this->moduleNameShort;
         $this->MODULE_VERSION       = $arModuleVersion["VERSION"];
         $this->MODULE_VERSION_DATE  = $arModuleVersion["VERSION_DATE"];
-        $this->MODULE_NAME          = Loc::getMessage("FIRSTBIT_APPOINTMENT_MODULE_NAME");
-        $this->MODULE_DESCRIPTION   = Loc::getMessage("FIRSTBIT_APPOINTMENT_MODULE_DESCRIPTION");
-        $this->PARTNER_NAME         = Loc::getMessage("FIRSTBIT_APPOINTMENT_PARTNER_NAME");
-        $this->PARTNER_URI          = Loc::getMessage("FIRSTBIT_APPOINTMENT_PARTNER_URI");
+        $this->MODULE_NAME          = Loc::getMessage("ANZANZANZANZANZANZANZANZANZANZANZANZANZANZANZ_APPOINTMENT_MODULE_NAME");
+        $this->MODULE_DESCRIPTION   = Loc::getMessage("ANZANZANZANZANZANZANZANZANZANZANZANZANZANZANZ_APPOINTMENT_MODULE_DESCRIPTION");
+        $this->PARTNER_NAME         = Loc::getMessage("ANZANZANZANZANZANZANZANZANZANZANZANZANZANZANZ_APPOINTMENT_PARTNER_NAME");
+        $this->PARTNER_URI          = Loc::getMessage("ANZ_APPOINTMENT_PARTNER_URI");
         $this->MODULE_SORT          = 100;
         $this->MODULE_GROUP_RIGHTS  = "Y";
         $this->SHOW_SUPER_ADMIN_GROUP_RIGHTS = "Y";
@@ -64,7 +64,7 @@ class firstbit_appointment extends CModule
             $this->InstallFiles();
 
             $this->App->IncludeAdminFile(
-                Loc::getMessage("FIRSTBIT_APPOINTMENT_INSTALL_TITLE"),
+                Loc::getMessage("ANZ_APPOINTMENT_INSTALL_TITLE"),
                 __DIR__."/step.php"
             );
         }
@@ -82,7 +82,7 @@ class firstbit_appointment extends CModule
             if ($request->get('step') < 2)
             {
                 $this->App->IncludeAdminFile(
-                    Loc::getMessage("FIRSTBIT_APPOINTMENT_UNINSTALL_TITLE"),
+                    Loc::getMessage("ANZ_APPOINTMENT_UNINSTALL_TITLE"),
                     __DIR__."/unStep_1.php"
                 );
             }
@@ -99,7 +99,7 @@ class firstbit_appointment extends CModule
                 ModuleManager::unRegisterModule($this->MODULE_ID);
 
                 $this->App->IncludeAdminFile(
-                    Loc::getMessage("FIRSTBIT_APPOINTMENT_UNINSTALL_TITLE"),
+                    Loc::getMessage("ANZ_APPOINTMENT_UNINSTALL_TITLE"),
                     __DIR__."/unStep_2.php"
                 );
             }
@@ -127,7 +127,7 @@ class firstbit_appointment extends CModule
             }
         }
         catch (Exception $e){
-            throw new Exception(Loc::getMessage("FIRSTBIT_APPOINTMENT_INSTALL_ERROR")." - ". $e->getMessage());
+            throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_INSTALL_ERROR")." - ". $e->getMessage());
         }
     }
 
@@ -148,7 +148,7 @@ class firstbit_appointment extends CModule
             }
         }
         catch(Exception $e){
-            throw new Exception(Loc::getMessage("FIRSTBIT_APPOINTMENT_UNINSTALL_ERROR")." - ". $e->getMessage());
+            throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_UNINSTALL_ERROR")." - ". $e->getMessage());
         }
     }
 
@@ -157,8 +157,8 @@ class firstbit_appointment extends CModule
      */
     public function InstallEvents()
     {
-        FirstBitEventManager::createMessageEvents();
-        FirstBitEventManager::addEventHandlers();
+        ANZEventManager::createMessageEvents();
+        ANZEventManager::addEventHandlers();
     }
 
     /**
@@ -166,8 +166,8 @@ class firstbit_appointment extends CModule
      */
     public function UnInstallEvents()
     {
-        FirstBitEventManager::deleteMessageEvents();
-        FirstBitEventManager::removeEventHandlers();
+        ANZEventManager::deleteMessageEvents();
+        ANZEventManager::removeEventHandlers();
     }
 
     public function InstallFiles()
@@ -215,9 +215,9 @@ class firstbit_appointment extends CModule
         return [
             "reference_id" => array("D","R","W"),
             "reference" => array(
-                "[D] ".Loc::getMessage("FIRSTBIT_APPOINTMENT_DENIED"),
-                "[R] ".Loc::getMessage("FIRSTBIT_APPOINTMENT_READ_COMPONENT"),
-                "[W] ".Loc::getMessage("FIRSTBIT_APPOINTMENT_FULL"))
+                "[D] ".Loc::getMessage("ANZ_APPOINTMENT_DENIED"),
+                "[R] ".Loc::getMessage("ANZ_APPOINTMENT_READ_COMPONENT"),
+                "[W] ".Loc::getMessage("ANZ_APPOINTMENT_FULL"))
         ];
     }
 
@@ -231,7 +231,7 @@ class firstbit_appointment extends CModule
         if (!CheckVersion(PHP_VERSION, $requirePhp))
         {
             throw new Exception(Loc::getMessage(
-                'FIRSTBIT_APPOINTMENT_INSTALL_REQUIRE_PHP',
+                'ANZ_APPOINTMENT_INSTALL_REQUIRE_PHP',
                 [ '#VERSION#' => $requirePhp ]
             ));
         }
@@ -246,7 +246,7 @@ class firstbit_appointment extends CModule
 
             if (!CheckVersion($currentVersion, $moduleVersion))
             {
-                throw new Exception(Loc::getMessage('FIRSTBIT_APPOINTMENT_INSTALL_ERROR_VERSION', [
+                throw new Exception(Loc::getMessage('ANZ_APPOINTMENT_INSTALL_ERROR_VERSION', [
                     '#MODULE#' => $moduleName,
                     '#VERSION#' => $moduleVersion
                 ]));

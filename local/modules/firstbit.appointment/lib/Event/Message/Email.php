@@ -9,18 +9,18 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Event\Message;
+namespace ANZ\Appointment\Event\Message;
 
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Mail\Internal\EventTypeTable;
 use CEventMessage;
 use CEventType;
-use FirstBit\Appointment\Config\Constants;
+use ANZ\Appointment\Config\Constants;
 
 /**
  * Class Email
- * @package FirstBit\Appointment\Event\Message
+ * @package ANZ\Appointment\Event\Message
  */
 class Email
 {
@@ -33,10 +33,10 @@ class Email
         $arFields = [
             "EVENT_TYPE"    => EventTypeTable::TYPE_EMAIL,
             "EVENT_NAME"    => Constants::EMAIL_NOTE_EVENT_CODE,
-            "NAME"          => Loc::getMessage("FIRSTBIT_APPOINTMENT_EMAIL_NOTE_NAME"),
+            "NAME"          => Loc::getMessage("ANZ_APPOINTMENT_EMAIL_NOTE_NAME"),
             "LID"           => 'ru',
-            "DESCRIPTION"   =>  "#TEXT# - " . Loc::getMessage("FIRSTBIT_APPOINTMENT_NOTE_DESC_TEXT") . "\n" .
-                "#EMAIL_TO# - " . Loc::getMessage("FIRSTBIT_APPOINTMENT_NOTE_DESC_EMAIL_TO")
+            "DESCRIPTION"   =>  "#TEXT# - " . Loc::getMessage("ANZ_APPOINTMENT_NOTE_DESC_TEXT") . "\n" .
+                "#EMAIL_TO# - " . Loc::getMessage("ANZ_APPOINTMENT_NOTE_DESC_EMAIL_TO")
         ];
         $result = EventTypeTable::add($arFields);
         return $result->getId();
@@ -51,9 +51,9 @@ class Email
         $arFields = [
             "EVENT_TYPE"    => EventTypeTable::TYPE_EMAIL,
             "EVENT_NAME"    => Constants::EMAIL_CONFIRM_EVENT_CODE,
-            "NAME"          => Loc::getMessage("FIRSTBIT_APPOINTMENT_EMAIL_CONFIRM_NAME"),
+            "NAME"          => Loc::getMessage("ANZANZANZANZ_APPOINTMENT_EMAIL_CONFIRM_NAME"),
             "LID"           => 'ru',
-            "DESCRIPTION"   => "#CODE# - " . Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_DESC_CODE")
+            "DESCRIPTION"   => "#CODE# - " . Loc::getMessage("ANZ_APPOINTMENT_CONFIRM_DESC_CODE")
         ];
         $result = EventTypeTable::add($arFields);
         return $result->getId();
@@ -73,7 +73,7 @@ class Email
             "EMAIL_FROM" => '#DEFAULT_EMAIL_FROM#',
             "EMAIL_TO"   => "#EMAIL_TO#",
             "BCC"        => "",
-            "SUBJECT"    => Loc::getMessage("FIRSTBIT_APPOINTMENT_EMAIL_NOTE_NAME"),
+            "SUBJECT"    => Loc::getMessage("ANZ_APPOINTMENT_EMAIL_NOTE_NAME"),
             "BODY_TYPE"  => "text",
             "MESSAGE"    => "#TEXT#",
         ];
@@ -96,9 +96,9 @@ class Email
             "EMAIL_FROM" => '#DEFAULT_EMAIL_FROM#',
             "EMAIL_TO"   => "#EMAIL_TO#",
             "BCC"        => "",
-            "SUBJECT"    => Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_DESC_CODE"),
+            "SUBJECT"    => Loc::getMessage("ANZ_APPOINTMENT_CONFIRM_DESC_CODE"),
             "BODY_TYPE"  => "text",
-            "MESSAGE"    => Loc::getMessage("FIRSTBIT_APPOINTMENT_CONFIRM_DESC_CODE") . " - #CODE#",
+            "MESSAGE"    => Loc::getMessage("ANZ_APPOINTMENT_CONFIRM_DESC_CODE") . " - #CODE#",
         ];
         $obTemplate = new CEventMessage;
         $id = $obTemplate->Add($params);

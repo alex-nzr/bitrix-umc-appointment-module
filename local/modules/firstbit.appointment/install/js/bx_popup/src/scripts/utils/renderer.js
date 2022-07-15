@@ -1,3 +1,13 @@
+/**
+ * ==================================================
+ * Developer: Alexey Nazarov
+ * E-mail: jc1988x@gmail.com
+ * Copyright (c) 2019 - 2022
+ * ==================================================
+ * "Bit.Umc - Bitrix integration" - renderer.js
+ * 10.07.2022 22:37
+ * ==================================================
+ */
 import styles from "../../styles/app.scss";
 
 export class Renderer
@@ -65,10 +75,10 @@ export class Renderer
     }
 
     getFormFirstBlock(){
-        const doctorBtn = this.getFormBtn(BX.message("FIRSTBIT_JS_FORM_BTN_DOCTOR_FIRST"), () => {
+        const doctorBtn = this.getFormBtn(BX.message("ANZ_JS_FORM_BTN_DOCTOR_FIRST"), () => {
             this.application.setSelectionDoctorBeforeService(true);
         });
-        const serviceBtn = this.getFormBtn(BX.message("FIRSTBIT_JS_FORM_BTN_SERVICE_FIRST"), () => {
+        const serviceBtn = this.getFormBtn(BX.message("ANZ_JS_FORM_BTN_SERVICE_FIRST"), () => {
             this.application.setSelectionDoctorBeforeService(false);
         });
 
@@ -92,10 +102,10 @@ export class Renderer
     }
 
     getFormSecondBlock(){
-        const btnPrev = this.getFormBtn(BX.message('FIRSTBIT_JS_FORM_BTN_PREV'), () => {
+        const btnPrev = this.getFormBtn(BX.message('ANZ_JS_FORM_BTN_PREV'), () => {
             this.application.changeFormStep(this.application.formStepNodes.one, true);
         }, false, true);
-        const btnNext = this.getFormBtn(BX.message('FIRSTBIT_JS_FORM_BTN_NEXT'), () => {
+        const btnNext = this.getFormBtn(BX.message('ANZ_JS_FORM_BTN_NEXT'), () => {
             this.application.changeFormStep(this.application.formStepNodes.userData);
         });
         return BX.create('div', {
@@ -154,7 +164,7 @@ export class Renderer
             dataset: {
                 "readonly": "Y"
             },
-            text: BX.message('FIRSTBIT_JS_FORM_BTN_TEXT')
+            text: BX.message('ANZ_JS_FORM_BTN_TEXT')
         });
     }
 
@@ -182,14 +192,14 @@ export class Renderer
             },
             children: [
                 BX.create('span', {
-                    text: `${BX.message('FIRSTBIT_JS_FORM_CONFIRM_INFO_TEXT')} `
+                    text: `${BX.message('ANZ_JS_FORM_CONFIRM_INFO_TEXT')} `
                 }),
                 BX.create('a', {
                     attrs: {
                         href: this.application.initParams['privacyPageLink'],
                         target: '_blank'
                     },
-                    text: BX.message('FIRSTBIT_JS_FORM_CONFIRM_INFO_LINK')
+                    text: BX.message('ANZ_JS_FORM_CONFIRM_INFO_LINK')
                 }),
             ]
         });
@@ -328,7 +338,7 @@ export class Renderer
                     },
                     children: [
                         BX.create('span', {
-                            text: BX.message('FIRSTBIT_JS_START_BTN_TEXT')
+                            text: BX.message('ANZ_JS_START_BTN_TEXT')
                         })
                     ]
                 })
@@ -375,7 +385,7 @@ export class Renderer
 
         if (listNode.children.length === 0){
             BX.append(
-                this.createEmptySelectionNode(BX.message(`FIRSTBIT_JS_${dataKey.toUpperCase()}_NOT_FOUND_ERROR`)),
+                this.createEmptySelectionNode(BX.message(`ANZ_JS_${dataKey.toUpperCase()}_NOT_FOUND_ERROR`)),
                 listNode
             );
         }
@@ -503,8 +513,8 @@ export class Renderer
         });
 
         const placeholder = (this.application.useConfirmWith === this.application.confirmTypes.email)
-                               ? BX.message("FIRSTBIT_JS_CONFIRM_CODE_EMAIL_MESSAGE")
-                               : BX.message("FIRSTBIT_JS_CONFIRM_CODE_SMS_MESSAGE");
+                               ? BX.message("ANZ_JS_CONFIRM_CODE_EMAIL_MESSAGE")
+                               : BX.message("ANZ_JS_CONFIRM_CODE_SMS_MESSAGE");
         const confirmInputNode = BX.create('input', {
             attrs: {
                 type: 'number',
@@ -532,7 +542,7 @@ export class Renderer
                         className: styles['appointment-form-button'],
                         type: 'button'
                     },
-                    text: BX.message("FIRSTBIT_JS_SEND_BTN_TEXT"),
+                    text: BX.message("ANZ_JS_SEND_BTN_TEXT"),
                     events: {
                         click: (e) => this.application.verifyConfirmCode(confirmInputNode.value, confirmWarningNode, e.target)
                     },

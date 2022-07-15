@@ -15,7 +15,7 @@ import "color_picker";
 
 export const Admin = {
     ajaxUrl: '/bitrix/services/main/ajax.php',
-    controller: 'firstbit:appointment.oneCController',
+    controller: 'anz:appointment.oneCController',
     requestParams: {
         method: 'POST',
         body: '',

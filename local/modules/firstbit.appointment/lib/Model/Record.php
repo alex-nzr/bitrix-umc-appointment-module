@@ -9,11 +9,11 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Model;
+namespace ANZ\Appointment\Model;
 
 /**
  * Class Record
- * @package FirstBit\Appointment\Model
+ * @package ANZ\Appointment\Model
  */
 class Record extends EO_Record
 {

@@ -1,5 +1,5 @@
 <?php
-$MESS["FIRSTBIT_APPOINTMENT_MESSAGE_NOTE"] = "
+$MESS["ANZ_APPOINTMENT_MESSAGE_NOTE"] = "
 Вы успешно записались на приём
 Клиника: #CLINIC#
 Специализация: #SPECIALTY#

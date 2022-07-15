@@ -9,7 +9,7 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace FirstBit\Appointment\Controllers;
+namespace ANZ\Appointment\Controllers;
 
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\ActionFilter\Authentication;
@@ -17,13 +17,13 @@ use Bitrix\Main\Engine\ActionFilter\Csrf;
 use Bitrix\Main\Engine\ActionFilter\HttpMethod;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Result;
-use FirstBit\Appointment\Services\Container;
-use FirstBit\Appointment\Services\OneC\Reader;
-use FirstBit\Appointment\Services\Operation\AppointmentOperation;
+use ANZ\Appointment\Services\Container;
+use ANZ\Appointment\Services\OneC\Reader;
+use ANZ\Appointment\Services\Operation\AppointmentOperation;
 
 /**
  * Class OneCController
- * @package FirstBit\Appointment\Controllers
+ * @package ANZ\Appointment\Controllers
  */
 class OneCController extends Controller
 {
