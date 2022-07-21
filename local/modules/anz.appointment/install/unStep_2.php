@@ -10,12 +10,14 @@
  * ==================================================
  */
 global $APPLICATION;
+
+use Bitrix\Main\Context;
 use Bitrix\Main\Localization\Loc;
 
 if (!check_bitrix_sessid()) {
     return;
 }
-
+$request = Context::getCurrent()->getRequest();
 if ($ex = $APPLICATION->GetException())
 {
     CAdminMessage::ShowMessage(array(
@@ -30,7 +32,7 @@ else
     CAdminMessage::ShowNote(Loc::getMessage("ANZ_APPOINTMENT_UNINSTALL_OK"));
 }
 ?>
-<form action="<?=$APPLICATION->GetCurPage();?>">
+<form action="<?=$request->getRequestedPage();?>">
 	<input type="hidden" name="lang" value="<?=LANGUAGE_ID?>">
 	<input type="submit" name="" value="<?=Loc::getMessage("MOD_BACK"); ?>">
 <form>

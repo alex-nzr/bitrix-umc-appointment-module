@@ -13,7 +13,9 @@ namespace ANZ\Appointment\Event\Handlers;
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
+use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\UI\Extension;
+use CUser;
 use Exception;
 use ANZ\Appointment\Config\Constants;
 
@@ -27,14 +29,20 @@ class Page
 
     public static function addJsExt()
     {
-        if (!Context::getCurrent()->getRequest()->isAdminSection())
+        global $APPLICATION;
+        $currentUserGroups = (new CUser())->GetUserGroupArray();
+
+        if ( !($APPLICATION->GetGroupRight(Constants::APPOINTMENT_MODULE_ID, $currentUserGroups) < "R") )
         {
-            $optionKey = 'appointment_settings_use_auto_injecting';
-            if (Option::get(Constants::APPOINTMENT_MODULE_ID, $optionKey) === "Y")
+            if (!Context::getCurrent()->getRequest()->isAdminSection())
             {
-                try {
-                    Extension::load([self::$extensionId]);
-                }catch (Exception $e){}
+                $optionKey = 'appointment_settings_use_auto_injecting';
+                if (Option::get(Constants::APPOINTMENT_MODULE_ID, $optionKey) === "Y")
+                {
+                    try {
+                        Extension::load([self::$extensionId]);
+                    }catch (Exception $e){}
+                }
             }
         }
     }

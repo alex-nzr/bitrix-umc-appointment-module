@@ -28,7 +28,7 @@ BX.ajax.runComponentAction('anz:appointment.add', 'getResult', {
     if (e.errors && BX.type.isArray(e.errors))
         {
             let errorText = '';
-            response.errors.forEach(error => {
+            e.errors.forEach(error => {
                 errorText = `${errorText} ${error.code} - ${error.message};`;
             })
             console.log(errorText)

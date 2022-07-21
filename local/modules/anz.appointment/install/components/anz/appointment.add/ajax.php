@@ -14,9 +14,12 @@ namespace ANZ\Appointment\Component;
 use Bitrix\Main\Engine\ActionFilter\Csrf;
 use Bitrix\Main\Engine\ActionFilter\HttpMethod;
 use Bitrix\Main\Engine\Controller;
+use Bitrix\Main\Localization\Loc;
 use CBitrixComponent;
 use CFile;
 use ANZ\Appointment\Config\Constants;
+
+Loc::loadMessages(__FILE__);
 
 /**
  * Class AppFormAjaxController
@@ -70,7 +73,7 @@ class AppFormAjaxController extends Controller
             "textBlocks" => [
                 [
                     "type"          => "text",
-                    "placeholder"   => "Имя *",
+                    "placeholder"   => Loc::getMessage('ANZ_APPOINTMENT_ADD_AJAX_NAME'),
                     "id"            => "appointment-form-name",
                     "maxlength"     => "30",
                     "class"         => "appointment-form_input",
@@ -79,7 +82,7 @@ class AppFormAjaxController extends Controller
                 ],
                 [
                     "type"          => "text",
-                    "placeholder"   => "Отчество *",
+                    "placeholder"   => Loc::getMessage('ANZ_APPOINTMENT_ADD_AJAX_MIDDLE_NAME'),
                     "id"            => "appointment-form-middleName",
                     "maxlength"     => "30",
                     "class"         => "appointment-form_input",
@@ -88,7 +91,7 @@ class AppFormAjaxController extends Controller
                 ],
                 [
                     "type"          => "text",
-                    "placeholder"   => "Фамилия *",
+                    "placeholder"   => Loc::getMessage('ANZ_APPOINTMENT_ADD_AJAX_LAST_NAME'),
                     "id"            => "appointment-form-surname",
                     "maxlength"     => "30",
                     "class"         => "appointment-form_input",
@@ -97,7 +100,7 @@ class AppFormAjaxController extends Controller
                 ],
                 [
                     "type"          => "tel",
-                    "placeholder"   => "Телефон *",
+                    "placeholder"   => Loc::getMessage('ANZ_APPOINTMENT_ADD_AJAX_PHONE'),
                     "id"            => "appointment-form-phone",
                     "maxlength"     => "30",
                     "class"         => "appointment-form_input",
@@ -117,7 +120,7 @@ class AppFormAjaxController extends Controller
                 ],
                 [
                     "type"          => "text",
-                    "placeholder"   => "День рождения",
+                    "placeholder"   => Loc::getMessage('ANZ_APPOINTMENT_ADD_AJAX_BIRTHDAY'),
                     "id"            => "appointment-form-birthday",
                     "maxlength"     => "10",
                     "class"         => "appointment-form_input",
@@ -126,7 +129,7 @@ class AppFormAjaxController extends Controller
                     "data-required" => "false",
                 ],
                 [
-                    "placeholder"   => "Комментарий",
+                    "placeholder"   => Loc::getMessage('ANZ_APPOINTMENT_ADD_AJAX_COMMENT'),
                     "id"            => "appointment-form-comment",
                     "maxlength"     => "300",
                     "class"         => "appointment-form_textarea",

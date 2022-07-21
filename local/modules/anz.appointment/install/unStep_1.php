@@ -9,19 +9,18 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-global $APPLICATION;
-
 use ANZ\Appointment\Config\Constants;
+use Bitrix\Main\Context;
 use Bitrix\Main\Localization\Loc;
-
-Loc::loadMessages(__FILE__);
 
 if (!check_bitrix_sessid()) {
     return;
 }
 
+$request = Context::getCurrent()->getRequest();
+
 ?>
-<form action="<?=$APPLICATION->GetCurPage();?>">
+<form action="<?=$request->getRequestedPage();?>">
 	<input type="hidden" name="lang" value="<?=LANGUAGE_ID?>">
     <input type="hidden" name="id" value="<?= Constants::APPOINTMENT_MODULE_ID?>">
     <input type="hidden" name="uninstall" value="Y">

@@ -24,6 +24,8 @@ Loc::loadMessages(__FILE__);
 
 class anz_appointment extends CModule
 {
+    public $MODULE_ID = 'anz.appointment';
+
     private CMain $App;
     private ?string $docRoot;
     private string $partnerId;
@@ -52,66 +54,93 @@ class anz_appointment extends CModule
 
     public function DoInstall(): bool
     {
+        $result = true;
         try
         {
             $this->checkRequirements();
-
             ModuleManager::registerModule($this->MODULE_ID);
-            Loader::includeModule($this->MODULE_ID);
 
-            $this->InstallDB();
-            $this->InstallEvents();
-            $this->InstallFiles();
-
-            $this->App->IncludeAdminFile(
-                Loc::getMessage("ANZ_APPOINTMENT_INSTALL_TITLE"),
-                __DIR__."/step.php"
-            );
-            return true;
-        }
-        catch (Exception $e)
-        {
-            $this->App->ThrowException($e->getMessage());
-            $this->DoUninstall();
-            return false;
-        }
-    }
-
-    public function DoUninstall(): bool
-    {
-        try {
-            Loader::includeModule($this->MODULE_ID);
-            $request = Context::getCurrent()->getRequest();
-
-            if ((int)$request->get('step') < 2)
+            /*if (Loader::includeSharewareModule($this->MODULE_ID) === Loader::MODULE_DEMO_EXPIRED)
             {
+                ModuleManager::unRegisterModule($this->MODULE_ID);
+                throw new Exception("Demo mode expired. Installation aborted.");
+            }*/
+
+            if (Loader::includeModule($this->MODULE_ID))
+            {
+                $this->InstallDB();
+                $this->InstallEvents();
+                $this->InstallFiles();
+
                 $this->App->IncludeAdminFile(
-                    Loc::getMessage("ANZ_APPOINTMENT_UNINSTALL_TITLE"),
-                    __DIR__."/unStep_1.php"
+                    Loc::getMessage("ANZ_APPOINTMENT_INSTALL_TITLE"),
+                    __DIR__."/step.php"
                 );
             }
             else
             {
-                $this->UnInstallFiles();
-                $this->UnInstallEvents();
-                if ($request->get('saveData') !== "Y"){
-                    $this->UnInstallDB();
-                }
-
-                ModuleManager::unRegisterModule($this->MODULE_ID);
-
-                $this->App->IncludeAdminFile(
-                    Loc::getMessage("ANZ_APPOINTMENT_UNINSTALL_TITLE"),
-                    __DIR__."/unStep_2.php"
-                );
+                throw new Exception(Loc::getMessage('ANZ_APPOINTMENT_INSTALL_ERROR') . " Module not registered");
             }
-            return true;
         }
         catch (Exception $e)
         {
+            $result = false;
             $this->App->ThrowException($e->getMessage());
-            return false;
         }
+
+        return $result;
+    }
+
+    public function DoUninstall(): bool
+    {
+        $result = true;
+        try {
+            /*if (Loader::includeSharewareModule($this->MODULE_ID) === Loader::MODULE_DEMO_EXPIRED)
+            {
+                $this->UnInstallFiles();
+                ModuleManager::unRegisterModule($this->MODULE_ID);
+                return true;
+            }*/
+
+            if (Loader::includeModule($this->MODULE_ID))
+            {
+                $request = Context::getCurrent()->getRequest();
+
+                if ((int)$request->get('step') < 2)
+                {
+                    $this->App->IncludeAdminFile(
+                        Loc::getMessage("ANZ_APPOINTMENT_UNINSTALL_TITLE"),
+                        __DIR__."/unStep_1.php"
+                    );
+                }
+                else
+                {
+                    $this->UnInstallFiles();
+                    $this->UnInstallEvents();
+                    if ($request->get('saveData') !== "Y"){
+                        $this->UnInstallDB();
+                    }
+
+                    ModuleManager::unRegisterModule($this->MODULE_ID);
+
+                    $this->App->IncludeAdminFile(
+                        Loc::getMessage("ANZ_APPOINTMENT_UNINSTALL_TITLE"),
+                        __DIR__."/unStep_2.php"
+                    );
+                }
+            }
+            else
+            {
+                throw new Exception(Loc::getMessage('ANZ_APPOINTMENT_UNINSTALL_ERROR') . " Module not registered");
+            }
+        }
+        catch (Exception $e)
+        {
+            $result = false;
+            $this->App->ThrowException($e->getMessage());
+        }
+
+        return $result;
     }
 
     /**
@@ -181,6 +210,7 @@ class anz_appointment extends CModule
         CopyDirFiles(__DIR__.'/js/', $this->docRoot.'/bitrix/js/'.$this->partnerId."/".$this->moduleNameShort, true, true);
         CopyDirFiles(__DIR__.'/css/', $this->docRoot.'/bitrix/css/'.$this->partnerId."/".$this->moduleNameShort, true, true);
         CopyDirFiles(__DIR__.'/admin/', $this->docRoot.'/bitrix/admin', true);
+        CopyDirFiles(__DIR__.'/wizards/', $this->docRoot.'/bitrix/wizards', true, true);
         CopyDirFiles(__DIR__.'/components/', $this->docRoot.'/bitrix/components', true, true);
     }
 
@@ -193,6 +223,9 @@ class anz_appointment extends CModule
         }
         if (Dir::isDirectoryExists($this->docRoot . '/bitrix/js/'.$this->partnerId."/".$this->moduleNameShort.'/')){
             Dir::deleteDirectory($this->docRoot . '/bitrix/js/'.$this->partnerId."/".$this->moduleNameShort.'/');
+        }
+        if (Dir::isDirectoryExists($this->docRoot . '/bitrix/wizards/'.$this->partnerId."/".$this->moduleNameShort.'/')){
+            Dir::deleteDirectory($this->docRoot . '/bitrix/wizards/'.$this->partnerId."/".$this->moduleNameShort.'/');
         }
 
         if (Dir::isDirectoryExists($path = $this->docRoot . '/bitrix/components/'.$this->partnerId.'/')) {
