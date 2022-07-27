@@ -31,7 +31,7 @@ class Reader extends BaseService
     {
         if (Constants::DEMO_MODE === "Y"){
             $res = new Result();
-            sleep(3);
+            sleep(1);
             try {
                 $res->setData($this->demoData['clinics']);
             }catch (Exception $e){
@@ -47,7 +47,7 @@ class Reader extends BaseService
     {
         if (Constants::DEMO_MODE === "Y"){
             $res = new Result();
-            sleep(3);
+            sleep(1);
             try {
                 $res->setData($this->demoData['employees']);
             }catch (Exception $e){
@@ -63,9 +63,9 @@ class Reader extends BaseService
     {
         if (Constants::DEMO_MODE === "Y"){
             $res = new Result();
-            sleep(3);
+            sleep(1);
             try {
-                $res->setData($this->demoData['nomenclature']);
+                $res->setData($this->demoData['services']);
             }catch (Exception $e){
                 $res->addError(new Error(Loc::getMessage("ANZ_APPOINTMENT_DEMO_MODE_ERROR") . $e->getMessage()));
             }
@@ -82,9 +82,9 @@ class Reader extends BaseService
     {
         if (Constants::DEMO_MODE === "Y"){
             $res = new Result();
-            sleep(3);
+            sleep(1);
             try {
-                $res->setData($this->demoData['schedule']);
+                $res->setData(['schedule' => $this->demoData['schedule']]);
             }catch (Exception $e){
                 $res->addError(new Error(Loc::getMessage("ANZ_APPOINTMENT_DEMO_MODE_ERROR") . $e->getMessage()));
             }

@@ -16,12 +16,21 @@ $arSettings["UPDATE_PATH"] = $_SERVER["DOCUMENT_ROOT"].'/'.$arSettings["U_PATH"]
 $arSettings["DIR_READ_NOFOLLOW"] = array(
     $arSettings["MODULE_PATH"].'admin/',
     $arSettings["MODULE_PATH"].'install/',
-    $arSettings["MODULE_PATH"].'lang/ru/',
-    $arSettings["MODULE_PATH"].'lib/',
+    $arSettings["MODULE_PATH"].'lang/ru/install/',
+    $arSettings["MODULE_PATH"].'lang/ru/admin/',
+    $arSettings["MODULE_PATH"].'lang/ru/lib/',
+    $arSettings["MODULE_PATH"].'lib/Config/',
+    $arSettings["MODULE_PATH"].'lib/Controllers/',
+    $arSettings["MODULE_PATH"].'lib/Event/',
+    $arSettings["MODULE_PATH"].'lib/Model/',
+    $arSettings["MODULE_PATH"].'lib/Services/',
+    $arSettings["MODULE_PATH"].'lib/Soap/',
+    $arSettings["MODULE_PATH"].'lib/Tools/',
 );
 
 $arSettings["DIR_NOFOLLOW"] = array(
-    //$arSettings["MODULE_PATH"].'install/js/',
+    $arSettings["MODULE_PATH"].'lang/ru/install/',
+    $arSettings["MODULE_PATH"].'lang/ru/admin/',
 );
 
 $arSettings["DIR_SKIP"] = array();

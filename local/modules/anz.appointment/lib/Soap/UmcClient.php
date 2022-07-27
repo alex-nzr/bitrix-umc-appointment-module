@@ -133,7 +133,7 @@ class UmcClient
                 $result = $parser->prepareStatusResultData($xml);
                 break;
             default:
-                $result->addError(new Error('Unknown endpoint. Can not determine way to process xml'));
+                $result->addError(new Error('Unknown endpoint - '.$endpoint.'. Can not determine way to process xml'));
                 break;
         }
         return $result;

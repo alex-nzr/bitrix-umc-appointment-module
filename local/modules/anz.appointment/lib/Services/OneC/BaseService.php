@@ -14,6 +14,7 @@ namespace ANZ\Appointment\Services\OneC;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
+use Bitrix\Main\Web\Json;
 use Exception;
 use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Soap\UmcClient;
@@ -30,16 +31,17 @@ abstract class BaseService
 
     public function __construct()
     {
-        $this->client = new UmcClient();
-
         if (Constants::DEMO_MODE === "Y"){
             try {
-                $this->demoData = json_decode(file_get_contents(Constants::PATH_TO_DEMO_DATA_FILE), true);
+                $this->demoData = Json::decode(file_get_contents(Constants::PATH_TO_DEMO_DATA_FILE));
             }catch (Exception $e){}
         }
+
+        $this->client = new UmcClient();
     }
 
-    /** send request to 1C database
+    /**
+     * send request to 1C database
      * @param string $endpoint
      * @param array $params
      * @return \Bitrix\Main\Result
