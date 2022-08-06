@@ -174,7 +174,7 @@ class XmlParser{
                     $employee['photo']        = $item[$photoKey];
                     $employee['description']  = $item[$descriptionKey];
                     $employee['specialty']    = $item[$specialtyKey];
-                    $employee['specialtyUid'] = base64_encode($item[$specialtyKey]);
+                    $employee['specialtyUid'] = !empty($item[$specialtyKey]) ? base64_encode($item[$specialtyKey]) : '';
                     $employee['services']     = [];
 
                     if (is_array($item[$servicesKey][$oneServiceKey]))
