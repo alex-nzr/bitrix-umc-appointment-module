@@ -18,6 +18,7 @@ use Bitrix\Main\Result;
 use Exception;
 use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Tools\Utils;
+use SoapVar;
 
 Loc::loadMessages(__FILE__);
 
@@ -78,7 +79,7 @@ class Reader extends BaseService
         return $this->send(Constants::NOMENCLATURE_ACTION_1C, $params);
     }
 
-    public function getSchedule(): Result
+    public function getSchedule(array $params = []): Result
     {
         if (Constants::DEMO_MODE === "Y"){
             $res = new Result();
@@ -91,7 +92,7 @@ class Reader extends BaseService
             return $res;
         }
 
-        $period = Utils::getDateInterval(
+        $soapParams = Utils::getDateInterval(
             Option::get(
                 Constants::APPOINTMENT_MODULE_ID,
                 "appointment_api_schedule_days",
@@ -99,7 +100,27 @@ class Reader extends BaseService
             )
         );
 
-        return $this->send(Constants::SCHEDULE_ACTION_1C, $period);
+        $properties = [];
+
+        if (!empty($params['clinicUid']))
+        {
+            $properties[] = new SoapVar(
+                '<ns2:Property name="Clinic"><ns2:Value>'.$params['clinicUid'].'</ns2:Value></ns2:Property>',
+                XSD_ANYXML
+            );
+        }
+
+        if (is_array($params['employees']) && !empty($params['employees']))
+        {
+            $properties[] = new SoapVar(
+                '<ns2:Property name="Employees"><ns2:Value>'.implode(';', $params['employees']).'</ns2:Value></ns2:Property>',
+                XSD_ANYXML
+            );
+        }
+
+        $soapParams['Params'] = $properties;
+
+        return $this->send(Constants::SCHEDULE_ACTION_1C, $soapParams);
     }
 
     /** get order status from 1C

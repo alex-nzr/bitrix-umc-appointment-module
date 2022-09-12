@@ -58,9 +58,14 @@ class Writer extends BaseService
                 XSD_ANYXML
             );
 
+            $properties[] = new SoapVar(
+                '<ns2:Property name="DurationType"><ns2:Value>ServiceDuration</ns2:Value></ns2:Property>',
+                XSD_ANYXML
+            );
+
             if (!empty($params['serviceUid'])){
                 $properties[] = new SoapVar(
-                    '<ns2:Property name="Service"><ns2:Value>'.$params['serviceUid'].'</ns2:Value></ns2:Property>',
+                    '<ns2:Property name="Services"><ns2:Value>'.$params['serviceUid'].'</ns2:Value></ns2:Property>',
                     XSD_ANYXML
                 );
             }

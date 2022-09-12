@@ -11,6 +11,7 @@
  */
 namespace ANZ\Appointment\Soap;
 
+use ANZ\Appointment\Tools\Debug;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
@@ -76,7 +77,15 @@ class UmcClient
 
             $response = $this->soapClient->__soapCall($endpoint, $soapParams);
 
-            try {
+            try
+            {
+                if ($response->return === 'Ok'){
+                    return $this->result;
+                }
+                elseif($response->return === 'Error'){
+                    throw new Exception('1c returned an unknown error to the request - ' . $endpoint);
+                }
+
                 $xml = new SimpleXMLElement($response->return);
             }
             catch(Exception $e){
