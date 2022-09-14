@@ -1,6 +1,6 @@
 <?php
-$MESS['ANZ_APPOINTMENT_MODULE_NAME']           = "Запись на приём в БИТ.УМЦ";
-$MESS['ANZ_APPOINTMENT_MODULE_DESCRIPTION']    = "Запись на приём в 1С БИТ.УМЦ с формы на сайте.";
+$MESS['ANZ_APPOINTMENT_MODULE_NAME']           = "Запись на приём в 1С БИТ.УМЦ";
+$MESS['ANZ_APPOINTMENT_MODULE_DESCRIPTION']    = "Решение создаёт на сайте форму, которая отправляет заявки в 1С БИТ.УМЦ";
 $MESS['ANZ_APPOINTMENT_PARTNER_NAME']          = "Alexey Nazarov";
 $MESS['ANZ_APPOINTMENT_PARTNER_URI']           = "https://alex-nz.ru";
 $MESS['ANZ_APPOINTMENT_INSTALL_CONTINUE_INFO'] = "Модуль успешно зарегистрирован.<br>Следующим шагом будут установлены таблицы БД, почтовые события и скопированы файлы";

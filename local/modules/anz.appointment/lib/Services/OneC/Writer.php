@@ -40,35 +40,7 @@ class Writer extends BaseService
                 return (new Result())->setData(['success' => true]);
             }
 
-            $properties = [];
-
-            if (!empty($params['birthday']))
-            {
-                $properties[] = new SoapVar(
-                    '<ns2:Property name="Birthday"><ns2:Value>'.$params['birthday'].'</ns2:Value></ns2:Property>',
-                    XSD_ANYXML
-                );
-            }
-
-            $duration = (int)$params["serviceDuration"] > 0
-                        ? Utils::calculateDurationFromSeconds((int)$params["serviceDuration"])
-                        : Utils::calculateDurationFromInterval($params['timeBegin'], $params['timeEnd']);
-            $properties[] = new SoapVar(
-                '<ns2:Property name="Duration"><ns2:Value>'.$duration.'</ns2:Value></ns2:Property>',
-                XSD_ANYXML
-            );
-
-            $properties[] = new SoapVar(
-                '<ns2:Property name="DurationType"><ns2:Value>ServiceDuration</ns2:Value></ns2:Property>',
-                XSD_ANYXML
-            );
-
-            if (!empty($params['serviceUid'])){
-                $properties[] = new SoapVar(
-                    '<ns2:Property name="Services"><ns2:Value>'.$params['serviceUid'].'</ns2:Value></ns2:Property>',
-                    XSD_ANYXML
-                );
-            }
+            $properties = $this->prepareCustomParams($params);
 
             $paramsToReserve = [
                 'Specialization' => $params['specialty'] ?? "",
@@ -174,5 +146,56 @@ class Writer extends BaseService
     public function deleteOrder(string $orderUid): Result
     {
         return $this->send(Constants::DELETE_ORDER_ACTION_1C, ['GUID' => $orderUid]);
+    }
+
+    /**
+     * @param array $params
+     * @return array
+     * @throws \Exception
+     */
+    private function prepareCustomParams(array $params): array
+    {
+        $properties = [];
+
+        if (!empty($params['birthday']))
+        {
+            $properties[] = new SoapVar(
+                '<ns2:Property name="Birthday"><ns2:Value>'.$params['birthday'].'</ns2:Value></ns2:Property>',
+                XSD_ANYXML
+            );
+        }
+
+        $duration = (int)$params["serviceDuration"] > 0
+            ? Utils::calculateDurationFromSeconds((int)$params["serviceDuration"])
+            : Utils::calculateDurationFromInterval($params['timeBegin'], $params['timeEnd']);
+        $properties[] = new SoapVar(
+            '<ns2:Property name="Duration"><ns2:Value>'.$duration.'</ns2:Value></ns2:Property>',
+            XSD_ANYXML
+        );
+
+        if (!empty($params['serviceUid']))
+        {
+            $properties[] = new SoapVar(
+                '<ns2:Property name="DurationType"><ns2:Value>ServiceDuration</ns2:Value></ns2:Property>',
+                XSD_ANYXML
+            );
+
+            $properties[] = new SoapVar(
+                '<ns2:Property name="Services"><ns2:Value>'.$params['serviceUid'].'</ns2:Value></ns2:Property>',
+                XSD_ANYXML
+            );
+        }
+
+        if (is_array($params['customParams']) && !empty($params['customParams']))
+        {
+            foreach ($params['customParams'] as $paramName => $paramValue) {
+                $properties[] = new SoapVar(
+                    '<ns2:Property name="'.$paramName.'"><ns2:Value>'.$paramValue.'</ns2:Value></ns2:Property>',
+                    XSD_ANYXML
+                );
+            }
+        }
+
+        return $properties;
     }
 }

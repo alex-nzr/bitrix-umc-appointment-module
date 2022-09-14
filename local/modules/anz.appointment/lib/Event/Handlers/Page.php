@@ -13,7 +13,6 @@ namespace ANZ\Appointment\Event\Handlers;
 
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
-use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\UI\Extension;
 use CUser;
 use Exception;
@@ -25,10 +24,10 @@ use ANZ\Appointment\Config\Constants;
  */
 class Page
 {
-    private static string $extensionId = Constants::APPOINTMENT_JS_EXTENSION;
-
     public static function addJsExt()
     {
+        $extensionId = defined('ANZ_APPOINTMENT_JS_EXTENSION') ? ANZ_APPOINTMENT_JS_EXTENSION : Constants::APPOINTMENT_JS_EXTENSION;
+
         global $APPLICATION;
         $currentUserGroups = (new CUser())->GetUserGroupArray();
 
@@ -40,7 +39,7 @@ class Page
                 if (Option::get(Constants::APPOINTMENT_MODULE_ID, $optionKey) === "Y")
                 {
                     try {
-                        Extension::load([self::$extensionId]);
+                        Extension::load([$extensionId]);
                     }catch (Exception $e){}
                 }
             }

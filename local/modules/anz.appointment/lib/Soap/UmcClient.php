@@ -11,7 +11,6 @@
  */
 namespace ANZ\Appointment\Soap;
 
-use ANZ\Appointment\Tools\Debug;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
