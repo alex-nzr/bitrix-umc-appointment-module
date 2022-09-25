@@ -36,6 +36,10 @@ class UmcClient
         
         try
         {
+            if (!class_exists('\SoapClient')) {
+                throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_SOAP_EXT_NOT_FOUND"));
+            }
+
             if ($options === null)
             {
                 $options = $this->getDefaultOptions();
@@ -45,16 +49,16 @@ class UmcClient
                 $options = array_merge($this->getDefaultOptions(), $options);
             }
 
-            if (!class_exists('\SoapClient')) {
-                throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_SOAP_EXT_NOT_FOUND"));
-            }
+            $url = trim(Option::get(Constants::APPOINTMENT_MODULE_ID, "appointment_api_ws_url"));
 
-            $url = Option::get(Constants::APPOINTMENT_MODULE_ID, "appointment_api_ws_url");
             if (empty($url)){
                 throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_SOAP_URL_ERROR"));
             }
 
+            $location = str_replace('?wsdl', '', $url);
+
             $this->soapClient = new SoapClient($url, $options);
+            $this->soapClient->__setLocation($location);
             $this->createdSuccessfully = true;
         }
         catch (Exception $e)
@@ -187,10 +191,12 @@ class UmcClient
                     ]
                 ]
             ),
-            'soap_version' => SOAP_1_2,
-            'trace' => 1,
+            'soap_version'       => SOAP_1_2,
+            'trace'              => 1,
             'connection_timeout' => 5000,
-            'keep_alive' => false,
+            'keep_alive'         => false,
+            'cache_wsdl'         => WSDL_CACHE_NONE,
+            'exceptions'         => true,
         ];
     }
 }
