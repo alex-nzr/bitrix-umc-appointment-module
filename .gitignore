@@ -26,5 +26,9 @@
 restore.php
 .htpassword
 /.idea/
+/img/
+/iupdate/
+/update_create/
+/docs/anz.appointment-docs.docx
 *.log
 *.txt
