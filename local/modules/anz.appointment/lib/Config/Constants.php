@@ -17,6 +17,8 @@ namespace ANZ\Appointment\Config;
  */
 class Constants
 {
+    const PATH_TO_LOGFILE            = __DIR__.'/../../log.txt';
+
     const APPOINTMENT_MODULE_ID      = 'anz.appointment';
     const APPOINTMENT_JS_EXTENSION   = "anz.appointment.bx_popup";
 

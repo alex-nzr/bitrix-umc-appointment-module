@@ -1,36 +1,36 @@
 <?php
 
-use ANZ\Appointment\Services\Container;
-use ANZ\Appointment\Services\Message\SmsService;
-use ANZ\Appointment\Services\Message\MailerService;
-use ANZ\Appointment\Services\OneC\Reader;
-use ANZ\Appointment\Services\OneC\Writer;
+use ANZ\Appointment\Service\Container;
+use ANZ\Appointment\Service\Message\Sms;
+use ANZ\Appointment\Service\Message\Mailer;
+use ANZ\Appointment\Service\OneC\Reader;
+use ANZ\Appointment\Service\OneC\Writer;
 
 return [
     'controllers' => [
         'value' => [
-            'defaultNamespace' => '\\ANZ\\Appointment\\Controllers',
+            'defaultNamespace' => '\\ANZ\\Appointment\\Controller',
         ],
         'readonly' => true,
     ],
     'services' => [
         'value' => [
-            'anz.appointment.services.container'  => [
+            'anz.appointment.service.container'  => [
                 'className' => Container::class,
             ],
-            'anz.appointment.services.oneC.reader' => [
+            'anz.appointment.service.oneC.reader' => [
                 'className' => Reader::class,
             ],
-            'anz.appointment.services.oneC.writer' => [
+            'anz.appointment.service.oneC.writer' => [
                 'className' => Writer::class,
             ],
-            'anz.appointment.services.message.mailerService' => [
+            'anz.appointment.service.message.mailerService' => [
                 'constructor' => static function () {
-                    return new MailerService();
+                    return new Mailer();
                 },
             ],
-            'anz.appointment.services.message.smsService' => [
-                'className' => SmsService::class,
+            'anz.appointment.service.message.smsService' => [
+                'className' => Sms::class,
                 'constructorParams' => static function (){
                     return [];
                 },

@@ -1,20 +1,16 @@
 <?php
 
-use Bitrix\Main\Diag\Debug;
-use Bitrix\Main\Loader;
-
-$moduleId = 'anz.appointment';
+use ANZ\Appointment\Internals\Control\ServiceManager;
+use ANZ\Appointment\Internals\Debug\Logger;
 
 try
 {
-    $arControllers = [
-        '\\ANZ\\Appointment\\Controllers\\OneCController'  => 'lib/Controllers/OneCController.php',
-        '\\ANZ\\Appointment\\Controllers\\MessageController' => 'lib/Controllers/MessageController.php',
-    ];
-    Loader::registerAutoLoadClasses($moduleId, $arControllers);
+    ServiceManager::getInstance()->includeModule();
 }
-catch(Exception $e)
+catch (Throwable $e)
 {
-    Debug::writeToFile(date('d.m.Y H:i:s') . " " . $e->getMessage(), 'Error in include.php');
+    Logger::printToFile(
+        date("d.m.Y H:i:s") . '. Error on module including - ' . $e->getMessage(),
+    );
 }
 ?>

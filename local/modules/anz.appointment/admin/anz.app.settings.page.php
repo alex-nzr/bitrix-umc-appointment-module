@@ -16,6 +16,7 @@
  * @global CMain $APPLICATION
  */
 
+use ANZ\Appointment\Internals\Control\ServiceManager;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 
@@ -23,7 +24,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 
 $APPLICATION->SetTitle(Loc::getMessage('ANZ_ADMIN_SETTINGS_PAGE_TITLE'));
 
-$moduleID = 'anz.appointment';
+$moduleID = ServiceManager::getModuleId();
 
 require_once ($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_admin_after.php");
 

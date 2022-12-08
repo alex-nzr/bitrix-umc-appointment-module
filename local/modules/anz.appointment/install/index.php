@@ -9,16 +9,17 @@
  * 10.07.2022 22:37
  * ==================================================
  */
+
+
+use ANZ\Appointment\Internals\Installation\Installer;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
-use Bitrix\Main\Entity\Base;
 use Bitrix\Main\IO\Directory as Dir;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
-use ANZ\Appointment\Services\Container;
-use ANZ\Appointment\Event\EventManager as ANZEventManager;
+use ANZ\Appointment\Internals\Control\EventManager as ANZEventManager;
 
 Loc::loadMessages(__FILE__);
 
@@ -148,19 +149,13 @@ class anz_appointment extends CModule
      */
     public function InstallDB()
     {
-        try {
-            Loader::includeModule($this->MODULE_ID);
-
-            $recordDataClass = Container::getInstance()->getRecordDataClass();
-            $connection = Application::getConnection();
-            $recordTableName = Base::getInstance($recordDataClass)->getDBTableName();
-            if(!$connection->isTableExists($recordTableName))
-            {
-                Base::getInstance($recordDataClass)->createDbTable();
-            }
-        }
-        catch (Exception $e){
-            throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_INSTALL_ERROR")." - ". $e->getMessage());
+        $res = Installer::installModule();
+        if (!$res->isSuccess())
+        {
+            throw new Exception(
+                Loc::getMessage("ANZ_APPOINTMENT_INSTALL_ERROR")
+                ." - ". implode('; ', $res->getErrorMessages())
+            );
         }
     }
 
@@ -169,22 +164,16 @@ class anz_appointment extends CModule
      */
     public function UnInstallDB(): void
     {
-        try {
-            Loader::includeModule($this->MODULE_ID);
-
-            $recordDataClass = Container::getInstance()->getRecordDataClass();
-            $connection = Application::getConnection();
-            $recordTableName = Base::getInstance($recordDataClass)->getDBTableName();
-            if($connection->isTableExists($recordTableName))
-            {
-                $connection->dropTable($recordTableName);
-            }
-
-            Option::delete($this->MODULE_ID);
+        $res = Installer::installModule();
+        if (!$res->isSuccess())
+        {
+            throw new Exception(
+                Loc::getMessage("ANZ_APPOINTMENT_UNINSTALL_ERROR")
+                ." - ". implode('; ', $res->getErrorMessages())
+            );
         }
-        catch(Exception $e){
-            throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_UNINSTALL_ERROR")." - ". $e->getMessage());
-        }
+
+        Option::delete($this->MODULE_ID);
     }
 
     /**
@@ -192,8 +181,7 @@ class anz_appointment extends CModule
      */
     public function InstallEvents()
     {
-        ANZEventManager::createMessageEvents();
-        ANZEventManager::addEventHandlers();
+        ANZEventManager::addBasicEventHandlers();
     }
 
     /**
@@ -201,8 +189,7 @@ class anz_appointment extends CModule
      */
     public function UnInstallEvents()
     {
-        ANZEventManager::deleteMessageEvents();
-        ANZEventManager::removeEventHandlers();
+        ANZEventManager::removeBasicEventHandlers();
     }
 
     public function InstallFiles()

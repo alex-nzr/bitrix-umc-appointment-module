@@ -300,10 +300,7 @@ class OptionManager{
 
                             if (strlen($arImage["name"]) > 0)
                             {
-                                $fid = CFile::SaveFile(
-                                        $arImage, $arImage["MODULE_ID"],
-                                    false, false, '', false
-                                );
+                                $fid = CFile::SaveFile($arImage, $arImage["MODULE_ID"]);
                                 $optionValue = (int)$fid > 0 ? $fid : '';
                             }
                         }
@@ -386,6 +383,10 @@ class OptionManager{
         }
     }
 
+    /**
+     * @param string $module_id
+     * @param array $arParams
+     */
     protected function drawSettingsList(string $module_id, array $arParams)
     {
         foreach($arParams as $Option)
@@ -394,11 +395,18 @@ class OptionManager{
         }
     }
 
+    /**
+     * @param string $text
+     */
     protected function renderTitle(string $text)
     {
         echo "<td><span>$text</span></td>";
     }
 
+    /**
+     * @param array $option
+     * @param string $val
+     */
     protected function renderInput(array $option, string $val)
     {
         $name  = $option[0];

@@ -12,17 +12,14 @@
 
 /** @var \CMain $APPLICATION */
 
-use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Config\OptionManager;
+use ANZ\Appointment\Internals\Control\ServiceManager;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 
-
 Loc::loadMessages(__FILE__);
-
-
-$module_id = 'anz.appointment';
+$module_id = ServiceManager::getModuleId();
 
 try
 {
