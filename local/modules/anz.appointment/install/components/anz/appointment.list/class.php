@@ -55,7 +55,8 @@ class AppList extends CBitrixComponent
         $this->App            = $GLOBALS['APPLICATION'];
         $this->moduleId       = ServiceManager::getModuleId();
         $this->gridId         = 'anz_appointment_admin_grid';
-        $this->entity         = new (Container::getInstance()->getRecordDataClass());
+        $class 				  = Container::getInstance()->getRecordDataClass();
+        $this->entity         = new $class;
         $this->allowedColumns = $this->getAllowedColumns();
         $this->gridOptions    = new GridOptions($this->gridId);
         $this->pageNavObject  = $this->setPageNavigation($this->gridId);
