@@ -11,6 +11,7 @@
  */
 namespace ANZ\Appointment\Helper;
 
+use ANZ\Appointment\Internals\Debug\Logger;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
@@ -18,6 +19,7 @@ use Bitrix\Main\Type\DateTime;
 use Exception;
 use ANZ\Appointment\Service\Container;
 use ANZ\Appointment\Tools\Utils;
+use Throwable;
 
 /**
  * Class Orm
@@ -69,26 +71,15 @@ class Orm
      */
     public static function updateRecord(int $id, array $params): Result
     {
-        $updateResult = new Result();
-        try {
+        try
+        {
             $recordDataClass = Container::getInstance()->getRecordDataClass();
-            $record = $recordDataClass::getByPrimary($id)->fetchObject();
-            foreach ($params as $key => $value) {
-                $record->set($key, $value);
-            }
-            $result = $record->save();
-
-            if ($result->isSuccess()){
-                $updateResult->setData(['ID' => $result->getData()]);
-            }
-            else{
-                $updateResult->addErrors($result->getErrorMessages());
-            }
+            return $recordDataClass::update($id, $params);
         }
-        catch(Exception $e){
-            $updateResult->addError(new Error($e->getMessage()));
+        catch(Throwable $e)
+        {
+            return (new Result())->addError(new Error($e->getMessage()));
         }
-        return $updateResult;
     }
 
     /**

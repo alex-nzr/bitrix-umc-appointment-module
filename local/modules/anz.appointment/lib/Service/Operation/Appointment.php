@@ -110,7 +110,7 @@ class Appointment
                 $data = $response->getData();
                 $status = $data['status'] ?? "-";
                 $ormRes = Orm::updateRecord($id, ['STATUS_1C' => $status]);
-                $response->setData(array_merge($data, $ormRes));
+                $response->setData(array_merge($data, $ormRes->getData()));
                 return $response;
             }
             else
