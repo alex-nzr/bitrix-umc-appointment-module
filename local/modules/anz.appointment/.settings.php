@@ -24,12 +24,12 @@ return [
             'anz.appointment.service.oneC.writer' => [
                 'className' => Writer::class,
             ],
-            'anz.appointment.service.message.mailerService' => [
+            'anz.appointment.service.message.mailer' => [
                 'constructor' => static function () {
                     return new Mailer();
                 },
             ],
-            'anz.appointment.service.message.smsService' => [
+            'anz.appointment.service.message.sms' => [
                 'className' => Sms::class,
                 'constructorParams' => static function (){
                     return [];
