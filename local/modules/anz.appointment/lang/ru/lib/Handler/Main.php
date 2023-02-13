@@ -1,5 +1,0 @@
-<?php
-$MESS['ANZ_APPOINTMENT_MENU_GLOBAL_TITLE'] = 'ANZ';
-$MESS['ANZ_APPOINTMENT_MENU_MAIN_TITLE'] = 'ANZ. Запись на приём в БИТ УМЦ';
-$MESS['ANZ_APPOINTMENT_MENU_LIST_TITLE'] = 'Список записей';
-$MESS['ANZ_APPOINTMENT_MENU_SETTINGS_TITLE'] = 'Настройки модуля';

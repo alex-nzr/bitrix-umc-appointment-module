@@ -8,16 +8,14 @@
 
 # Bitrix files
 /upload/
-/local/php_interface
 /local/templates
-/local/js
+/local/modules
+/local/js/anz
 /.access.php
 /.htaccess
 /404.php
 /index.php
 /urlrewrite.php
-#!/local/js/anz/
-!/local/modules/anz.appointment/vendor
 
 #Misc
 .htsecure
