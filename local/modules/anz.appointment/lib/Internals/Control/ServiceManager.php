@@ -100,23 +100,22 @@ class ServiceManager
      */
     public static function includeAppointmentExtension(): void
     {
-        $extensionId = defined('ANZ_APPOINTMENT_JS_EXTENSION') ? constant('ANZ_APPOINTMENT_JS_EXTENSION') : Constants::APPOINTMENT_JS_EXTENSION;
-
-        global $APPLICATION;
-        $currentUserGroups = (new CUser())->GetUserGroupArray();
-
-        $canSeeForm = ($APPLICATION->GetGroupRight(static::getModuleId(), $currentUserGroups) >= "R");
-        $isAdmin = !empty($GLOBALS['USER']) && CurrentUser::get()->isAdmin();
-
-        if ( $canSeeForm || $isAdmin )
+        $useAutoInc     = Option::get(static::getModuleId(), Constants::OPTION_KEY_AUTO_INC) === "Y";
+        $isAdminSection = Context::getCurrent()->getRequest()->isAdminSection();
+        if ($useAutoInc && !$isAdminSection && !ServiceManager::isModuleInstallingNow())
         {
-            if (!Context::getCurrent()->getRequest()->isAdminSection())
+            global $APPLICATION;
+
+            $extensionId = defined('ANZ_APPOINTMENT_JS_EXTENSION') ? constant('ANZ_APPOINTMENT_JS_EXTENSION') : Constants::APPOINTMENT_JS_EXTENSION;
+
+            $currentUserGroups = !empty($GLOBALS['USER']) ? CurrentUser::get()->getUserGroups() : [];
+
+            $canSeeForm = ($APPLICATION->GetGroupRight(static::getModuleId(), $currentUserGroups) >= "R");
+            $isAdmin = !empty($GLOBALS['USER']) && CurrentUser::get()->isAdmin();
+
+            if ( $canSeeForm || $isAdmin )
             {
-                $optionKey = Constants::OPTION_KEY_AUTO_INC;
-                if (Option::get(static::getModuleId(), $optionKey) === "Y")
-                {
-                    Extension::load($extensionId);
-                }
+                Extension::load($extensionId);
             }
         }
     }
@@ -133,6 +132,16 @@ class ServiceManager
             static::$moduleId = $arr[$i+1];
         }
         return (string)static::$moduleId;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isModuleInstallingNow(): bool
+    {
+        $request = Context::getCurrent()->getRequest();
+        return $request->get('id') === static::getModuleId()
+            && ($request->get('install') === 'Y' || $request->get('uninstall') === 'Y');
     }
 
     private function __clone(){}

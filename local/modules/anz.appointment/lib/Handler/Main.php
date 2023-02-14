@@ -26,7 +26,7 @@ class Main
      * @param $arGlobalMenu
      * @param $arModuleMenu
      */
-    public static function onBuildGlobalMenu(&$arGlobalMenu, &$arModuleMenu)
+    public static function onBuildGlobalMenu(&$arGlobalMenu, &$arModuleMenu): void
     {
         if (!defined('ANZ_APPOINTMENT_MENU_INCLUDED'))
         {
