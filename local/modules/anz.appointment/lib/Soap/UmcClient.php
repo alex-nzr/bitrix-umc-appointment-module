@@ -11,6 +11,7 @@
  */
 namespace ANZ\Appointment\Soap;
 
+use ANZ\Appointment\Internals\Control\ServiceManager;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
@@ -49,7 +50,7 @@ class UmcClient
                 $options = array_merge($this->getDefaultOptions(), $options);
             }
 
-            $url = trim(Option::get(Constants::APPOINTMENT_MODULE_ID, "appointment_api_ws_url"));
+            $url = trim(Option::get(ServiceManager::getModuleId(), Constants::OPTION_KEY_API_WS_URL));
 
             if (empty($url)){
                 throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_SOAP_URL_ERROR"));
@@ -173,8 +174,8 @@ class UmcClient
      */
     protected function getDefaultOptions(): array
     {
-        $login      = Option::get(Constants::APPOINTMENT_MODULE_ID, "appointment_api_db_login");
-        $password   = Option::get(Constants::APPOINTMENT_MODULE_ID, "appointment_api_db_password");
+        $login      = Option::get(ServiceManager::getModuleId(), Constants::OPTION_KEY_API_WS_LOGIN);
+        $password   = Option::get(ServiceManager::getModuleId(), Constants::OPTION_KEY_API_WS_PASSWORD);
 
         if (empty($login) || empty($password)){
             throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_SOAP_AUTH_ERROR"));

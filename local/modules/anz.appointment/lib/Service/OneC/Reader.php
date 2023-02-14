@@ -11,6 +11,7 @@
  */
 namespace ANZ\Appointment\Service\OneC;
 
+use ANZ\Appointment\Internals\Control\ServiceManager;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
@@ -30,7 +31,7 @@ class Reader extends BaseService
 {
     public function getClinicsList(): Result
     {
-        if (Constants::DEMO_MODE === "Y"){
+        if ($this->demoMode){
             $res = new Result();
             sleep(1);
             try {
@@ -46,7 +47,7 @@ class Reader extends BaseService
 
     public function getEmployeesList(): Result
     {
-        if (Constants::DEMO_MODE === "Y"){
+        if ($this->demoMode){
             $res = new Result();
             sleep(1);
             try {
@@ -62,7 +63,7 @@ class Reader extends BaseService
 
     public function getNomenclatureList($clinicGuid): Result
     {
-        if (Constants::DEMO_MODE === "Y"){
+        if ($this->demoMode){
             $res = new Result();
             sleep(1);
             try {
@@ -81,7 +82,7 @@ class Reader extends BaseService
 
     public function getSchedule(array $params = []): Result
     {
-        if (Constants::DEMO_MODE === "Y"){
+        if ($this->demoMode){
             $res = new Result();
             sleep(1);
             try {
@@ -94,8 +95,8 @@ class Reader extends BaseService
 
         $soapParams = Utils::getDateInterval(
             Option::get(
-                Constants::APPOINTMENT_MODULE_ID,
-                "appointment_api_schedule_days",
+                ServiceManager::getModuleId(),
+                Constants::OPTION_KEY_SCHEDULE_DAYS,
                 Constants::DEFAULT_SCHEDULE_PERIOD_DAYS
             )
         );

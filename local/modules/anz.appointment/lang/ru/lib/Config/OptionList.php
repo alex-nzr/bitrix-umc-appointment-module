@@ -72,5 +72,8 @@ $MESS['ANZ_APPOINTMENT_USE_AUTO_INJECTING_NOTE'] = 'При включенной 
                                                          При отключенной опции, нужно самостоятельно разместить на сайте компонент записи.';
 
 
+$MESS['ANZ_APPOINTMENT_USE_DEMO_MODE']    = "Демо режим";
+$MESS['ANZ_APPOINTMENT_USE_DEMO_MODE_ON'] = "Включить демо-режим";
+
 $MESS['ANZ_APPOINTMENT_TAB_RIGHTS'] = "Настройки доступа";
 $MESS['ANZ_APPOINTMENT_TAB_TITLE_RIGHTS'] = "Уровень доступа к модулю";

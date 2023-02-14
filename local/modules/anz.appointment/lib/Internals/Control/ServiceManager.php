@@ -29,6 +29,7 @@ use Exception;
 class ServiceManager
 {
     protected static ?ServiceManager $instance = null;
+    protected static ?string $moduleId = null;
 
     private function __construct(){}
 
@@ -47,7 +48,7 @@ class ServiceManager
     /**
      * @throws \Exception
      */
-    public function includeModule()
+    public function includeModule(): void
     {
         $this->includeControllers();
         $this->includeDependentModules();
@@ -99,20 +100,20 @@ class ServiceManager
      */
     public static function includeAppointmentExtension(): void
     {
-        $extensionId = defined('ANZ_APPOINTMENT_JS_EXTENSION') ? ANZ_APPOINTMENT_JS_EXTENSION : Constants::APPOINTMENT_JS_EXTENSION;
+        $extensionId = defined('ANZ_APPOINTMENT_JS_EXTENSION') ? constant('ANZ_APPOINTMENT_JS_EXTENSION') : Constants::APPOINTMENT_JS_EXTENSION;
 
         global $APPLICATION;
         $currentUserGroups = (new CUser())->GetUserGroupArray();
 
-        $canSeeForm = ($APPLICATION->GetGroupRight(Constants::APPOINTMENT_MODULE_ID, $currentUserGroups) >= "R");
+        $canSeeForm = ($APPLICATION->GetGroupRight(static::getModuleId(), $currentUserGroups) >= "R");
         $isAdmin = !empty($GLOBALS['USER']) && CurrentUser::get()->isAdmin();
 
         if ( $canSeeForm || $isAdmin )
         {
             if (!Context::getCurrent()->getRequest()->isAdminSection())
             {
-                $optionKey = 'appointment_settings_use_auto_injecting';
-                if (Option::get(Constants::APPOINTMENT_MODULE_ID, $optionKey) === "Y")
+                $optionKey = Constants::OPTION_KEY_AUTO_INC;
+                if (Option::get(static::getModuleId(), $optionKey) === "Y")
                 {
                     Extension::load($extensionId);
                 }
@@ -125,9 +126,13 @@ class ServiceManager
      */
     public static function getModuleId(): string
     {
-        $arr = explode(DIRECTORY_SEPARATOR, __FILE__);
-        $i = array_search("modules",$arr);
-        return (string)$arr[$i+1];
+        if (static::$moduleId === null)
+        {
+            $arr = explode(DIRECTORY_SEPARATOR, __FILE__);
+            $i = array_search("modules", $arr);
+            static::$moduleId = $arr[$i+1];
+        }
+        return (string)static::$moduleId;
     }
 
     private function __clone(){}

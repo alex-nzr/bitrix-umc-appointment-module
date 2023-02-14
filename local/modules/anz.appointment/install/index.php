@@ -23,6 +23,9 @@ use ANZ\Appointment\Internals\Control\EventManager as ANZEventManager;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * @class anz_appointment
+ */
 class anz_appointment extends CModule
 {
     public $MODULE_ID = 'anz.appointment';
@@ -32,7 +35,8 @@ class anz_appointment extends CModule
     private string $partnerId;
     private string $moduleNameShort;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->App = $GLOBALS['APPLICATION'];
         $this->docRoot = Application::getDocumentRoot();
         $this->partnerId = 'anz';
@@ -53,6 +57,9 @@ class anz_appointment extends CModule
         $this->SHOW_SUPER_ADMIN_GROUP_RIGHTS = "Y";
     }
 
+    /**
+     * @return bool
+     */
     public function DoInstall(): bool
     {
         $result = true;
@@ -87,6 +94,7 @@ class anz_appointment extends CModule
         {
             $result = false;
             $this->App->ThrowException($e->getMessage());
+            ModuleManager::unRegisterModule($this->MODULE_ID);
         }
 
         return $result;
@@ -164,7 +172,7 @@ class anz_appointment extends CModule
      */
     public function UnInstallDB(): void
     {
-        $res = Installer::installModule();
+        $res = Installer::uninstallModule();
         if (!$res->isSuccess())
         {
             throw new Exception(
@@ -192,7 +200,10 @@ class anz_appointment extends CModule
         ANZEventManager::removeBasicEventHandlers();
     }
 
-    public function InstallFiles()
+    /**
+     * @return void
+     */
+    public function InstallFiles(): void
     {
         CopyDirFiles(__DIR__.'/js/', $this->docRoot.'/bitrix/js/'.$this->partnerId."/".$this->moduleNameShort, true, true);
         CopyDirFiles(__DIR__.'/css/', $this->docRoot.'/bitrix/css/'.$this->partnerId."/".$this->moduleNameShort, true, true);
@@ -201,7 +212,10 @@ class anz_appointment extends CModule
         CopyDirFiles(__DIR__.'/components/', $this->docRoot.'/bitrix/components', true, true);
     }
 
-    public function UnInstallFiles()
+    /**
+     * @return void
+     */
+    public function UnInstallFiles(): void
     {
         DeleteDirFiles(__DIR__.'/admin/', $this->docRoot.'/bitrix/admin');
 
@@ -236,6 +250,9 @@ class anz_appointment extends CModule
         }
     }
 
+    /**
+     * @return array[]
+     */
     public function GetModuleRightList(): array
     {
         return [

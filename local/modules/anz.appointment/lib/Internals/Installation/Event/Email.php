@@ -13,6 +13,7 @@ namespace ANZ\Appointment\Internals\Installation\Event;
 
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Mail\Internal\EventMessageTable;
 use Bitrix\Main\Mail\Internal\EventTypeTable;
 use CEventMessage;
 use CEventType;
@@ -30,6 +31,19 @@ class Email
      */
     public function createEmailNoteEvent(): int
     {
+        $existsElement = EventTypeTable::query()
+            ->setSelect(['ID'])
+            ->setFilter([
+                "EVENT_TYPE"    => EventTypeTable::TYPE_EMAIL,
+                "EVENT_NAME"    => Constants::EMAIL_NOTE_EVENT_CODE,
+            ])
+            ->fetchObject();
+
+        if (!empty($existsElement))
+        {
+            return $existsElement->getId();
+        }
+
         $arFields = [
             "EVENT_TYPE"    => EventTypeTable::TYPE_EMAIL,
             "EVENT_NAME"    => Constants::EMAIL_NOTE_EVENT_CODE,
@@ -48,6 +62,19 @@ class Email
      */
     public function createEmailConfirmEvent(): int
     {
+        $existsElement = EventTypeTable::query()
+            ->setSelect(['ID'])
+            ->setFilter([
+                "EVENT_TYPE"    => EventTypeTable::TYPE_EMAIL,
+                "EVENT_NAME"    => Constants::EMAIL_CONFIRM_EVENT_CODE,
+            ])
+            ->fetchObject();
+
+        if (!empty($existsElement))
+        {
+            return $existsElement->getId();
+        }
+
         $arFields = [
             "EVENT_TYPE"    => EventTypeTable::TYPE_EMAIL,
             "EVENT_NAME"    => Constants::EMAIL_CONFIRM_EVENT_CODE,
@@ -62,9 +89,22 @@ class Email
     /**
      * @param array $siteIds
      * @return int
+     * @throws \Exception
      */
     public function createEmailNoteTemplate(array $siteIds): int
     {
+        $existsElement = EventMessageTable::query()
+            ->setSelect(['ID'])
+            ->setFilter([
+                "EVENT_NAME" => Constants::EMAIL_NOTE_EVENT_CODE,
+            ])
+            ->fetchObject();
+
+        if (!empty($existsElement))
+        {
+            return $existsElement->getId();
+        }
+
         $params = [
             "ACTIVE"     => "Y",
             "EVENT_NAME" => Constants::EMAIL_NOTE_EVENT_CODE,
@@ -85,9 +125,22 @@ class Email
     /**
      * @param array $siteIds
      * @return int
+     * @throws \Exception
      */
     public function createEmailConfirmTemplate(array $siteIds): int
     {
+        $existsElement = EventMessageTable::query()
+            ->setSelect(['ID'])
+            ->setFilter([
+                "EVENT_NAME" => Constants::EMAIL_CONFIRM_EVENT_CODE,
+            ])
+            ->fetchObject();
+
+        if (!empty($existsElement))
+        {
+            return $existsElement->getId();
+        }
+
         $params = [
             "ACTIVE"     => "Y",
             "EVENT_NAME" => Constants::EMAIL_CONFIRM_EVENT_CODE,

@@ -11,9 +11,9 @@
  */
 namespace ANZ\Appointment\Event;
 
+use ANZ\Appointment\Internals\Control\ServiceManager;
 use Bitrix\Main\EventResult;
 use Exception;
-use ANZ\Appointment\Config\Constants;
 
 /**
  * Class Event
@@ -41,7 +41,7 @@ class Event extends \Bitrix\Main\Event
     protected static function sendEvent(string $eventName, $params): ?array
     {
         $event = new static(
-            Constants::APPOINTMENT_MODULE_ID,
+            ServiceManager::getModuleId(),
             $eventName,
             $params
         );

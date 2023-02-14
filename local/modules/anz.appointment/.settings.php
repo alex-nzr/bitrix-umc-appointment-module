@@ -25,15 +25,10 @@ return [
                 'className' => Writer::class,
             ],
             'anz.appointment.service.message.mailer' => [
-                'constructor' => static function () {
-                    return new Mailer();
-                },
+                'className' => Mailer::class,
             ],
             'anz.appointment.service.message.sms' => [
                 'className' => Sms::class,
-                'constructorParams' => static function (){
-                    return [];
-                },
             ],
         ],
         'readonly' => true,

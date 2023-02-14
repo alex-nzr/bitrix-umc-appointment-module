@@ -11,6 +11,7 @@
  */
 namespace ANZ\Appointment\Soap;
 
+use ANZ\Appointment\Internals\Control\ServiceManager;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
@@ -366,8 +367,8 @@ class XmlParser{
 
         if (!$duration > 0){
             $duration = Option::get(
-                Constants::APPOINTMENT_MODULE_ID,
-                'appointment_settings_default_duration',
+                ServiceManager::getModuleId(),
+                Constants::OPTION_KEY_DEFAULT_DURATION,
                 Constants::DEFAULT_APPOINTMENT_DURATION_SEC
             );
         }

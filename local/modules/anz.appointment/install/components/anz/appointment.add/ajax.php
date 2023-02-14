@@ -140,6 +140,9 @@ class AppFormAjaxController extends Controller
         ];
     }
 
+    /**
+     * @return array[]
+     */
     public function configureActions(): array
     {
         return [

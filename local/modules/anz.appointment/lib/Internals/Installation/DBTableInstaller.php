@@ -28,7 +28,7 @@ class DBTableInstaller
     /**
      * @throws \Exception
      */
-    public static function install()
+    public static function install(): void
     {
         static::createDataTables(static::$dataClasses);
     }
@@ -36,7 +36,7 @@ class DBTableInstaller
     /**
      * @throws \Exception
      */
-    public static function uninstall()
+    public static function uninstall(): void
     {
         static::deleteDataTables(static::$dataClasses);
     }
@@ -45,7 +45,7 @@ class DBTableInstaller
      * @param array $dataClasses
      * @throws \Exception
      */
-    private static function createDataTables(array $dataClasses)
+    private static function createDataTables(array $dataClasses): void
     {
         $connection = Application::getConnection();
 
@@ -63,7 +63,7 @@ class DBTableInstaller
      * @param array $dataClasses
      * @throws \Exception
      */
-    private static function deleteDataTables(array $dataClasses)
+    private static function deleteDataTables(array $dataClasses): void
     {
         $connection = Application::getConnection();
 

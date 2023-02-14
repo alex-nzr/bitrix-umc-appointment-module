@@ -11,6 +11,7 @@
  */
 namespace ANZ\Appointment\Service\Operation;
 
+use ANZ\Appointment\Internals\Control\ServiceManager;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
@@ -40,7 +41,10 @@ class Confirm
             $smsService = Container::getInstance()->getSmsService();
 
             $code = (string)rand(1000, 9999);
-            $confirmWith = Option::get(Constants::APPOINTMENT_MODULE_ID, 'appointment_settings_confirm_with');
+            $confirmWith = Option::get(
+                ServiceManager::getModuleId(),
+                Constants::OPTION_KEY_CONFIRM_MODE
+            );
             $result = new Result();
 
             $session = Application::getInstance()->getSession();

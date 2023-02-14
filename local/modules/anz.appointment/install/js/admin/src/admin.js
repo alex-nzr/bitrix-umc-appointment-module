@@ -12,6 +12,7 @@
 
 import "./admin.css";
 import "color_picker";
+import {Extension} from 'main.core';
 
 export const Admin = {
     ajaxUrl: '/bitrix/services/main/ajax.php',
@@ -20,6 +21,7 @@ export const Admin = {
         method: 'POST',
         body: '',
     },
+    options: Extension.getSettings('anz.appointment.admin'),
 
     deleteRecord: function (id, gridId, orderUid) {
         this.runAction(id, gridId, orderUid, 'deleteOrder')
@@ -114,7 +116,7 @@ export const Admin = {
 
     activateInputs: function(){
         const inputs = {
-            customMainBtnCheckbox: BX('appointment_view_use_custom_main_btn')
+            customMainBtnCheckbox: BX(this.options['customMainBtnCheckboxId'])
         };
 
         for (let key in inputs){
@@ -136,9 +138,9 @@ export const Admin = {
     },
 
     changeInputsState: function(checkbox){
-        const textInput = BX('appointment_view_custom_main_btn_id');
-        const bgColorInput = BX('--appointment-start-btn-bg-color');
-        const textColorInput = BX('--appointment-start-btn-text-color');
+        const textInput = BX(this.options['customMainBtnInputId']);
+        const bgColorInput = BX(this.options['startBtnBgColorInput']);
+        const textColorInput = BX(this.options['startBtnTextColorInput']);
 
         if (checkbox.checked)
         {

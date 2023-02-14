@@ -27,10 +27,24 @@ use ANZ\Appointment\Config\Constants;
 class Sms
 {
     /**
+     * @return int
      * @throws \Exception
      */
     public function createSmsConfirmEvent(): int
     {
+        $existsElement = EventTypeTable::query()
+            ->setSelect(['ID'])
+            ->setFilter([
+                "EVENT_TYPE"    => EventTypeTable::TYPE_SMS,
+                "EVENT_NAME"    => Constants::SMS_CONFIRM_EVENT_CODE,
+            ])
+            ->fetchObject();
+
+        if (!empty($existsElement))
+        {
+            return $existsElement->getId();
+        }
+
         $arFields = [
             "EVENT_TYPE"    => EventTypeTable::TYPE_SMS,
             "EVENT_NAME"    => Constants::SMS_CONFIRM_EVENT_CODE,
@@ -43,12 +57,24 @@ class Sms
     }
 
     /**
-     * @throws \Bitrix\Main\SystemException
-     * @throws \Bitrix\Main\ArgumentException
+     * @param array $siteIds
+     * @return int
      * @throws \Exception
      */
     public function createSmsConfirmTemplate(array $siteIds): int
     {
+        $existsElement = TemplateTable::query()
+            ->setSelect(['ID'])
+            ->setFilter([
+                "EVENT_NAME" => Constants::SMS_CONFIRM_EVENT_CODE,
+            ])
+            ->fetchObject();
+
+        if (!empty($existsElement))
+        {
+            return $existsElement->getId();
+        }
+
         $params = [
             "EVENT_NAME"    => Constants::SMS_CONFIRM_EVENT_CODE,
             "ACTIVE"        => "Y",
@@ -89,7 +115,7 @@ class Sms
         }
     }
 
-    public function deleteSmsEvents()
+    public function deleteSmsEvents(): void
     {
         $obEventType = new CEventType;
         $obEventType->Delete(Constants::SMS_CONFIRM_EVENT_CODE);

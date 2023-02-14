@@ -12,7 +12,7 @@
 
 /** @var \CMain $APPLICATION */
 
-use ANZ\Appointment\Config\OptionManager;
+use ANZ\Appointment\Config\OptionList;
 use ANZ\Appointment\Internals\Control\ServiceManager;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -33,7 +33,7 @@ try
     if(!Loader::includeModule($module_id)){
         throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_MODULE_NOT_LOADED"));
     }
-	$optionManager = new OptionManager($module_id);
+	$optionManager = new OptionList($module_id);
     $optionManager->processRequest();
     $optionManager->startDrawHtml();
 

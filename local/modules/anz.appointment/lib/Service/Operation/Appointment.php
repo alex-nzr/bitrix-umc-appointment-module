@@ -12,6 +12,7 @@
 namespace ANZ\Appointment\Service\Operation;
 
 use ANZ\Appointment\Helper\Orm;
+use ANZ\Appointment\Internals\Control\ServiceManager;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
@@ -39,8 +40,8 @@ class Appointment
             $writer = $container->getWriterService();
 
             $useWaitingList = Option::get(
-                Constants::APPOINTMENT_MODULE_ID,
-                'appointment_settings_use_waiting_list', "N"
+                ServiceManager::getModuleId(),
+                Constants::OPTION_KEY_USE_WAIT_LIST, "N"
             );
 
             if ($useWaitingList === "Y")

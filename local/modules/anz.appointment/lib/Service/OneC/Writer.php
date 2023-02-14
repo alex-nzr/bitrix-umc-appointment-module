@@ -35,7 +35,7 @@ class Writer extends BaseService
     public function addOrder(array $params): Result
     {
         try {
-            if (Constants::DEMO_MODE === "Y"){
+            if ($this->demoMode){
                 sleep(3);
                 return (new Result())->setData(['success' => true]);
             }
@@ -107,7 +107,7 @@ class Writer extends BaseService
     public function addWaitingList(array $params): Result
     {
         try {
-            if (Constants::DEMO_MODE === "Y"){
+            if ($this->demoMode){
                 sleep(3);
                 return (new Result())->setData(['success' => true]);
             }

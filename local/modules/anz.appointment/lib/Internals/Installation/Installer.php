@@ -13,13 +13,9 @@
 
 namespace ANZ\Appointment\Internals\Installation;
 
-use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
-use Bitrix\Main\SystemException;
-use ANZ\Appointment\Config\Constants;
-use ANZ\Appointment\Internals\Control\ServiceManager;
 use Throwable;
 
 Loc::loadMessages(__FILE__);
