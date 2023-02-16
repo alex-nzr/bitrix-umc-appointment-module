@@ -13,14 +13,22 @@ namespace ANZ\Appointment\Config;
 
 use Bitrix\Main\Localization\Loc;
 
-Loc::loadMessages(__FILE__);
-
 /**
  * @class OptionList
  * @package ANZ\Appointment\Config
  */
 class OptionList extends BaseOptionManager
 {
+    /**
+     * @param string $moduleId
+     * @throws \Exception
+     */
+    public function __construct(string $moduleId)
+    {
+        parent::__construct($moduleId);
+        Loc::loadMessages(__FILE__);
+    }
+
     /**
      * @return void
      */

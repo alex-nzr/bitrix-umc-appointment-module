@@ -12,13 +12,13 @@
 namespace ANZ\Appointment\Internals\Model;
 
 /**
- * Class Record
+ * @class Record
  * @package ANZ\Appointment\Internals\Model
  */
 class Record extends EO_Record
 {
     /**
-     * @param \string|\Bitrix\Main\DB\SqlExpression $status1c
+     * @param $status1c
      * @return $this
      */
     public function setStatus1c($status1c): Record

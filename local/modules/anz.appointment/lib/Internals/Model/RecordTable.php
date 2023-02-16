@@ -11,7 +11,8 @@
  */
 namespace ANZ\Appointment\Internals\Model;
 
-
+use ANZ\Appointment\Internals\Model\DataModifier\FetchModifier;
+use ANZ\Appointment\Internals\Model\DataModifier\SaveModifier;
 use Bitrix\Main\Entity\ReferenceField;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Fields\DatetimeField;
@@ -43,25 +44,51 @@ class RecordTable extends DataManager
                 ->configurePrimary()
                 ->configureAutocomplete(),
 
-            new StringField('XML_ID'),
+            (new StringField('XML_ID'))
+                ->addFetchDataModifier([FetchModifier::class, 'clearFetchedString'])
+                ->addSaveDataModifier([SaveModifier::class, 'clearStringBeforeSave']),
 
             (new DatetimeField('DATE_CREATE'))
                 ->configureRequired()
                 ->configureDefaultValue(new Type\DateTime),
 
-            (new StringField('CLINIC_TITLE'))->configureRequired(),
-            (new StringField('SPECIALTY'))->configureRequired(),
-            (new StringField('DOCTOR_NAME'))->configureRequired(),
-            (new StringField('SERVICE_TITLE'))->configureRequired(),
+            (new StringField('CLINIC_TITLE'))->configureRequired()
+                ->addFetchDataModifier([FetchModifier::class, 'clearFetchedString'])
+                ->addSaveDataModifier([SaveModifier::class, 'clearStringBeforeSave']),
+
+            (new StringField('SPECIALTY'))->configureRequired()
+                ->addFetchDataModifier([FetchModifier::class, 'clearFetchedString'])
+                ->addSaveDataModifier([SaveModifier::class, 'clearStringBeforeSave']),
+
+            (new StringField('DOCTOR_NAME'))->configureRequired()
+                ->addFetchDataModifier([FetchModifier::class, 'clearFetchedString'])
+                ->addSaveDataModifier([SaveModifier::class, 'clearStringBeforeSave']),
+
+            (new StringField('SERVICE_TITLE'))->configureRequired()
+                ->addFetchDataModifier([FetchModifier::class, 'clearFetchedString'])
+                ->addSaveDataModifier([SaveModifier::class, 'clearStringBeforeSave']),
+
             (new DatetimeField('DATETIME_VISIT'))->configureRequired(),
 
-            (new StringField('PATIENT_NAME'))->configureRequired(),
-            (new StringField('PATIENT_PHONE'))->configureRequired(),
-            new StringField('PATIENT_EMAIL'),
+            (new StringField('PATIENT_NAME'))->configureRequired()
+                ->addFetchDataModifier([FetchModifier::class, 'clearFetchedString'])
+                ->addSaveDataModifier([SaveModifier::class, 'clearStringBeforeSave']),
 
-            new TextField('COMMENT'),
+            (new StringField('PATIENT_PHONE'))->configureRequired()
+                ->addFetchDataModifier([FetchModifier::class, 'clearFetchedString'])
+                ->addSaveDataModifier([SaveModifier::class, 'clearStringBeforeSave']),
 
-            new StringField('STATUS_1C'),
+            (new StringField('PATIENT_EMAIL'))
+                ->addFetchDataModifier([FetchModifier::class, 'clearFetchedString'])
+                ->addSaveDataModifier([SaveModifier::class, 'clearStringBeforeSave']),
+
+            (new TextField('COMMENT'))
+                ->addFetchDataModifier([FetchModifier::class, 'clearFetchedString'])
+                ->addSaveDataModifier([SaveModifier::class, 'clearStringBeforeSave']),
+
+            (new StringField('STATUS_1C'))
+                ->addFetchDataModifier([FetchModifier::class, 'clearFetchedString'])
+                ->addSaveDataModifier([SaveModifier::class, 'clearStringBeforeSave']),
 
             new ExpressionField('DAYS_LEFT',
                 'TIMESTAMPDIFF(DAY, NOW(), %s)', ['DATETIME_VISIT'],
@@ -91,7 +118,7 @@ class RecordTable extends DataManager
      */
     public static function getUfId(): string
     {
-        return "FB_APP_RECORD";
+        return "UMC_RECORD";
     }
 
     /**
