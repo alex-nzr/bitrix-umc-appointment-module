@@ -58,7 +58,7 @@ class OptionList extends BaseOptionManager
                         Constants::OPTION_KEY_API_WS_PASSWORD,
                         Loc::getMessage("ANZ_APPOINTMENT_API_PASSWORD"),
                         "123456",
-                        ['text', 50]
+                        ['password', 50]
                     ],
 
                     Loc::getMessage("ANZ_APPOINTMENT_USE_AUTO_INJECTING"),
