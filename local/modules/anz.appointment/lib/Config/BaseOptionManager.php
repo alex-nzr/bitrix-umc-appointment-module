@@ -75,7 +75,7 @@ abstract class BaseOptionManager
                         $optionValue = $this->request->getPost($optionName);
 
                         $fileOptionPostfix = Constants::OPTION_TYPE_FILE_POSTFIX;
-                        if (str_ends_with($optionName, $fileOptionPostfix))
+                        if (substr($optionName, -strlen($fileOptionPostfix)) === $fileOptionPostfix)
                         {
                             $currentValue = Option::get($this->moduleId, $optionName);
                             $optionValue = $this->request->getFile($optionName);
