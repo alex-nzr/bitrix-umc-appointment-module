@@ -11,15 +11,15 @@
  */
 namespace ANZ\Appointment\Controller;
 
+use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\Service\Container;
+use ANZ\Appointment\Service\Operation\Appointment;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\ActionFilter\Authentication;
 use Bitrix\Main\Engine\ActionFilter\Csrf;
 use Bitrix\Main\Engine\ActionFilter\HttpMethod;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Result;
-use ANZ\Appointment\Service\Container;
-use ANZ\Appointment\Service\OneC\Reader;
-use ANZ\Appointment\Service\Operation\Appointment;
 
 /**
  * Class OneCController
@@ -27,19 +27,30 @@ use ANZ\Appointment\Service\Operation\Appointment;
  */
 class OneCController extends Controller
 {
-    private Reader $reader;
+    /**
+     * @var \ANZ\Appointment\Service\Xml\FtpDataReader|\ANZ\Appointment\Service\OneC\Reader
+     */
+    private $reader;
 
     /**
      * OneCController constructor.
-     * @throws \Bitrix\Main\ObjectNotFoundException
-     * @throws \Bitrix\Main\ArgumentException
+     * @throws \Exception
      */
     public function __construct()
     {
         parent::__construct();
 
-        $container = Container::getInstance();
-        $this->reader = $container->getReaderService();
+        $useDemoMode  = Configuration::getInstance()->isDemoModeOn();
+        $container    = Container::getInstance();
+        if ($useDemoMode)
+        {
+            $this->reader = $container->getOneCReader();
+        }
+        else
+        {
+            $useFtpMode   = Configuration::getInstance()->isFtpModeOn();
+            $this->reader = $useFtpMode ? $container->getFtpDataReader() : $container->getOneCReader();
+        }
     }
 
     /**
@@ -52,6 +63,7 @@ class OneCController extends Controller
 
     /**
      * @return \Bitrix\Main\Result
+     * @throws \Exception
      */
     public function getEmployeesAction(): Result
     {
@@ -61,6 +73,7 @@ class OneCController extends Controller
     /**
      * @param string $clinicGuid
      * @return \Bitrix\Main\Result
+     * @throws \Exception
      */
     public function getNomenclatureAction(string $clinicGuid): Result
     {
@@ -69,6 +82,7 @@ class OneCController extends Controller
 
     /**
      * @return \Bitrix\Main\Result
+     * @throws \Exception
      */
     public function getScheduleAction(): Result
     {
@@ -146,7 +160,7 @@ class OneCController extends Controller
     }
 
     /**
-     * @return \Bitrix\Main\Engine\ActionFilter\Authentication[][][]
+     * @return array[]
      */
     public function configureActions(): array
     {

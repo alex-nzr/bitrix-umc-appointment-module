@@ -28,7 +28,7 @@ try
         $APPLICATION->AuthForm(Loc::getMessage("ANZ_APPOINTMENT_ACCESS_DENIED"));
     }
 
-    Extension::load([$module_id.'.admin']);
+    Extension::load([$module_id.'.admin', $module_id.'.ftp-map']);
 
     if(!Loader::includeModule($module_id)){
         throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_MODULE_NOT_LOADED"));

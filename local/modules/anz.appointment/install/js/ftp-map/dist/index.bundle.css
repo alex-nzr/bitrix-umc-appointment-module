@@ -1,0 +1,71 @@
+.ui-btn-wait{
+    pointer-events: none!important;
+}
+
+.ftp-data-map-table table {
+    width: 100%;
+    font-size: 14px;
+    border-collapse: collapse;
+    text-align: left;
+}
+.ftp-data-map-table table th{
+    background: #AFCDE7;
+    color: white;
+    padding: 10px 20px;
+}
+.ftp-data-map-table table th,
+.ftp-data-map-table table td {
+    padding: 5px 10px;
+    border-style: solid;
+    border-width: 0 1px 1px 0;
+    border-color: white;
+}
+.ftp-data-map-table table td:not(.btn-cell) {
+    background: #D8E6F3;
+}
+
+#ftp-map-change-btn{
+    display: block;
+    margin: 0 auto;
+}
+/*************************************/
+.ftp-map-changing-form{
+    padding-top: 20px;
+}
+.ftp-map-changing-form table{
+    width: 100%;
+    font-size: 14px;
+    border-collapse: collapse;
+    text-align: left;
+}
+.ftp-map-changing-form table th,
+.ftp-map-changing-form table td {
+    position: relative;
+    padding: 5px 10px;
+}
+.ftp-map-changing-form table td:first-child {
+    text-align: right;
+}
+.ftp-map-changing-form table td:last-child {
+    text-align: left;
+}
+
+.ftp-map-changing-form table td[colspan="2"]{
+    text-align: center;
+}
+
+.ftp-map-changing-form table td input{
+    margin-top: 10px;
+    width: 95%;
+    padding: 5px;
+    border-radius: 5px;
+    outline: none;
+    border: 1px solid lightgrey;
+}
+
+.ftp-map-changing-form-table-clinic-name{
+    position: absolute;
+    top: 0;
+    left: 20px;
+    font-size: 11px;
+}

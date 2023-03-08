@@ -11,12 +11,13 @@
  */
 namespace ANZ\Appointment\Soap;
 
+use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Internals\Control\ServiceManager;
+use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Exception;
-use ANZ\Appointment\Config\Constants;
 use SimpleXMLElement;
 use SoapClient;
 use Bitrix\Main\Config\Option;
@@ -115,10 +116,11 @@ class UmcClient
      * @param $endpoint
      * @param \SimpleXMLElement $xml
      * @return \Bitrix\Main\Result
+     * @throws \Exception
      */
     protected function handleXML($endpoint, SimpleXMLElement $xml): Result
     {
-        $parser = new XmlParser();
+        $parser = Container::getInstance()->getXmlParser();
         $result = new Result();
         switch ($endpoint)
         {

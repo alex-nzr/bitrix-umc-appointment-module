@@ -75,5 +75,14 @@ $MESS['ANZ_APPOINTMENT_USE_AUTO_INJECTING_NOTE'] = 'При включенной 
 $MESS['ANZ_APPOINTMENT_USE_DEMO_MODE']    = "Демо режим";
 $MESS['ANZ_APPOINTMENT_USE_DEMO_MODE_ON'] = "Включить демо-режим";
 
+$MESS['ANZ_APPOINTMENT_USE_FTP_DATA']     = "Получение врачей, услуг и расписания из 1С по FTP";
+$MESS['ANZ_APPOINTMENT_USE_FTP_DATA_ON']  = "Включить FTP-режим";
+$MESS['ANZ_APPOINTMENT_FTP_DATA_MAP']     = "Карта директорий файлов по филиалам";
+$MESS['ANZ_APPOINTMENT_FTP_DATA_NOTE']    = "В БИТ.УМЦ возможна выгрузка отдельных xml-файлов для каждого филиала.
+                                            Чтобы модуль мог корректно работать с файлами по каждому филиалу, 
+                                            необходимо внести данные в виде 'GUID филиала'-'путь к директории, 
+                                            в которую 1С сохраняет xml файлы по данному филиалу'<br>
+                                            Подробно с примерами это расписано в документации к модулю";
+
 $MESS['ANZ_APPOINTMENT_TAB_RIGHTS'] = "Настройки доступа";
 $MESS['ANZ_APPOINTMENT_TAB_TITLE_RIGHTS'] = "Уровень доступа к модулю";

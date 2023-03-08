@@ -11,8 +11,7 @@
  */
 namespace ANZ\Appointment\Service\OneC;
 
-use ANZ\Appointment\Internals\Control\ServiceManager;
-use Bitrix\Main\Config\Option;
+use ANZ\Appointment\Config\Configuration;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
@@ -32,30 +31,28 @@ abstract class BaseService
     protected array $demoData;
     protected bool $demoMode;
 
+    /**
+     * @throws \Exception
+     */
     public function __construct()
     {
-        $this->demoMode = Option::get(ServiceManager::getModuleId(), Constants::OPTION_KEY_DEMO_MODE) === 'Y';
+        $this->demoMode = Configuration::getInstance()->isDemoModeOn();
         if ($this->demoMode)
         {
-            try
+            if (is_file(Constants::PATH_TO_DEMO_DATA_FILE))
             {
-                if (is_file(Constants::PATH_TO_DEMO_DATA_FILE))
-                {
-                    $this->demoData = Json::decode(file_get_contents(Constants::PATH_TO_DEMO_DATA_FILE));
-                }
-                else
-                {
-                    throw new Exception('Demo data file not found');
-                }
+                $this->demoData = Json::decode(file_get_contents(Constants::PATH_TO_DEMO_DATA_FILE));
             }
-            catch (Exception $e)
+            else
             {
-                //log error
                 $this->demoData = [];
+                throw new Exception('Demo data file not found');
             }
         }
-
-        $this->client = new UmcClient();
+        else
+        {
+            $this->client = new UmcClient();
+        }
     }
 
     /**

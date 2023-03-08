@@ -11,10 +11,12 @@
  */
 namespace ANZ\Appointment\Config;
 
+use ANZ\Appointment\Internals\Debug\Logger;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Request;
+use Bitrix\Main\UI\Extension;
 use CAdminTabControl;
 use CFile;
 use Exception;
@@ -195,6 +197,7 @@ abstract class BaseOptionManager
     /**
      * @param array $option
      * @param string $val
+     * @throws \Exception
      */
     protected function renderInput(array $option, string $val): void
     {
@@ -202,10 +205,8 @@ abstract class BaseOptionManager
         $type  = $option[3];
         ?>
         <td style="width: 50%">
-        <?if(!($type[0] === 'role')):?>
         <label for="<?=$name?>" class="module-option-label">
-    <?endif;?>
-        <?
+        <?php
         switch ($type[0])
         {
             case "checkbox":
@@ -214,10 +215,12 @@ abstract class BaseOptionManager
                 break;
             case "text":
             case "password":
+                $val = htmlspecialchars($val);
                 $autocomplete = $type[0] === 'password' ? 'autocomplete="new-password"' : '';
                 echo "<input type='$type[0]' id='$name' name='$name' value='$val' size='$type[1]' maxlength='255' $autocomplete>";
                 break;
             case "number":
+                $val = htmlspecialchars($val);
                 echo "<input type='number' name='$name' value='$val' size='$type[1]' min='1' max='999999'>";
                 break;
             case "select":
@@ -225,6 +228,7 @@ abstract class BaseOptionManager
                 echo "<select name='$name'>";
                 foreach($arr as $optionVal => $displayVal)
                 {
+                    $displayVal = htmlspecialchars($displayVal);
                     $selected = ($val === $optionVal) ? "selected" : '';
                     echo "<option value='$optionVal' $selected>$displayVal</option>";
                 }
@@ -237,15 +241,18 @@ abstract class BaseOptionManager
                 echo "<select name='$name' size='5' multiple>";
                 foreach($arr as $optionVal => $displayVal)
                 {
+                    $displayVal = htmlspecialchars($displayVal);
                     $selected = (in_array($optionVal, $arr_val)) ? "selected" : '';
                     echo "<option value='$optionVal' $selected>$displayVal</option>";
                 }
                 echo "</select>";
                 break;
             case "textarea":
+                $val = htmlspecialchars($val);
                 echo "<textarea rows='$type[1]' cols='$type[2]' name='$name'>$val</textarea>";
                 break;
             case "staticText":
+                $val = htmlspecialchars($val);
                 echo "<span>$val</span>";
                 break;
             case "colorPicker":
@@ -282,41 +289,56 @@ abstract class BaseOptionManager
                 }
                 echo "<input type='file' id='$name' name='$name'/>";
                 break;
-            case "role":
-                $this->renderRolesList($name.'[]', $type[1], $val);
+            case "ftp-data-map":
+                $this->renderFtpMap($name, $val);
                 break;
         }
         ?>
-        <?if(!($type[0] === 'role')):?>
         </label>
-    <?endif;?>
         </td><?
     }
 
     /**
      * @param string $name
-     * @param array $values
      * @param string $val
      * @return void
+     * @throws \Exception
      */
-    public function renderRolesList(string $name, array $values, string $val): void
+    public function renderFtpMap(string $name, string $val): void
     {
-        $arr_val = json_decode($val);
+        $arr_val = json_decode($val, true);
         if (!is_array($arr_val))
         {
-            $arr_val = [2];
+            $arr_val = [];
         }
-
-        echo "<div class='role-list-table'><table><tbody>";
-        foreach($values as $optionVal => $displayVal)
-        {
-            $id = $name.$optionVal;
-            echo "<tr>";
-            $checked = (in_array($optionVal, $arr_val)) ? "checked" : '';
-            echo "<td><input type='checkbox' id='$id' name='$name' value='$optionVal' $checked></td>";
-            echo "<td><label for='$id'>$displayVal</label></td>";
-            echo "</tr>";
-        }
-        echo "</tbody></table></div>";
+        ?>
+        <div class='ftp-data-map-table' id="<?=$name?>_block">
+            <table>
+                <thead>
+                    <tr>
+                        <th>GUID</th>
+                        <th>PATH</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?foreach ($arr_val as $uid => $path):?>
+                        <tr class="table-value-row">
+                            <td><?=htmlspecialchars($uid)?></td>
+                            <td><?=htmlspecialchars($path)?></td>
+                        </tr>
+                    <?endforeach;?>
+                    <tr>
+                        <td colspan="2" class="btn-cell">
+                            <button type="button" id="ftp-map-change-btn" class="ui-btn ui-btn-primary">Change</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <input type='hidden' id='<?=$name?>' name='<?=$name?>' value='<?=$val?>'>
+            <script>
+                BX.ready(() => BX?.Anz?.Appointment?.FtpMap?.init('<?=$name?>'))
+            </script>
+        </div>
+        <?php
     }
 }

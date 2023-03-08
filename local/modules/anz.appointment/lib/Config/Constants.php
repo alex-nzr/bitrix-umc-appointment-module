@@ -79,5 +79,10 @@ class Constants
     const OPTION_KEY_FORM_BTN_BG        = '--appointment-btn-bg-color';
     const OPTION_KEY_FORM_BTN_TEXT_CLR  = '--appointment-btn-text-color';
 
+    const OPTION_KEY_USE_FTP_DATA       = 'appointment_settings_use_ftp_data';
+    const OPTION_KEY_FTP_DATA_MAP       = 'appointment_settings_ftp_data_map';
+
     const OPTION_KEY_DEMO_MODE          = 'appointment_settings_use_demo_mode';
+
+    const REQUEST_KEY_IGNORE_FTP        = 'IGNORE_FTP_DATA_OPTION';
 }

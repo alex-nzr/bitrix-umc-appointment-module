@@ -11,6 +11,7 @@
  */
 namespace ANZ\Appointment\Service\OneC;
 
+use ANZ\Appointment\Internals\Contract\IReaderService;
 use ANZ\Appointment\Internals\Control\ServiceManager;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
@@ -27,8 +28,11 @@ Loc::loadMessages(__FILE__);
  * Class Reader
  * @package ANZ\Appointment\Service\OneC
  */
-class Reader extends BaseService
+class Reader extends BaseService implements IReaderService
 {
+    /**
+     * @return \Bitrix\Main\Result
+     */
     public function getClinicsList(): Result
     {
         if ($this->demoMode){
@@ -45,6 +49,9 @@ class Reader extends BaseService
         return $this->send(Constants::CLINIC_ACTION_1C);
     }
 
+    /**
+     * @return \Bitrix\Main\Result
+     */
     public function getEmployeesList(): Result
     {
         if ($this->demoMode){
@@ -61,7 +68,11 @@ class Reader extends BaseService
         return $this->send(Constants::EMPLOYEES_ACTION_1C);
     }
 
-    public function getNomenclatureList($clinicGuid): Result
+    /**
+     * @param string $clinicGuid
+     * @return \Bitrix\Main\Result
+     */
+    public function getNomenclatureList(string $clinicGuid): Result
     {
         if ($this->demoMode){
             $res = new Result();
@@ -80,6 +91,10 @@ class Reader extends BaseService
         return $this->send(Constants::NOMENCLATURE_ACTION_1C, $params);
     }
 
+    /**
+     * @param array $params
+     * @return \Bitrix\Main\Result
+     */
     public function getSchedule(array $params = []): Result
     {
         if ($this->demoMode){
@@ -124,12 +139,16 @@ class Reader extends BaseService
         return $this->send(Constants::SCHEDULE_ACTION_1C, $soapParams);
     }
 
-    /** get order status from 1C
+    /**
      * @param string $orderUid
      * @return \Bitrix\Main\Result
+     * @throws \Exception
      */
     public function getOrderStatus(string $orderUid): Result
     {
+        if ($this->demoMode){
+            throw new Exception('Can not use this request when DemoMode is ON');
+        }
         return $this->send(Constants::GET_ORDER_STATUS_ACTION_1C, ['GUID' => $orderUid]);
     }
 }

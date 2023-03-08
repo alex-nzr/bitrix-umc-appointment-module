@@ -173,6 +173,21 @@ class OptionList extends BaseOptionManager
                         "N",
                         ['checkbox']
                     ],
+
+                    Loc::getMessage("ANZ_APPOINTMENT_USE_FTP_DATA"),
+                    [
+                        Constants::OPTION_KEY_USE_FTP_DATA,
+                        Loc::getMessage('ANZ_APPOINTMENT_USE_FTP_DATA_ON'),
+                        "N",
+                        ['checkbox']
+                    ],
+                    [
+                        Constants::OPTION_KEY_FTP_DATA_MAP,
+                        Loc::getMessage('ANZ_APPOINTMENT_FTP_DATA_MAP'),
+                        "",
+                        ['ftp-data-map']
+                    ],
+                    [ 'note' => Loc::getMessage('ANZ_APPOINTMENT_FTP_DATA_NOTE')],
                 ]
             ],
             [

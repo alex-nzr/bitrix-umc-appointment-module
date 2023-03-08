@@ -9,7 +9,7 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-namespace ANZ\Appointment\Soap;
+namespace ANZ\Appointment\Service\Xml;
 
 use ANZ\Appointment\Internals\Control\ServiceManager;
 use Bitrix\Main\Config\Option;
@@ -23,11 +23,9 @@ use ANZ\Appointment\Event\EventType;
 use ANZ\Appointment\Tools\Utils;
 use SimpleXMLElement;
 
-Loc::loadMessages(__FILE__);
-
 /**
- * Class XmlParser
- * @package ANZ\Appointment\Soap
+ * @class XmlParser
+ * @package ANZ\Appointment\Service\Xml
  */
 class XmlParser{
 
@@ -35,6 +33,8 @@ class XmlParser{
 
     public function __construct()
     {
+        Loc::loadMessages(__FILE__);
+
         $this->fieldMap = [
             'CLINIC' => [
                 'CLINIC_KEY'    => Loc::getMessage('ANZ_APPOINTMENT_XML_PARSER_CLINIC_KEY'),
@@ -160,6 +160,11 @@ class XmlParser{
             $employees = [];
             if (is_array($xmlArr[$employeeKey]))
             {
+                if (Utils::is_assoc($xmlArr[$employeeKey]))
+                {
+                    $xmlArr[$employeeKey] = [$xmlArr[$employeeKey]];
+                }
+
                 foreach ($xmlArr[$employeeKey] as $item)
                 {
                     $employee = [];
@@ -359,13 +364,14 @@ class XmlParser{
      * @param bool $useDefaultInterval
      * @return array
      */
-    public function formatTimetable($array, int $duration, $useDefaultInterval = false): array
+    public function formatTimetable($array, int $duration, bool $useDefaultInterval = false): array
     {
         if (!is_array($array) || empty($array)){
             return [];
         }
 
-        if (!$duration > 0){
+        if (!$duration > 0)
+        {
             $duration = Option::get(
                 ServiceManager::getModuleId(),
                 Constants::OPTION_KEY_DEFAULT_DURATION,
@@ -373,45 +379,38 @@ class XmlParser{
             );
         }
 
-        if (!empty($array))
+        if (Utils::is_assoc($array)) {
+            $array = [$array];
+        }
+
+        $scheduleStartKey = $this->fieldMap['SCHEDULE']['SCHEDULE_START'];
+        $scheduleEndKey   = $this->fieldMap['SCHEDULE']['SCHEDULE_END'];
+
+        $formattedArray = [];
+        foreach ($array as $item)
         {
-            if (Utils::is_assoc($array)) {
-                $array = [$array];
-            }
+            $timestampTimeBegin = strtotime($item[$scheduleStartKey]);
+            $timestampTimeEnd = strtotime($item[$scheduleEndKey]);
 
-            $scheduleStartKey = $this->fieldMap['SCHEDULE']['SCHEDULE_START'];
-            $scheduleEndKey   = $this->fieldMap['SCHEDULE']['SCHEDULE_END'];
-
-            $formattedArray = [];
-            foreach ($array as $item)
+            if ($useDefaultInterval)
             {
-                $timestampTimeBegin = strtotime($item[$scheduleStartKey]);
-                $timestampTimeEnd = strtotime($item[$scheduleEndKey]);
+                $formattedArray[] = $this->formatTimeTableItem($item, (int)$timestampTimeBegin, (int)$timestampTimeEnd);
+            }
+            else
+            {
+                $timeDifference = $timestampTimeEnd - $timestampTimeBegin;
+                $appointmentsCount = round($timeDifference / $duration);
 
-                if ($useDefaultInterval)
+                for ($i = 0; $i < $appointmentsCount; $i++)
                 {
-                    $formattedArray[] = $this->formatTimeTableItem($item, (int)$timestampTimeBegin, (int)$timestampTimeEnd);
-                }
-                else
-                {
-                    $timeDifference = $timestampTimeEnd - $timestampTimeBegin;
-                    $appointmentsCount = round($timeDifference / $duration);
+                    $start = $timestampTimeBegin + ($duration * $i);
+                    $end = $timestampTimeBegin + ($duration * ($i+1));
 
-                    for ($i = 0; $i < $appointmentsCount; $i++)
-                    {
-                        $start = $timestampTimeBegin + ($duration * $i);
-                        $end = $timestampTimeBegin + ($duration * ($i+1));
-
-                        $formattedArray[] = $this->formatTimeTableItem($item, (int)$start, (int)$end);
-                    }
+                    $formattedArray[] = $this->formatTimeTableItem($item, (int)$start, (int)$end);
                 }
             }
-            return $formattedArray;
         }
-        else
-        {
-            return [];
-        }
+        return $formattedArray;
     }
 
     /**

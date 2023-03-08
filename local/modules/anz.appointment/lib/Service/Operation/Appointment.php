@@ -37,7 +37,7 @@ class Appointment
         try
         {
             $container = Container::getInstance();
-            $writer = $container->getWriterService();
+            $writer = $container->getOneCWriter();
 
             $useWaitingList = Option::get(
                 ServiceManager::getModuleId(),
@@ -72,14 +72,14 @@ class Appointment
         try
         {
             $container = Container::getInstance();
-            $writer = $container->getWriterService();
+            $writer = $container->getOneCWriter();
 
             $response = $writer->deleteOrder($orderUid);
             if ($response->isSuccess())
             {
                 $ormRes = Orm::deleteRecord($id);
                 $data = $response->getData();
-                $response->setData(array_merge($data, $ormRes));
+                $response->setData(array_merge($data, $ormRes->getData()));
                 return $response;
             }
             else
@@ -103,7 +103,7 @@ class Appointment
         try
         {
             $container = Container::getInstance();
-            $reader = $container->getReaderService();
+            $reader = $container->getOneCReader();
 
             $response = $reader->getOrderStatus($orderUid);
             if ($response->isSuccess())

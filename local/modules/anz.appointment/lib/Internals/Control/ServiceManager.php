@@ -19,7 +19,6 @@ use Bitrix\Main\Context;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Loader;
 use Bitrix\Main\UI\Extension;
-use CUser;
 use Exception;
 
 /**
@@ -30,6 +29,7 @@ class ServiceManager
 {
     protected static ?ServiceManager $instance = null;
     protected static ?string $moduleId = null;
+    protected static ?string $moduleParentDirectoryName = null;
 
     private function __construct(){}
 
@@ -132,6 +132,20 @@ class ServiceManager
             static::$moduleId = $arr[$i+1];
         }
         return (string)static::$moduleId;
+    }
+
+    /**
+     * @return string|null
+     */
+    public static function getModuleParentDirectoryName(): ?string
+    {
+        if (empty(static::$moduleParentDirectoryName))
+        {
+            $arr = explode(DIRECTORY_SEPARATOR, __FILE__);
+            $i = array_search("modules", $arr);
+            static::$moduleParentDirectoryName = $arr[$i - 1];
+        }
+        return static::$moduleParentDirectoryName;
     }
 
     /**

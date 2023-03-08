@@ -12,12 +12,15 @@
 namespace ANZ\Appointment\Service;
 
 use ANZ\Appointment\Internals\Model\RecordTable;
+use ANZ\Appointment\Service\Xml\FtpDataReader;
+use ANZ\Appointment\Service\Xml\XmlParser;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DI\ServiceLocator;
 use ANZ\Appointment\Service\Message\Mailer;
 use ANZ\Appointment\Service\Message\Sms;
 use ANZ\Appointment\Service\OneC\Reader;
 use ANZ\Appointment\Service\OneC\Writer;
+use Exception;
 
 /**
  * Class Container
@@ -35,13 +38,12 @@ class Container
     }
 
     /**
-     * @throws \Bitrix\Main\ObjectNotFoundException
-     * @throws \Bitrix\Main\ArgumentException
+     * @throws \Exception
      */
     public static function getInstance(): Container
     {
-        $instanceId = static::getServiceIdByClassName(static::class);
-        return ServiceLocator::getInstance()->get($instanceId);
+        $identifier = static::getIdentifierByClassName(static::class);
+        return ServiceLocator::getInstance()->get($identifier);
     }
 
     /**
@@ -53,78 +55,140 @@ class Container
     }
 
     /**
-     * @return \ANZ\Appointment\Service\OneC\Reader
-     * @throws \Bitrix\Main\ObjectNotFoundException
-     * @throws \Bitrix\Main\ArgumentException
+     * @return \ANZ\Appointment\Service\Xml\FtpDataReader
+     * @throws \Exception
      */
-    public function getReaderService(): Reader
+    public function getFtpDataReader(): FtpDataReader
     {
-        return $this->serviceLocator->get(static::getServiceIdByClassName(Reader::class));
+        $identifier = static::getIdentifierByClassName(FtpDataReader::class);
+
+        if(!ServiceLocator::getInstance()->has($identifier))
+        {
+            ServiceLocator::getInstance()->addInstance($identifier, new FtpDataReader);
+        }
+
+        return ServiceLocator::getInstance()->get($identifier);
+    }
+
+    /**
+     * @return \ANZ\Appointment\Service\OneC\Reader
+     * @throws \Exception
+     */
+    public function getOneCReader(): Reader
+    {
+        $identifier = static::getIdentifierByClassName(Reader::class);
+
+        if(!ServiceLocator::getInstance()->has($identifier))
+        {
+            ServiceLocator::getInstance()->addInstance($identifier, new Reader);
+        }
+
+        return ServiceLocator::getInstance()->get($identifier);
     }
 
     /**
      * @return \ANZ\Appointment\Service\OneC\Writer
-     * @throws \Bitrix\Main\ObjectNotFoundException
-     * @throws \Bitrix\Main\ArgumentException
+     * @throws \Exception
      */
-    public function getWriterService(): Writer
+    public function getOneCWriter(): Writer
     {
-        return $this->serviceLocator->get(static::getServiceIdByClassName(Writer::class));
+        $identifier = static::getIdentifierByClassName(Writer::class);
+
+        if(!ServiceLocator::getInstance()->has($identifier))
+        {
+            ServiceLocator::getInstance()->addInstance($identifier, new Writer);
+        }
+
+        return ServiceLocator::getInstance()->get($identifier);
     }
 
     /**
      * @return \ANZ\Appointment\Service\Message\Sms
-     * @throws \Bitrix\Main\ObjectNotFoundException
-     * @throws \Bitrix\Main\ArgumentException
+     * @throws \Exception
      */
     public function getSmsService(): Sms
     {
-        return $this->serviceLocator->get(static::getServiceIdByClassName(Sms::class));
+        $identifier = static::getIdentifierByClassName(Sms::class);
+
+        if(!ServiceLocator::getInstance()->has($identifier))
+        {
+            ServiceLocator::getInstance()->addInstance($identifier, new Sms);
+        }
+
+        return ServiceLocator::getInstance()->get($identifier);
     }
 
     /**
      * @return \ANZ\Appointment\Service\Message\Mailer
-     * @throws \Bitrix\Main\ObjectNotFoundException
-     * @throws \Bitrix\Main\ArgumentException
+     * @throws \Exception
      */
     public function getMailerService(): Mailer
     {
-        return $this->serviceLocator->get(static::getServiceIdByClassName(Mailer::class));
+        $identifier = static::getIdentifierByClassName(Mailer::class);
+
+        if(!ServiceLocator::getInstance()->has($identifier))
+        {
+            ServiceLocator::getInstance()->addInstance($identifier, new Mailer);
+        }
+
+        return ServiceLocator::getInstance()->get($identifier);
     }
 
     /**
-     * Returns service identifier in ServiceLocator by the provided class name
-     * For example, \ANZ\Appointment\Service\Container -> anz.appointment.service.container
-     * @param string $className
-     * @return string
-     * @throws \Bitrix\Main\ArgumentException
+     * @return \ANZ\Appointment\Service\Xml\XmlParser
+     * @throws \Exception
      */
-    public static function getServiceIdByClassName(string $className): string
+    public function getXmlParser(): XmlParser
+    {
+        $identifier = static::getIdentifierByClassName(XmlParser::class);
+
+        if(!ServiceLocator::getInstance()->has($identifier))
+        {
+            ServiceLocator::getInstance()->addInstance($identifier, new XmlParser);
+        }
+
+        return ServiceLocator::getInstance()->get($identifier);
+    }
+
+    /**
+     * @param string $className
+     * @param array|null $parameters
+     * @return string
+     * @throws \Exception
+     */
+    public static function getIdentifierByClassName(string $className, array $parameters = null): string
     {
         $words = explode('\\', $className);
-        $serviceId = '';
+        $identifier = '';
         foreach ($words as $word)
         {
             if ($word === 'ANZ')
             {
-                $word = strtolower($word);
+                $identifier .= strtolower($word);
             }
             else
             {
-                $word = lcfirst($word);
-                if (!empty($serviceId))
-                {
-                    $serviceId .= '.';
-                }
+                $identifier .= !empty($identifier) ? '.'.lcfirst($word) : lcfirst($word);
             }
-            $serviceId .= $word;
         }
 
-        if (empty($serviceId))
+        if (empty($identifier))
         {
-            throw new ArgumentException('className should be a valid string');
+            throw new Exception('className should be a valid string');
         }
 
-        return $serviceId;
+        if(!empty($parameters))
+        {
+            $parameters = array_filter($parameters, static function($parameter) {
+                return (!empty($parameter) && (is_string($parameter) || is_numeric($parameter)));
+            });
+
+            if(!empty($parameters))
+            {
+                $identifier .= '.' . implode('.', $parameters);
+            }
+        }
+
+        return $identifier;
     }
 }

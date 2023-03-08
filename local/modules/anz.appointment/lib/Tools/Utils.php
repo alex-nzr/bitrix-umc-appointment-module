@@ -23,7 +23,8 @@ class Utils
 {
     private function __construct(){}
 
-    /** phone number formatting
+    /**
+     * phone number formatting
      * @param string $phone
      * @return string
      */
@@ -45,11 +46,11 @@ class Utils
         }
     }
 
-    /** creates array of date interval
-     * @param int $interval
-     * @return array
+    /**
+     * @param int|null $interval
+     * @return string[]
      */
-    public static function getDateInterval(int $interval): array
+    public static function getDateInterval(?int $interval = null): array
     {
         if (!is_int($interval)){
             $interval = Constants::DEFAULT_SCHEDULE_PERIOD_DAYS;
@@ -62,7 +63,8 @@ class Utils
         ];
     }
 
-    /** formatting date for 1c
+    /**
+     * formatting date for 1c
      * @param int $timestamp
      * @return string
      */
@@ -71,6 +73,10 @@ class Utils
         return (new DateTime())->setTimestamp($timestamp)->format('Y-m-d\TH:i:s');
     }
 
+    /**
+     * @param string $isoTime
+     * @return int
+     */
     public static function formatDurationToSeconds(string $isoTime): int
     {
         $minutes = date("i", strtotime($isoTime));
@@ -78,16 +84,12 @@ class Utils
         return (int)$minutes*60 + (int)$hours*3600;
     }
 
-    /** Tests if an array is associative or not.
-     * @param array array to check
-     * @return boolean
+    /**
+     * @param array $array
+     * @return bool
      */
     public static function is_assoc(array $array): bool
     {
-        if (!is_array($array)){
-            return false;
-        }
-
         // Keys of the array
         $keys = array_keys($array);
         // If the array keys of the keys match the keys, then the array must

@@ -90,6 +90,7 @@ class Writer extends BaseService
     /**
      * @param array $params
      * @return string
+     * @throws \Exception
      */
     public function getReserveUid(array $params): string
     {
@@ -100,7 +101,7 @@ class Writer extends BaseService
         }
         else
         {
-            return "";
+            throw new Exception(implode('; ', $res->getErrorMessages()));
         }
     }
 
@@ -139,12 +140,16 @@ class Writer extends BaseService
         }
     }
 
-    /** cancelling order in 1C
+    /**
      * @param string $orderUid
      * @return \Bitrix\Main\Result
+     * @throws \Exception
      */
     public function deleteOrder(string $orderUid): Result
     {
+        if ($this->demoMode){
+            throw new Exception('Can not use this request when DemoMode is ON');
+        }
         return $this->send(Constants::DELETE_ORDER_ACTION_1C, ['GUID' => $orderUid]);
     }
 
