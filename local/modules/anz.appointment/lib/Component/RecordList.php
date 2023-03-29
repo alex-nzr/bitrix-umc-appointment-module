@@ -45,7 +45,8 @@ class RecordList extends BaseComponent
         Loc::loadMessages(__FILE__);
 
         $this->gridId         = 'anz_appointment_admin_grid';
-        $this->entity         = new (Container::getInstance()->getRecordDataClass());
+        $dataClass            = Container::getInstance()->getRecordDataClass();
+        $this->entity         = new $dataClass;
         $this->allowedColumns = $this->getAllowedColumns();
         $this->gridOptions    = new GridOptions($this->gridId);
         $this->pageNavObject  = $this->setPageNavigation($this->gridId);
