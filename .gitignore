@@ -34,3 +34,4 @@ restore.php
 /docs/anz.appointment-docs.docx
 *.log
 *.txt
+/local/modules/anz.appointment/vendor/
