@@ -18,6 +18,7 @@
 /urlrewrite.php
 
 #Misc
+/favicon.ico
 .htsecure
 .DS_Store
 .htpasswd
