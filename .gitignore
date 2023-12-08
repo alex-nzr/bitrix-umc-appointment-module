@@ -20,6 +20,7 @@
 !/local/modules/anz.appointment/vendor
 
 #Misc
+/favicon.ico
 .htsecure
 .DS_Store
 .htpasswd
