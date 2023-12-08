@@ -11,14 +11,13 @@
  */
 namespace ANZ\Appointment\Helper;
 
-use ANZ\Appointment\Internals\Debug\Logger;
+use ANZ\BitUmc\SDK\Tools\PhoneFormatter;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 use Bitrix\Main\Type\DateTime;
 use Exception;
 use ANZ\Appointment\Service\Container;
-use ANZ\Appointment\Tools\Utils;
 use Throwable;
 
 /**
@@ -44,7 +43,7 @@ class Orm
             $newRecord->setServiceTitle($params['serviceName'] ?? '-');
             $newRecord->setDatetimeVisit(DateTime::createFromTimestamp(strtotime($params['timeBegin'])));
             $newRecord->setPatientName($params['surname'] ." ". $params['name'] ." ". $params['middleName']);
-            $newRecord->setPatientPhone(Utils::formatPhone($params['phone']));
+            $newRecord->setPatientPhone(PhoneFormatter::formatPhone($params['phone']));
             $newRecord->setPatientEmail($params['email']);
             $newRecord->setComment($params['comment']);
             $newRecord->setUserId(CurrentUser::get()->getId() ?? 0);

@@ -14,6 +14,7 @@ namespace ANZ\Appointment\Internals\Control;
 use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Controller\MessageController;
 use ANZ\Appointment\Controller\OneCController;
+use ANZ\BitUmc\SDK\Core\Trait\Singleton;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
 use Bitrix\Main\Engine\CurrentUser;
@@ -24,26 +25,14 @@ use Exception;
 /**
  * Class ServiceManager
  * @package ANZ\Appointment\Internals\Control
+ * @method static ServiceManager getInstance()
  */
 class ServiceManager
 {
-    protected static ?ServiceManager $instance = null;
+    use Singleton;
+
     protected static ?string $moduleId = null;
     protected static ?string $moduleParentDirectoryName = null;
-
-    private function __construct(){}
-
-    /**
-     * @return \ANZ\Appointment\Internals\Control\ServiceManager
-     */
-    public static function getInstance(): ServiceManager
-    {
-        if (static::$instance === null)
-        {
-            static::$instance = new static();
-        }
-        return static::$instance;
-    }
 
     /**
      * @throws \Exception
@@ -56,7 +45,7 @@ class ServiceManager
     }
 
     /**
-     * @throws \Bitrix\Main\LoaderException
+     * @throws \Exception
      */
     private function includeControllers(): void
     {
@@ -86,7 +75,7 @@ class ServiceManager
 
     /**
      * @return void
-     * @throws \Bitrix\Main\LoaderException
+     * @throws \Exception
      */
     public function includeDependentExtensions(): void
     {
@@ -157,7 +146,4 @@ class ServiceManager
         return $request->get('id') === static::getModuleId()
             && ($request->get('install') === 'Y' || $request->get('uninstall') === 'Y');
     }
-
-    private function __clone(){}
-    public function __wakeup(){}
 }

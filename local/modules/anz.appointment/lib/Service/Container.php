@@ -11,92 +11,98 @@
  */
 namespace ANZ\Appointment\Service;
 
+use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\Config\Constants;
+use ANZ\Appointment\Integration\UmcSdk\Builder\ExchangeClient;
+use ANZ\Appointment\Internals\Control\ServiceManager;
 use ANZ\Appointment\Internals\Model\RecordTable;
-use ANZ\Appointment\Service\Xml\FtpDataReader;
-use ANZ\Appointment\Service\Xml\XmlParser;
-use Bitrix\Main\ArgumentException;
+use ANZ\Appointment\Service\Converter;
+use ANZ\Appointment\Service\OneC\Exchange;
+use ANZ\Appointment\Service\OneC\FtpDataReader;
+use ANZ\Appointment\Service\Provider\ExchangeDataProvider;
+use ANZ\BitUmc\SDK\Core\Contract\Service\IExchangeService;
+use ANZ\BitUmc\SDK\Core\Dictionary\ClientScope;
+use ANZ\BitUmc\SDK\Core\Trait\Singleton;
+use ANZ\BitUmc\SDK\Factory;
+use ANZ\BitUmc\SDK\Service\Exchange\Soap;
+use ANZ\BitUmc\SDK\Service\XmlParser;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\DI\ServiceLocator;
 use ANZ\Appointment\Service\Message\Mailer;
 use ANZ\Appointment\Service\Message\Sms;
-use ANZ\Appointment\Service\OneC\Reader;
-use ANZ\Appointment\Service\OneC\Writer;
+use Bitrix\Main\Localization\Loc;
 use Exception;
 
 /**
  * Class Container
  * @package ANZ\Appointment\Service
+ * @method static Container getInstance()
  */
 class Container
 {
-    protected ServiceLocator $serviceLocator;
+    use Singleton;
 
     /**
-     * Container constructor.
-     */
-    public function __construct(){
-        $this->serviceLocator = ServiceLocator::getInstance();
-    }
-
-    /**
+     * @return \ANZ\BitUmc\SDK\Service\Exchange\Soap
      * @throws \Exception
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public static function getInstance(): Container
+    public function getSdkExchangeService(): Soap
     {
-        $identifier = static::getIdentifierByClassName(static::class);
-        return ServiceLocator::getInstance()->get($identifier);
-    }
-
-    /**
-     * @return \ANZ\Appointment\Internals\Model\RecordTable | string
-     */
-    public function getRecordDataClass(): string
-    {
-        return RecordTable::class;
-    }
-
-    /**
-     * @return \ANZ\Appointment\Service\Xml\FtpDataReader
-     * @throws \Exception
-     */
-    public function getFtpDataReader(): FtpDataReader
-    {
-        $identifier = static::getIdentifierByClassName(FtpDataReader::class);
+        $identifier = static::getIdentifierByClassName(IExchangeService::class);
 
         if(!ServiceLocator::getInstance()->has($identifier))
         {
-            ServiceLocator::getInstance()->addInstance($identifier, new FtpDataReader);
+            $login      = Option::get(ServiceManager::getModuleId(), Constants::OPTION_KEY_API_WS_LOGIN);
+            $password   = Option::get(ServiceManager::getModuleId(), Constants::OPTION_KEY_API_WS_PASSWORD);
+
+            if (empty($login) || empty($password)){
+                throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_SOAP_AUTH_ERROR"));
+            }
+
+            $url = trim(Option::get(ServiceManager::getModuleId(), Constants::OPTION_KEY_API_WS_URL));
+
+            if (empty($url)){
+                throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_SOAP_URL_ERROR"));
+            }
+
+            $client = ExchangeClient::init()
+                ->setLogin($login)
+                ->setPassword($password)
+                ->setFullBaseUrl($url)
+                ->setScope(ClientScope::WEB_SERVICE)
+                ->build();
+
+            $exchangeService = (new Factory\Exchange($client))->create();
+            ServiceLocator::getInstance()->addInstance($identifier, $exchangeService);
         }
 
         return ServiceLocator::getInstance()->get($identifier);
     }
 
     /**
-     * @return \ANZ\Appointment\Service\OneC\Reader
+     * @return \ANZ\Appointment\Internals\Contract\Service\IExchangeService
      * @throws \Exception
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
-    public function getOneCReader(): Reader
+    public function getExchangeService(): \ANZ\Appointment\Internals\Contract\Service\IExchangeService
     {
-        $identifier = static::getIdentifierByClassName(Reader::class);
+        $useDemoMode  = Configuration::getInstance()->isDemoModeOn();
 
-        if(!ServiceLocator::getInstance()->has($identifier))
+        if ($useDemoMode)
         {
-            ServiceLocator::getInstance()->addInstance($identifier, new Reader);
+            $serviceClass = Exchange::class;
         }
-
-        return ServiceLocator::getInstance()->get($identifier);
-    }
-
-    /**
-     * @return \ANZ\Appointment\Service\OneC\Writer
-     * @throws \Exception
-     */
-    public function getOneCWriter(): Writer
-    {
-        $identifier = static::getIdentifierByClassName(Writer::class);
+        else
+        {
+            $useFtpMode   = Configuration::getInstance()->isFtpModeOn();
+            $serviceClass = $useFtpMode ? FtpDataReader::class : Exchange::class;
+        }
+        $identifier = static::getIdentifierByClassName($serviceClass);
 
         if(!ServiceLocator::getInstance()->has($identifier))
         {
-            ServiceLocator::getInstance()->addInstance($identifier, new Writer);
+            ServiceLocator::getInstance()->addInstance($identifier, new $serviceClass());
         }
 
         return ServiceLocator::getInstance()->get($identifier);
@@ -105,6 +111,7 @@ class Container
     /**
      * @return \ANZ\Appointment\Service\Message\Sms
      * @throws \Exception
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function getSmsService(): Sms
     {
@@ -121,6 +128,7 @@ class Container
     /**
      * @return \ANZ\Appointment\Service\Message\Mailer
      * @throws \Exception
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function getMailerService(): Mailer
     {
@@ -135,7 +143,25 @@ class Container
     }
 
     /**
-     * @return \ANZ\Appointment\Service\Xml\XmlParser
+     * @return \ANZ\Appointment\Service\Provider\ExchangeDataProvider
+     * @throws \Exception
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
+    public function getExchangeDataProvider(): ExchangeDataProvider
+    {
+        $identifier = static::getIdentifierByClassName(ExchangeDataProvider::class);
+
+        if(!ServiceLocator::getInstance()->has($identifier))
+        {
+            ServiceLocator::getInstance()->addInstance($identifier, new ExchangeDataProvider);
+        }
+
+        return ServiceLocator::getInstance()->get($identifier);
+    }
+
+    /**
+     * @return \ANZ\BitUmc\SDK\Service\XmlParser
+     * @throws \Psr\Container\NotFoundExceptionInterface
      * @throws \Exception
      */
     public function getXmlParser(): XmlParser
@@ -190,5 +216,30 @@ class Container
         }
 
         return $identifier;
+    }
+
+    /**
+     * @return \ANZ\Appointment\Internals\Model\RecordTable|string
+     */
+    public function getRecordDataClass(): RecordTable | string
+    {
+        return RecordTable::class;
+    }
+
+    /**
+     * @return \ANZ\Appointment\Service\Converter\Order
+     * @throws \Exception
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
+    public function getOrderConverter(): Converter\Order
+    {
+        $identifier = static::getIdentifierByClassName(Converter\Order::class);
+
+        if(!ServiceLocator::getInstance()->has($identifier))
+        {
+            ServiceLocator::getInstance()->addInstance($identifier, new Converter\Order);
+        }
+
+        return ServiceLocator::getInstance()->get($identifier);
     }
 }

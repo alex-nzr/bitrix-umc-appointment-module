@@ -22,16 +22,6 @@ class Constants
     const APPOINTMENT_MODULE_ID      = "anz.appointment";
     const APPOINTMENT_JS_EXTENSION   = "anz.appointment.bx_popup";
 
-    const CLINIC_ACTION_1C           = "GetListClinic";
-    const EMPLOYEES_ACTION_1C        = "GetListEmployees";
-    const SCHEDULE_ACTION_1C         = "GetSchedule20";
-    const NOMENCLATURE_ACTION_1C     = "GetNomenclatureAndPrices";
-    const CREATE_ORDER_ACTION_1C     = "BookAnAppointmentWithParams";
-    const DELETE_ORDER_ACTION_1C     = "CancelBookAnAppointment";
-    const CREATE_WAIT_LIST_ACTION_1C = "FastBookAnAppointment";
-    const CREATE_RESERVE_ACTION_1C   = "GetReserve";
-    const GET_ORDER_STATUS_ACTION_1C = "GetAppointmentStatus";
-
     const PATH_TO_DEMO_DATA_FILE = __DIR__."/../../store/demoData.json";
 
     const DEFAULT_SCHEDULE_PERIOD_DAYS     = 14;

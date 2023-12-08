@@ -21,6 +21,7 @@ use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Event\Event;
 use ANZ\Appointment\Event\EventType;
 use ANZ\Appointment\Service\Container;
+use Throwable;
 
 /**
  * Class Appointment
@@ -37,7 +38,7 @@ class Appointment
         try
         {
             $container = Container::getInstance();
-            $writer = $container->getOneCWriter();
+            $writer = $container->getExchangeService();
 
             $useWaitingList = Option::get(
                 ServiceManager::getModuleId(),
@@ -72,7 +73,7 @@ class Appointment
         try
         {
             $container = Container::getInstance();
-            $writer = $container->getOneCWriter();
+            $writer = $container->getExchangeService();
 
             $response = $writer->deleteOrder($orderUid);
             if ($response->isSuccess())
@@ -102,14 +103,11 @@ class Appointment
     {
         try
         {
-            $container = Container::getInstance();
-            $reader = $container->getOneCReader();
-
-            $response = $reader->getOrderStatus($orderUid);
+            $response = Container::getInstance()->getExchangeService()->getOrderStatus($orderUid);
             if ($response->isSuccess())
             {
                 $data = $response->getData();
-                $status = $data['status'] ?? "-";
+                $status = $data['statusTitle'] ?? "-";
                 $ormRes = Orm::updateRecord($id, ['STATUS_1C' => $status]);
                 $response->setData(array_merge($data, $ormRes->getData()));
                 return $response;
@@ -119,7 +117,7 @@ class Appointment
                 throw new Exception(implode(", ", $response->getErrorMessages()));
             }
         }
-        catch (Exception $e)
+        catch (Throwable $e)
         {
             return (new Result)->addError(new Error($e->getMessage()));
         }

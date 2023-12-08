@@ -1,0 +1,19 @@
+{
+    "name": "alsnazarov/anz.appointment",
+    "description": "Module for integration Bitrix with 1C Bit-Umc",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Alsnazarov\\AnzAppointment\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Alexey Nazarov",
+            "email": "jc1988x@gmail.com"
+        }
+    ],
+    "require": {
+        "alex-nzr/bit-umc-sdk": "dev-master"
+    }
+}

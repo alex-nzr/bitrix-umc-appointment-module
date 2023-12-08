@@ -9,10 +9,9 @@
  * 05.03.2023 21:05
  * ==================================================
  */
-namespace ANZ\Appointment\Service\Xml;
+namespace ANZ\Appointment\Service\OneC;
 
 use ANZ\Appointment\Config\Configuration;
-use ANZ\Appointment\Internals\Contract\IReaderService;
 use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Application;
 use Bitrix\Main\Result;
@@ -20,9 +19,9 @@ use SimpleXMLElement;
 
 /**
  * @class FtpDataReader
- * @package ANZ\Appointment\Service\Xml
+ * @package ANZ\Appointment\Service\OneC
  */
-class FtpDataReader implements IReaderService
+class FtpDataReader extends Base
 {
     const EMPLOYEES_FILE_NAME    = 'Employees.xml';
     const NOMENCLATURE_FILE_NAME = 'Price.xml';
@@ -33,6 +32,7 @@ class FtpDataReader implements IReaderService
 
     public function __construct()
     {
+        parent::__construct();
         $this->docRoot           = Application::getDocumentRoot();
         $this->ftpDirectoriesMap = Configuration::getInstance()->getFtpDirectoriesMap();
     }
@@ -67,7 +67,7 @@ class FtpDataReader implements IReaderService
     /**
      * @param string|null $clinicGuid
      * @return \Bitrix\Main\Result
-     * @throws \Exception
+     * @throws \Exception|\Psr\Container\NotFoundExceptionInterface
      */
     public function getEmployeesList(?string $clinicGuid = null): Result
     {
@@ -92,7 +92,7 @@ class FtpDataReader implements IReaderService
             {
                 $strXml = file_get_contents($pathToFile);
                 $xmlObj = new SimpleXMLElement($strXml);
-                $xmlRes = Container::getInstance()->getXmlParser()->prepareEmployeesData($xmlObj);
+                $xmlRes = Container::getInstance()->getExchangeDataProvider()->prepareEmployeesData($xmlObj);
                 if ($xmlRes->isSuccess())
                 {
                     $data = array_merge($data, $xmlRes->getData());
@@ -111,7 +111,7 @@ class FtpDataReader implements IReaderService
     /**
      * @param string $clinicGuid
      * @return \Bitrix\Main\Result
-     * @throws \Exception
+     * @throws \Exception|\Psr\Container\NotFoundExceptionInterface
      */
     public function getNomenclatureList(string $clinicGuid): Result
     {
@@ -124,7 +124,7 @@ class FtpDataReader implements IReaderService
             {
                 $strXml = file_get_contents($pathToFile);
                 $xmlObj = new SimpleXMLElement($strXml);
-                $xmlRes = Container::getInstance()->getXmlParser()->prepareNomenclatureData($xmlObj);
+                $xmlRes = Container::getInstance()->getExchangeDataProvider()->prepareNomenclatureData($xmlObj);
                 if ($xmlRes->isSuccess())
                 {
                     $res->setData($xmlRes->getData());
@@ -142,7 +142,7 @@ class FtpDataReader implements IReaderService
     /**
      * @param array $params
      * @return \Bitrix\Main\Result
-     * @throws \Exception
+     * @throws \Exception|\Psr\Container\NotFoundExceptionInterface
      */
     public function getSchedule(array $params = []): Result
     {
@@ -167,7 +167,7 @@ class FtpDataReader implements IReaderService
             {
                 $strXml = file_get_contents($pathToFile);
                 $xmlObj = new SimpleXMLElement($strXml);
-                $xmlRes = Container::getInstance()->getXmlParser()->prepareScheduleData($xmlObj);
+                $xmlRes = Container::getInstance()->getExchangeDataProvider()->prepareScheduleData($xmlObj);
                 if ($xmlRes->isSuccess())
                 {
                     $xmlData = $xmlRes->getData();

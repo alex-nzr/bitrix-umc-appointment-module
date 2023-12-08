@@ -12,7 +12,10 @@
 namespace ANZ\Appointment\Controller;
 
 use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\Internals\Contract\Service\IExchangeService;
 use ANZ\Appointment\Service\Container;
+use ANZ\Appointment\Service\OneC\Exchange;
+use ANZ\Appointment\Service\OneC\FtpDataReader;
 use ANZ\Appointment\Service\Operation\Appointment;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\ActionFilter\Authentication;
@@ -27,30 +30,16 @@ use Bitrix\Main\Result;
  */
 class OneCController extends Controller
 {
-    /**
-     * @var \ANZ\Appointment\Service\Xml\FtpDataReader|\ANZ\Appointment\Service\OneC\Reader
-     */
-    private $reader;
+    private IExchangeService $exchangeService;
 
     /**
-     * OneCController constructor.
-     * @throws \Exception
+     * OneCController constructor
+     * @throws \Psr\Container\NotFoundExceptionInterface|\Exception
      */
     public function __construct()
     {
         parent::__construct();
-
-        $useDemoMode  = Configuration::getInstance()->isDemoModeOn();
-        $container    = Container::getInstance();
-        if ($useDemoMode)
-        {
-            $this->reader = $container->getOneCReader();
-        }
-        else
-        {
-            $useFtpMode   = Configuration::getInstance()->isFtpModeOn();
-            $this->reader = $useFtpMode ? $container->getFtpDataReader() : $container->getOneCReader();
-        }
+        $this->exchangeService = Container::getInstance()->getExchangeService();
     }
 
     /**
@@ -58,35 +47,32 @@ class OneCController extends Controller
      */
     public function getClinicsAction(): Result
     {
-        return $this->reader->getClinicsList();
+        return $this->exchangeService->getClinicsList();
     }
 
     /**
      * @return \Bitrix\Main\Result
-     * @throws \Exception
      */
     public function getEmployeesAction(): Result
     {
-        return $this->reader->getEmployeesList();
+        return $this->exchangeService->getEmployeesList();
     }
 
     /**
      * @param string $clinicGuid
      * @return \Bitrix\Main\Result
-     * @throws \Exception
      */
     public function getNomenclatureAction(string $clinicGuid): Result
     {
-        return $this->reader->getNomenclatureList($clinicGuid);
+        return $this->exchangeService->getNomenclatureList($clinicGuid);
     }
 
     /**
      * @return \Bitrix\Main\Result
-     * @throws \Exception
      */
     public function getScheduleAction(): Result
     {
-        return $this->reader->getSchedule();
+        return $this->exchangeService->getSchedule();
     }
 
     /**

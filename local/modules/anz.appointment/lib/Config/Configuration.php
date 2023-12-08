@@ -13,6 +13,7 @@
 namespace ANZ\Appointment\Config;
 
 use ANZ\Appointment\Internals\Control\ServiceManager;
+use ANZ\BitUmc\SDK\Core\Trait\Singleton;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
 use Bitrix\Main\Web\Json;
@@ -21,24 +22,11 @@ use Throwable;
 /**
  * @class Configuration
  * @package ANZ\Appointment\Config
+ * @method static Configuration getInstance()
  */
 final class Configuration
 {
-    private static ?Configuration $instance = null;
-
-    private function __construct(){}
-
-    /**
-     * @return \ANZ\Appointment\Config\Configuration
-     */
-    public static function getInstance(): Configuration
-    {
-        if (Configuration::$instance === null)
-        {
-            Configuration::$instance = new Configuration();
-        }
-        return Configuration::$instance;
-    }
+    use Singleton;
 
     /**
      * @return string
