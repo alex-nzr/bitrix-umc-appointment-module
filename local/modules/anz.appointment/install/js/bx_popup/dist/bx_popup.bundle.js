@@ -6,15 +6,12 @@ this.BX.Anz = this.BX.Anz || {};
   function styleInject(css, ref) {
     if (ref === void 0) ref = {};
     var insertAt = ref.insertAt;
-
     if (!css || typeof document === 'undefined') {
       return;
     }
-
     var head = document.head || document.getElementsByTagName('head')[0];
     var style = document.createElement('style');
     style.type = 'text/css';
-
     if (insertAt === 'top') {
       if (head.firstChild) {
         head.insertBefore(style, head.firstChild);
@@ -24,7 +21,6 @@ this.BX.Anz = this.BX.Anz || {};
     } else {
       head.appendChild(style);
     }
-
     if (style.styleSheet) {
       style.styleSheet.cssText = css;
     } else {
@@ -88,7 +84,6 @@ this.BX.Anz = this.BX.Anz || {};
    * 10.07.2022 22:37
    * ==================================================
    */
-
   /**
    * add phone mask
    * @param input
@@ -100,24 +95,19 @@ this.BX.Anz = this.BX.Anz || {};
     var numberPattern = /[0-9]/;
     var newValue = "";
     var valueIndex = 0;
-
     for (var i = 0; i < mask.length; i++) {
       if (i >= value.length) break;
       if (mask[i] === "0" && !numberPattern.test(value[valueIndex])) break;
-
       while (!literalPattern.test(mask[i])) {
         if (value[valueIndex] === mask[i]) break;
         newValue += mask[i++];
       }
-
       newValue += value[valueIndex++];
     }
-
     input.value = newValue;
   }
   function convertHexToHsl(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-
     if (result) {
       var r = parseInt(result[1], 16);
       var g = parseInt(result[2], 16);
@@ -126,47 +116,41 @@ this.BX.Anz = this.BX.Anz || {};
       g /= 255;
       b /= 255;
       var max = Math.max(r, g, b),
-          min = Math.min(r, g, b);
+        min = Math.min(r, g, b);
       var h = 0,
-          s,
-          l = (max + min) / 2;
-
+        s,
+        l = (max + min) / 2;
       if (max === min) {
         h = s = 0; // achromatic
       } else {
         var d = max - min;
         s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
         switch (max) {
           case r:
             h = (g - b) / d + (g < b ? 6 : 0);
             break;
-
           case g:
             h = (b - r) / d + 2;
             break;
-
           case b:
             h = (r - g) / d + 4;
             break;
         }
-
         h /= 6;
       }
-
       s = s * 100;
       s = Math.round(s);
       l = l * 100;
       l = Math.round(l);
-      h = Math.round(360 * h); //`hsl(${h}, ${s}%, ${l}%)`
+      h = Math.round(360 * h);
 
+      //`hsl(${h}, ${s}%, ${l}%)`
       return {
         h: h,
         s: "".concat(s, "%"),
         l: "".concat(l, "%")
       };
     }
-
     return null;
   }
 
@@ -182,12 +166,10 @@ this.BX.Anz = this.BX.Anz || {};
    */
   var EventManager = /*#__PURE__*/function (_Event$EventEmitter) {
     babelHelpers.inherits(EventManager, _Event$EventEmitter);
-
     function EventManager() {
       babelHelpers.classCallCheck(this, EventManager);
       return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(EventManager).apply(this, arguments));
     }
-
     babelHelpers.createClass(EventManager, null, [{
       key: "bind",
       value: function bind(target, eventName, handler, options) {
@@ -216,7 +198,6 @@ this.BX.Anz = this.BX.Anz || {};
       this.styles = styles$$1;
       this.application = application;
     }
-
     babelHelpers.createClass(Renderer, [{
       key: "getAppHtmlSkeleton",
       value: function getAppHtmlSkeleton() {
@@ -264,7 +245,6 @@ this.BX.Anz = this.BX.Anz || {};
       key: "getFormFirstBlock",
       value: function getFormFirstBlock() {
         var _this = this;
-
         var doctorBtn = this.getFormBtn(BX.message("ANZ_JS_FORM_BTN_DOCTOR_FIRST"), function () {
           _this.application.setSelectionDoctorBeforeService(true);
         });
@@ -287,7 +267,6 @@ this.BX.Anz = this.BX.Anz || {};
       key: "getFormSecondBlock",
       value: function getFormSecondBlock() {
         var _this2 = this;
-
         var btnPrev = this.getFormBtn(BX.message('ANZ_JS_FORM_BTN_PREV'), function () {
           _this2.application.changeFormStep(_this2.application.formStepNodes.one, true);
         }, false, true);
@@ -411,13 +390,11 @@ this.BX.Anz = this.BX.Anz || {};
       key: "getSelectionNodes",
       value: function getSelectionNodes(blockKeys) {
         var _this3 = this;
-
         var arNodes = [];
         blockKeys.length && blockKeys.forEach(function (key) {
           if (!_this3.application.selectionBlocks.hasOwnProperty(key)) {
             return;
           }
-
           var selected = BX.create('p', {
             attrs: {
               id: _this3.application.selectionBlocks[key].selectedId,
@@ -459,12 +436,10 @@ this.BX.Anz = this.BX.Anz || {};
       key: "getTextNodes",
       value: function getTextNodes() {
         var arNodes = [];
-
         for (var key in this.application.initParams['textBlocks']) {
           if (!this.application.initParams['textBlocks'].hasOwnProperty(key)) {
             continue;
           }
-
           arNodes.push(BX.create('label', {
             attrs: {
               className: this.styles['appointment-form_input-wrapper']
@@ -475,14 +450,12 @@ this.BX.Anz = this.BX.Anz || {};
             })]
           }));
         }
-
         return arNodes;
       }
     }, {
       key: "getTextInputAttrs",
       value: function getTextInputAttrs(attrs) {
         var preparedAttrs = {};
-
         for (var attr in attrs) {
           if (attrs.hasOwnProperty(attr)) {
             if (attr === "class") {
@@ -492,14 +465,12 @@ this.BX.Anz = this.BX.Anz || {};
             }
           }
         }
-
         return preparedAttrs;
       }
       /**
        * Create start button elements
        * @returns {div}
        */
-
     }, {
       key: "getDefaultStartBtn",
       value: function getDefaultStartBtn() {
@@ -533,17 +504,14 @@ this.BX.Anz = this.BX.Anz || {};
         for (var key in items) {
           if (!items.hasOwnProperty(key)) continue;
           if (!this.application.allowToRender(listNode, dataKey, items[key])) continue;
-
           if (dataKey === this.application.dataKeys.scheduleKey) {
             this.renderScheduleItem(listNode, items[key]);
           } else {
             var _items$key$uid, _items$key$fullName, _items$key$fullName2;
-
             if (items[key].hasOwnProperty('price')) {
               var price = Number(items[key]['price']) > 0 ? "<b>".concat(items[key]['price'], "</b>&#8381;") : "";
               items[key].fullName = "<p>".concat(items[key].name, "<br> <b>").concat(price, "</b></p>");
             }
-
             var dataAttrs = {
               uid: (_items$key$uid = items[key].uid) !== null && _items$key$uid !== void 0 ? _items$key$uid : key,
               name: (_items$key$fullName = items[key].fullName) !== null && _items$key$fullName !== void 0 ? _items$key$fullName : items[key].name
@@ -555,14 +523,12 @@ this.BX.Anz = this.BX.Anz || {};
             }), listNode);
           }
         }
-
         if (listNode.children.length === 0) {
           BX.append(this.createEmptySelectionNode(BX.message("ANZ_JS_".concat(dataKey.toUpperCase(), "_NOT_FOUND_ERROR"))), listNode);
         } else {
           if (dataKey === this.application.dataKeys.scheduleKey) {
             this.addHorizontalScrollButtons(listNode);
           }
-
           this.application.addItemActions(dataKey);
         }
       }
@@ -570,49 +536,40 @@ this.BX.Anz = this.BX.Anz || {};
       key: "renderScheduleItem",
       value: function renderScheduleItem(scheduleList, scheduleItem) {
         var _scheduleItem$timetab,
-            _scheduleItem$timetab2,
-            _this4 = this;
-
-        var serviceDuration = this.application.getServiceDuration(scheduleItem);
+          _this4 = this;
+        var serviceDuration = this.application.getServiceDuration();
         var renderCustomIntervals = this.application.useServices && serviceDuration > 0;
-        var timeKey = renderCustomIntervals ? "freeNotFormatted" : "free";
-
-        if ((_scheduleItem$timetab = scheduleItem['timetable']) !== null && _scheduleItem$timetab !== void 0 && (_scheduleItem$timetab2 = _scheduleItem$timetab[timeKey]) !== null && _scheduleItem$timetab2 !== void 0 && _scheduleItem$timetab2.length) {
-          var intervals = scheduleItem['timetable'][timeKey];
-
-          if (renderCustomIntervals) {
-            var customIntervals = this.application.getIntervalsForServiceDuration(intervals, serviceDuration * 1000);
-
-            if (customIntervals.length === 0) {
-              return;
-            } else {
-              intervals = customIntervals;
+        var timeKey = renderCustomIntervals ? "free" : "freeFormatted";
+        if (babelHelpers["typeof"]((_scheduleItem$timetab = scheduleItem['timetable']) === null || _scheduleItem$timetab === void 0 ? void 0 : _scheduleItem$timetab[timeKey]) === 'object' && Object.keys(scheduleItem['timetable'][timeKey]).length > 0) {
+          var days = scheduleItem['timetable'][timeKey];
+          var _loop = function _loop() {
+            var dayIntervals = days[date$$1];
+            if (Array.isArray(dayIntervals) && dayIntervals.length > 0) {
+              if (renderCustomIntervals) {
+                dayIntervals = _this4.application.getIntervalsForServiceDuration(dayIntervals, serviceDuration * 1000);
+                if (dayIntervals.length <= 0) {
+                  return "break";
+                }
+              }
+              var renderColumn = _this4.createDayColumn(dayIntervals[0]);
+              dayIntervals.forEach(function (interval) {
+                BX.append(BX.create('span', {
+                  dataset: {
+                    displayDate: "".concat(interval['formattedDate'], " "),
+                    date: interval.date,
+                    start: interval.timeBegin,
+                    end: interval.timeEnd
+                  },
+                  text: "".concat(interval['formattedTimeBegin'])
+                }), renderColumn);
+              });
+              scheduleList.append(renderColumn);
             }
+          };
+          for (var date$$1 in days) {
+            var _ret = _loop();
+            if (_ret === "break") break;
           }
-
-          var renderDate;
-          var renderColumn = undefined;
-          intervals.forEach(function (day, index) {
-            var isLast = index === intervals.length - 1;
-
-            if (day.date !== renderDate || isLast) {
-              renderColumn ? scheduleList.append(renderColumn) : void 0;
-              !isLast || intervals.length === 1 ? renderColumn = _this4.createDayColumn(day) : void 0;
-              renderDate = day.date;
-            }
-
-            if (renderColumn) {
-              BX.append(BX.create('span', {
-                dataset: {
-                  displayDate: "".concat(day['formattedDate'], " "),
-                  date: day.date,
-                  start: day.timeBegin,
-                  end: day.timeEnd
-                },
-                text: "".concat(day['formattedTimeBegin'])
-              }), renderColumn);
-            }
-          });
         }
       }
     }, {
@@ -629,7 +586,6 @@ this.BX.Anz = this.BX.Anz || {};
       key: "addHorizontalScrollButtons",
       value: function addHorizontalScrollButtons(scroller) {
         var item = scroller.querySelector('li');
-
         if (scroller && item) {
           var itemWidth = scroller.querySelector('li').clientWidth;
           BX.append(BX.create('div', {
@@ -688,7 +644,6 @@ this.BX.Anz = this.BX.Anz || {};
       key: "getConfirmationBlock",
       value: function getConfirmationBlock() {
         var _this5 = this;
-
         var confirmWarningNode = BX.create('p', {
           attrs: {
             className: styles['appointment-warning-text']
@@ -706,7 +661,6 @@ this.BX.Anz = this.BX.Anz || {};
           events: {
             input: function input(e) {
               var _e$target, _e$target$value;
-
               if (((_e$target = e.target) === null || _e$target === void 0 ? void 0 : (_e$target$value = _e$target.value) === null || _e$target$value === void 0 ? void 0 : _e$target$value.length) > 4) {
                 e.target.value = e.target.value.substring(0, 4);
               }
@@ -788,14 +742,10 @@ this.BX.Anz = this.BX.Anz || {};
   // @disabled-flow
 
   function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
   function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
   function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-
   function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-  function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+  function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
   var AppointmentSteps = /*#__PURE__*/function () {
     /**
      * AppointmentSteps constructor
@@ -803,7 +753,6 @@ this.BX.Anz = this.BX.Anz || {};
      */
     function AppointmentSteps(params) {
       var _babelHelpers$defineP, _params$companyLogo, _params$customColors, _this$filledInputs$te, _this$filledInputs, _this$filledInputs$te2, _this$filledInputs$te3, _this$filledInputs2, _this$filledInputs2$t, _this$filledInputs$te4, _this$filledInputs3, _this$filledInputs3$t, _this$filledInputs$te5, _this$filledInputs4, _this$filledInputs4$t, _this$filledInputs$te6, _this$filledInputs5, _this$filledInputs5$t, _this$filledInputs$te7, _this$filledInputs6, _this$filledInputs6$t, _this$filledInputs$te8, _this$filledInputs7, _this$filledInputs7$t, _this$filledInputs$te9, _this$filledInputs8, _this$filledInputs8$t, _this$filledInputs9;
-
       babelHelpers.classCallCheck(this, AppointmentSteps);
       babelHelpers.defineProperty(this, "selectionStep", '');
       babelHelpers.defineProperty(this, "currentFormStep", null);
@@ -826,7 +775,7 @@ this.BX.Anz = this.BX.Anz || {};
         servicesKey: "services",
         scheduleKey: "schedule"
       });
-      babelHelpers.defineProperty(this, "data", (_babelHelpers$defineP = {}, babelHelpers.defineProperty(_babelHelpers$defineP, this.dataKeys.clinicsKey, []), babelHelpers.defineProperty(_babelHelpers$defineP, this.dataKeys.specialtiesKey, {}), babelHelpers.defineProperty(_babelHelpers$defineP, this.dataKeys.servicesKey, {}), babelHelpers.defineProperty(_babelHelpers$defineP, this.dataKeys.employeesKey, {}), babelHelpers.defineProperty(_babelHelpers$defineP, this.dataKeys.scheduleKey, []), _babelHelpers$defineP));
+      babelHelpers.defineProperty(this, "data", (_babelHelpers$defineP = {}, babelHelpers.defineProperty(_babelHelpers$defineP, this.dataKeys.clinicsKey, []), babelHelpers.defineProperty(_babelHelpers$defineP, this.dataKeys.specialtiesKey, {}), babelHelpers.defineProperty(_babelHelpers$defineP, this.dataKeys.servicesKey, {}), babelHelpers.defineProperty(_babelHelpers$defineP, this.dataKeys.employeesKey, {}), babelHelpers.defineProperty(_babelHelpers$defineP, this.dataKeys.scheduleKey, {}), _babelHelpers$defineP));
       babelHelpers.defineProperty(this, "orderData", {});
       babelHelpers.defineProperty(this, "selectionBlocks", {});
       babelHelpers.defineProperty(this, "selectionNodes", {});
@@ -878,17 +827,15 @@ this.BX.Anz = this.BX.Anz || {};
       this.prepareSelectionBlocksForRender();
       this.renderer = new Renderer(styles, this);
     }
+
     /**
      * create js objects that contains html ids and default textContent for selection blocks
      * this objects will be used for creating selection blocks html
      */
-
-
     babelHelpers.createClass(AppointmentSteps, [{
       key: "prepareSelectionBlocksForRender",
       value: function prepareSelectionBlocksForRender() {
         var _this = this;
-
         this.selectionSteps.forEach(function (step) {
           _this.selectionBlocks[step] = {
             "blockId": "appointment_".concat(step, "_block"),
@@ -903,7 +850,6 @@ this.BX.Anz = this.BX.Anz || {};
       /**
        * start application
        */
-
     }, {
       key: "run",
       value: function run() {
@@ -914,7 +860,6 @@ this.BX.Anz = this.BX.Anz || {};
       /**
        * check root selector and creates it if needed
        */
-
     }, {
       key: "checkRoot",
       value: function checkRoot() {
@@ -928,7 +873,6 @@ this.BX.Anz = this.BX.Anz || {};
       /**
        * build basic html skeleton and insert it to DOM
        */
-
     }, {
       key: "insertAppHtml",
       value: function insertAppHtml() {
@@ -938,7 +882,6 @@ this.BX.Anz = this.BX.Anz || {};
       /**
        * start all application actions
        */
-
     }, {
       key: "init",
       value: function init() {
@@ -962,15 +905,12 @@ this.BX.Anz = this.BX.Anz || {};
       /**
        * subscribing on custom js events
        */
-
     }, {
       key: "initCustomEvents",
       value: function initCustomEvents() {
         var _this2 = this;
-
         EventManager.subscribe(EventManager.fullDataLoaded, function () {
           _this2.loaded = true;
-
           try {
             _this2.renderBlock(_this2.dataKeys.clinicsKey);
           } catch (e) {
@@ -979,14 +919,11 @@ this.BX.Anz = this.BX.Anz || {};
         });
         EventManager.subscribe(EventManager.clinicsRendered, function () {
           _this2.createSpecialtiesList();
-
           _this2.toggleLoader(false);
         });
         EventManager.subscribe(EventManager.formStepChanged, function (e) {
           e.data.isBack ? _this2.selectionStep = _this2.dataKeys.specialtiesKey : void 0;
-
           _this2.changeFormStepActions(e.data);
-
           _this2.activateSelectionNodes();
         });
       }
@@ -1000,17 +937,14 @@ this.BX.Anz = this.BX.Anz || {};
       /**
        * find or create start button and add event handler for click
        */
-
     }, {
       key: "initStartBtn",
       value: function initStartBtn() {
         if (!this.firstInit && this.useCustomMainBtn) {
           return;
         }
-
         var startBtnId = this.useCustomMainBtn ? this.initParams['customMainBtnId'] : this.selectors.startBtnId;
         this.startBtn = BX(startBtnId);
-
         if (BX.type.isDomNode(this.startBtn)) {
           EventManager.bind(this.startBtn, 'click', this.togglePopup.bind(this));
         } else {
@@ -1020,7 +954,6 @@ this.BX.Anz = this.BX.Anz || {};
       /**
        * find all base nodes and save them to this object props
        */
-
     }, {
       key: "initBaseNodes",
       value: function initBaseNodes() {
@@ -1034,16 +967,13 @@ this.BX.Anz = this.BX.Anz || {};
       /**
        * make popup hidden by click to overlay
        */
-
     }, {
       key: "initOverlayAction",
       value: function initOverlayAction() {
         var _this3 = this;
-
         if (BX.type.isDomNode(this.overlay)) {
           EventManager.bind(this.overlay, 'click', function (e) {
             var _e$target;
-
             if (((_e$target = e.target) === null || _e$target === void 0 ? void 0 : _e$target.getAttribute('id')) === _this3.selectors.overlayId) {
               _this3.togglePopup();
             }
@@ -1053,12 +983,10 @@ this.BX.Anz = this.BX.Anz || {};
       /**
        * find form node and add event listeners
        */
-
     }, {
       key: "initForm",
       value: function initForm() {
         this.form = BX(this.selectors.formId);
-
         if (this.form) {
           EventManager.bind(this.form, 'submit', this.submit.bind(this));
         } else {
@@ -1068,7 +996,6 @@ this.BX.Anz = this.BX.Anz || {};
       /**
        * find node and add event listener to close form
        */
-
     }, {
       key: "initMobileCloseBtn",
       value: function initMobileCloseBtn() {
@@ -1081,7 +1008,6 @@ this.BX.Anz = this.BX.Anz || {};
       /**
        * find nodes and save their data to this object
        */
-
     }, {
       key: "initSelectionNodes",
       value: function initSelectionNodes() {
@@ -1092,7 +1018,6 @@ this.BX.Anz = this.BX.Anz || {};
             selectedNode: BX(this.selectionBlocks[key].selectedId),
             inputNode: BX(this.selectionBlocks[key].inputId)
           };
-
           if (this.selectionBlocks[key].isRequired) {
             this.requiredInputs.push(this.selectionNodes[key].inputNode);
           }
@@ -1101,39 +1026,29 @@ this.BX.Anz = this.BX.Anz || {};
       /**
        * find nodes, add actions and save their data to this object
        */
-
     }, {
       key: "initTextNodes",
       value: function initTextNodes() {
         var _this4 = this;
-
         this.initParams['textBlocks'].forEach(function (block) {
           var input = BX(block.id);
-
           if (!input) {
             throw new Error("".concat(BX.message("ANZ_JS_NODE_NOT_FOUND"), " ").concat(block.id));
           }
-
           var currentValue = _this4.filledInputs.textValues[block.name];
           input.value = currentValue ? currentValue : '';
-
           if (input && currentValue && block.name === TextInputNames.birthday) {
             var date$$1 = new Date(currentValue);
             input.value = _this4.convertDateToDisplay(date$$1.getTime(), false, true);
           }
-
           EventManager.bind(input, 'input', function (e) {
             var _e$target$value;
-
             var val = (_e$target$value = e.target.value) !== null && _e$target$value !== void 0 ? _e$target$value : '';
-
             if (e.target.name === TextInputNames.phone && val.length > _this4.phoneMask.length) {
               val = val.substring(0, _this4.phoneMask.length);
             }
-
             _this4.filledInputs.textValues[block.name] = val;
           });
-
           if (block["data-required"] === "true") {
             _this4.requiredInputs.push(input);
           } else {
@@ -1141,7 +1056,6 @@ this.BX.Anz = this.BX.Anz || {};
               _this4.requiredInputs.push(input);
             }
           }
-
           _this4.textNodes[block.name] = {
             inputNode: input
           };
@@ -1150,7 +1064,6 @@ this.BX.Anz = this.BX.Anz || {};
       /**
        * loading data from 1c and build selectors html
        */
-
     }, {
       key: "start",
       value: function start() {
@@ -1160,18 +1073,14 @@ this.BX.Anz = this.BX.Anz || {};
       /**
        * sequentially loads data from 1c
        */
-
     }, {
       key: "loadData",
       value: function loadData() {
         var _this5 = this;
-
         this.getListClinic().then(function (clinicsResponse) {
           var _clinicsResponse$data, _clinicsResponse$data3;
-
           if ((_clinicsResponse$data = clinicsResponse.data) !== null && _clinicsResponse$data !== void 0 && _clinicsResponse$data.error) {
             var _clinicsResponse$data2;
-
             throw new Error((_clinicsResponse$data2 = clinicsResponse.data) === null || _clinicsResponse$data2 === void 0 ? void 0 : _clinicsResponse$data2.error);
           } else if (((_clinicsResponse$data3 = clinicsResponse.data) === null || _clinicsResponse$data3 === void 0 ? void 0 : _clinicsResponse$data3.length) === 0) {
             throw new Error(BX.message("ANZ_JS_CLINICS_NOT_FOUND_ERROR"));
@@ -1181,10 +1090,8 @@ this.BX.Anz = this.BX.Anz || {};
           }
         }).then(function (employeesResponse) {
           var _employeesResponse$da;
-
           if ((_employeesResponse$da = employeesResponse.data) !== null && _employeesResponse$da !== void 0 && _employeesResponse$da.error) {
             var _employeesResponse$da2;
-
             throw new Error((_employeesResponse$da2 = employeesResponse.data) === null || _employeesResponse$da2 === void 0 ? void 0 : _employeesResponse$da2.error);
           } else if (Object.keys(employeesResponse.data).length === 0) {
             throw new Error(BX.message("ANZ_JS_DOCTORS_NOT_FOUND_ERROR"));
@@ -1193,25 +1100,19 @@ this.BX.Anz = this.BX.Anz || {};
             return _this5.getSchedule();
           }
         }).then(function (scheduleResponse) {
-          var _scheduleResponse$dat, _scheduleResponse$dat3;
-
+          var _scheduleResponse$dat;
           if ((_scheduleResponse$dat = scheduleResponse.data) !== null && _scheduleResponse$dat !== void 0 && _scheduleResponse$dat.error) {
             var _scheduleResponse$dat2;
-
             throw new Error((_scheduleResponse$dat2 = scheduleResponse.data) === null || _scheduleResponse$dat2 === void 0 ? void 0 : _scheduleResponse$dat2.error);
           }
-
-          if ((_scheduleResponse$dat3 = scheduleResponse.data) !== null && _scheduleResponse$dat3 !== void 0 && _scheduleResponse$dat3.hasOwnProperty("schedule")) {
-            _this5.data.schedule = scheduleResponse.data.schedule;
+          if (babelHelpers["typeof"](scheduleResponse.data) === 'object') {
+            _this5.data.schedule = scheduleResponse.data;
             _this5.messageNode.textContent = "";
           }
-
           EventManager.emit(EventManager.fullDataLoaded);
         })["catch"](function (e) {
           !_this5.useCustomMainBtn && _this5.startBtnWrap.classList.add(styles['hidden']);
-
           _this5.logResultErrors(e);
-
           _this5.alertError(BX.message("ANZ_JS_APPLICATION_ERROR_CONNECTION"));
         });
       }
@@ -1219,7 +1120,6 @@ this.BX.Anz = this.BX.Anz || {};
        * Load clinics list from 1c
        * @returns {Promise<any>}
        */
-
     }, {
       key: "getListClinic",
       value: function getListClinic() {
@@ -1233,7 +1133,6 @@ this.BX.Anz = this.BX.Anz || {};
        * Load employees list from 1c
        * @returns {Promise<any>}
        */
-
     }, {
       key: "getListEmployees",
       value: function getListEmployees() {
@@ -1247,7 +1146,6 @@ this.BX.Anz = this.BX.Anz || {};
        * Load doctor's schedule from 1c
        * @returns {Promise<any>}
        */
-
     }, {
       key: "getSchedule",
       value: function getSchedule() {
@@ -1262,7 +1160,6 @@ this.BX.Anz = this.BX.Anz || {};
        * @param clinicGuid
        * @returns {Promise<any>}
        */
-
     }, {
       key: "getListNomenclature",
       value: function getListNomenclature(clinicGuid) {
@@ -1297,20 +1194,24 @@ this.BX.Anz = this.BX.Anz || {};
       key: "renderBlock",
       value: function renderBlock(dataKey) {
         var _this$selectionNodes$;
-
         var listNode = (_this$selectionNodes$ = this.selectionNodes[dataKey]) === null || _this$selectionNodes$ === void 0 ? void 0 : _this$selectionNodes$.listNode;
-
         if (!listNode) {
           throw new Error(BX.message("ANZ_JS_".concat(dataKey.toUpperCase(), "_NODE_NOT_FOUND_ERROR")));
         }
-
-        dataKey === this.dataKeys.scheduleKey ? listNode.classList.add(styles["column-mode"]) : void 0;
-        BX.cleanNode(listNode); //if(Object.keys(this.data[dataKey]).length > 0)
-        //{
-
+        BX.cleanNode(listNode);
         var items = this.data[dataKey];
+        if (dataKey === this.dataKeys.scheduleKey) {
+          var _items$selectedClinic, _items$selectedClinic2;
+          listNode.classList.add(styles["column-mode"]);
+          var selectedClinic = this.filledInputs[this.dataKeys.clinicsKey].clinicUid;
+          var selectedSpecialtyUid = this.filledInputs[this.dataKeys.specialtiesKey].specialtyUid;
+          var selectedEmployeeUid = this.filledInputs[this.dataKeys.employeesKey].refUid;
+          if (items.hasOwnProperty(selectedClinic) && (_items$selectedClinic = items[selectedClinic]) !== null && _items$selectedClinic !== void 0 && _items$selectedClinic.hasOwnProperty(selectedSpecialtyUid) && (_items$selectedClinic2 = items[selectedClinic][selectedSpecialtyUid]) !== null && _items$selectedClinic2 !== void 0 && _items$selectedClinic2.hasOwnProperty(selectedEmployeeUid) && babelHelpers["typeof"](items[selectedClinic][selectedSpecialtyUid][selectedEmployeeUid]) === 'object') {
+            items = [items[selectedClinic][selectedSpecialtyUid][selectedEmployeeUid]];
+          }
+        }
         this.renderer.renderSelectionItems(listNode, dataKey, items);
-        dataKey === this.dataKeys.clinicsKey ? EventManager.emit(EventManager.clinicsRendered) : void 0; //}
+        dataKey === this.dataKeys.clinicsKey ? EventManager.emit(EventManager.clinicsRendered) : void 0;
       }
     }, {
       key: "allowToRender",
@@ -1321,28 +1222,22 @@ this.BX.Anz = this.BX.Anz || {};
         var selectedEmployeeUid = this.filledInputs[this.dataKeys.employeesKey].refUid;
         var selectedServiceUid = this.filledInputs[this.dataKeys.servicesKey].serviceUid;
         var clinicCondition, specialtyCondition;
-
         switch (dataKey) {
           case this.dataKeys.specialtiesKey:
             var alreadyRendered = listNode.querySelector("[data-uid=\"".concat(item.uid, "\"]"));
             clinicCondition = item.clinics.includes(selectedClinic);
-
             if (this.strictCheckingOfRelations) {
               canRender = clinicCondition;
-
               if (this.showDoctorsWithoutDepartment) {
                 canRender = clinicCondition || item.clinics.includes('');
               }
             }
-
             canRender = canRender && BX.type.isNotEmptyString(item.name) && !alreadyRendered;
             break;
-
           case this.dataKeys.employeesKey:
             specialtyCondition = item.specialtyUid === selectedSpecialtyUid;
             clinicCondition = selectedClinic === item.clinicUid;
             canRender = specialtyCondition;
-
             if (this.strictCheckingOfRelations) {
               if (this.showDoctorsWithoutDepartment) {
                 canRender = specialtyCondition && !item.clinicUid || specialtyCondition && clinicCondition;
@@ -1350,66 +1245,62 @@ this.BX.Anz = this.BX.Anz || {};
                 canRender = specialtyCondition && clinicCondition;
               }
             }
-
             if (this.useServices && !this.selectDoctorBeforeService) {
               canRender = canRender && item.services.hasOwnProperty(selectedServiceUid);
             }
-
             break;
-
           case this.dataKeys.servicesKey:
             canRender = selectedSpecialtyUid === item.specialtyUid;
-
             if (this.selectDoctorBeforeService) {
               canRender = canRender && this.data.employees[selectedEmployeeUid].services.hasOwnProperty(item.uid);
             }
-
             break;
-
           case this.dataKeys.scheduleKey:
-            canRender = item.clinicUid === selectedClinic && item.refUid === selectedEmployeeUid;
-            break;
+            //canRender always true new schedule structure used
+            canRender = true;
 
+            //old condition
+            //canRender = (item.clinicUid === selectedClinic) && (item.refUid === selectedEmployeeUid)
+            break;
           default:
             break;
         }
-
         return canRender;
       }
     }, {
       key: "getServiceDuration",
-      value: function getServiceDuration(scheduleItem) {
-        var selectedEmployee = this.data.employees[scheduleItem.refUid];
+      value: function getServiceDuration() {
+        var _this$data$this$dataK, _selectedEmployeeFull;
+        var selectedEmployee = this.filledInputs[this.dataKeys.employeesKey];
+        var selectedEmployeeFullData = (_this$data$this$dataK = this.data[this.dataKeys.employeesKey]) === null || _this$data$this$dataK === void 0 ? void 0 : _this$data$this$dataK[selectedEmployee.refUid];
         var selectedService = this.filledInputs[this.dataKeys.servicesKey];
+        var serviceUid = selectedService.serviceUid;
         var serviceDuration = Number(selectedService.serviceDuration);
-
-        if (selectedEmployee.services.hasOwnProperty(selectedService.serviceUid)) {
-          if (selectedEmployee.services[selectedService.serviceUid].hasOwnProperty("personalDuration")) {
-            var personalDuration = selectedEmployee.services[selectedService.serviceUid]["personalDuration"];
+        if (selectedEmployeeFullData !== null && selectedEmployeeFullData !== void 0 && (_selectedEmployeeFull = selectedEmployeeFullData.services) !== null && _selectedEmployeeFull !== void 0 && _selectedEmployeeFull.hasOwnProperty(serviceUid)) {
+          var _selectedEmployeeFull2;
+          if ((_selectedEmployeeFull2 = selectedEmployeeFullData.services[serviceUid]) !== null && _selectedEmployeeFull2 !== void 0 && _selectedEmployeeFull2.hasOwnProperty('personalDuration')) {
+            var personalDuration = selectedEmployeeFullData.services[serviceUid]['personalDuration'];
             serviceDuration = Number(personalDuration) > 0 ? Number(personalDuration) : serviceDuration;
           }
         }
-
         return serviceDuration;
       }
     }, {
       key: "getIntervalsForServiceDuration",
       value: function getIntervalsForServiceDuration(intervals, serviceDurationMs) {
         var _this6 = this;
-
         var newIntervals = [];
         intervals.length && intervals.forEach(function (day) {
           var timestampTimeBegin = new Date(day.timeBegin).getTime();
           var timestampTimeEnd = new Date(day.timeEnd).getTime();
           var timeDifference = timestampTimeEnd - timestampTimeBegin;
           var appointmentsCount = Math.floor(timeDifference / serviceDurationMs);
-
           if (appointmentsCount > 0) {
-            if (_this6.useTimeSteps && serviceDurationMs >= 30 * 60 * 1000) //use timeSteps only for services with duration>=30 minutes
+            if (_this6.useTimeSteps && serviceDurationMs >= 30 * 60 * 1000)
+              //use timeSteps only for services with duration>=30 minutes
               {
                 var start = new Date(timestampTimeBegin);
                 var end = new Date(timestampTimeBegin + serviceDurationMs);
-
                 while (end.getTime() <= timestampTimeEnd) {
                   newIntervals.push({
                     "date": day.date,
@@ -1425,9 +1316,7 @@ this.BX.Anz = this.BX.Anz || {};
               } else {
               for (var i = 0; i < appointmentsCount; i++) {
                 var _start = Number(new Date(timestampTimeBegin + serviceDurationMs * i));
-
                 var _end = Number(new Date(timestampTimeBegin + serviceDurationMs * (i + 1)));
-
                 newIntervals.push({
                   "date": day.date,
                   "timeBegin": _this6.convertDateToISO(_start),
@@ -1446,11 +1335,9 @@ this.BX.Anz = this.BX.Anz || {};
       key: "toggleSelectionList",
       value: function toggleSelectionList(dataKey, selected, list) {
         list.classList.toggle(styles['active']);
-
         for (var nodesKey in this.selectionNodes) {
           if (this.selectionNodes.hasOwnProperty(nodesKey) && nodesKey !== dataKey) {
             var _this$selectionNodes$2, _this$selectionNodes$3;
-
             (_this$selectionNodes$2 = this.selectionNodes[nodesKey]) === null || _this$selectionNodes$2 === void 0 ? void 0 : (_this$selectionNodes$3 = _this$selectionNodes$2.listNode) === null || _this$selectionNodes$3 === void 0 ? void 0 : _this$selectionNodes$3.classList.remove(styles['active']);
           }
         }
@@ -1459,45 +1346,32 @@ this.BX.Anz = this.BX.Anz || {};
       key: "addItemActions",
       value: function addItemActions(dataKey) {
         var _this7 = this;
-
         var items = this.selectionNodes[dataKey].listNode.children;
-
         if (!items.length) {
           return;
         }
-
         var _iterator = _createForOfIteratorHelper(items),
-            _step;
-
+          _step;
         try {
           for (_iterator.s(); !(_step = _iterator.n()).done;) {
             var item = _step.value;
-
             if (dataKey === this.dataKeys.scheduleKey) {
               var times = item.querySelectorAll('span');
               times.length && times.forEach(function (time) {
                 time.addEventListener('click', function (e) {
                   e.stopPropagation();
-
                   _this7.selectionNodes[dataKey].listNode.classList.remove(styles['active']);
-
                   _this7.selectionNodes[dataKey].selectedNode.innerHTML = "\n                            <span>\n                                ".concat(e.currentTarget.dataset.displayDate, " - \n                                ").concat(e.currentTarget.textContent, "\n                            </span>\n                        ");
-
                   _this7.changeSelectionStep(dataKey, e.currentTarget);
-
                   _this7.activateSelectionNodes();
                 });
               });
             } else {
               item.addEventListener('click', function (e) {
                 e.stopPropagation();
-
                 _this7.selectionNodes[dataKey].listNode.classList.remove(styles['active']);
-
                 _this7.selectionNodes[dataKey].selectedNode.innerHTML = "<span>".concat(e.currentTarget.textContent, "</span>");
-
                 _this7.changeSelectionStep(dataKey, e.currentTarget);
-
                 if (dataKey !== _this7.dataKeys.specialtiesKey) {
                   _this7.activateSelectionNodes();
                 } else {
@@ -1516,15 +1390,12 @@ this.BX.Anz = this.BX.Anz || {};
       key: "changeSelectionStep",
       value: function changeSelectionStep(dataKey, target) {
         var _this8 = this;
-
         this.selectionNodes[dataKey].inputNode.value = target.dataset.uid;
-
         switch (dataKey) {
           case this.dataKeys.clinicsKey:
             var clinicUid = target.dataset.uid;
             this.filledInputs[dataKey].clinicUid = clinicUid;
             this.filledInputs[dataKey].clinicName = target.dataset.name;
-
             if (this.useServices) {
               if (this.servicesStorage[clinicUid]) {
                 this.data.services = _objectSpread({}, this.servicesStorage[clinicUid]);
@@ -1533,21 +1404,16 @@ this.BX.Anz = this.BX.Anz || {};
                 this.toggleLoader(true);
                 this.getListNomenclature("".concat(clinicUid)).then(function (nomenclature) {
                   var _nomenclature$data;
-
                   if ((_nomenclature$data = nomenclature.data) !== null && _nomenclature$data !== void 0 && _nomenclature$data.error) {
                     throw new Error(nomenclature.data.error);
                   } else {
                     if (Object.keys(nomenclature.data).length > 0) {
                       _this8.data.services = nomenclature.data;
-
                       _this8.bindServicesToSpecialties();
-
                       _this8.servicesStorage[clinicUid] = _objectSpread({}, _this8.data.services);
                     }
-
                     _this8.renderSpecialtiesList();
                   }
-
                   _this8.toggleLoader(false);
                 })["catch"](function (res) {
                   _this8.logResultErrors(res);
@@ -1556,25 +1422,20 @@ this.BX.Anz = this.BX.Anz || {};
             } else {
               this.renderSpecialtiesList();
             }
-
             break;
-
           case this.dataKeys.specialtiesKey:
             this.filledInputs[dataKey].specialty = target.dataset.name;
             this.filledInputs[dataKey].specialtyUid = target.dataset.uid;
             break;
-
           case this.dataKeys.servicesKey:
             this.filledInputs[dataKey].serviceName = target.textContent;
             this.filledInputs[dataKey].serviceUid = target.dataset.uid;
             this.filledInputs[dataKey].serviceDuration = target.dataset.duration;
             this.selectDoctorBeforeService ? this.renderScheduleList() : this.renderEmployeesList();
             break;
-
           case this.dataKeys.employeesKey:
             this.filledInputs[dataKey].doctorName = target.textContent;
             this.filledInputs[dataKey].refUid = target.dataset.uid;
-
             if (this.useServices) {
               if (this.selectDoctorBeforeService) {
                 this.renderServicesList();
@@ -1584,20 +1445,16 @@ this.BX.Anz = this.BX.Anz || {};
             } else {
               this.renderScheduleList();
             }
-
             break;
-
           case this.dataKeys.scheduleKey:
             this.filledInputs[dataKey].orderDate = target.dataset.date;
             this.filledInputs[dataKey].timeBegin = target.dataset.start;
             this.filledInputs[dataKey].timeEnd = target.dataset.end;
             this.selectionNodes[dataKey].inputNode.value = target.dataset.date;
             break;
-
           default:
             break;
         }
-
         this.selectionStep = dataKey;
       }
     }, {
@@ -1605,23 +1462,19 @@ this.BX.Anz = this.BX.Anz || {};
       value: function bindServicesToSpecialties() {
         var services = this.data.services;
         var employees = this.data.employees;
-
         if (Object.keys(employees).length > 0) {
           for (var employeeUid in employees) {
             if (!employees.hasOwnProperty(employeeUid)) {
               return;
             }
-
             var empServices = employees[employeeUid].services;
-            var specialty = employees[employeeUid].specialty;
-
+            var specialty = employees[employeeUid]['specialtyName'];
             if (specialty) {
               if (empServices && Object.keys(empServices).length > 0) {
                 for (var empServiceUid in empServices) {
                   if (!empServices.hasOwnProperty(empServiceUid)) {
                     return;
                   }
-
                   if (services.hasOwnProperty(empServiceUid)) {
                     services[empServiceUid].specialtyUid = employees[employeeUid].specialtyUid;
                   }
@@ -1635,13 +1488,10 @@ this.BX.Anz = this.BX.Anz || {};
       key: "createSpecialtiesList",
       value: function createSpecialtiesList() {
         var employees = this.data.employees;
-
         if (Object.keys(employees).length > 0) {
           for (var uid in employees) {
-            if (employees.hasOwnProperty(uid)) {
-              var specialty = employees[uid].specialty;
-              specialty && this.addSpecialty(employees[uid]);
-            }
+            var specialty = employees[uid]['specialtyName'];
+            specialty && this.addSpecialty(employees[uid]);
           }
         }
       }
@@ -1654,7 +1504,7 @@ this.BX.Anz = this.BX.Anz || {};
           } else {
             this.data[this.dataKeys.specialtiesKey][employee.specialtyUid] = {
               uid: employee.specialtyUid,
-              name: employee.specialty,
+              name: employee['specialtyName'],
               clinics: [employee.clinicUid]
             };
           }
@@ -1671,38 +1521,30 @@ this.BX.Anz = this.BX.Anz || {};
       key: "activateSelectionNodes",
       value: function activateSelectionNodes() {
         var _this9 = this;
-
         var current = false;
         var next = false;
         this.selectionSteps.forEach(function (nodesKey) {
           if (!_this9.useServices && nodesKey === _this9.dataKeys.servicesKey) {
             return;
           }
-
           if (_this9.selectionNodes.hasOwnProperty(nodesKey)) {
             var block = _this9.selectionNodes[nodesKey].blockNode;
-
             if (!current && !next) {
               block.classList.remove(styles["disabled"]);
             } else if (current && !next) {
               block.classList.remove(styles["disabled"]);
-
               _this9.resetValue(nodesKey);
             } else {
               block.classList.add(styles["disabled"]);
-
               _this9.resetValue(nodesKey);
             }
-
             next = current;
-
             if (nodesKey === _this9.selectionStep) {
               current = true;
               var selectedSpecialty = _this9.filledInputs[_this9.dataKeys.specialtiesKey].specialtyUid;
               var selectedDate = _this9.filledInputs[_this9.dataKeys.scheduleKey].orderDate;
               var specialtyCondition = nodesKey === _this9.dataKeys.specialtiesKey && selectedSpecialty;
               var dateCondition = nodesKey === _this9.dataKeys.scheduleKey && selectedDate;
-
               if (_this9.currentFormStep === _this9.formStepNodes.one && specialtyCondition || _this9.currentFormStep === _this9.formStepNodes.two && dateCondition) {
                 _this9.activateStepButtons();
               } else {
@@ -1717,7 +1559,6 @@ this.BX.Anz = this.BX.Anz || {};
       value: function resetValue(nodesKey) {
         this.selectionNodes[nodesKey].selectedNode.textContent = this.defaultText[nodesKey];
         this.selectionNodes[nodesKey].inputNode.value = "";
-
         if (this.filledInputs.hasOwnProperty(nodesKey)) {
           for (var propKey in this.filledInputs[nodesKey]) {
             if (this.filledInputs[nodesKey].hasOwnProperty(propKey)) {
@@ -1732,10 +1573,8 @@ this.BX.Anz = this.BX.Anz || {};
         if (this.filledInputs[this.dataKeys.specialtiesKey].specialty !== false) {
           this.resetValue(this.dataKeys.employeesKey);
           this.selectDoctorBeforeService = value;
-
           if (this.useServices) {
             this.resetValue(this.dataKeys.servicesKey);
-
             if (value === true) {
               BX.insertBefore(this.selectionNodes[this.dataKeys.employeesKey].blockNode, this.selectionNodes[this.dataKeys.servicesKey].blockNode);
               this.selectionSteps[3] = this.dataKeys.servicesKey;
@@ -1750,7 +1589,6 @@ this.BX.Anz = this.BX.Anz || {};
           } else {
             this.renderEmployeesList();
           }
-
           EventManager.emit(EventManager.formStepChanged, new main_core.Event.BaseEvent({
             data: {
               previousStep: this.formStepNodes.one,
@@ -1780,11 +1618,9 @@ this.BX.Anz = this.BX.Anz || {};
           this.currentFormStep = data.newStep;
           data.newStep.classList.remove(styles['hidden']);
         }
-
         if (BX.type.isDomNode(data === null || data === void 0 ? void 0 : data.previousStep)) {
           data.previousStep.classList.add(styles['hidden']);
         }
-
         if (this.currentFormStep === this.formStepNodes.userData) {
           this.form.classList.add(styles['hide-logo']);
         } else {
@@ -1815,23 +1651,19 @@ this.BX.Anz = this.BX.Anz || {};
       key: "submit",
       value: function submit(event) {
         event.preventDefault();
-
         if (this.checkRequiredFields()) {
           this.messageNode ? this.messageNode.textContent = "" : void 0;
           this.toggleLoader(true);
           this.orderData = _objectSpread({}, this.filledInputs.textValues);
-
           for (var key in this.selectionNodes) {
             if (!this.useServices && key === this.dataKeys.servicesKey) {
               continue;
             }
-
             if (this.selectionNodes.hasOwnProperty(key) && this.filledInputs.hasOwnProperty(key)) {
               this.selectionNodes[key].inputNode.value = JSON.stringify(this.filledInputs[key]);
               this.orderData = _objectSpread(_objectSpread({}, this.orderData), this.filledInputs[key]);
             }
           }
-
           if (this.useConfirmWith !== this.confirmTypes.none) {
             this.sendConfirmCode();
           } else {
@@ -1845,7 +1677,6 @@ this.BX.Anz = this.BX.Anz || {};
       key: "sendConfirmCode",
       value: function sendConfirmCode() {
         var _this10 = this;
-
         var event = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
         event && event.preventDefault();
         this.messageNode.textContent = "";
@@ -1857,19 +1688,13 @@ this.BX.Anz = this.BX.Anz || {};
           }
         }).then(function (result) {
           var _result$data$timeExpi, _result$data;
-
           _this10.timeExpires = (_result$data$timeExpi = (_result$data = result.data) === null || _result$data === void 0 ? void 0 : _result$data.timeExpires) !== null && _result$data$timeExpi !== void 0 ? _result$data$timeExpi : (new Date().getTime() / 1000).toFixed(0) + 60;
-
           _this10.createConfirmationForm();
-
           _this10.toggleLoader(false);
         })["catch"](function (result) {
           var _result$errors, _result$errors$;
-
           _this10.messageNode.textContent = ((_result$errors = result.errors) === null || _result$errors === void 0 ? void 0 : (_result$errors$ = _result$errors[0]) === null || _result$errors$ === void 0 ? void 0 : _result$errors$.message) + BX.message("ANZ_JS_SOME_DISPLAY_ERROR_POSTFIX");
-
           _this10.logResultErrors(result);
-
           _this10.toggleLoader(false);
         });
       }
@@ -1885,10 +1710,8 @@ this.BX.Anz = this.BX.Anz || {};
       key: "verifyConfirmCode",
       value: function verifyConfirmCode(code, confirmWarningNode, btnNode) {
         var _this11 = this;
-
         if (confirmWarningNode && btnNode) {
           confirmWarningNode.textContent = '';
-
           if ((code === null || code === void 0 ? void 0 : code.length) === 4) {
             btnNode.classList.add(styles['loading']);
             BX.ajax.runAction('anz:appointment.messageController.verifyConfirmCode', {
@@ -1901,9 +1724,7 @@ this.BX.Anz = this.BX.Anz || {};
               return _this11.sendOrder();
             })["catch"](function (result) {
               var _result$errors2;
-
               btnNode.classList.remove(styles['loading']);
-
               if (((_result$errors2 = result.errors) === null || _result$errors2 === void 0 ? void 0 : _result$errors2.length) > 0) {
                 result.errors.forEach(function (error) {
                   confirmWarningNode.innerHTML = Number(error.code) === 400 || Number(error.code) === 406 || Number(error.code) === 425 ? "".concat(confirmWarningNode.innerHTML).concat(error.message, "<br>") : BX.message("ANZ_JS_APPLICATION_ERROR");
@@ -1919,7 +1740,6 @@ this.BX.Anz = this.BX.Anz || {};
       key: "sendOrder",
       value: function sendOrder() {
         var _this12 = this;
-
         BX.ajax.runAction('anz:appointment.oneCController.addOrder', {
           data: {
             params: JSON.stringify(this.orderData),
@@ -1927,27 +1747,20 @@ this.BX.Anz = this.BX.Anz || {};
           }
         }).then(function (result) {
           var _result$data2;
-
           _this12.destroyConfirmationForm();
-
           _this12.toggleLoader(false);
-
           if ((_result$data2 = result.data) !== null && _result$data2 !== void 0 && _result$data2.error) {
             throw new Error(result.data.error);
           } else {
             if (_this12.useEmailNote && _this12.orderData.email) {
               _this12.sendEmailNote();
             }
-
             _this12.finalizingWidget(true);
           }
         })["catch"](function (result) {
           _this12.destroyConfirmationForm();
-
           _this12.toggleLoader(false);
-
           _this12.logResultErrors(result);
-
           _this12.finalizingWidget(false);
         });
       }
@@ -1965,7 +1778,6 @@ this.BX.Anz = this.BX.Anz || {};
       key: "startCodeTimerActions",
       value: function startCodeTimerActions(confirmRepeatBtn) {
         var _this13 = this;
-
         var curTimeSeconds = Number((new Date().getTime() / 1000).toFixed(0));
         var remainingTime = this.timeExpires - curTimeSeconds;
         var interval = setInterval(function () {
@@ -1988,11 +1800,9 @@ this.BX.Anz = this.BX.Anz || {};
       key: "finalizingWidget",
       value: function finalizingWidget(success) {
         var _this14 = this;
-
         this.resultBlock.classList.add(styles['active']);
         this.form.classList.add(styles['off']);
         var resTextNode = this.resultBlock.querySelector('p');
-
         if (resTextNode) {
           if (success) {
             var date$$1 = this.convertDateToDisplay(this.orderData.timeBegin, false);
@@ -2014,7 +1824,6 @@ this.BX.Anz = this.BX.Anz || {};
       key: "finalAnimations",
       value: function finalAnimations() {
         var _this15 = this;
-
         this.startBtn.classList.remove(styles['active']);
         this.startBtn.classList.add(styles['success']);
         setTimeout(function () {
@@ -2035,7 +1844,6 @@ this.BX.Anz = this.BX.Anz || {};
       key: "createFinalError",
       value: function createFinalError() {
         var _this16 = this;
-
         return BX.create('p', {
           children: [BX.create('span', {
             html: BX.message('ANZ_JS_APPOINTMENT_FINAL_ERROR_START')
@@ -2058,23 +1866,19 @@ this.BX.Anz = this.BX.Anz || {};
       key: "checkRequiredFields",
       value: function checkRequiredFields() {
         var allNotEmpty = true;
-
         if (this.requiredInputs.length > 0) {
           this.requiredInputs.some(function (input) {
-            if (!BX.type.isNotEmptyString(input.value)) {
+            if (!BX.type.isNotEmptyString(input['value'])) {
               var _input$parentElement;
-
               allNotEmpty = false;
-              (_input$parentElement = input.parentElement) === null || _input$parentElement === void 0 ? void 0 : _input$parentElement.classList.add(styles["error"]);
+              (_input$parentElement = input.parentElement) === null || _input$parentElement === void 0 ? void 0 : _input$parentElement.classList.add(styles['error']);
               return true;
             } else {
               var _input$parentElement2;
-
-              (_input$parentElement2 = input.parentElement) === null || _input$parentElement2 === void 0 ? void 0 : _input$parentElement2.classList.remove(styles["error"]);
+              (_input$parentElement2 = input.parentElement) === null || _input$parentElement2 === void 0 ? void 0 : _input$parentElement2.classList.remove(styles['error']);
             }
           });
         }
-
         return allNotEmpty && this.phoneIsValid(this.textNodes.phone.inputNode);
       }
     }, {
@@ -2082,22 +1886,18 @@ this.BX.Anz = this.BX.Anz || {};
       value: function phoneIsValid(phoneInput) {
         var phone = phoneInput.value;
         var isValid = !(!phone || phone.length !== this.phoneMask.length);
-
         if (phoneInput.parentElement !== null) {
           !isValid ? phoneInput.parentElement.classList.add(styles["error"]) : phoneInput.parentElement.classList.remove(styles["error"]);
         }
-
         return isValid;
       }
       /**
        * add input mask to all inputs with type=tel
        */
-
     }, {
       key: "addPhoneMasks",
       value: function addPhoneMasks() {
         var _this17 = this;
-
         var maskedInputs = this.overlay.querySelectorAll('input[type="tel"]');
         maskedInputs.length && maskedInputs.forEach(function (input) {
           input.addEventListener('input', function (e) {
@@ -2108,7 +1908,6 @@ this.BX.Anz = this.BX.Anz || {};
       /**
        * add BX.calendar extension to select birthday date on related input
        */
-
     }, {
       key: "addCalendarSelection",
       value: function addCalendarSelection() {
@@ -2133,42 +1932,33 @@ this.BX.Anz = this.BX.Anz || {};
       /**
        * inject styles with custom color variables from module settings
        */
-
     }, {
       key: "addCustomColors",
       value: function addCustomColors() {
         if (Object.keys(this.customColors).length > 0) {
           var style = BX.create('style');
           style.textContent = ".".concat(styles['appointment-popup-overlay'], ", .").concat(styles['appointment-button-wrapper'], "{");
-
           for (var key in this.customColors) {
             if (this.customColors.hasOwnProperty(key)) {
               switch (key) {
                 case "--appointment-main-color":
                   var hslM = convertHexToHsl(this.customColors[key]);
-
                   if (hslM) {
                     style.textContent += "--main-h: ".concat(hslM.h, ";--main-s: ").concat(hslM.s, ";--main-l: ").concat(hslM.l, ";");
                   }
-
                   break;
-
                 case "--appointment-field-color":
                   var hslF = convertHexToHsl(this.customColors[key]);
-
                   if (hslF) {
                     style.textContent += "-field-h: ".concat(hslF.h, ";--field-s: ").concat(hslF.s, ";--field-l: ").concat(hslF.l, ";");
                   }
-
                   break;
-
                 default:
                   style.textContent += "".concat(key, ": ").concat(this.customColors[key], ";");
                   break;
               }
             }
           }
-
           style.textContent = style.textContent + "}";
           this.overlay.after(style);
         }
@@ -2176,13 +1966,11 @@ this.BX.Anz = this.BX.Anz || {};
       /**
        * show/hide popup with appointment form and starts loading data from 1c on first showing
        */
-
     }, {
       key: "togglePopup",
       value: function togglePopup() {
         this.overlay.classList.toggle(styles['active']);
         this.useCustomMainBtn ? this.startBtn.classList.toggle('active') : this.startBtn.classList.toggle(styles['active']);
-
         if (!this.loaded) {
           this.start();
         }
@@ -2191,7 +1979,6 @@ this.BX.Anz = this.BX.Anz || {};
        * toggle load animation on form
        * @param on
        */
-
     }, {
       key: "toggleLoader",
       value: function toggleLoader() {
@@ -2203,7 +1990,6 @@ this.BX.Anz = this.BX.Anz || {};
        * @param timestamp
        * @returns {string}
        */
-
     }, {
       key: "convertDateToISO",
       value: function convertDateToISO(timestamp) {
@@ -2217,22 +2003,18 @@ this.BX.Anz = this.BX.Anz || {};
        * @param onlyDate
        * @returns {string}
        */
-
     }, {
       key: "convertDateToDisplay",
       value: function convertDateToDisplay(timestamp) {
         var onlyTime = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
         var onlyDate = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
         var date$$1 = this.readDateInfo(timestamp);
-
         if (onlyTime) {
           return "".concat(date$$1.hours, ":").concat(date$$1.minutes);
         }
-
         if (onlyDate) {
           return "".concat(date$$1.day, ".").concat(date$$1.month, ".").concat(date$$1.year);
         }
-
         return "".concat(date$$1.day, "-").concat(date$$1.month, "-").concat(date$$1.year);
       }
       /**
@@ -2240,41 +2022,30 @@ this.BX.Anz = this.BX.Anz || {};
        * @param timestampOrISO
        * @returns {{hours: string, seconds: string, month: string, year: number, minutes: string, weekDay, day: string}}
        */
-
     }, {
       key: "readDateInfo",
       value: function readDateInfo(timestampOrISO) {
         var date$$1 = new Date(timestampOrISO);
         var day = "".concat(date$$1.getDate());
-
         if (Number(day) < 10) {
           day = "0".concat(day);
         }
-
         var month = "".concat(date$$1.getMonth() + 1);
-
         if (Number(month) < 10) {
           month = "0".concat(month);
         }
-
         var hours = "".concat(date$$1.getHours());
-
         if (Number(hours) < 10) {
           hours = "0".concat(hours);
         }
-
         var minutes = "".concat(date$$1.getMinutes());
-
         if (Number(minutes) < 10) {
           minutes = "0".concat(minutes);
         }
-
         var seconds = "".concat(date$$1.getSeconds());
-
         if (Number(seconds) < 10) {
           seconds = "0".concat(seconds);
         }
-
         return {
           "day": day,
           "month": month,
@@ -2292,7 +2063,6 @@ this.BX.Anz = this.BX.Anz || {};
        * @param str
        * @returns {string|*}
        */
-
     }, {
       key: "ucFirst",
       value: function ucFirst(str) {
@@ -2303,7 +2073,6 @@ this.BX.Anz = this.BX.Anz || {};
        * error logging
        * @param res
        */
-
     }, {
       key: "logResultErrors",
       value: function logResultErrors(res) {
@@ -2313,7 +2082,6 @@ this.BX.Anz = this.BX.Anz || {};
           });
         } else {
           var _res$message;
-
           console.log(BX.message("ANZ_JS_APPLICATION_ERROR") + "\r\n", (_res$message = res.message) !== null && _res$message !== void 0 ? _res$message : res);
         }
       }
@@ -2322,7 +2090,6 @@ this.BX.Anz = this.BX.Anz || {};
        * @param stylesObject
        * @returns object
        */
-
     }, {
       key: "getAppSelectors",
       value: function getAppSelectors(stylesObject) {

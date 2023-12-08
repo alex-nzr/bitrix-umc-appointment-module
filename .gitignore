@@ -18,6 +18,7 @@
 /urlrewrite.php
 #!/local/js/anz/
 /local/modules/anz.appointment/vendor/
+/local/modules/anz.appointment/composer.lock
 
 #Misc
 /favicon.ico
