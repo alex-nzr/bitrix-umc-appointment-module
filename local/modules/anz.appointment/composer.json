@@ -4,7 +4,7 @@
     "type": "project",
     "autoload": {
         "psr-4": {
-            "Alsnazarov\\AnzAppointment\\": "src/"
+            "Alsnazarov\\AnzAppointment\\": "lib/"
         }
     },
     "authors": [
