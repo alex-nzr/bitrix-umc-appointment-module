@@ -39,7 +39,7 @@ class Order
             ->setClinicUid((string)$params['clinicUid'])
             ->setSpecialtyName((string)$params['specialty'])
             ->setEmployeeUid((string)$params['refUid'])
-            ->setDateTimeBegin(PhpDateTime::createFromFormat('Y-m-d\TH:m:s', (string)$params['timeBegin']))
+            ->setDateTimeBegin(new PhpDateTime((string)$params['timeBegin']))
             ->build();
     }
 
@@ -53,7 +53,7 @@ class Order
             ->setName((string)$params['name'])
             ->setLastName((string)$params['surname'])
             ->setSecondName((string)$params['middleName'])
-            ->setDateTimeBegin(PhpDateTime::createFromFormat('Y-m-d\TH:m:s', (string)$params['timeBegin']))
+            ->setDateTimeBegin(new PhpDateTime((string)$params['timeBegin']))
             ->setPhone((string)$params['phone'])
             ->setEmail((string)$params['email'])
             ->setAddress(key_exists('address', $params) ? (string)$params['address'] : '')
@@ -63,7 +63,7 @@ class Order
 
         if (key_exists('birthday', $params) && !empty($params['birthday']))
         {
-            $order->setClientBirthday(PhpDateTime::createFromFormat('Y-m-d\TH:m:s', (string)$params['birthday']));
+            $order->setClientBirthday(new PhpDateTime((string)$params['birthday']));
         }
 
         if ((int)$params['serviceDuration'] > 0)
@@ -103,7 +103,7 @@ class Order
             ->setName((string)$params['name'])
             ->setLastName((string)$params['surname'])
             ->setSecondName((string)$params['middleName'])
-            ->setDateTimeBegin(PhpDateTime::createFromFormat('Y-m-d\TH:m:s', (string)$params['timeBegin']))
+            ->setDateTimeBegin(new PhpDateTime((string)$params['timeBegin']))
             ->setPhone((string)$params['phone'])
             ->setEmail((string)$params['email'])
             ->setAddress(key_exists('address', $params) ? (string)$params['address'] : '')
