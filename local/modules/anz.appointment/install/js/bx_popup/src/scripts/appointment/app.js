@@ -44,7 +44,7 @@ export class AppointmentSteps
         [this.dataKeys.specialtiesKey]: {},
         [this.dataKeys.servicesKey]:    {},
         [this.dataKeys.employeesKey]:   {},
-        [this.dataKeys.scheduleKey]:    []
+        [this.dataKeys.scheduleKey]:    {}
     };
     orderData       = {};
     selectionBlocks = {};
@@ -405,9 +405,9 @@ export class AppointmentSteps
                 if (scheduleResponse.data?.error) {
                     throw new Error(scheduleResponse.data?.error);
                 }
-                if (scheduleResponse.data?.hasOwnProperty("schedule"))
+                if ((typeof scheduleResponse.data === 'object'))
                 {
-                    this.data.schedule = scheduleResponse.data.schedule;
+                    this.data.schedule = scheduleResponse.data;
                     this.messageNode.textContent = "";
                 }
                 EventManager.emit(EventManager.fullDataLoaded);
@@ -491,15 +491,27 @@ export class AppointmentSteps
         if(!listNode){
             throw new Error(BX.message(`ANZ_JS_${dataKey.toUpperCase()}_NODE_NOT_FOUND_ERROR`));
         }
-        (dataKey === this.dataKeys.scheduleKey) ? listNode.classList.add(styles["column-mode"]) : void(0);
         BX.cleanNode(listNode);
 
-        //if(Object.keys(this.data[dataKey]).length > 0)
-        //{
-            const items = this.data[dataKey];
-            this.renderer.renderSelectionItems(listNode, dataKey, items);
-            (dataKey === this.dataKeys.clinicsKey) ? EventManager.emit(EventManager.clinicsRendered) : void(0);
-        //}
+        let items = this.data[dataKey];
+        if(dataKey === this.dataKeys.scheduleKey)
+        {
+            listNode.classList.add(styles["column-mode"]);
+
+            const selectedClinic        = this.filledInputs[this.dataKeys.clinicsKey].clinicUid;
+            const selectedSpecialtyUid  = this.filledInputs[this.dataKeys.specialtiesKey].specialtyUid;
+            const selectedEmployeeUid   = this.filledInputs[this.dataKeys.employeesKey].refUid;
+            if(items.hasOwnProperty(selectedClinic)
+                && items[selectedClinic]?.hasOwnProperty(selectedSpecialtyUid)
+                && items[selectedClinic][selectedSpecialtyUid]?.hasOwnProperty(selectedEmployeeUid)
+                && (typeof items[selectedClinic][selectedSpecialtyUid][selectedEmployeeUid] === 'object')
+            ){
+                items = [items[selectedClinic][selectedSpecialtyUid][selectedEmployeeUid]];
+            }
+        }
+
+        this.renderer.renderSelectionItems(listNode, dataKey, items);
+        (dataKey === this.dataKeys.clinicsKey) ? EventManager.emit(EventManager.clinicsRendered) : void(0);
     }
 
     allowToRender(listNode: HTMLElement, dataKey: string, item: any): boolean
@@ -534,8 +546,8 @@ export class AppointmentSteps
                 if(this.strictCheckingOfRelations){
                     if (this.showDoctorsWithoutDepartment){
                         canRender = (specialtyCondition && !item.clinicUid)
-                                    ||
-                                    (specialtyCondition && clinicCondition);
+                            ||
+                            (specialtyCondition && clinicCondition);
                     }
                     else
                     {
@@ -557,7 +569,11 @@ export class AppointmentSteps
                 break;
 
             case this.dataKeys.scheduleKey:
-                canRender = (item.clinicUid === selectedClinic) && (item.refUid === selectedEmployeeUid)
+                //canRender always true new schedule structure used
+                canRender = true;
+
+                //old condition
+                //canRender = (item.clinicUid === selectedClinic) && (item.refUid === selectedEmployeeUid)
                 break;
             default:
                 break;
@@ -566,14 +582,20 @@ export class AppointmentSteps
         return canRender;
     }
 
-    getServiceDuration(scheduleItem):number {
-        const selectedEmployee = this.data.employees[scheduleItem.refUid];
+    getServiceDuration(): number
+    {
+        const selectedEmployee = this.filledInputs[this.dataKeys.employeesKey];
+        const selectedEmployeeFullData = this.data[this.dataKeys.employeesKey]?.[selectedEmployee.refUid];
+
         const selectedService = this.filledInputs[this.dataKeys.servicesKey];
+        let serviceUid = selectedService.serviceUid;
         let serviceDuration = Number(selectedService.serviceDuration);
-        if(selectedEmployee.services.hasOwnProperty(selectedService.serviceUid))
+
+        if(selectedEmployeeFullData?.services?.hasOwnProperty(serviceUid))
         {
-            if (selectedEmployee.services[selectedService.serviceUid].hasOwnProperty("personalDuration")){
-                const personalDuration = selectedEmployee.services[selectedService.serviceUid]["personalDuration"];
+            if (selectedEmployeeFullData.services[serviceUid]?.hasOwnProperty('personalDuration'))
+            {
+                const personalDuration = selectedEmployeeFullData.services[serviceUid]['personalDuration'];
                 serviceDuration = Number(personalDuration) > 0 ? Number(personalDuration) : serviceDuration;
             }
         }
@@ -769,7 +791,7 @@ export class AppointmentSteps
                 if (!employees.hasOwnProperty(employeeUid)) { return; }
 
                 const empServices = employees[employeeUid].services;
-                const specialty   = employees[employeeUid].specialty;
+                const specialty   = employees[employeeUid]['specialtyName'];
 
                 if(specialty){
                     if(empServices && Object.keys(empServices).length > 0) {
@@ -793,15 +815,12 @@ export class AppointmentSteps
         {
             for (const uid in employees)
             {
-                if (employees.hasOwnProperty(uid))
-                {
-                    const specialty = employees[uid].specialty;
-                    specialty && this.addSpecialty(employees[uid]);
-                }
+                const specialty = employees[uid]['specialtyName'];
+                specialty && this.addSpecialty(employees[uid]);
             }
         }
     }
-    
+
     addSpecialty(employee)
     {
         if (employee.specialtyUid)
@@ -814,7 +833,7 @@ export class AppointmentSteps
             {
                 this.data[this.dataKeys.specialtiesKey][employee.specialtyUid] = {
                     uid:        employee.specialtyUid,
-                    name:       employee.specialty,
+                    name:       employee['specialtyName'],
                     clinics:    [employee.clinicUid]
                 }
             }
@@ -1026,16 +1045,16 @@ export class AppointmentSteps
                 sessid: BX.bitrix_sessid()
             }
         })
-        .then(result => {
-            this.timeExpires = result.data?.timeExpires ?? ((new Date()).getTime() / 1000).toFixed(0) + 60;
-            this.createConfirmationForm();
-            this.toggleLoader(false);
-        })
-        .catch(result => {
-            this.messageNode.textContent = result.errors?.[0]?.message + BX.message("ANZ_JS_SOME_DISPLAY_ERROR_POSTFIX");
-            this.logResultErrors(result);
-            this.toggleLoader(false);
-        });
+            .then(result => {
+                this.timeExpires = result.data?.timeExpires ?? ((new Date()).getTime() / 1000).toFixed(0) + 60;
+                this.createConfirmationForm();
+                this.toggleLoader(false);
+            })
+            .catch(result => {
+                this.messageNode.textContent = result.errors?.[0]?.message + BX.message("ANZ_JS_SOME_DISPLAY_ERROR_POSTFIX");
+                this.logResultErrors(result);
+                this.toggleLoader(false);
+            });
     }
 
     createConfirmationForm (){
@@ -1060,17 +1079,17 @@ export class AppointmentSteps
                         sessid: BX.bitrix_sessid()
                     }
                 })
-                .then(() => this.sendOrder())
-                .catch(result => {
-                    btnNode.classList.remove(styles['loading']);
-                    if (result.errors?.length > 0){
-                        result.errors.forEach((error) => {
-                            confirmWarningNode.innerHTML = ((Number(error.code) === 400) || (Number(error.code) === 406) || (Number(error.code) === 425))
+                    .then(() => this.sendOrder())
+                    .catch(result => {
+                        btnNode.classList.remove(styles['loading']);
+                        if (result.errors?.length > 0){
+                            result.errors.forEach((error) => {
+                                confirmWarningNode.innerHTML = ((Number(error.code) === 400) || (Number(error.code) === 406) || (Number(error.code) === 425))
                                     ? `${confirmWarningNode.innerHTML}${error.message}<br>`
                                     : BX.message("ANZ_JS_APPLICATION_ERROR");
-                        })
-                    }
-                });
+                            })
+                        }
+                    });
             }
             else
             {
@@ -1086,29 +1105,29 @@ export class AppointmentSteps
                 sessid: BX.bitrix_sessid()
             }
         })
-        .then((result) => {
-            this.destroyConfirmationForm();
-            this.toggleLoader(false);
+            .then((result) => {
+                this.destroyConfirmationForm();
+                this.toggleLoader(false);
 
-            if (result.data?.error)
-            {
-                throw new Error(result.data.error);
-            }
-            else
-            {
-                if (this.useEmailNote && this.orderData.email)
+                if (result.data?.error)
                 {
-                    this.sendEmailNote();
+                    throw new Error(result.data.error);
                 }
-                this.finalizingWidget(true);
-            }
-        })
-        .catch(result => {
-            this.destroyConfirmationForm();
-            this.toggleLoader(false);
-            this.logResultErrors(result);
-            this.finalizingWidget(false);
-        });
+                else
+                {
+                    if (this.useEmailNote && this.orderData.email)
+                    {
+                        this.sendEmailNote();
+                    }
+                    this.finalizingWidget(true);
+                }
+            })
+            .catch(result => {
+                this.destroyConfirmationForm();
+                this.toggleLoader(false);
+                this.logResultErrors(result);
+                this.finalizingWidget(false);
+            });
     }
 
     sendEmailNote() {
@@ -1215,15 +1234,15 @@ export class AppointmentSteps
 
         if (this.requiredInputs.length > 0){
             this.requiredInputs.some((input) => {
-                if (!BX.type.isNotEmptyString(input.value))
+                if (!BX.type.isNotEmptyString(input['value']))
                 {
                     allNotEmpty = false;
-                    input.parentElement?.classList.add(styles["error"])
+                    input.parentElement?.classList.add(styles['error'])
                     return true;
                 }
                 else
                 {
-                    input.parentElement?.classList.remove(styles["error"]);
+                    input.parentElement?.classList.remove(styles['error']);
                 }
             });
         }

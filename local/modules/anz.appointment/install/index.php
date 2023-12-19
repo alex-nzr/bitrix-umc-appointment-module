@@ -207,7 +207,7 @@ class anz_appointment extends CModule
     {
         CopyDirFiles(__DIR__.'/js/', $this->docRoot.'/bitrix/js/'.$this->partnerId."/".$this->moduleNameShort, true, true);
         CopyDirFiles(__DIR__.'/css/', $this->docRoot.'/bitrix/css/'.$this->partnerId."/".$this->moduleNameShort, true, true);
-        CopyDirFiles(__DIR__.'/admin/', $this->docRoot.'/bitrix/admin', true);
+        CopyDirFiles(__DIR__.'/admin/', $this->docRoot.'/bitrix/admin');
         CopyDirFiles(__DIR__.'/wizards/', $this->docRoot.'/bitrix/wizards', true, true);
         CopyDirFiles(__DIR__.'/components/', $this->docRoot.'/bitrix/components', true, true);
     }
@@ -233,13 +233,13 @@ class anz_appointment extends CModule
             if ($dir = opendir($path)) {
                 while ($item = readdir($dir))
                 {
-                    if (strpos($item, $this->moduleNameShort.".") === 0)
+                    if (str_starts_with($item, $this->moduleNameShort . "."))
                     {
                         if (is_dir($path . $item))
                         {
                             try {
                                 Dir::deleteDirectory($path . $item);
-                            }catch(Exception $e){
+                            }catch(Exception){
                                 continue;
                             }
                         }
@@ -269,9 +269,9 @@ class anz_appointment extends CModule
      */
     protected function checkRequirements(): void
     {
-        $requirePhp = '7.4.0';
+        $requirePhp = '8.1.0';
 
-        if (!CheckVersion(PHP_VERSION, $requirePhp))
+        if (!version_compare(PHP_VERSION, $requirePhp, '>='))
         {
             throw new Exception(Loc::getMessage(
                 'ANZ_APPOINTMENT_INSTALL_REQUIRE_PHP',
@@ -280,14 +280,14 @@ class anz_appointment extends CModule
         }
 
         $requireModules = [
-            'main'  => '22.0.0',
+            'main'  => '23.675.0',
         ];
 
         foreach ($requireModules as $moduleName => $moduleVersion)
         {
             $currentVersion = ModuleManager::getVersion($moduleName);
 
-            if (!CheckVersion($currentVersion, $moduleVersion))
+            if (!version_compare($currentVersion, $moduleVersion, '>='))
             {
                 throw new Exception(Loc::getMessage('ANZ_APPOINTMENT_INSTALL_ERROR_VERSION', [
                     '#MODULE#' => $moduleName,

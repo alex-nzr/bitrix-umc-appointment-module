@@ -17,9 +17,11 @@
 /index.php
 /urlrewrite.php
 #!/local/js/anz/
-!/local/modules/anz.appointment/vendor
+/local/modules/anz.appointment/vendor/
+/local/modules/anz.appointment/composer.lock
 
 #Misc
+/favicon.ico
 .htsecure
 .DS_Store
 .htpasswd
@@ -33,3 +35,4 @@ restore.php
 /docs/anz.appointment-docs.docx
 *.log
 *.txt
+

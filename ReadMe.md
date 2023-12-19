@@ -8,8 +8,10 @@
 доступы к базе 1С. 
 Остальные настройки по своему усмотрению. Почти к каждой опции есть поясняющий комментарий.
 
-#### [Пример кастомизации на событиях без изменения исходного кода модуля](https://github.com/alex-nzr/bitrix-umc-appointment-module/tree/customization_example)
+Также рекомендуется ознакомиться с [документацией](https://github.com/alex-nzr/bitrix-umc-appointment-module/blob/master/docs/anz.appointment-docs.pdf)
+
+#### [Пример кастомизации на событиях без изменения исходного кода модуля (для старых версий модуля)](https://github.com/alex-nzr/bitrix-umc-appointment-module/tree/customization_example)
 
 #### Минимальная версия БИТ.УМЦ - 2.1.24.9(Corp), 2.0.48.15(Prof)
-#### Минимальная версия Битрикса - 22.0
-#### Минимальная версия PHP - 7.4
+#### Минимальная версия Битрикса - 23.675.0
+#### Минимальная версия PHP - 8.1

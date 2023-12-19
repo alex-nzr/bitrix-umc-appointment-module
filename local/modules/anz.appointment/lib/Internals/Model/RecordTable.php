@@ -26,6 +26,16 @@ use Bitrix\Main\UserTable;
 /**
  * Class RecordTable
  * @package ANZ\Appointment\Internals\Model
+ *
+ * @method static EO_Record_Query query()
+ * @method static EO_Record_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_Record_Result getById($id)
+ * @method static EO_Record_Result getList(array $parameters = [])
+ * @method static EO_Record_Entity getEntity()
+ * @method static EO_Record_Collection createCollection()
+ * @method static EO_Record_Collection wakeUpCollection($rows)
+ * @method static Record createObject($setDefaultValues = true)
+ * @method static Record wakeUpObject($row)
  */
 class RecordTable extends DataManager
 {

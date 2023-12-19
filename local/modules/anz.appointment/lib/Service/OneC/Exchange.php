@@ -5,14 +5,14 @@
  * E-mail: jc1988x@gmail.com
  * Copyright (c) 2019 - 2022
  * ==================================================
- * "Bit.Umc - Bitrix integration" - Reader.php
+ * "Bit.Umc - Bitrix integration" - Exchange.php
  * 10.07.2022 22:37
  * ==================================================
  */
 namespace ANZ\Appointment\Service\OneC;
 
-use ANZ\Appointment\Internals\Contract\IReaderService;
 use ANZ\Appointment\Internals\Control\ServiceManager;
+use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
@@ -20,16 +20,37 @@ use Bitrix\Main\Result;
 use Exception;
 use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Tools\Utils;
-use SoapVar;
+use Throwable;
 
-Loc::loadMessages(__FILE__);
 
 /**
- * Class Reader
+ * @class Exchange
  * @package ANZ\Appointment\Service\OneC
  */
-class Reader extends BaseService implements IReaderService
+class Exchange extends Base
 {
+    protected array $demoData;
+
+    /**
+     * @throws \Exception
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        if ($this->demoMode)
+        {
+            if (is_file(Constants::PATH_TO_DEMO_DATA_FILE))
+            {
+                $this->demoData = json_decode(file_get_contents(Constants::PATH_TO_DEMO_DATA_FILE), true);
+            }
+            else
+            {
+                $this->demoData = [];
+                throw new Exception('Demo data file not found');
+            }
+        }
+    }
+
     /**
      * @return \Bitrix\Main\Result
      */
@@ -46,7 +67,15 @@ class Reader extends BaseService implements IReaderService
             return $res;
         }
 
-        return $this->send(Constants::CLINIC_ACTION_1C);
+        try
+        {
+            $sdkResult = Container::getInstance()->getSdkExchangeService()->getClinics();
+            return Utils::convertSdkResultToBitrixResult($sdkResult);
+        }
+        catch (Throwable $e)
+        {
+            return (new Result)->addError(new Error($e->getMessage()));
+        }
     }
 
     /**
@@ -65,7 +94,15 @@ class Reader extends BaseService implements IReaderService
             return $res;
         }
 
-        return $this->send(Constants::EMPLOYEES_ACTION_1C);
+        try
+        {
+            $sdkResult = Container::getInstance()->getSdkExchangeService()->getEmployees();
+            return Utils::convertSdkResultToBitrixResult($sdkResult);
+        }
+        catch (Throwable $e)
+        {
+            return (new Result)->addError(new Error($e->getMessage()));
+        }
     }
 
     /**
@@ -84,11 +121,16 @@ class Reader extends BaseService implements IReaderService
             }
             return $res;
         }
-        $params = [
-            'Clinic' => $clinicGuid,
-            'Params' => []
-        ];
-        return $this->send(Constants::NOMENCLATURE_ACTION_1C, $params);
+
+        try
+        {
+            $sdkResult = Container::getInstance()->getSdkExchangeService()->getNomenclature($clinicGuid);
+            return Utils::convertSdkResultToBitrixResult($sdkResult);
+        }
+        catch (Throwable $e)
+        {
+            return (new Result)->addError(new Error($e->getMessage()));
+        }
     }
 
     /**
@@ -97,58 +139,44 @@ class Reader extends BaseService implements IReaderService
      */
     public function getSchedule(array $params = []): Result
     {
-        if ($this->demoMode){
+        if ($this->demoMode)
+        {
             $res = new Result();
             sleep(1);
             try {
-                $res->setData(['schedule' => $this->demoData['schedule']]);
+                $res->setData($this->demoData['schedule']);
             }catch (Exception $e){
                 $res->addError(new Error(Loc::getMessage("ANZ_APPOINTMENT_DEMO_MODE_ERROR") . $e->getMessage()));
             }
             return $res;
         }
 
-        $soapParams = Utils::getDateInterval(
-            Option::get(
+        try
+        {
+            $days = (int)Option::get(
                 ServiceManager::getModuleId(),
                 Constants::OPTION_KEY_SCHEDULE_DAYS,
                 Constants::DEFAULT_SCHEDULE_PERIOD_DAYS
-            )
-        );
-
-        $properties = [];
-
-        if (!empty($params['clinicUid']))
-        {
-            $properties[] = new SoapVar(
-                '<ns2:Property name="Clinic"><ns2:Value>'.$params['clinicUid'].'</ns2:Value></ns2:Property>',
-                XSD_ANYXML
             );
-        }
 
-        if (is_array($params['employees']) && !empty($params['employees']))
-        {
-            $properties[] = new SoapVar(
-                '<ns2:Property name="Employees"><ns2:Value>'.implode(';', $params['employees']).'</ns2:Value></ns2:Property>',
-                XSD_ANYXML
+            if (!key_exists('clinicUid', $params))
+            {
+                $params['clinicUid'] = '';
+            }
+
+            if (!key_exists('employees', $params) || !is_array($params['employees']))
+            {
+                $params['employees'] = [];
+            }
+
+            $sdkResult = Container::getInstance()->getSdkExchangeService()->getSchedule(
+                $days > 0 ? $days : 14, (string)$params['clinicUid'], $params['employees']
             );
+            return Utils::convertSdkResultToBitrixResult($sdkResult);
         }
-
-        $soapParams['Params'] = $properties;
-
-        return $this->send(Constants::SCHEDULE_ACTION_1C, $soapParams);
-    }
-
-    /**
-     * @param string $orderUid
-     * @return \Bitrix\Main\Result
-     * @throws \Exception
-     */
-    public function getOrderStatus(string $orderUid): Result
-    {
-        if ($this->demoMode){
-            throw new Exception('Can not use this request when DemoMode is ON');
+        catch (Throwable $e)
+        {
+            return (new Result)->addError(new Error($e->getMessage()));
         }
-        return $this->send(Constants::GET_ORDER_STATUS_ACTION_1C, ['GUID' => $orderUid]);
     }
 }
