@@ -14,17 +14,16 @@ namespace ANZ\Appointment\Service;
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Integration\UmcSdk\Builder\ExchangeClient;
+use ANZ\Appointment\Integration\UmcSdk\Factory;
+use ANZ\Appointment\Integration\UmcSdk\Service\Exchange\Soap;
 use ANZ\Appointment\Internals\Control\ServiceManager;
 use ANZ\Appointment\Internals\Model\RecordTable;
-use ANZ\Appointment\Service\Converter;
 use ANZ\Appointment\Service\OneC\Exchange;
 use ANZ\Appointment\Service\OneC\FtpDataReader;
 use ANZ\Appointment\Service\Provider\ExchangeDataProvider;
 use ANZ\BitUmc\SDK\Core\Contract\Service\IExchangeService;
 use ANZ\BitUmc\SDK\Core\Dictionary\ClientScope;
 use ANZ\BitUmc\SDK\Core\Trait\Singleton;
-use ANZ\BitUmc\SDK\Factory;
-use ANZ\BitUmc\SDK\Service\Exchange\Soap;
 use ANZ\BitUmc\SDK\Service\XmlParser;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\DI\ServiceLocator;
@@ -43,9 +42,7 @@ class Container
     use Singleton;
 
     /**
-     * @return \ANZ\BitUmc\SDK\Service\Exchange\Soap
-     * @throws \Exception
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws \Exception | \Psr\Container\NotFoundExceptionInterface
      */
     public function getSdkExchangeService(): Soap
     {
