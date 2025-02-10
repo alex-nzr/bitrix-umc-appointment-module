@@ -139,13 +139,70 @@ class Exchange extends Base
      */
     public function getSchedule(array $params = []): Result
     {
+        if (!key_exists('clinicUid', $params))
+        {
+            $params['clinicUid'] = '';
+        }
+
+        if (!key_exists('employees', $params) || !is_array($params['employees']))
+        {
+            $params['employees'] = [];
+        }
+
         if ($this->demoMode)
         {
             $res = new Result();
             sleep(1);
-            try {
-                $res->setData($this->demoData['schedule']);
-            }catch (Exception $e){
+            try
+            {
+                $resultSchedule = [];
+                if (!empty($params['clinicUid']) || !empty($params['employees']))
+                {
+                    if (key_exists($params['clinicUid'], $this->demoData['schedule']))
+                    {
+                        $clinicSchedule = $this->demoData['schedule'][$params['clinicUid']];
+                        if (!is_array($clinicSchedule))
+                        {
+                            $clinicSchedule = [];
+                        }
+
+                        if (empty($params['employees']))
+                        {
+                            $resultSchedule[$params['clinicUid']] = $clinicSchedule;
+                        }
+                        else
+                        {
+                            foreach ($clinicSchedule as $specialtyKey => $specialtySchedule)
+                            {
+                                if(is_array($specialtySchedule))
+                                {
+                                    foreach ($params['employees'] as $employeeGuid)
+                                    {
+                                        if (key_exists($employeeGuid, $specialtySchedule))
+                                        {
+                                            if (!is_array($resultSchedule[$params['clinicUid']]))
+                                            {
+                                                $resultSchedule[$params['clinicUid']] = [];
+                                            }
+
+                                            if (!is_array($resultSchedule[$params['clinicUid']][$specialtyKey]))
+                                            {
+                                                $resultSchedule[$params['clinicUid']][$specialtyKey] = [];
+                                            }
+
+                                            $resultSchedule[$params['clinicUid']][$specialtyKey][$employeeGuid] = $specialtySchedule[$employeeGuid];
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                $res->setData($resultSchedule);
+            }
+            catch (Exception $e)
+            {
                 $res->addError(new Error(Loc::getMessage("ANZ_APPOINTMENT_DEMO_MODE_ERROR") . $e->getMessage()));
             }
             return $res;

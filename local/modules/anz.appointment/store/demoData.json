@@ -4268,7 +4268,7 @@
   },
   "schedule_old": [
     {
-      "refUid": "ac30e13a-3087-11dc-8594-005056c00008",
+      "employeeUid": "ac30e13a-3087-11dc-8594-005056c00008",
       "specialty": "Офтальмология",
       "name": "Барбышева Евгения Петровна",
       "clinicUid": "66abf7b4-2ff9-11df-8625-002618dcef2c",

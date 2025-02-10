@@ -11,11 +11,8 @@
  */
 namespace ANZ\Appointment\Controller;
 
-use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Internals\Contract\Service\IExchangeService;
 use ANZ\Appointment\Service\Container;
-use ANZ\Appointment\Service\OneC\Exchange;
-use ANZ\Appointment\Service\OneC\FtpDataReader;
 use ANZ\Appointment\Service\Operation\Appointment;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\ActionFilter\Authentication;
@@ -68,16 +65,22 @@ class OneCController extends Controller
     }
 
     /**
+     * @param string $clinicGuid
+     * @param string $employeeGuid
      * @return \Bitrix\Main\Result
      */
-    public function getScheduleAction(): Result
+    public function getScheduleAction(string $clinicGuid, string $employeeGuid): Result
     {
-        return $this->exchangeService->getSchedule();
+        return $this->exchangeService->getSchedule([
+            'clinicUid' => $clinicGuid,
+            'employees' => [$employeeGuid],
+        ]);
     }
 
     /**
      * @param string $params
      * @return \Bitrix\Main\Result
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function addOrderAction(string $params): Result
     {
@@ -89,6 +92,7 @@ class OneCController extends Controller
      * @param int $id
      * @param string $orderUid
      * @return \Bitrix\Main\Result
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function deleteOrderAction(int $id, string $orderUid): Result
     {
