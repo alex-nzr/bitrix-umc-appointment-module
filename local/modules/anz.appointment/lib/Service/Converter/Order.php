@@ -12,7 +12,6 @@
 namespace ANZ\Appointment\Service\Converter;
 
 use ANZ\Appointment\Integration\UmcSdk\Builder\Order as OrderBuilder;
-use ANZ\BitUmc\SDK\Tools\DateFormatter;
 use ANZ\BitUmc\SDK\Tools\PhoneFormatter;
 use Bitrix\Main\Localization\Loc;
 use DateTime as PhpDateTime;
@@ -77,7 +76,9 @@ class Order
         }
         elseif(!empty($params['timeBegin']) && !empty($params['timeEnd']))
         {
-            $order->setAppointmentDuration(DateFormatter::calculateDurationFromInterval($params['timeBegin'], $params['timeEnd']));
+            $startDate = new PhpDateTime($params['timeBegin']);
+            $diff = $startDate->diff(new PhpDateTime($params['timeEnd']));
+            $order->setAppointmentDuration($diff->s);
         }
 
         if (!empty($params['serviceUid']))
