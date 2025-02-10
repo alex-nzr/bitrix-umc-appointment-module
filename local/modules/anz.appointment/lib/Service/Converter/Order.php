@@ -38,7 +38,7 @@ class Order
         return Builder\Order::createReserve()
             ->setClinicUid((string)$params['clinicUid'])
             ->setSpecialtyName((string)$params['specialty'])
-            ->setEmployeeUid((string)$params['refUid'])
+            ->setEmployeeUid((string)$params['employeeUid'])
             ->setDateTimeBegin(new PhpDateTime((string)$params['timeBegin']))
             ->build();
     }
@@ -49,7 +49,7 @@ class Order
     public function orderFromArray(array $params): \ANZ\BitUmc\SDK\Item\Order
     {
         $order = Builder\Order::createOrder()
-            ->setEmployeeUid((string)$params['refUid'])
+            ->setEmployeeUid((string)$params['employeeUid'])
             ->setName((string)$params['name'])
             ->setLastName((string)$params['surname'])
             ->setSecondName((string)$params['middleName'])

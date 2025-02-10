@@ -8,7 +8,7 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-import styles from "../../styles/app.scss";
+import styles from "../../styles/app.css";
 
 export class Renderer
 {

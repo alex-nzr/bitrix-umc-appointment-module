@@ -32,6 +32,7 @@ class Appointment
     /**
      * @param array $arParams
      * @return \Bitrix\Main\Result
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public static function addOrder(array $arParams): Result
     {
@@ -67,6 +68,7 @@ class Appointment
      * @param int $id
      * @param string $orderUid
      * @return \Bitrix\Main\Result
+     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public static function deleteOrder(int $id, string $orderUid): Result
     {
