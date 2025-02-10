@@ -10,7 +10,8 @@
  * ==================================================
  */
 'use strict';
-import styles from "../../styles/app.scss";
+import '../../styles/app.css';
+import styles from "../../styles/app.css";
 import {convertHexToHsl, maskInput} from "../utils/functions";
 import "date";
 import {Event} from 'main.core';
@@ -26,7 +27,7 @@ export class AppointmentSteps
     currentFormStep: HTMLElement  = null;
     formStepNodes: any            = {one: null, two: null, userData: null}
     phoneMask: string             = '+7(000)000-00-00';
-    loaded: boolean               = false;
+    ready: boolean                = false;
     timeExpires: number           = 0;
     requiredInputs: HTMLElement[] = [];
     initParams: any               = {};
@@ -45,7 +46,7 @@ export class AppointmentSteps
         [this.dataKeys.specialtiesKey]: {},
         [this.dataKeys.servicesKey]:    {},
         [this.dataKeys.employeesKey]:   {},
-        [this.dataKeys.scheduleKey]:    []
+        [this.dataKeys.scheduleKey]:    {}
     };
     orderData       = {};
     selectionBlocks = {};
@@ -98,7 +99,7 @@ export class AppointmentSteps
                 serviceDuration: false,
             },
             [this.dataKeys.employeesKey]: {
-                refUid: false,
+                employeeUid: false,
                 doctorName: false,
             },
             [this.dataKeys.scheduleKey]: {
@@ -198,23 +199,42 @@ export class AppointmentSteps
         }
     }
 
-    /**
-     * subscribing on custom js events
-     */
     initCustomEvents()
     {
-        EventManager.subscribe(EventManager.fullDataLoaded, () => {
-            this.loaded = true;
-            try{
+        EventManager.subscribe(EventManager.clinicsLoaded, () => {
+            this.ready = true;
+            try
+            {
                 this.renderBlock(this.dataKeys.clinicsKey);
             }
-            catch(e){
+            catch(e)
+            {
                 this.logResultErrors(e);
             }
         });
 
-        EventManager.subscribe(EventManager.clinicsRendered, () => {
+        EventManager.subscribe(EventManager.employeesLoaded, () => {
             this.createSpecialtiesList();
+            this.renderSpecialtiesList();
+            this.toggleLoader(false);
+        });
+
+        EventManager.subscribe(EventManager.scheduleLoaded, () => {
+            if(this.useServices)
+            {
+                if (this.selectDoctorBeforeService)
+                {
+                    this.renderServicesList();
+                }
+                else
+                {
+                    this.renderScheduleList();
+                }
+            }
+            else
+            {
+                this.renderScheduleList();
+            }
             this.toggleLoader(false);
         });
 
@@ -231,9 +251,6 @@ export class AppointmentSteps
         this.formStepNodes.userData = BX(this.selectors.formStepIds.userData);
     }
 
-    /**
-     * find or create start button and add event handler for click
-     */
     initStartBtn() {
         if(!this.firstInit && this.useCustomMainBtn){
             return;
@@ -368,109 +385,149 @@ export class AppointmentSteps
         });
     }
 
-    /**
-     * loading data from 1c and build selectors html
-     */
     start() {
-        this.toggleLoader(true);
-        this.loadData();
+        this.getListClinic();
     }
 
-    /**
-     * sequentially loads data from 1c
-     */
-    loadData(): void
-    {
-        this.getListClinic()
-            .then(clinicsResponse => {
-                if (clinicsResponse.data?.error) {
-                    throw new Error(clinicsResponse.data?.error);
-                }
-                else if(clinicsResponse.data?.length === 0) {
-                    throw new Error(BX.message("ANZ_JS_CLINICS_NOT_FOUND_ERROR"));
-                }
-                else {
-                    this.data.clinics = clinicsResponse.data;
-                    return this.getListEmployees();
-                }
-            })
-            .then(employeesResponse => {
-                if (employeesResponse.data?.error) {
-                    throw new Error(employeesResponse.data?.error);
-                }
-                else if(Object.keys(employeesResponse.data).length === 0) {
-                    throw new Error(BX.message("ANZ_JS_DOCTORS_NOT_FOUND_ERROR"));
-                }
-                else {
-                    this.data.employees = employeesResponse.data;
-                    return this.getSchedule();
-                }
-            })
-            .then(scheduleResponse => {
-                if (scheduleResponse.data?.error) {
-                    throw new Error(scheduleResponse.data?.error);
-                }
-                if (scheduleResponse.data?.hasOwnProperty("schedule"))
-                {
-                    this.data.schedule = scheduleResponse.data.schedule;
-                    this.messageNode.textContent = "";
-                }
-                EventManager.emit(EventManager.fullDataLoaded);
-            })
-            .catch(e => {
-                !this.useCustomMainBtn && this.startBtnWrap.classList.add(styles['hidden']);
-                this.logResultErrors(e);
-                this.alertError(BX.message("ANZ_JS_APPLICATION_ERROR_CONNECTION"));
-            })
-    }
-
-    /**
-     * Load clinics list from 1c
-     * @returns {Promise<any>}
-     */
     getListClinic(){
-        return BX.ajax.runAction('anz:appointment.oneCController.getClinics', {
+        this.toggleLoader(true);
+        BX.ajax.runAction('anz:appointment.oneCController.getClinics', {
             data: {
                 sessid: BX.bitrix_sessid()
             }
+        })
+        .then(clinicsResponse => {
+            if (clinicsResponse.data?.error) {
+                throw new Error(clinicsResponse.data?.error);
+            }
+            else if(clinicsResponse.data?.length === 0) {
+                throw new Error(BX.message("ANZ_JS_CLINICS_NOT_FOUND_ERROR"));
+            }
+            else {
+                this.data.clinics = clinicsResponse.data;
+                EventManager.emit(EventManager.clinicsLoaded);
+                this.toggleLoader(false);
+            }
+        })
+        .catch(e => {
+            this.processLoadDataError(e);
         });
     }
 
-    /**
-     * Load employees list from 1c
-     * @returns {Promise<any>}
-     */
-    getListEmployees(){
-        return BX.ajax.runAction('anz:appointment.oneCController.getEmployees', {
+    getListEmployees() {
+        this.toggleLoader(true);
+        BX.ajax.runAction('anz:appointment.oneCController.getEmployees', {
             data: {
                 sessid: BX.bitrix_sessid()
             }
-        });
-    }
-
-    /**
-     * Load doctor's schedule from 1c
-     * @returns {Promise<any>}
-     */
-    getSchedule(){
-        return BX.ajax.runAction('anz:appointment.oneCController.getSchedule', {
-            data: {
-                sessid: BX.bitrix_sessid()
+        })
+        .then(employeesResponse => {
+            if (employeesResponse.data?.error) {
+                throw new Error(employeesResponse.data?.error);
             }
+            else if(Object.keys(employeesResponse.data).length === 0) {
+                throw new Error(BX.message("ANZ_JS_DOCTORS_NOT_FOUND_ERROR"));
+            }
+            else {
+                this.data.employees = employeesResponse.data;
+                EventManager.emit(EventManager.employeesLoaded);
+            }
+            this.toggleLoader(false);
+        })
+        .catch(e => {
+            this.processLoadDataError(e);
         });
     }
 
-    /**
-     * Load nomenclature list from 1c
-     * @param clinicGuid
-     * @returns {Promise<any>}
-     */
-    getListNomenclature(clinicGuid){
-        return BX.ajax.runAction('anz:appointment.oneCController.getNomenclature', {
+    getSchedule(clinicUid, employeeUid){
+        this.toggleLoader(true);
+        const selectedDeptUid = this.filledInputs[this.departmentKey].departmentUid;
+        const selectedSpecialtyUid = this.filledInputs[this.dataKeys.specialtiesKey].specialtyUid;
+        if(this.data[this.dataKeys.scheduleKey]?.[clinicUid]?.[selectedDeptUid]?.[selectedSpecialtyUid]?.[employeeUid])
+        {
+            EventManager.emit(EventManager.scheduleLoaded);
+            this.toggleLoader(false);
+        }
+        else
+        {
+            BX.ajax.runAction('anz:appointment.oneCController.getSchedule', {
+                data: {
+                    sessid: BX.bitrix_sessid(),
+                    clinicGuid: clinicUid,
+                    employeeGuid: employeeUid,
+                }
+            })
+                .then(scheduleResponse => {
+                    if (scheduleResponse.data?.error) {
+                        throw new Error(scheduleResponse.data?.error);
+                    }
+
+                    if (!this.data.schedule[clinicUid])
+                    {
+                        this.data.schedule[clinicUid] = {};
+                    }
+
+                    if (!this.data.schedule[clinicUid][selectedDeptUid])
+                    {
+                        this.data.schedule[clinicUid][selectedDeptUid] = {};
+                    }
+                    
+                    if(!this.data.schedule[clinicUid][selectedDeptUid][selectedSpecialtyUid])
+                    {
+                        this.data.schedule[clinicUid][selectedDeptUid][selectedSpecialtyUid] = {};
+                    }
+
+                    if (typeof scheduleResponse.data?.[clinicUid]?.[selectedDeptUid]?.[selectedSpecialtyUid] === 'object')
+                    {
+                        this.data.schedule[clinicUid][selectedDeptUid][selectedSpecialtyUid][employeeUid] = scheduleResponse.data[clinicUid][selectedDeptUid][selectedSpecialtyUid][employeeUid] ?? {};
+                    }
+                    else
+                    {
+                        this.data.schedule[clinicUid][selectedDeptUid][selectedSpecialtyUid][employeeUid] = {};
+                    }
+
+                    this.messageNode.textContent = '';
+
+                    EventManager.emit(EventManager.scheduleLoaded);
+                    this.toggleLoader(false);
+                })
+                .catch(e => {
+                    this.processLoadDataError(e);
+                });
+        }
+    }
+
+    getListNomenclature(clinicUid){
+        this.toggleLoader(true);
+        BX.ajax.runAction('anz:appointment.oneCController.getNomenclature', {
             data: {
                 sessid: BX.bitrix_sessid(),
-                clinicGuid: clinicGuid,
+                clinicGuid: clinicUid,
             }
+        })
+        .then((nomenclature) => {
+            if (nomenclature.data?.error)
+            {
+                throw new Error(nomenclature.data.error);
+            }
+            else
+            {
+                this.data.services = nomenclature.data ?? {};
+                if (Object.keys(nomenclature.data).length > 0)
+                {
+                    this.bindServicesToSpecialties();
+                    this.servicesStorage[clinicUid] = {...this.data.services};
+                    EventManager.emit(EventManager.nomenclatureLoaded);
+                }
+                else
+                {
+                    this.servicesStorage[clinicUid] = {};
+                }
+            }
+            this.toggleLoader(false);
+        })
+        .catch(e => {
+            this.processLoadDataError(e);
         });
     }
 
@@ -490,31 +547,38 @@ export class AppointmentSteps
         this.renderBlock(this.dataKeys.scheduleKey);
     }
 
-    renderBlock(dataKey)
-    {
+    renderBlock(dataKey) {
         const listNode = this.selectionNodes[dataKey]?.listNode;
         if(!listNode){
             throw new Error(BX.message(`ANZ_JS_${dataKey.toUpperCase()}_NODE_NOT_FOUND_ERROR`));
         }
-        (dataKey === this.dataKeys.scheduleKey) ? listNode.classList.add(styles["column-mode"]) : void(0);
         BX.cleanNode(listNode);
 
-        const items = this.data[dataKey];
+        let items = this.data[dataKey];
+        if(dataKey === this.dataKeys.scheduleKey)
+        {
+            listNode.classList.add(styles["column-mode"]);
+
+            const selectedClinic       = this.filledInputs[this.dataKeys.clinicsKey].clinicUid;
+            const selectedDeptUid      = this.filledInputs[this.departmentKey].departmentUid;
+            const selectedSpecialtyUid = this.filledInputs[this.dataKeys.specialtiesKey].specialtyUid;
+            const selectedEmployeeUid  = this.filledInputs[this.dataKeys.employeesKey].employeeUid;
+            if(typeof items[selectedClinic]?.[selectedDeptUid]?.[selectedSpecialtyUid]?.[selectedEmployeeUid] === 'object')
+            {
+                items = [items[selectedClinic][selectedDeptUid][selectedSpecialtyUid][selectedEmployeeUid]];
+            }
+        }
 
         this.renderer.renderSelectionItems(listNode, dataKey, items);
-
-        if(dataKey === this.dataKeys.clinicsKey){
-            EventManager.emit(EventManager.clinicsRendered);
-        }
+        (dataKey === this.dataKeys.clinicsKey) ? EventManager.emit(EventManager.clinicsRendered) : void(0);
     }
 
-    allowToRender(listNode: HTMLElement, dataKey: string, item: any): boolean
-    {
+    allowToRender(listNode: HTMLElement, dataKey: string, item: any): boolean {
         let canRender = true;
         const selectedClinic        = this.filledInputs[this.dataKeys.clinicsKey].clinicUid;
         const selectedDepartment    = this.filledInputs[this.departmentKey].departmentUid;
         const selectedSpecialtyUid  = this.filledInputs[this.dataKeys.specialtiesKey].specialtyUid;
-        const selectedEmployeeUid   = this.filledInputs[this.dataKeys.employeesKey].refUid;
+        const selectedEmployeeUid   = this.filledInputs[this.dataKeys.employeesKey].employeeUid;
         const selectedServiceUid    = this.filledInputs[this.dataKeys.servicesKey].serviceUid;
         let clinicCondition, specialtyCondition, departmentCondition;
 
@@ -543,8 +607,8 @@ export class AppointmentSteps
                 if(this.strictCheckingOfRelations){
                     if (this.showDoctorsWithoutDepartment){
                         canRender = (specialtyCondition && departmentCondition && !item.clinicUid)
-                                    ||
-                                    (specialtyCondition && departmentCondition && clinicCondition);
+                            ||
+                            (specialtyCondition && departmentCondition && clinicCondition);
                     }
                     else
                     {
@@ -566,9 +630,8 @@ export class AppointmentSteps
                 break;
 
             case this.dataKeys.scheduleKey:
-                canRender = (item.clinicUid === selectedClinic)
-                            && (item.refUid === selectedEmployeeUid)
-                            && (item.departmentUid === selectedDepartment);
+                //canRender always true new schedule structure used
+                canRender = true;
                 break;
             default:
                 break;
@@ -577,14 +640,20 @@ export class AppointmentSteps
         return canRender;
     }
 
-    getServiceDuration(scheduleItem):number {
-        const selectedEmployee = this.data.employees[scheduleItem.refUid];
+    getServiceDuration(): number
+    {
+        const selectedEmployee = this.filledInputs[this.dataKeys.employeesKey];
+        const selectedEmployeeFullData = this.data[this.dataKeys.employeesKey]?.[selectedEmployee.employeeUid];
+
         const selectedService = this.filledInputs[this.dataKeys.servicesKey];
+        let serviceUid = selectedService.serviceUid;
         let serviceDuration = Number(selectedService.serviceDuration);
-        if(selectedEmployee.services.hasOwnProperty(selectedService.serviceUid))
+
+        if(selectedEmployeeFullData?.services?.hasOwnProperty(serviceUid))
         {
-            if (selectedEmployee.services[selectedService.serviceUid].hasOwnProperty("personalDuration")){
-                const personalDuration = selectedEmployee.services[selectedService.serviceUid]["personalDuration"];
+            if (selectedEmployeeFullData.services[serviceUid]?.hasOwnProperty('personalDuration'))
+            {
+                const personalDuration = selectedEmployeeFullData.services[serviceUid]['personalDuration'];
                 serviceDuration = Number(personalDuration) > 0 ? Number(personalDuration) : serviceDuration;
             }
         }
@@ -675,7 +744,8 @@ export class AppointmentSteps
                     })
                 });
             }
-            else{
+            else
+            {
                 item.addEventListener('click', (e)=>{
                     e.stopPropagation();
                     this.selectionNodes[dataKey].listNode.classList.remove(styles['active']);
@@ -696,7 +766,8 @@ export class AppointmentSteps
 
     changeSelectionStep(dataKey, target){
         this.selectionNodes[dataKey].inputNode.value = target.dataset.uid;
-        switch (dataKey) {
+        switch (dataKey)
+        {
             case this.dataKeys.clinicsKey:
                 const clinicUid     = target.dataset.clinic;
                 const departmentUid = target.dataset.uid;
@@ -704,34 +775,10 @@ export class AppointmentSteps
                 this.filledInputs[dataKey].clinicName = target.dataset.name;
                 this.filledInputs[this.departmentKey].departmentUid = departmentUid;
                 this.filledInputs[this.departmentKey].departmentName = target.dataset.name;
-                if (this.useServices)
+
+                if(Object.keys(this.data[this.dataKeys.employeesKey]).length <= 0)
                 {
-                    if(this.servicesStorage[clinicUid])
-                    {
-                        this.data.services = {...this.servicesStorage[clinicUid]};
-                        this.renderSpecialtiesList();
-                    }
-                    else
-                    {
-                        this.toggleLoader(true);
-                        this.getListNomenclature(`${clinicUid}`)
-                            .then((nomenclature) => {
-                                if (nomenclature.data?.error){
-                                    throw new Error(nomenclature.data.error);
-                                }else{
-                                    if (Object.keys(nomenclature.data).length > 0){
-                                        this.data.services = nomenclature.data;
-                                        this.bindServicesToSpecialties();
-                                        this.servicesStorage[clinicUid] = {...this.data.services}
-                                    }
-                                    this.renderSpecialtiesList();
-                                }
-                                this.toggleLoader(false);
-                            })
-                            .catch(res => {
-                                this.logResultErrors(res);
-                            });
-                    }
+                    this.getListEmployees();
                 }
                 else
                 {
@@ -741,6 +788,20 @@ export class AppointmentSteps
             case this.dataKeys.specialtiesKey:
                 this.filledInputs[dataKey].specialty = target.dataset.name;
                 this.filledInputs[dataKey].specialtyUid = target.dataset.uid;
+
+                if (this.useServices)
+                {
+                    const clinicUid = this.filledInputs[this.dataKeys.clinicsKey].clinicUid;
+                    if(this.servicesStorage[clinicUid])
+                    {
+                        this.data.services = {...this.servicesStorage[clinicUid]};
+                    }
+                    else
+                    {
+                        this.getListNomenclature(`${clinicUid}`);
+                    }
+                }
+
                 break;
             case this.dataKeys.servicesKey:
                 this.filledInputs[dataKey].serviceName = target.textContent;
@@ -750,16 +811,8 @@ export class AppointmentSteps
                 break;
             case this.dataKeys.employeesKey:
                 this.filledInputs[dataKey].doctorName = target.textContent;
-                this.filledInputs[dataKey].refUid = target.dataset.uid;
-                if(this.useServices){
-                    if (this.selectDoctorBeforeService){
-                        this.renderServicesList();
-                    }else{
-                        this.renderScheduleList();
-                    }
-                }else{
-                    this.renderScheduleList();
-                }
+                this.filledInputs[dataKey].employeeUid = target.dataset.uid;
+                this.getSchedule(this.filledInputs[this.dataKeys.clinicsKey].clinicUid, this.filledInputs[dataKey].employeeUid);
                 break;
             case this.dataKeys.scheduleKey:
                 this.filledInputs[dataKey].orderDate = target.dataset.date;
@@ -783,7 +836,7 @@ export class AppointmentSteps
                 if (!employees.hasOwnProperty(employeeUid)) { return; }
 
                 const empServices = employees[employeeUid].services;
-                const specialty   = employees[employeeUid].specialty;
+                const specialty   = employees[employeeUid]['specialtyName'];
 
                 if(specialty){
                     if(empServices && Object.keys(empServices).length > 0) {
@@ -807,15 +860,12 @@ export class AppointmentSteps
         {
             for (const uid in employees)
             {
-                if (employees.hasOwnProperty(uid))
-                {
-                    const specialty = employees[uid].specialty;
-                    specialty && this.addSpecialty(employees[uid]);
-                }
+                const specialty = employees[uid]['specialtyName'];
+                specialty && this.addSpecialty(employees[uid]);
             }
         }
     }
-    
+
     addSpecialty(employee)
     {
         if (employee.specialtyUid)
@@ -826,6 +876,7 @@ export class AppointmentSteps
                     this.data[this.dataKeys.specialtiesKey][employee.specialtyUid],
                     employee.clinicUid
                 );
+
                 this.addDepartmentToSpecialty(
                     this.data[this.dataKeys.specialtiesKey][employee.specialtyUid],
                     employee.departmentUid
@@ -834,9 +885,9 @@ export class AppointmentSteps
             else
             {
                 this.data[this.dataKeys.specialtiesKey][employee.specialtyUid] = {
-                    uid:         employee.specialtyUid,
-                    name:        employee.specialty,
-                    clinics:     [employee.clinicUid],
+                    uid:        employee.specialtyUid,
+                    name:       employee['specialtyName'],
+                    clinics:    [employee.clinicUid],
                     departments: [employee.departmentUid],
                 }
             }
@@ -1059,16 +1110,16 @@ export class AppointmentSteps
                 sessid: BX.bitrix_sessid()
             }
         })
-        .then(result => {
-            this.timeExpires = result.data?.timeExpires ?? ((new Date()).getTime() / 1000).toFixed(0) + 60;
-            this.createConfirmationForm();
-            this.toggleLoader(false);
-        })
-        .catch(result => {
-            this.messageNode.textContent = result.errors?.[0]?.message + BX.message("ANZ_JS_SOME_DISPLAY_ERROR_POSTFIX");
-            this.logResultErrors(result);
-            this.toggleLoader(false);
-        });
+            .then(result => {
+                this.timeExpires = result.data?.timeExpires ?? ((new Date()).getTime() / 1000).toFixed(0) + 60;
+                this.createConfirmationForm();
+                this.toggleLoader(false);
+            })
+            .catch(result => {
+                this.messageNode.textContent = result.errors?.[0]?.message + BX.message("ANZ_JS_SOME_DISPLAY_ERROR_POSTFIX");
+                this.logResultErrors(result);
+                this.toggleLoader(false);
+            });
     }
 
     createConfirmationForm (){
@@ -1093,17 +1144,17 @@ export class AppointmentSteps
                         sessid: BX.bitrix_sessid()
                     }
                 })
-                .then(() => this.sendOrder())
-                .catch(result => {
-                    btnNode.classList.remove(styles['loading']);
-                    if (result.errors?.length > 0){
-                        result.errors.forEach((error) => {
-                            confirmWarningNode.innerHTML = ((Number(error.code) === 400) || (Number(error.code) === 406) || (Number(error.code) === 425))
+                    .then(() => this.sendOrder())
+                    .catch(result => {
+                        btnNode.classList.remove(styles['loading']);
+                        if (result.errors?.length > 0){
+                            result.errors.forEach((error) => {
+                                confirmWarningNode.innerHTML = ((Number(error.code) === 400) || (Number(error.code) === 406) || (Number(error.code) === 425))
                                     ? `${confirmWarningNode.innerHTML}${error.message}<br>`
                                     : BX.message("ANZ_JS_APPLICATION_ERROR");
-                        })
-                    }
-                });
+                            })
+                        }
+                    });
             }
             else
             {
@@ -1119,29 +1170,29 @@ export class AppointmentSteps
                 sessid: BX.bitrix_sessid()
             }
         })
-        .then((result) => {
-            this.destroyConfirmationForm();
-            this.toggleLoader(false);
+            .then((result) => {
+                this.destroyConfirmationForm();
+                this.toggleLoader(false);
 
-            if (result.data?.error)
-            {
-                throw new Error(result.data.error);
-            }
-            else
-            {
-                if (this.useEmailNote && this.orderData.email)
+                if (result.data?.error)
                 {
-                    this.sendEmailNote();
+                    throw new Error(result.data.error);
                 }
-                this.finalizingWidget(true);
-            }
-        })
-        .catch(result => {
-            this.destroyConfirmationForm();
-            this.toggleLoader(false);
-            this.logResultErrors(result);
-            this.finalizingWidget(false);
-        });
+                else
+                {
+                    if (this.useEmailNote && this.orderData.email)
+                    {
+                        this.sendEmailNote();
+                    }
+                    this.finalizingWidget(true);
+                }
+            })
+            .catch(result => {
+                this.destroyConfirmationForm();
+                this.toggleLoader(false);
+                this.logResultErrors(result);
+                this.finalizingWidget(false);
+            });
     }
 
     sendEmailNote() {
@@ -1217,7 +1268,7 @@ export class AppointmentSteps
         event && event.preventDefault();
         this.overlay.classList.remove(styles['active']);
         this.firstInit = false;
-        this.loaded    = false;
+        this.ready    = false;
         setTimeout(this.run.bind(this), 500);
     }
 
@@ -1248,15 +1299,15 @@ export class AppointmentSteps
 
         if (this.requiredInputs.length > 0){
             this.requiredInputs.some((input) => {
-                if (!BX.type.isNotEmptyString(input.value))
+                if (!BX.type.isNotEmptyString(input['value']))
                 {
                     allNotEmpty = false;
-                    input.parentElement?.classList.add(styles["error"])
+                    input.parentElement?.classList.add(styles['error'])
                     return true;
                 }
                 else
                 {
-                    input.parentElement?.classList.remove(styles["error"]);
+                    input.parentElement?.classList.remove(styles['error']);
                 }
             });
         }
@@ -1351,7 +1402,7 @@ export class AppointmentSteps
         this.overlay.classList.toggle(styles['active']);
         this.useCustomMainBtn ? this.startBtn.classList.toggle('active')
             : this.startBtn.classList.toggle(styles['active']);
-        if (!this.loaded){
+        if (!this.ready){
             this.start();
         }
     }
@@ -1518,5 +1569,11 @@ export class AppointmentSteps
                 }
             }
         );
+    }
+
+    processLoadDataError(e) {
+        !this.useCustomMainBtn && this.startBtnWrap.classList.add(styles['hidden']);
+        this.logResultErrors(e);
+        this.alertError(BX.message("ANZ_JS_APPLICATION_ERROR_CONNECTION"));
     }
 }

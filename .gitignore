@@ -26,6 +26,7 @@
 restore.php
 .htpassword
 /.idea/
+/.osp/
 /img/
 /iupdate/
 /update_create/

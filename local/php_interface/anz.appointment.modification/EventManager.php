@@ -50,9 +50,6 @@ class EventManager
         ],
     ];
 
-    /**
-     * @return void
-     */
     public static function addEventHandlers(): void
     {
         foreach (static::$events as $event)

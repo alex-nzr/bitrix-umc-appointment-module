@@ -8,7 +8,7 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-import styles from "../../styles/app.scss";
+import styles from "../../styles/app.css";
 
 export class Renderer
 {
@@ -357,7 +357,6 @@ export class Renderer
     renderSelectionItems(listNode, dataKey, items) {
         for(let key in items)
         {
-            if(!items.hasOwnProperty(key)) continue;
             if(!this.application.allowToRender(listNode, dataKey, items[key])) continue;
 
             if(dataKey === this.application.dataKeys.scheduleKey)
@@ -427,49 +426,46 @@ export class Renderer
     }
 
     renderScheduleItem(scheduleList, scheduleItem) {
-        const serviceDuration = this.application.getServiceDuration(scheduleItem);
+        const serviceDuration = this.application.getServiceDuration();
         const renderCustomIntervals = this.application.useServices && (serviceDuration > 0);
-        const timeKey = renderCustomIntervals ? "freeNotFormatted" : "free";
+        const timeKey = renderCustomIntervals ? "free" : "freeFormatted";
 
-        if (scheduleItem['timetable']?.[timeKey]?.length)
-        {
-            let intervals = scheduleItem['timetable'][timeKey];
+        if ((typeof scheduleItem['timetable']?.[timeKey] === 'object')
+            && (Object.keys(scheduleItem['timetable'][timeKey]).length > 0)
+        ){
 
-            if (renderCustomIntervals)
+            const days = scheduleItem['timetable'][timeKey];
+
+            for(let date in days)
             {
-                const customIntervals = this.application.getIntervalsForServiceDuration(intervals, serviceDuration*1000);
-                if (customIntervals.length === 0) {
-                    return;
-                }
-                else {
-                    intervals = customIntervals;
+                let dayIntervals = days[date];
+                if(Array.isArray(dayIntervals) && (dayIntervals.length > 0))
+                {
+                    if (renderCustomIntervals)
+                    {
+                        dayIntervals = this.application.getIntervalsForServiceDuration(dayIntervals, serviceDuration*1000);
+                        if (dayIntervals.length <= 0) {
+                            break;
+                        }
+                    }
+
+                    let renderColumn = this.createDayColumn(dayIntervals[0]);
+
+                    dayIntervals.forEach(interval => {
+                        BX.append(BX.create('span', {
+                            dataset: {
+                                displayDate: `${interval['formattedDate']} `,
+                                date:         interval.date,
+                                start:        interval.timeBegin,
+                                end:          interval.timeEnd,
+                            },
+                            text: `${interval['formattedTimeBegin']}`
+                        }), renderColumn);
+                    });
+
+                    scheduleList.append(renderColumn);
                 }
             }
-
-            let renderDate;
-            let renderColumn = undefined;
-            intervals.forEach((day, index) => {
-                const isLast = (index === (intervals.length - 1));
-                if ((day.date !== renderDate) || isLast)
-                {
-                    renderColumn ? scheduleList.append(renderColumn) : void(0);
-                    !isLast || (intervals.length === 1) ? renderColumn = this.createDayColumn(day) : void(0);
-                    renderDate = day.date;
-                }
-
-                if (renderColumn)
-                {
-                    BX.append(BX.create('span', {
-                        dataset: {
-                            displayDate: `${day['formattedDate']} `,
-                            date:         day.date,
-                            start:        day.timeBegin,
-                            end:          day.timeEnd,
-                        },
-                        text: `${day['formattedTimeBegin']}`
-                    }), renderColumn);
-                }
-            });
         }
     }
 
