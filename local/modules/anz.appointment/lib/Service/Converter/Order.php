@@ -11,7 +11,7 @@
  */
 namespace ANZ\Appointment\Service\Converter;
 
-use ANZ\BitUmc\SDK\Builder;
+use ANZ\Appointment\Integration\UmcSdk\Builder\Order as OrderBuilder;
 use ANZ\BitUmc\SDK\Tools\DateFormatter;
 use ANZ\BitUmc\SDK\Tools\PhoneFormatter;
 use Bitrix\Main\Localization\Loc;
@@ -35,7 +35,7 @@ class Order
      */
     public function reserveFromArray(array $params): \ANZ\BitUmc\SDK\Item\Order
     {
-        return Builder\Order::createReserve()
+        return OrderBuilder::createReserve()
             ->setClinicUid((string)$params['clinicUid'])
             ->setSpecialtyName((string)$params['specialty'])
             ->setEmployeeUid((string)$params['employeeUid'])
@@ -46,9 +46,9 @@ class Order
     /**
      * @throws \Exception
      */
-    public function orderFromArray(array $params): \ANZ\BitUmc\SDK\Item\Order
+    public function orderFromArray(array $params): \ANZ\Appointment\Integration\UmcSdk\Item\Order
     {
-        $order = Builder\Order::createOrder()
+        $order = OrderBuilder::createOrder()
             ->setEmployeeUid((string)$params['employeeUid'])
             ->setName((string)$params['name'])
             ->setLastName((string)$params['surname'])
@@ -60,6 +60,11 @@ class Order
             ->setClinicUid((string)$params['clinicUid'])
             ->setOrderUid(key_exists('orderUid', $params) ? (string)$params['orderUid'] : '')
             ->setComment((string)$params['comment']);
+
+        if (key_exists('customParams', $params) && is_array($params['customParams']))
+        {
+            $order->setCustomParams($params['customParams']);
+        }
 
         if (key_exists('birthday', $params) && !empty($params['birthday']))
         {
@@ -98,7 +103,7 @@ class Order
             '#COMMENT#'   => $params['comment'] ?? '',
         ]);
 
-        return Builder\Order::createWaitList()
+        return OrderBuilder::createWaitList()
             ->setSpecialtyName($params['specialty'] ?? "")
             ->setName((string)$params['name'])
             ->setLastName((string)$params['surname'])
