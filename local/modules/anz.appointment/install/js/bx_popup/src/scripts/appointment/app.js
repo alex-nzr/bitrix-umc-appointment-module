@@ -217,6 +217,20 @@ export class AppointmentSteps
             this.toggleLoader(false);
         });
 
+        EventManager.subscribe(EventManager.scheduleLoaded, () => {
+            if(this.useServices){
+                if (this.selectDoctorBeforeService){
+                    this.renderServicesList();
+                }else{
+                    this.renderScheduleList();
+                }
+            }else{
+                this.renderScheduleList();
+            }
+
+            this.toggleLoader(false);
+        });
+
         EventManager.subscribe(EventManager.formStepChanged, (e) => {
             e.data.isBack ? (this.selectionStep = this.dataKeys.specialtiesKey) : void(0);
             this.changeFormStepActions(e.data);
@@ -787,15 +801,6 @@ export class AppointmentSteps
                 this.filledInputs[dataKey].doctorName = target.textContent;
                 this.filledInputs[dataKey].employeeUid = target.dataset.uid;
                 this.getSchedule(this.filledInputs[this.dataKeys.clinicsKey].clinicUid, this.filledInputs[dataKey].employeeUid);
-                if(this.useServices){
-                    if (this.selectDoctorBeforeService){
-                        this.renderServicesList();
-                    }else{
-                        this.renderScheduleList();
-                    }
-                }else{
-                    this.renderScheduleList();
-                }
                 break;
             case this.dataKeys.scheduleKey:
                 this.filledInputs[dataKey].orderDate = target.dataset.date;

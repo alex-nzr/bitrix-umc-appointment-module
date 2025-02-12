@@ -927,6 +927,18 @@ this.BX.Anz = this.BX.Anz || {};
           _this2.renderSpecialtiesList();
           _this2.toggleLoader(false);
         });
+        EventManager.subscribe(EventManager.scheduleLoaded, function () {
+          if (_this2.useServices) {
+            if (_this2.selectDoctorBeforeService) {
+              _this2.renderServicesList();
+            } else {
+              _this2.renderScheduleList();
+            }
+          } else {
+            _this2.renderScheduleList();
+          }
+          _this2.toggleLoader(false);
+        });
         EventManager.subscribe(EventManager.formStepChanged, function (e) {
           e.data.isBack ? _this2.selectionStep = _this2.dataKeys.specialtiesKey : void 0;
           _this2.changeFormStepActions(e.data);
@@ -1449,15 +1461,6 @@ this.BX.Anz = this.BX.Anz || {};
             this.filledInputs[dataKey].doctorName = target.textContent;
             this.filledInputs[dataKey].employeeUid = target.dataset.uid;
             this.getSchedule(this.filledInputs[this.dataKeys.clinicsKey].clinicUid, this.filledInputs[dataKey].employeeUid);
-            if (this.useServices) {
-              if (this.selectDoctorBeforeService) {
-                this.renderServicesList();
-              } else {
-                this.renderScheduleList();
-              }
-            } else {
-              this.renderScheduleList();
-            }
             break;
           case this.dataKeys.scheduleKey:
             this.filledInputs[dataKey].orderDate = target.dataset.date;
