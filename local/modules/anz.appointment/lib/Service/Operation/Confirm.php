@@ -11,15 +11,15 @@
  */
 namespace ANZ\Appointment\Service\Operation;
 
-use ANZ\Appointment\Internals\Control\ServiceManager;
+use ANZ\Appointment\Config\Constants;
+use ANZ\Appointment\Internals\ServiceManager;
+use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Exception;
-use ANZ\Appointment\Config\Constants;
-use ANZ\Appointment\Service\Container;
 
 /**
  * Class Confirm

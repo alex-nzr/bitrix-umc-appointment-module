@@ -1,6 +1,7 @@
 <?php
-use ANZ\Appointment\Internals\Control\ServiceManager;
+
 use ANZ\Appointment\Internals\Debug\Logger;
+use ANZ\Appointment\Internals\ServiceManager;
 
 try
 {

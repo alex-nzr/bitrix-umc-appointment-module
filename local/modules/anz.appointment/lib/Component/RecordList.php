@@ -11,7 +11,7 @@
  */
 namespace ANZ\Appointment\Component;
 
-use ANZ\Appointment\Internals\Control\ServiceManager;
+use ANZ\Appointment\Internals\ServiceManager;
 use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Grid\Options as GridOptions;
 use Bitrix\Main\Localization\Loc;
@@ -57,13 +57,22 @@ class RecordList extends BaseComponent
         Extension::load(['ui.buttons', $this->moduleId.'.admin']);
     }
 
+    public function onPrepareComponentParams($arParams): array
+    {
+        $arParams = parent::onPrepareComponentParams($arParams);
+        return array_merge($arParams, [
+            "CACHE_TYPE" => "N",
+            "CACHE_TIME" => 0,
+        ]);
+    }
+
     /**
      * @return bool
-     * @throws \Exception
+     * @throws \Exception|\Psr\Container\NotFoundExceptionInterface
      */
     function checkRequirements(): bool
     {
-        if ($this->App->GetGroupRight(ServiceManager::getModuleId()) < "R")
+        if (!Container::getInstance()->getUserPermissions()->checkReadPermissions())
         {
             throw new Exception('Access to component denied');
         }
@@ -402,15 +411,5 @@ class RecordList extends BaseComponent
     public function getUserProfileLink($userId, $userLogin): string
     {
         return "<a href='/bitrix/admin/user_edit.php?ID=".$userId."&lang=".LANGUAGE_ID."'>[" . $userId . "]".$userLogin."</a>";
-    }
-
-    /**
-     * @param string $message
-     * @param bool $isError
-     * @return void
-     */
-    protected function showMessage(string $message, bool $isError = false): void
-    {
-        $isError ? ShowError($message) : ShowMessage($message);
     }
 }

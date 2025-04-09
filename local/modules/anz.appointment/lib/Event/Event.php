@@ -11,7 +11,7 @@
  */
 namespace ANZ\Appointment\Event;
 
-use ANZ\Appointment\Internals\Control\ServiceManager;
+use ANZ\Appointment\Internals\ServiceManager;
 use Bitrix\Main\EventResult;
 use Exception;
 

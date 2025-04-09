@@ -1,59 +1,46 @@
 <?php
-/**
+/*
  * ==================================================
- * Developer: Alexey Nazarov
- * E-mail: jc1988x@gmail.com
- * Copyright (c) 2019 - 2023
+ * This file is part of project Bit UMC - Bitrix integration
+ * 07.02.2023
  * ==================================================
- * "Bit.Umc - Bitrix integration" - BaseComponent.php
- * 07.02.2023 17:23
- * ==================================================
- */
-
+*/
 namespace ANZ\Appointment\Component;
 
-use ANZ\Appointment\Internals\Control\ServiceManager;
+use ANZ\Appointment\Internals\ServiceManager;
+use Bitrix\Main\Engine\Contract\Controllerable;
+use Bitrix\Main\Error;
+use Bitrix\Main\Errorable;
+use Bitrix\Main\ErrorCollection;
 use CBitrixComponent;
 use CMain;
 use Exception;
 use function ShowError;
 
-/**
- * @class BaseComponent
- * @package CBit\GpnSm\ServiceDesk\Component
- */
-abstract class BaseComponent extends CBitrixComponent
+abstract class BaseComponent extends CBitrixComponent implements Controllerable, Errorable
 {
-    public    string $moduleId;
-    protected CMain  $App;
-    protected bool   $excelMode;
+    public string $moduleId;
+    protected CMain $App;
+    protected bool $excelMode;
+    protected ErrorCollection $errorCollection;
 
-    /**
-     * @param $component
-     */
     public function __construct($component = null)
     {
         parent::__construct($component);
         $this->App       = $GLOBALS['APPLICATION'];
         $this->moduleId  = ServiceManager::getModuleId();
         $this->excelMode = ($this->request->get('EXCEL_MODE') === 'Y');
+        $this->errorCollection = new ErrorCollection();
     }
 
-    /**
-     * @param $arParams
-     * @return array
-     */
     public function onPrepareComponentParams($arParams): array
     {
         return array_merge($arParams, [
-            "CACHE_TYPE" => $arParams["CACHE_TYPE"] ?? "N",
-            "CACHE_TIME" => $arParams["CACHE_TIME"] ?? 0,
+            "CACHE_TYPE" => $arParams["CACHE_TYPE"] ?? "A",
+            "CACHE_TIME" => $arParams["CACHE_TIME"] ?? 3600,
         ]);
     }
 
-    /**
-     * @return void
-     */
     final public function executeComponent(): void
     {
         try
@@ -72,22 +59,36 @@ abstract class BaseComponent extends CBitrixComponent
         }
     }
 
-    /**
-     * @param string $message
-     * @param bool $isError
-     */
-    protected function showMessage(string $message, bool $isError = false): void
+    public function showMessage(string $message, bool $isError = false): void
     {
         $isError ? ShowError($message) : ShowMessage($message);
     }
 
     /**
-     * @return bool
+     * @return Error[]
      */
+    public function getErrors(): array
+    {
+        return $this->errorCollection->toArray();
+    }
+
+    public function getErrorByCode($code): ?Error
+    {
+        return $this->errorCollection->getErrorByCode($code);
+    }
+
+    public function configureActions(): array
+    {
+        return [];
+    }
+
+    protected function addError(Error $error): static
+    {
+        $this->errorCollection[] = $error;
+        return $this;
+    }
+
     abstract function checkRequirements(): bool;
 
-    /**
-     * @return array
-     */
     abstract function getResult(): array;
 }

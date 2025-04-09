@@ -15,3 +15,9 @@
 #### Минимальная версия БИТ.УМЦ - 2.1.24.9(Corp), 2.0.48.15(Prof)
 #### Минимальная версия Битрикса - 23.675.0
 #### Минимальная версия PHP - 8.1
+
+//todo refactor options and admin pages
+//todo cache to iblock
+//todo cache schedule to file
+//todo refresh cache every 5-10m by agent
+//todo refresh schedule cache on hit|click every 3sec

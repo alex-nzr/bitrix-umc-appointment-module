@@ -11,6 +11,7 @@
 /local/php_interface
 /local/templates
 /local/js
+*/modules/anz.appointment/storage/cache/*.json
 /.access.php
 /.htaccess
 /404.php

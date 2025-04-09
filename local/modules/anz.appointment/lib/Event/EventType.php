@@ -11,12 +11,10 @@
  */
 namespace ANZ\Appointment\Event;
 
-/**
- * Class EventType
- * @package ANZ\Appointment\Event
- */
 class EventType
 {
+    const ON_AFTER_OPTIONS_SET_EVENT        = 'OnAfterOptionsSet';
+
     const ON_BEFORE_CLINICS_PARSED          = "onBeforeClinicsParsed";
     const ON_AFTER_CLINICS_PARSED           = "onAfterClinicsParsed";
 

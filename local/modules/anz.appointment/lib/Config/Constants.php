@@ -1,28 +1,18 @@
 <?php
-/**
+/*
  * ==================================================
- * Developer: Alexey Nazarov
- * E-mail: jc1988x@gmail.com
- * Copyright (c) 2019 - 2022
+ * This file is part of project Bit UMC - Bitrix integration
+ * 10.07.2022
  * ==================================================
- * "Bit.Umc - Bitrix integration" - Constants.php
- * 10.07.2022 22:37
- * ==================================================
- */
+*/
 namespace ANZ\Appointment\Config;
 
-/**
- * Class Constants
- * @package ANZ\Appointment\Config
- */
 class Constants
 {
     const PATH_TO_LOGFILE            = __DIR__.'/../../log.txt';
-
     const APPOINTMENT_MODULE_ID      = "anz.appointment";
-    const APPOINTMENT_JS_EXTENSION   = "anz.appointment.bx_popup";
 
-    const PATH_TO_DEMO_DATA_FILE = __DIR__."/../../store/demoData.json";
+    const APPOINTMENT_JS_EXTENSION   = "anz.appointment.form-vue";//bx_popup
 
     const DEFAULT_SCHEDULE_PERIOD_DAYS     = 14;
     const DEFAULT_APPOINTMENT_DURATION_SEC = 1800;

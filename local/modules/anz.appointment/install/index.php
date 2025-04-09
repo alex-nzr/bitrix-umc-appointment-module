@@ -11,6 +11,7 @@
  */
 
 
+use ANZ\Appointment\Event\EventManager as ANZEventManager;
 use ANZ\Appointment\Internals\Installation\Installer;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
@@ -19,7 +20,6 @@ use Bitrix\Main\IO\Directory as Dir;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
-use ANZ\Appointment\Internals\Control\EventManager as ANZEventManager;
 
 Loc::loadMessages(__FILE__);
 

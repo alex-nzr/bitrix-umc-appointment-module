@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<СписокКлиник xmlns="S1" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Клиника>
+		<Наименование>Ваш Доктор</Наименование>
+		<УИД>3f6bf0f2-fe00-11e4-bebb-a0b3cc49f2b0</УИД>
+	</Клиника>
+</СписокКлиник>

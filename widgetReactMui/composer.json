@@ -1,0 +1,11 @@
+{
+    "name": "firstbit/uclinic.kursk",
+    "autoload": {
+        "psr-4": {
+            "Firstbit\\UclinicKursk\\": "lib/"
+        }
+    },
+    "require": {
+        "alex-nzr/bit-umc-sdk": "^1.0.0"
+    }
+}

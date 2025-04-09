@@ -11,8 +11,10 @@
  */
 namespace ANZ\Appointment\Component;
 
+use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Config\Constants;
-use ANZ\Appointment\Internals\Control\ServiceManager;
+use ANZ\Appointment\Internals\ServiceManager;
+use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Exception;
@@ -25,7 +27,7 @@ class RecordAdd extends BaseComponent
 {
     /**
      * @return bool
-     * @throws \Exception
+     * @throws \Exception|\Psr\Container\NotFoundExceptionInterface
      */
     function checkRequirements(): bool
     {
@@ -34,7 +36,7 @@ class RecordAdd extends BaseComponent
             throw new Exception("Can not include '$this->moduleId' module");
         }
 
-        if ($this->App->GetGroupRight(ServiceManager::getModuleId()) < "R")
+        if (!Container::getInstance()->getUserPermissions()->checkReadPermissions())
         {
             throw new Exception('Access to component denied');
         }
@@ -82,14 +84,8 @@ class RecordAdd extends BaseComponent
                 ServiceManager::getModuleId(),
                 Constants::OPTION_KEY_LOGO,
             ),
-            "USE_CUSTOM_MAIN_BTN"             => Option::get(
-                ServiceManager::getModuleId(),
-                Constants::OPTION_KEY_USE_CUSTOM_BTN,
-            ),
-            "CUSTOM_MAIN_BTN_ID"              => Option::get(
-                ServiceManager::getModuleId(),
-                Constants::OPTION_KEY_CUSTOM_BTN_ID
-            ),
+            "USE_CUSTOM_MAIN_BTN"             => Configuration::getInstance()->isCustomBtnEnabled() ? 'Y' : 'N',
+            "CUSTOM_MAIN_BTN_ID"              => Configuration::getInstance()->getCustomBtnAttrId(),
 
             "USE_NOMENCLATURE"                => Option::get(
                 ServiceManager::getModuleId(),

@@ -9,7 +9,8 @@
  * 10.07.2022 22:37
  * ==================================================
  */
-use ANZ\Appointment\Internals\Control\ServiceManager;
+
+use ANZ\Appointment\Internals\ServiceManager;
 use Bitrix\Main\Context;
 use Bitrix\Main\Localization\Loc;
 

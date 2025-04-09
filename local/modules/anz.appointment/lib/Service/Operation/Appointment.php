@@ -11,16 +11,16 @@
  */
 namespace ANZ\Appointment\Service\Operation;
 
+use ANZ\Appointment\Config\Constants;
+use ANZ\Appointment\Event\Event;
+use ANZ\Appointment\Event\EventType;
 use ANZ\Appointment\Helper\Orm;
-use ANZ\Appointment\Internals\Control\ServiceManager;
+use ANZ\Appointment\Internals\ServiceManager;
+use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 use Exception;
-use ANZ\Appointment\Config\Constants;
-use ANZ\Appointment\Event\Event;
-use ANZ\Appointment\Event\EventType;
-use ANZ\Appointment\Service\Container;
 use Throwable;
 
 /**

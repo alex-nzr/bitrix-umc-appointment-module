@@ -16,8 +16,11 @@ use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Integration\UmcSdk\Builder\ExchangeClient;
 use ANZ\Appointment\Integration\UmcSdk\Factory;
 use ANZ\Appointment\Integration\UmcSdk\Service\Exchange\Soap;
-use ANZ\Appointment\Internals\Control\ServiceManager;
 use ANZ\Appointment\Internals\Model\RecordTable;
+use ANZ\Appointment\Internals\ServiceManager;
+use ANZ\Appointment\Service\Access\UserPermissions;
+use ANZ\Appointment\Service\Message\Mailer;
+use ANZ\Appointment\Service\Message\Sms;
 use ANZ\Appointment\Service\OneC\Exchange;
 use ANZ\Appointment\Service\OneC\FtpDataReader;
 use ANZ\Appointment\Service\Provider\ExchangeDataProvider;
@@ -27,8 +30,6 @@ use ANZ\BitUmc\SDK\Core\Trait\Singleton;
 use ANZ\BitUmc\SDK\Service\XmlParser;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\DI\ServiceLocator;
-use ANZ\Appointment\Service\Message\Mailer;
-use ANZ\Appointment\Service\Message\Sms;
 use Bitrix\Main\Localization\Loc;
 use Exception;
 
@@ -139,10 +140,9 @@ class Container
         return ServiceLocator::getInstance()->get($identifier);
     }
 
+
     /**
-     * @return \ANZ\Appointment\Service\Provider\ExchangeDataProvider
-     * @throws \Exception
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface|\Exception
      */
     public function getExchangeDataProvider(): ExchangeDataProvider
     {
@@ -221,6 +221,21 @@ class Container
     public function getRecordDataClass(): RecordTable | string
     {
         return RecordTable::class;
+    }
+
+    /**
+     * @throws \Psr\Container\NotFoundExceptionInterface|\Exception
+     */
+    public function getUserPermissions(): UserPermissions
+    {
+        $identifier = static::getIdentifierByClassName(UserPermissions::class);
+
+        if(!ServiceLocator::getInstance()->has($identifier))
+        {
+            ServiceLocator::getInstance()->addInstance($identifier, new UserPermissions);
+        }
+
+        return ServiceLocator::getInstance()->get($identifier);
     }
 
     /**

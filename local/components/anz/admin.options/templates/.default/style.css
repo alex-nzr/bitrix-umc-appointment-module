@@ -1,0 +1,12 @@
+.adm-info-message-wrap{
+    display: flex;
+    justify-content: center;
+}
+
+.adm-info-message{
+    width: 100%;
+}
+
+.module-option-label input[readonly]{
+    opacity: 1;
+}

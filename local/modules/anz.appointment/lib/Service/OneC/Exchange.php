@@ -11,15 +11,19 @@
  */
 namespace ANZ\Appointment\Service\OneC;
 
-use ANZ\Appointment\Internals\Control\ServiceManager;
+use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\Config\Constants;
+use ANZ\Appointment\Internals\ServiceManager;
+use ANZ\Appointment\Service\Cache\Manager as CacheManager;
+use ANZ\Appointment\Service\Cache\Validator as CacheValidator;
 use ANZ\Appointment\Service\Container;
+use ANZ\Appointment\Tools\Utils;
+use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Exception;
-use ANZ\Appointment\Config\Constants;
-use ANZ\Appointment\Tools\Utils;
 use Throwable;
 
 
@@ -30,6 +34,11 @@ use Throwable;
 class Exchange extends Base
 {
     protected array $demoData;
+    protected string $cacheDir;
+    protected string $clinicsFileName = 'clinics.json';
+    protected string $employeesFileName = 'employees.json';
+    protected string $nomenclatureFileName = 'nomenclature.json';
+    protected string $scheduleFileName = 'schedule.json';
 
     /**
      * @throws \Exception
@@ -39,9 +48,10 @@ class Exchange extends Base
         parent::__construct();
         if ($this->demoMode)
         {
-            if (is_file(Constants::PATH_TO_DEMO_DATA_FILE))
+            $demoDataFile = Application::getDocumentRoot() . Configuration::getInstance()->getDemoDataFilePath();
+            if (is_file($demoDataFile))
             {
-                $this->demoData = json_decode(file_get_contents(Constants::PATH_TO_DEMO_DATA_FILE), true);
+                $this->demoData = json_decode(file_get_contents($demoDataFile), true);
             }
             else
             {
@@ -49,6 +59,8 @@ class Exchange extends Base
                 throw new Exception('Demo data file not found');
             }
         }
+
+        $this->cacheDir = Application::getDocumentRoot() . Configuration::getInstance()->getCacheDir();
     }
 
     /**
@@ -69,8 +81,19 @@ class Exchange extends Base
 
         try
         {
-            $sdkResult = Container::getInstance()->getSdkExchangeService()->getClinics();
-            return Utils::convertSdkResultToBitrixResult($sdkResult);
+            if (!CacheValidator::validate($this->cacheDir . $this->clinicsFileName))
+            {
+                $result = Utils::convertSdkResultToBitrixResult(Container::getInstance()->getSdkExchangeService()->getClinics());
+                if ($result->isSuccess())
+                {
+                    CacheManager::getInstance()->saveJsonCache($this->cacheDir . $this->clinicsFileName, $result->getData());
+                }
+            }
+            else
+            {
+                $result = (new Result)->setData(CacheManager::getInstance()->getJsonCacheData($this->cacheDir . $this->clinicsFileName));
+            }
+            return $result;
         }
         catch (Throwable $e)
         {

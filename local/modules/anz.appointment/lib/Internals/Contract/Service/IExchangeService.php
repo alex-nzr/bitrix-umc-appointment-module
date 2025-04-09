@@ -1,22 +1,14 @@
 <?php
-/**
+/*
  * ==================================================
- * Developer: Alexey Nazarov
- * E-mail: jc1988x@gmail.com
- * Copyright (c) 2019 - 2023
+ * This file is part of project Bit UMC - Bitrix integration
+ * 05.03.2023
  * ==================================================
- * Bit.Umc - Bitrix integration - IExchangeService.php
- * 05.03.2023 21:12
- * ==================================================
- */
+*/
 namespace ANZ\Appointment\Internals\Contract\Service;
 
 use Bitrix\Main\Result;
 
-/**
- * @interface IExchangeService
- * @package ANZ\Appointment\Internals\Contract\Service
- */
 interface IExchangeService
 {
     /**
