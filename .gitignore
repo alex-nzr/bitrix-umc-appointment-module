@@ -3,6 +3,10 @@
 */**/vendor/
 */**/package-lock.json
 
+#build
+*/**/dist/
+*/**/build/
+
 # Bitrix core
 /bitrix/
 
@@ -10,7 +14,12 @@
 /upload/
 /local/php_interface
 /local/templates
-/local/js
+/local/js/*
+!/local/js/anz/
+/local/js/anz/*
+!/local/js/anz/appointment
+/local/js/anz/appointment/*
+!/local/js/anz/appointment/form-vue
 */modules/anz.appointment/storage/cache/*.json
 /.access.php
 /.htaccess
