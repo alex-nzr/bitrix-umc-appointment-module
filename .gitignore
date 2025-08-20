@@ -1,49 +1,18 @@
 # dependencies
 */**/node_modules/
-*/**/vendor/
 */**/package-lock.json
+/vendor/
+/composer.lock
 
 #build
 */**/dist/
 */**/build/
 
-# Bitrix core
-/bitrix/
-
-# Bitrix files
-/upload/
-/local/php_interface
-/local/templates
-/local/js/*
-!/local/js/anz/
-/local/js/anz/*
-!/local/js/anz/appointment
-/local/js/anz/appointment/*
-!/local/js/anz/appointment/form-vue
-*/modules/anz.appointment/storage/cache/*.json
-/.access.php
-/.htaccess
-/404.php
-/index.php
-/urlrewrite.php
-#!/local/js/anz/
-/local/modules/anz.appointment/vendor/
-/local/modules/anz.appointment/composer.lock
-
 #Misc
-/favicon.ico
-.htsecure
-.DS_Store
-.htpasswd
-.well-known
-restore.php
-.htpassword
-/.idea/
-/.osp/
-/img/
-/iupdate/
-/update_create/
-/docs/anz.appointment-docs.docx
+*.docx
 *.log
 *.txt
+*.xml
+*.zip
+*.tar
 
