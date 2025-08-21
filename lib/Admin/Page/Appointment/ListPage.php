@@ -2,17 +2,17 @@
 /*
  * ==================================================
  * This file is part of project Bit UMC - Bitrix integration
- * 08.03.2025
+ * 10.07.2022
  * ==================================================
 */
-namespace ANZ\Appointment\Admin\Page\Other;
+namespace ANZ\Appointment\Admin\Page\Appointment;
 
 use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use ANZ\Appointment\Admin\Page\BaseAdminPage;
 
-class AppointmentListPage extends BaseAdminPage
+class ListPage extends BaseAdminPage
 {
     public function __construct()
     {

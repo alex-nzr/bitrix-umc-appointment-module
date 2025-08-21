@@ -1,14 +1,10 @@
 <?php
-/**
+/*
  * ==================================================
- * Developer: Alexey Nazarov
- * E-mail: jc1988x@gmail.com
- * Copyright (c) 2019 - 2022
+ * This file is part of project Bit UMC - Bitrix integration
+ * 10.07.2022
  * ==================================================
- * "Bit.Umc - Bitrix integration" - ExchangeDataProvider.php
- * 06.12.2023 12:37
- * ==================================================
- */
+*/
 namespace ANZ\Appointment\Service\Provider;
 
 use ANZ\Appointment\Service\Container;

@@ -17,7 +17,7 @@ class Storage
 
     public function __construct()
     {
-        $this->moduleId = Configuration::getInstance()->getModuleId();
+        $this->moduleId = Configuration::getModuleId();
         $this->setAdditionalMenuStructure();
     }
 

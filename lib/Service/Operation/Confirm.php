@@ -1,16 +1,13 @@
 <?php
-/**
+/*
  * ==================================================
- * Developer: Alexey Nazarov
- * E-mail: jc1988x@gmail.com
- * Copyright (c) 2019 - 2022
+ * This file is part of project Bit UMC - Bitrix integration
+ * 10.07.2022
  * ==================================================
- * "Bit.Umc - Bitrix integration" - Confirm.php
- * 10.07.2022 22:37
- * ==================================================
- */
+*/
 namespace ANZ\Appointment\Service\Operation;
 
+use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Internals\ServiceManager;
 use ANZ\Appointment\Service\Container;
@@ -41,10 +38,7 @@ class Confirm
             $smsService = Container::getInstance()->getSmsService();
 
             $code = (string)rand(1000, 9999);
-            $confirmWith = Option::get(
-                ServiceManager::getModuleId(),
-                Constants::OPTION_KEY_CONFIRM_MODE
-            );
+            $confirmWith = Configuration::getInstance()->getExchangeConfirmMode();
             $result = new Result();
 
             $session = Application::getInstance()->getSession();

@@ -1,16 +1,12 @@
 <?php
-/**
+/*
  * ==================================================
- * Developer: Alexey Nazarov
- * E-mail: jc1988x@gmail.com
- * Copyright (c) 2019 - 2022
+ * This file is part of project Bit UMC - Bitrix integration
+ * 10.07.2022
  * ==================================================
- * "Bit.Umc - Bitrix integration" - install.php
- * 10.07.2022 22:37
- * ==================================================
- */
+*/
 
-
+use ANZ\Appointment\Agent\Exchange;
 use ANZ\Appointment\Event\EventManager as ANZEventManager;
 use ANZ\Appointment\Internals\Installation\Installer;
 use Bitrix\Main\Application;
@@ -78,6 +74,7 @@ class anz_appointment extends CModule
             {
                 $this->InstallDB();
                 $this->InstallEvents();
+                $this->InstallAgents();
                 $this->InstallFiles();
 
                 $this->App->IncludeAdminFile(
@@ -126,6 +123,7 @@ class anz_appointment extends CModule
                 {
                     $this->UnInstallFiles();
                     $this->UnInstallEvents();
+                    $this->UnInstallAgents();
                     if ($request->get('saveData') !== "Y"){
                         $this->UnInstallDB();
                     }
@@ -155,7 +153,7 @@ class anz_appointment extends CModule
     /**
      * @throws \Exception
      */
-    public function InstallDB()
+    public function InstallDB(): void
     {
         $res = Installer::installModule();
         if (!$res->isSuccess())
@@ -187,22 +185,19 @@ class anz_appointment extends CModule
     /**
      * @throws \Exception
      */
-    public function InstallEvents()
+    public function InstallEvents(): void
     {
-        ANZEventManager::addBasicEventHandlers();
+        ANZEventManager::registerModuleStartEvent();
     }
 
     /**
      * @throws \Exception
      */
-    public function UnInstallEvents()
+    public function UnInstallEvents(): void
     {
-        ANZEventManager::removeBasicEventHandlers();
+        ANZEventManager::unregisterModuleStartEvent();
     }
 
-    /**
-     * @return void
-     */
     public function InstallFiles(): void
     {
         CopyDirFiles(__DIR__.'/js/', $this->docRoot.'/bitrix/js/'.$this->partnerId."/".$this->moduleNameShort, true, true);
@@ -212,9 +207,6 @@ class anz_appointment extends CModule
         CopyDirFiles(__DIR__.'/components/', $this->docRoot.'/bitrix/components', true, true);
     }
 
-    /**
-     * @return void
-     */
     public function UnInstallFiles(): void
     {
         DeleteDirFiles(__DIR__.'/admin/', $this->docRoot.'/bitrix/admin');
@@ -229,25 +221,106 @@ class anz_appointment extends CModule
             Dir::deleteDirectory($this->docRoot . '/bitrix/wizards/'.$this->partnerId."/".$this->moduleNameShort.'/');
         }
 
-        if (Dir::isDirectoryExists($path = $this->docRoot . '/bitrix/components/'.$this->partnerId.'/')) {
-            if ($dir = opendir($path)) {
+        $srcDir = __DIR__.'/components/'.$this->partnerId.'/';
+        $dstDir = $this->docRoot . '/bitrix/components/'.$this->partnerId.'/';
+        if (Dir::isDirectoryExists($srcDir))
+        {
+            if ($dir = opendir($srcDir))
+            {
                 while ($item = readdir($dir))
                 {
-                    if (str_starts_with($item, $this->moduleNameShort . "."))
+                    if (is_dir($srcDir . $item) && is_dir($dstDir . $item))
                     {
-                        if (is_dir($path . $item))
+                        try
                         {
-                            try {
-                                Dir::deleteDirectory($path . $item);
-                            }catch(Exception){
-                                continue;
-                            }
+                            Dir::deleteDirectory($dstDir . $item);
+                        }
+                        catch(Exception)
+                        {
+                            continue;
                         }
                     }
                 }
                 closedir($dir);
             }
         }
+    }
+
+    public function InstallAgents(): void
+    {
+        foreach ($this->getModuleAgentsData() as $agent)
+        {
+            $name = $agent['handler'];
+            $dbResult = CAgent::GetList(['ID' => 'DESC'], ['NAME' => $name]);
+            if ($dbResult && ($existingAgent = $dbResult->Fetch()))
+            {
+                CAgent::Update($existingAgent['ID'],[
+                    'NAME' => $name,
+                    'MODULE_ID' => $this->MODULE_ID,
+                    'IS_PERIOD' => $agent['period'],
+                    'AGENT_INTERVAL' => $agent['interval'],
+                    'ACTIVE' => $agent['active'],
+                    'NEXT_EXEC' => $agent['nextExec'],
+                    'USER_ID' => $agent['userId'],
+                    'SORT' => $agent['sort']
+                ]);
+            }
+            else
+            {
+                CAgent::AddAgent(
+                    $name,
+                    $this->MODULE_ID,
+                    $agent['period'],
+                    $agent['interval'],
+                    '',
+                    $agent['active'],
+                    $agent['nextExec'],
+                    $agent['sort'],
+                    $agent['userId']
+                );
+            }
+        }
+    }
+
+    public function UnInstallAgents(): void
+    {
+        foreach ($this->getModuleAgentsData() as $agent)
+        {
+            CAgent::RemoveAgent($agent['handler'], $this->MODULE_ID);
+        }
+    }
+
+    protected function getModuleAgentsData(): array
+    {
+        return [
+            [
+                'handler' => Exchange::class . "::loadData();",
+                'period' => "N",
+                'interval' => 60,
+                'userId' => null,
+                'active' => 'Y',
+                'nextExec' => date("d.m.Y H:i:s", time() + 60),
+                'sort' => 100
+            ],
+            [
+                'handler' => Exchange::class . "::cleanLogFiles();",
+                'period' => "N",
+                'interval' => 86400,
+                'userId' => null,
+                'active' => 'Y',
+                'nextExec' => date("d.m.Y H:i:s", time() + 60),
+                'sort' => 100
+            ],
+            [
+                'handler' => Exchange::class . "::cleanModuleCache();",
+                'period' => "N",
+                'interval' => 3600,
+                'userId' => null,
+                'active' => 'Y',
+                'nextExec' => date("d.m.Y H:i:s", time() + 60),
+                'sort' => 100
+            ],
+        ];
     }
 
     /**
@@ -280,7 +353,7 @@ class anz_appointment extends CModule
         }
 
         $requireModules = [
-            'main'  => '23.675.0',
+            'main'  => '24.0',
         ];
 
         foreach ($requireModules as $moduleName => $moduleVersion)

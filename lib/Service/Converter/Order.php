@@ -1,14 +1,10 @@
 <?php
-/**
+/*
  * ==================================================
- * Developer: Alexey Nazarov
- * E-mail: jc1988x@gmail.com
- * Copyright (c) 2019 - 2023
+ * This file is part of project Bit UMC - Bitrix integration
+ * 10.07.2022
  * ==================================================
- * Bit.Umc - Bitrix integration - Order.php
- * 06.12.2023 16:06
- * ==================================================
- */
+*/
 namespace ANZ\Appointment\Service\Converter;
 
 use ANZ\Appointment\Integration\UmcSdk\Builder\Order as OrderBuilder;

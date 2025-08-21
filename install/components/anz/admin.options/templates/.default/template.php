@@ -15,11 +15,12 @@ use Bitrix\Main\Localization\Loc;
 
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
+$formId = uniqid('admin_form_');
 $component->getTabControl()->Begin();
 try
 {
     ?>
-        <form method="POST" action="<?=$arResult['FORM_ACTION']?>" name="<?=$arResult['MODULE_ID']?>_settings" enctype="multipart/form-data">
+        <form method="POST" id="<?=$formId?>" action="<?=$arResult['FORM_ACTION']?>" name="<?=$arResult['MODULE_ID']?>_settings" enctype="multipart/form-data">
             <?php
             foreach ($arResult['TABS'] as $arTab)
             {
@@ -39,6 +40,11 @@ try
             <input type="submit" name="Update" value="<?=Loc::getMessage('MAIN_SAVE')?>" class="adm-btn-save">
             <input type="reset"  name="reset" value="<?=Loc::getMessage('MAIN_RESET')?>">
         </form>
+        <script type="text/javascript">
+            BX.ready(function() {
+                BX.UI?.Hint?.init(BX('<?=$formId?>'));
+            })
+        </script>
     <?php
     $component->getTabControl()->End();
 }

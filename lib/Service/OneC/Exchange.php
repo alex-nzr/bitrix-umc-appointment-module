@@ -1,14 +1,10 @@
 <?php
-/**
+/*
  * ==================================================
- * Developer: Alexey Nazarov
- * E-mail: jc1988x@gmail.com
- * Copyright (c) 2019 - 2022
+ * This file is part of project Bit UMC - Bitrix integration
+ * 10.07.2022
  * ==================================================
- * "Bit.Umc - Bitrix integration" - Exchange.php
- * 10.07.2022 22:37
- * ==================================================
- */
+*/
 namespace ANZ\Appointment\Service\OneC;
 
 use ANZ\Appointment\Config\Configuration;
@@ -233,11 +229,7 @@ class Exchange extends Base
 
         try
         {
-            $days = (int)Option::get(
-                ServiceManager::getModuleId(),
-                Constants::OPTION_KEY_SCHEDULE_DAYS,
-                Constants::DEFAULT_SCHEDULE_PERIOD_DAYS
-            );
+            $days = Configuration::getInstance()->getExchangeSchedulePeriod();
 
             if (!key_exists('clinicUid', $params))
             {

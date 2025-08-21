@@ -19,11 +19,14 @@ class Logger extends Debug
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function printToFile(...$vars): void
     {
         foreach ($vars as $key => $var)
         {
-            static::writeToFile($var, $key, Configuration::getInstance()->getLogFilePath());
+            static::writeToFile($var, $key, Configuration::getInstance()->getCommonLogFilePath());
         }
     }
 

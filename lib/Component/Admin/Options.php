@@ -10,7 +10,6 @@ namespace ANZ\Appointment\Component\Admin;
 use ANZ\Appointment\Component\BaseComponent;
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Event\EventType;
-use ANZ\Appointment\Internals\Contract\Option\IOptionStorage;
 use ANZ\Appointment\Internals\ServiceManager;
 use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Application;
@@ -31,7 +30,6 @@ abstract class Options extends BaseComponent
     public function __construct($component = null)
     {
         parent::__construct($component);
-    //    echo '<pre>';print_r($this->request->getPostList()->toArray());echo '</pre>';
     }
 
     public function onPrepareComponentParams($arParams): array
@@ -149,9 +147,8 @@ abstract class Options extends BaseComponent
                         }
                         $optionName = $arOption[0];
                         $optionValue = $this->request->getPost($optionName);
-
-                        $fileOptionPostfix = IOptionStorage::OPTION_TYPE_FILE_POSTFIX;
-                        if (str_ends_with($optionName, $fileOptionPostfix))
+                        $optionType  = is_array($arOption[3]) ? $arOption[3][0] : '';
+                        if ($optionType === 'file')
                         {
                             $currentValue = Option::get($this->moduleId, $optionName);
                             $optionValue = $this->request->getFile($optionName);
@@ -178,10 +175,10 @@ abstract class Options extends BaseComponent
                 }
 
                 $event = new Event(
-                    Configuration::getInstance()->getModuleId(),
+                    Configuration::getModuleId(),
                     EventType::ON_AFTER_OPTIONS_SET_EVENT,
                     [
-                        'moduleId' => Configuration::getInstance()->getModuleId(),
+                        'moduleId' => Configuration::getModuleId(),
                         'eventType' => EventType::ON_AFTER_OPTIONS_SET_EVENT,
                         'data' => $this->request->getPostList()->toArray()
                     ]
@@ -240,6 +237,8 @@ abstract class Options extends BaseComponent
      */
     public function drawSettingsRow(string $module_id, $option): void
     {
+        global $APPLICATION;
+
         if(empty($option))
         {
             return;
@@ -259,6 +258,20 @@ abstract class Options extends BaseComponent
                         </td>
                     </tr>";
         }
+        elseif(isset($option['component']))
+        {?>
+            <tr>
+                <td colspan='2'>
+                    <?php
+                    $APPLICATION->IncludeComponent(
+                        $option['component'],
+                        $option['template'] ?: '',
+                        is_array($option['params']) ? $option['params'] : []
+                    );
+                    ?>
+                </td>
+            </tr>
+        <?php }
         else
         {
             $currentVal = Option::get($module_id, $option[0], $option[2]);
@@ -307,12 +320,15 @@ abstract class Options extends BaseComponent
                     $val = htmlspecialchars($val);
                     echo "<input type='number' name='$name' value='$val' size='$type[1]' min='1' max='999999'>";
                     break;
+                case "datetime":
+                    echo "<input type='datetime-local' id='$name' name='$name' value='$val'>";
+                    break;
                 case "hidden":
                     echo "<input type='hidden' name='$name' value='$val'>";
                     break;
                 case "select":
                     $arr = is_array($type[1]) ? $type[1] : [];
-                    echo "<select name='$name'>";
+                    echo "<select id='$name' name='$name'>";
                     foreach($arr as $optionVal => $displayVal)
                     {
                         $displayVal = htmlspecialchars($displayVal);
@@ -325,7 +341,7 @@ abstract class Options extends BaseComponent
                     $arr = is_array($type[1]) ? $type[1] : [];
                     $name .= '[]';
                     $arr_val = json_decode($val, true);
-                    echo "<select name='$name' size='5' multiple>";
+                    echo "<select id='$name' name='$name' size='5' multiple>";
                     foreach($arr as $optionVal => $displayVal)
                     {
                         $displayVal = htmlspecialchars($displayVal);
@@ -342,17 +358,19 @@ abstract class Options extends BaseComponent
                     $val = htmlspecialchars($val);
                     echo "<span>".(!empty($val) ? $val : $option[2])."</span>";
                     break;
+                case "htmlText":
+                    echo "<span style='font-weight: 600'>".(!empty($val) ? $val : $option[2])."</span>";
+                    break;
                 case "colorPicker":
-                    echo "<input type='text' id='$name' name='$name' value='$val' style='background-color: $val;cursor:pointer;' readonly/>
-                              <script>
-                                BX.ready(function() {
-                                    if (BX.Anz?.Appointment?.Admin){
-                                        BX.Anz.Appointment.Admin.bindColorPickerToNode('$name', '$name', '$option[2]');
-                                    }
-                                });
-                              </script>";
+                    echo "<input type='color' id='$name' name='$name' value='$val' style='width:200px;height:50px;cursor:pointer;'>";
                     break;
                 case "file":
+                    $attrs = is_array($type[1]) ? $type[1] : [];
+                    $attrsString = '';
+                    foreach($attrs as $attrName => $attrValue)
+                    {
+                        $attrsString .= " $attrName='$attrValue'";
+                    }
                     if (is_numeric($val) && (int)$val > 0)
                     {
                         $arFile = CFile::GetFileArray($val);
@@ -374,10 +392,7 @@ abstract class Options extends BaseComponent
                             }
                         }
                     }
-                    echo "<input type='file' id='$name' name='$name'/>";
-                    break;
-                case "ftp-data-map":
-                    $this->renderFtpMap($name, $val);
+                    echo "<input type='file' id='$name' name='$name' $attrsString/>";
                     break;
                 case 'group_access':
                     global $USER;
@@ -393,43 +408,5 @@ abstract class Options extends BaseComponent
             ?>
         </label>
         </td><?
-    }
-
-    public function renderFtpMap(string $name, string $val): void
-    {
-        $arr_val = json_decode($val, true);
-        if (!is_array($arr_val))
-        {
-            $arr_val = [];
-        }
-        ?>
-        <div class='ftp-data-map-table' id="<?=$name?>_block">
-            <table>
-                <thead>
-                <tr>
-                    <th>GUID</th>
-                    <th>PATH</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?foreach ($arr_val as $uid => $path):?>
-                    <tr class="table-value-row">
-                        <td><?=htmlspecialchars($uid)?></td>
-                        <td><?=htmlspecialchars($path)?></td>
-                    </tr>
-                <?endforeach;?>
-                <tr>
-                    <td colspan="2" class="btn-cell">
-                        <button type="button" id="ftp-map-change-btn" class="ui-btn ui-btn-primary">Change</button>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            <input type='hidden' id='<?=$name?>' name='<?=$name?>' value='<?=$val?>'>
-            <script>
-                BX.ready(() => BX?.Anz?.Appointment?.['FtpMap']?.init('<?=$name?>'))
-            </script>
-        </div>
-        <?php
     }
 }

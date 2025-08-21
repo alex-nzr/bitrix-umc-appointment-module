@@ -1,14 +1,10 @@
 <?php
-/**
+/*
  * ==================================================
- * Developer: Alexey Nazarov
- * E-mail: jc1988x@gmail.com
- * Copyright (c) 2019 - 2022
+ * This file is part of project Bit UMC - Bitrix integration
+ * 10.07.2022
  * ==================================================
- * "Bit.Umc - Bitrix integration" - Container.php
- * 10.07.2022 22:37
- * ==================================================
- */
+*/
 namespace ANZ\Appointment\Service;
 
 use ANZ\Appointment\Config\Configuration;
@@ -22,7 +18,6 @@ use ANZ\Appointment\Service\Access\UserPermissions;
 use ANZ\Appointment\Service\Message\Mailer;
 use ANZ\Appointment\Service\Message\Sms;
 use ANZ\Appointment\Service\OneC\Exchange;
-use ANZ\Appointment\Service\OneC\FtpDataReader;
 use ANZ\Appointment\Service\Provider\ExchangeDataProvider;
 use ANZ\BitUmc\SDK\Core\Contract\Service\IExchangeService;
 use ANZ\BitUmc\SDK\Core\Dictionary\ClientScope;
@@ -85,22 +80,11 @@ class Container
      */
     public function getExchangeService(): \ANZ\Appointment\Internals\Contract\Service\IExchangeService
     {
-        $useDemoMode  = Configuration::getInstance()->isDemoModeOn();
-
-        if ($useDemoMode)
-        {
-            $serviceClass = Exchange::class;
-        }
-        else
-        {
-            $useFtpMode   = Configuration::getInstance()->isFtpModeOn();
-            $serviceClass = $useFtpMode ? FtpDataReader::class : Exchange::class;
-        }
-        $identifier = static::getIdentifierByClassName($serviceClass);
+        $identifier = static::getIdentifierByClassName(Exchange::class);
 
         if(!ServiceLocator::getInstance()->has($identifier))
         {
-            ServiceLocator::getInstance()->addInstance($identifier, new $serviceClass());
+            ServiceLocator::getInstance()->addInstance($identifier, new Exchange());
         }
 
         return ServiceLocator::getInstance()->get($identifier);

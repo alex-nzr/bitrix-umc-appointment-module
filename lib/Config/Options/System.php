@@ -15,8 +15,6 @@ use ANZ\Appointment\Internals\Contract\Option\IOptionStorage;
  */
 class System implements IOptionStorage
 {
-    const OPTION_KEY_LAST_UPDATED_URL_CONDITIONS_HASH = 'project_last_updated_url_conditions_hash';
-
     /**
      * @return array
      */

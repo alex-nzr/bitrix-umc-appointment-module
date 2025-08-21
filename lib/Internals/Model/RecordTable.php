@@ -1,14 +1,10 @@
 <?php
-/**
+/*
  * ==================================================
- * Developer: Alexey Nazarov
- * E-mail: jc1988x@gmail.com
- * Copyright (c) 2019 - 2022
+ * This file is part of project Bit UMC - Bitrix integration
+ * 10.07.2022
  * ==================================================
- * "Bit.Umc - Bitrix integration" - RecordTable.php
- * 10.07.2022 22:37
- * ==================================================
- */
+*/
 namespace ANZ\Appointment\Internals\Model;
 
 use ANZ\Appointment\Internals\Model\DataModifier\FetchModifier;

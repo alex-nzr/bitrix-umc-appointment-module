@@ -1,15 +1,6 @@
 // @disabled-flow
-/**
- * ==================================================
- * Developer: Alexey Nazarov
- * E-mail: jc1988x@gmail.com
- * Copyright (c) 2019 - 2022
- * ==================================================
- * "Bit.Umc - Bitrix integration" - app.js
- * 10.07.2022 22:37
- * ==================================================
- */
 'use strict';
+
 import '../../styles/app.css';
 import styles from "../../styles/app.css";
 import {convertHexToHsl, maskInput} from "../utils/functions";

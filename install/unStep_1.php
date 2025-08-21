@@ -1,15 +1,10 @@
 <?php
-/**
+/*
  * ==================================================
- * Developer: Alexey Nazarov
- * E-mail: jc1988x@gmail.com
- * Copyright (c) 2019 - 2022
+ * This file is part of project Bit UMC - Bitrix integration
+ * 10.07.2022
  * ==================================================
- * "Bit.Umc - Bitrix integration" - unStep_1.php
- * 10.07.2022 22:37
- * ==================================================
- */
-
+*/
 use ANZ\Appointment\Internals\ServiceManager;
 use Bitrix\Main\Context;
 use Bitrix\Main\Localization\Loc;

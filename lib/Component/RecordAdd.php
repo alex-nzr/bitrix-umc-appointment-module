@@ -1,14 +1,10 @@
 <?php
-/**
+/*
  * ==================================================
- * Developer: Alexey Nazarov
- * E-mail: jc1988x@gmail.com
- * Copyright (c) 2019 - 2023
+ * This file is part of project Bit UMC - Bitrix integration
+ * 10.07.2022
  * ==================================================
- * Bit.Umc - Bitrix integration - RecordAdd.php
- * 14.02.2023 15:03
- * ==================================================
- */
+*/
 namespace ANZ\Appointment\Component;
 
 use ANZ\Appointment\Config\Configuration;
@@ -87,10 +83,7 @@ class RecordAdd extends BaseComponent
             "USE_CUSTOM_MAIN_BTN"             => Configuration::getInstance()->isCustomBtnEnabled() ? 'Y' : 'N',
             "CUSTOM_MAIN_BTN_ID"              => Configuration::getInstance()->getCustomBtnAttrId(),
 
-            "USE_NOMENCLATURE"                => Option::get(
-                ServiceManager::getModuleId(),
-                Constants::OPTION_KEY_USE_NOMENCLATURE,
-            ),
+            "USE_NOMENCLATURE"                => Configuration::getInstance()->isServicesEnabled(),
             "SELECT_DOCTOR_BEFORE_SERVICE"    => Option::get(
                 ServiceManager::getModuleId(),
                 Constants::OPTION_KEY_DOCTOR_BEFORE_SERVICE,
@@ -110,11 +103,7 @@ class RecordAdd extends BaseComponent
                 ServiceManager::getModuleId(),
                 Constants::OPTION_KEY_ALLOW_DOCTOR_WITHOUT_DPT,
             ),
-            "USE_CONFIRM_WITH"                => Option::get(
-                ServiceManager::getModuleId(),
-                Constants::OPTION_KEY_CONFIRM_MODE,
-                "none"
-            ),
+            "USE_CONFIRM_WITH"                => Configuration::getInstance()->getExchangeConfirmMode(),
             "USE_EMAIL_NOTE"                  => Option::get(
                 ServiceManager::getModuleId(),
                 Constants::OPTION_KEY_EMAIL_NOTE,

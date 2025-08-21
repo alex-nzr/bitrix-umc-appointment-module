@@ -10,3 +10,9 @@
 .module-option-label input[readonly]{
     opacity: 1;
 }
+
+.option-hint-container{
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}

@@ -9,7 +9,5 @@ namespace ANZ\Appointment\Internals\Contract\Option;
 
 interface IOptionStorage
 {
-    const OPTION_TYPE_FILE_POSTFIX = '_FILE';
-
     public function getTabs(): array;
 }

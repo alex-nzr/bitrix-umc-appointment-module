@@ -1,14 +1,10 @@
 <?php
-/**
+/*
  * ==================================================
- * Developer: Alexey Nazarov
- * E-mail: jc1988x@gmail.com
- * Copyright (c) 2019 - 2022
+ * This file is part of project Bit UMC - Bitrix integration
+ * 10.07.2022
  * ==================================================
- * "Bit.Umc - Bitrix integration" - DBTableInstaller.php
- * 30.11.2022 18:32
- * ==================================================
- */
+*/
 namespace ANZ\Appointment\Internals\Installation;
 
 use ANZ\Appointment\Internals\Model\RecordTable;
