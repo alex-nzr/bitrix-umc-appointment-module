@@ -8,6 +8,7 @@
 namespace ANZ\Appointment\Agent;
 
 use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Data\Cache;
 use Bitrix\Main\Diag\Debug;
 use Bitrix\Main\IO\Directory;
@@ -36,14 +37,15 @@ class Exchange
                 {
                     Configuration::getInstance()->setExchangeActive(false);
 
-                    (new \ANZ\Appointment\Integration\Service\Exchange())->loadClinics();
+                    $gateway = Container::getInstance()->getSdkGateway();
+                    $gateway->getClinics();
 
                     if (Configuration::getInstance()->isServicesEnabled())
                     {
-                        (new \ANZ\Appointment\Integration\Service\Exchange())->loadServices();
+                        //(new \ANZ\Appointment\Integration\Service\Exchange())->loadServices();
                     }
 
-                    (new \ANZ\Appointment\Integration\Service\Exchange())->loadEmployees();
+                    //(new \ANZ\Appointment\Integration\Service\Exchange())->loadEmployees();
 
                     Configuration::getInstance()->setLastExchangeExecutionDate(new PhpDateTime);
 

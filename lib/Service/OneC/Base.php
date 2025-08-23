@@ -8,9 +8,9 @@
 namespace ANZ\Appointment\Service\OneC;
 
 use ANZ\Appointment\Config\Configuration;
-use ANZ\Appointment\Helper\Orm;
 use ANZ\Appointment\Internals\Contract\Service\IExchangeService;
 use ANZ\Appointment\Service\Container;
+use ANZ\Appointment\Tools\Orm;
 use ANZ\Appointment\Tools\Utils;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
@@ -34,7 +34,7 @@ abstract class Base implements IExchangeService
 
     abstract public function getClinicsList(): Result;
     abstract public function getEmployeesList(): Result;
-    abstract public function getNomenclatureList(string $clinicGuid): Result;
+    abstract public function getNomenclatureList(string $clinicUid): Result;
     abstract public function getSchedule(array $params = []): Result;
 
     /**

@@ -7,20 +7,13 @@
 */
 namespace ANZ\Appointment\Event;
 
-use ANZ\Appointment\Internals\ServiceManager;
+use ANZ\Appointment\Config\Configuration;
 use Bitrix\Main\EventResult;
 use Exception;
 
-/**
- * Class Event
- * @package ANZ\Appointment\Event
- */
 class Event extends \Bitrix\Main\Event
 {
     /**
-     * @param string $eventName
-     * @param $params
-     * @return array|null
      * @throws \Exception
      */
     public static function getEventHandlersResult(string $eventName, $params): ?array
@@ -29,15 +22,12 @@ class Event extends \Bitrix\Main\Event
     }
 
     /**
-     * @param string $eventName
-     * @param $params
-     * @return array|null
      * @throws \Exception
      */
     protected static function sendEvent(string $eventName, $params): ?array
     {
         $event = new static(
-            ServiceManager::getModuleId(),
+            Configuration::getModuleId(),
             $eventName,
             $params
         );

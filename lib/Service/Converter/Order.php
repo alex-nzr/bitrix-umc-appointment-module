@@ -7,8 +7,6 @@
 */
 namespace ANZ\Appointment\Service\Converter;
 
-use ANZ\Appointment\Integration\UmcSdk\Builder\Order as OrderBuilder;
-use ANZ\BitUmc\SDK\Tools\PhoneFormatter;
 use Bitrix\Main\Localization\Loc;
 use DateTime as PhpDateTime;
 
@@ -24,11 +22,9 @@ class Order
     }
 
     /**
-     * @param array $params
-     * @return \ANZ\BitUmc\SDK\Item\Order
      * @throws \Exception
      */
-    public function reserveFromArray(array $params): \ANZ\BitUmc\SDK\Item\Order
+    public function reserveFromArray(array $params)
     {
         return OrderBuilder::createReserve()
             ->setClinicUid((string)$params['clinicUid'])
@@ -86,11 +82,9 @@ class Order
     }
 
     /**
-     * @param array $params
-     * @return \ANZ\BitUmc\SDK\Item\Order
      * @throws \Exception
      */
-    public function waitListFromArray(array $params): \ANZ\BitUmc\SDK\Item\Order
+    public function waitListFromArray(array $params)
     {
         $comment = Loc::getMessage('ANZ_APPOINTMENT_WAITING_LIST_COMMENT', [
             '#FULL_NAME#' => $params['name'] ." ". $params['middleName'] ." ". $params['surname'],

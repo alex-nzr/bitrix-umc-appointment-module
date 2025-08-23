@@ -7,7 +7,7 @@
 */
 namespace ANZ\Appointment\Component;
 
-use ANZ\Appointment\Internals\ServiceManager;
+use ANZ\Appointment\Config\Configuration;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Error;
 use Bitrix\Main\Errorable;
@@ -24,11 +24,14 @@ abstract class BaseComponent extends CBitrixComponent implements Controllerable,
     protected bool $excelMode;
     protected ErrorCollection $errorCollection;
 
+    /**
+     * @throws \Exception
+     */
     public function __construct($component = null)
     {
         parent::__construct($component);
         $this->App       = $GLOBALS['APPLICATION'];
-        $this->moduleId  = ServiceManager::getModuleId();
+        $this->moduleId  = Configuration::getModuleId();
         $this->excelMode = ($this->request->get('EXCEL_MODE') === 'Y');
         $this->errorCollection = new ErrorCollection();
     }

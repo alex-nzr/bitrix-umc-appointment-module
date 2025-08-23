@@ -439,8 +439,8 @@ export class AppointmentSteps
             BX.ajax.runAction('anz:appointment.oneCController.getSchedule', {
                 data: {
                     sessid: BX.bitrix_sessid(),
-                    clinicGuid: clinicUid,
-                    employeeGuid: employeeUid,
+                    clinicUid: clinicUid,
+                    employeeUid: employeeUid,
                 }
             })
                 .then(scheduleResponse => {
@@ -483,7 +483,7 @@ export class AppointmentSteps
         BX.ajax.runAction('anz:appointment.oneCController.getNomenclature', {
             data: {
                 sessid: BX.bitrix_sessid(),
-                clinicGuid: clinicUid,
+                clinicUid: clinicUid,
             }
         })
         .then((nomenclature) => {

@@ -5,24 +5,19 @@
  * 10.07.2022
  * ==================================================
 */
-namespace ANZ\Appointment\Component;
+namespace ANZ\Appointment\Component\Appointment;
 
-use ANZ\Appointment\Internals\ServiceManager;
+use ANZ\Appointment\Component\BaseComponent;
 use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Grid\Options as GridOptions;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\DataManager;
-use Bitrix\Main\UI\Extension;
 use Bitrix\Main\UI\Filter\Options as FilterOptions;
 use Bitrix\Main\UI\PageNavigation;
 use CAjax;
 use Exception;
 
-/**
- * @class RecordList
- * @package ANZ\Appointment\Component
- */
-class RecordList extends BaseComponent
+class ItemsList extends BaseComponent
 {
     protected array           $allowedColumns;
     protected DataManager     $entity;
@@ -40,7 +35,7 @@ class RecordList extends BaseComponent
         parent::__construct($component);
         Loc::loadMessages(__FILE__);
 
-        $this->gridId         = 'anz_appointment_admin_grid';
+        $this->gridId         = uniqid('anz_appointment_list');
         $dataClass            = Container::getInstance()->getRecordDataClass();
         $this->entity         = new $dataClass;
         $this->allowedColumns = $this->getAllowedColumns();
@@ -49,8 +44,6 @@ class RecordList extends BaseComponent
         $this->rows           = $this->setRows(
             $this->gridId, $this->pageNavObject->getOffset(), $this->pageNavObject->getLimit()
         );
-
-        Extension::load(['ui.buttons', $this->moduleId.'.admin']);
     }
 
     public function onPrepareComponentParams($arParams): array
@@ -64,7 +57,7 @@ class RecordList extends BaseComponent
 
     /**
      * @return bool
-     * @throws \Exception|\Psr\Container\NotFoundExceptionInterface
+     * @throws \Exception
      */
     function checkRequirements(): bool
     {
@@ -76,7 +69,8 @@ class RecordList extends BaseComponent
     }
 
     /**
-     * @return array
+     * @return array[]
+     * @throws \Exception
      */
     public function getResult(): array
     {
@@ -301,7 +295,7 @@ class RecordList extends BaseComponent
     }
 
     /**
-     * @return array
+     * @throws \Exception
      */
     public function getColumns(): array
     {

@@ -8,6 +8,7 @@
 namespace ANZ\Appointment\Config\Options;
 
 use ANZ\Appointment\Config\Constants;
+use ANZ\Appointment\Config\ExchangeMode;
 use ANZ\Appointment\Internals\Contract\Option\IOptionStorage;
 use Bitrix\Main\Localization\Loc;
 
@@ -76,6 +77,18 @@ class Module implements IOptionStorage
 
                     Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_SETTINGS'),
                     [
+                        Constants::OPTION_KEY_EXCHANGE_MODE,
+                        Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_MODE'),
+                        ExchangeMode::SOAP->value,
+                        [
+                            'select',
+                            [
+                                ExchangeMode::SOAP->value => ExchangeMode::SOAP->value,
+                                ExchangeMode::HTTP->value => ExchangeMode::HTTP->value
+                            ]
+                        ]
+                    ],
+                    [
                         Constants::OPTION_KEY_EXCHANGE_AGENT_ACTIVE,
                         Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_AGENT_ACTIVE'),
                         'N',
@@ -100,12 +113,17 @@ class Module implements IOptionStorage
                         ['number', 10]
                     ],
                     [
+                        Constants::OPTION_KEY_EXCHANGE_CACHE_TTL,
+                        Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_CACHE_TTL'),
+                        3600 * 3,
+                        ['number', 10]
+                    ],
+                    [
                         Constants::OPTION_KEY_EXCHANGE_USE_SERVICES,
                         Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_USE_SERVICES'),
                         'N',
                         ['checkbox']
                     ],
-                    [ 'note' => Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_USE_SERVICES_WARNING')],
 
                     [
                         Constants::OPTION_KEY_EXCHANGE_DEFAULT_APPOINTMENT_DURATION,
@@ -113,7 +131,6 @@ class Module implements IOptionStorage
                         1800,
                         ['number', 10]
                     ],
-                    ['note' => Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_DEFAULT_APPOINTMENT_DURATION_NOTE')],
 
                     [
                         'component' => 'anz:appointment.execute-btn',
@@ -155,7 +172,6 @@ class Module implements IOptionStorage
                             ]
                         ]
                     ],
-                    [ 'note' => Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_CONFIRM_NOTE')],
 
                     Loc::getMessage("ANZ_APPOINTMENT_OTHER_SETTINGS"),
                     [
@@ -164,7 +180,6 @@ class Module implements IOptionStorage
                         "N",
                         ['checkbox']
                     ],
-                    [ 'note' => Loc::getMessage('ANZ_APPOINTMENT_SELECT_DOCTOR_BEFORE_SERVICE_NOTE')],
 
                     [
                         Constants::OPTION_KEY_USE_TIME_STEPS,
@@ -178,7 +193,6 @@ class Module implements IOptionStorage
                         "15",
                         ['text', 5]
                     ],
-                    [ 'note' => Loc::getMessage('ANZ_APPOINTMENT_USE_TIME_STEPS_NOTE')],
 
                     [
                         Constants::OPTION_KEY_STRICT_RELATIONS,
@@ -186,7 +200,6 @@ class Module implements IOptionStorage
                         "N",
                         ['checkbox']
                     ],
-                    [ 'note' => Loc::getMessage('ANZ_APPOINTMENT_STRICT_CHECKING_RELATIONS_NOTE')],
 
                     [
                         Constants::OPTION_KEY_ALLOW_DOCTOR_WITHOUT_DPT,
@@ -194,7 +207,6 @@ class Module implements IOptionStorage
                         "N",
                         ['checkbox']
                     ],
-                    [ 'note' => Loc::getMessage('ANZ_APPOINTMENT_SHOW_DOCTORS_WITHOUT_DEPARTMENT_NOTE')],
 
                 ]
             ],
@@ -318,10 +330,7 @@ class Module implements IOptionStorage
                 'TITLE' => Loc::getMessage("ANZ_APPOINTMENT_TAB_TITLE_RIGHTS"),
                 'OPTIONS' => [
                     [
-                        'access_settings',
-                        '',
-                        'this option set by bitrix group_rights.php',
-                        ['group_access']
+                        'group_access' => 'Y'//this option set by bitrix group_rights.php
                     ],
                 ]
             ]

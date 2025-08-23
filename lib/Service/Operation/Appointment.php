@@ -7,12 +7,12 @@
 */
 namespace ANZ\Appointment\Service\Operation;
 
+use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Event\Event;
 use ANZ\Appointment\Event\EventType;
-use ANZ\Appointment\Helper\Orm;
-use ANZ\Appointment\Internals\ServiceManager;
 use ANZ\Appointment\Service\Container;
+use ANZ\Appointment\Tools\Orm;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
@@ -38,7 +38,7 @@ class Appointment
             $writer = $container->getExchangeService();
 
             $useWaitingList = Option::get(
-                ServiceManager::getModuleId(),
+                Configuration::getModuleId(),
                 Constants::OPTION_KEY_USE_WAIT_LIST, "N"
             );
 

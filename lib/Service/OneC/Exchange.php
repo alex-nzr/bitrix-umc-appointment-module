@@ -125,10 +125,10 @@ class Exchange extends Base
     }
 
     /**
-     * @param string $clinicGuid
+     * @param string $clinicUid
      * @return \Bitrix\Main\Result
      */
-    public function getNomenclatureList(string $clinicGuid): Result
+    public function getNomenclatureList(string $clinicUid): Result
     {
         if ($this->demoMode){
             $res = new Result();
@@ -143,7 +143,7 @@ class Exchange extends Base
 
         try
         {
-            $sdkResult = Container::getInstance()->getSdkExchangeService()->getNomenclature($clinicGuid);
+            $sdkResult = Container::getInstance()->getSdkExchangeService()->getNomenclature($clinicUid);
             return Utils::convertSdkResultToBitrixResult($sdkResult);
         }
         catch (Throwable $e)
@@ -195,9 +195,9 @@ class Exchange extends Base
                             {
                                 if(is_array($specialtySchedule))
                                 {
-                                    foreach ($params['employees'] as $employeeGuid)
+                                    foreach ($params['employees'] as $employeeUid)
                                     {
-                                        if (key_exists($employeeGuid, $specialtySchedule))
+                                        if (key_exists($employeeUid, $specialtySchedule))
                                         {
                                             if (!is_array($resultSchedule[$params['clinicUid']]))
                                             {
@@ -209,7 +209,7 @@ class Exchange extends Base
                                                 $resultSchedule[$params['clinicUid']][$specialtyKey] = [];
                                             }
 
-                                            $resultSchedule[$params['clinicUid']][$specialtyKey][$employeeGuid] = $specialtySchedule[$employeeGuid];
+                                            $resultSchedule[$params['clinicUid']][$specialtyKey][$employeeUid] = $specialtySchedule[$employeeGuid];
                                         }
                                     }
                                 }

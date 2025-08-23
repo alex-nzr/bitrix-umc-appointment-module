@@ -10,7 +10,6 @@ namespace ANZ\Appointment\Component\Admin;
 use ANZ\Appointment\Component\BaseComponent;
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Event\EventType;
-use ANZ\Appointment\Internals\ServiceManager;
 use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
@@ -145,7 +144,13 @@ abstract class Options extends BaseComponent
                         {
                             continue;
                         }
+
                         $optionName = $arOption[0];
+                        if(empty($optionName)/* || !in_array($optionName, $allowedOptions)*/)
+                        {
+                            continue;
+                        }
+
                         $optionValue = $this->request->getPost($optionName);
                         $optionType  = is_array($arOption[3]) ? $arOption[3][0] : '';
                         if ($optionType === 'file')
@@ -272,6 +277,20 @@ abstract class Options extends BaseComponent
                 </td>
             </tr>
         <?php }
+        elseif($option['group_access'] === 'Y')
+        {?>
+            <tr>
+                <td colspan='2'>
+                    <?php
+                    global $USER;
+                    global $APPLICATION;
+                    global $DB;
+                    $module_id = Configuration::getModuleId();
+                    require_once(Application::getDocumentRoot()."/bitrix/modules/main/admin/group_rights.php");
+                    ?>
+                </td>
+            </tr>
+        <?php }
         else
         {
             $currentVal = Option::get($module_id, $option[0], $option[2]);
@@ -393,13 +412,6 @@ abstract class Options extends BaseComponent
                         }
                     }
                     echo "<input type='file' id='$name' name='$name' $attrsString/>";
-                    break;
-                case 'group_access':
-                    global $USER;
-                    global $APPLICATION;
-                    global $DB;
-                    $module_id = ServiceManager::getModuleId();
-                    require_once(Application::getDocumentRoot()."/bitrix/modules/main/admin/group_rights.php");
                     break;
                 default:
                     echo "<p>Unknown option type '$type[0]'</p>";

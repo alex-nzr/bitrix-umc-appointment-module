@@ -5,15 +5,14 @@
  * 10.07.2022
  * ==================================================
 */
-namespace ANZ\Appointment\Helper;
+namespace ANZ\Appointment\Tools;
 
-use ANZ\BitUmc\SDK\Tools\PhoneFormatter;
+use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 use Bitrix\Main\Type\DateTime;
 use Exception;
-use ANZ\Appointment\Service\Container;
 use Throwable;
 
 /**

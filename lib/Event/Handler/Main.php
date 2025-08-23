@@ -5,7 +5,7 @@
  * 09.12.2022
  * ==================================================
 */
-namespace ANZ\Appointment\Handler;
+namespace ANZ\Appointment\Event\Handler;
 
 use ANZ\Appointment\Admin;
 

@@ -7,10 +7,12 @@
 */
 namespace ANZ\Appointment\Config;
 
-use ANZ\BitUmc\SDK\Core\Trait\Singleton;
+use ANZ\Appointment\Core\Trait\Singleton;
+use ANZ\Appointment\Internals\ServiceManager;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
+use Bitrix\Main\NotImplementedException;
 use DateTime as PhpDateTime;
 use Exception;
 
@@ -87,9 +89,9 @@ final class Configuration
     /**
      * @throws \Exception
      */
-    public function getDemoDataFilePath(): string
+    public function getDemoDataFilePath(bool $fullPath = false): string
     {
-        return $this->getModuleLocation(false) . '/storage/demoData.json';
+        return $this->getModuleLocation($fullPath) . '/storage/demoData.json';
     }
 
     public function isDemoModeOn(): bool
@@ -217,5 +219,53 @@ final class Configuration
         }
 
         return Option::get(self::$moduleId, Constants::OPTION_KEY_JS_EXTENSION);
+    }
+
+    public function getCacheTtl(): int
+    {
+        $val = (int)Option::get(self::$moduleId, Constants::OPTION_KEY_EXCHANGE_CACHE_TTL);
+        return $val > 0 ? $val : 3600 * 3;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getOneCLogin(): string
+    {
+        return Option::get(self::getModuleId(), Constants::OPTION_KEY_API_WS_LOGIN);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getOneCPassword(): string
+    {
+        return Option::get(self::getModuleId(), Constants::OPTION_KEY_API_WS_PASSWORD);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getOneCApiUrl(): string
+    {
+        switch ($this->getExchangeMode())
+        {
+            case ExchangeMode::SOAP:
+                return trim(Option::get(self::getModuleId(), Constants::OPTION_KEY_API_WS_URL));
+                break;
+            case ExchangeMode::HTTP:
+                throw new NotImplementedException('Http mode not implemented');
+                break;
+            default:
+                throw new Exception('Unknown exchange mode');
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getExchangeMode(): ?ExchangeMode
+    {
+        return ExchangeMode::tryFrom(Option::get(self::getModuleId(), Constants::OPTION_KEY_EXCHANGE_MODE));
     }
 }

@@ -7,9 +7,6 @@
 */
 namespace ANZ\Appointment\Tools;
 
-use ANZ\BitUmc\SDK\Core\Operation\Result as SdkResult;
-use Bitrix\Main\Error;
-use Bitrix\Main\Result as BitrixResult;
 use Bitrix\Main\SiteTable;
 
 /**
@@ -33,26 +30,5 @@ class Utils
             }
         }
         return $siteIds;
-    }
-
-    /**
-     * @param \ANZ\BitUmc\SDK\Core\Operation\Result $sdkResult
-     * @return \Bitrix\Main\Result
-     */
-    public static function convertSdkResultToBitrixResult(SdkResult $sdkResult): BitrixResult
-    {
-        $bitrixResult = new BitrixResult();
-        if ($sdkResult->isSuccess())
-        {
-            $bitrixResult->setData($sdkResult->getData());
-        }
-        else
-        {
-            foreach ($sdkResult->getErrorMessages() as $errorMessage)
-            {
-                $bitrixResult->addError(new Error($errorMessage));
-            }
-        }
-        return $bitrixResult;
     }
 }

@@ -10,9 +10,9 @@ namespace ANZ\Appointment\Internals;
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Controller\MessageController;
 use ANZ\Appointment\Controller\OneCController;
+use ANZ\Appointment\Core\Trait\Singleton;
 use ANZ\Appointment\Service\Container;
 use ANZ\Appointment\Service\Localization;
-use ANZ\BitUmc\SDK\Core\Trait\Singleton;
 use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
 use Bitrix\Main\UI\Extension;
@@ -48,7 +48,7 @@ class ServiceManager
             MessageController::class => 'lib/Controller/MessageController.php',
         ];
 
-        Loader::registerAutoLoadClasses(static::getModuleId(), $arControllers);
+        Loader::registerAutoLoadClasses(Configuration::getModuleId(), $arControllers);
     }
 
     /**
@@ -73,12 +73,16 @@ class ServiceManager
      */
     public function includeDependentExtensions(): void
     {
-        Extension::load(['ui.icons', 'ui.buttons', 'ui.hint']);
+        $list = ['ui.icons', 'ui.buttons', 'ui.hint'];
+        if (Context::getCurrent()->getRequest()->isAdminSection())
+        {
+            $list[] = Configuration::getModuleId() . '.admin';
+        }
+        Extension::load($list);
     }
 
     /**
      * @throws \Exception
-     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public static function includeAppointmentExtension(): void
     {
@@ -97,15 +101,10 @@ class ServiceManager
     /**
      * @throws \Exception
      */
-    public static function getModuleId(): string
-    {
-        return Configuration::getModuleId();
-    }
-
     public static function isModuleInstallingNow(): bool
     {
         $request = Context::getCurrent()->getRequest();
-        return $request->get('id') === static::getModuleId()
+        return $request->get('id') === Configuration::getModuleId()
             && ($request->get('install') === 'Y' || $request->get('uninstall') === 'Y');
     }
 }

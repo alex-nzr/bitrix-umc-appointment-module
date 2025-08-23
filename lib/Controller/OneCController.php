@@ -52,24 +52,19 @@ class OneCController extends Controller
     }
 
     /**
-     * @param string $clinicGuid
+     * @param string $clinicUid
      * @return \Bitrix\Main\Result
      */
-    public function getNomenclatureAction(string $clinicGuid): Result
+    public function getNomenclatureAction(string $clinicUid): Result
     {
-        return $this->exchangeService->getNomenclatureList($clinicGuid);
+        return $this->exchangeService->getNomenclatureList($clinicUid);
     }
 
-    /**
-     * @param string $clinicGuid
-     * @param string $employeeGuid
-     * @return \Bitrix\Main\Result
-     */
-    public function getScheduleAction(string $clinicGuid, string $employeeGuid): Result
+    public function getScheduleAction(string $clinicUid, string $employeeUid): Result
     {
         return $this->exchangeService->getSchedule([
-            'clinicUid' => $clinicGuid,
-            'employees' => [$employeeGuid],
+            'clinicUid' => $clinicUid,
+            'employees' => [$employeeUid],
         ]);
     }
 

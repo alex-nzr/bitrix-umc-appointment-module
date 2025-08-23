@@ -20,43 +20,38 @@ $MESS['ANZ_APPOINTMENT_MENU_SETTINGS_TITLE'] = 'Настройки модуля'
 $MESS['ANZ_APPOINTMENT_MODULE_SETTINGS'] = "Настройки модуля";
 $MESS['ANZ_APPOINTMENT_PRIVACY_PAGE_URL'] = sprintf($hintTemplate,'Ссылка на политику конфиденциальности сайта', 'Необходима для размещения на форме записи');
 $MESS['ANZ_APPOINTMENT_USE_AUTO_INJECTING_ON'] = sprintf($hintTemplate, 'Автоматическое подключение', 'При включенной опции кнопка онлайн-записи появится на всех страницах сайта автоматически, если не указан id собственной кнопки.<br>При отключенной опции, нужно самостоятельно разместить на сайте компонент записи.');
-$MESS['ANZ_APPOINTMENT_USE_DEMO_MODE_ON'] = "Включить демо-режим";
+$MESS['ANZ_APPOINTMENT_USE_DEMO_MODE_ON'] = sprintf($hintTemplate , 'Включить демо-режим', 'При включённой опции данные будут загружаться из файла в директории модуля, а отправка заявки будет всегда успешна');
 
 /*Appointment options*/
 $MESS['ANZ_APPOINTMENT_APP_SETTINGS'] = 'Настройки записи на приём';
 $MESS['ANZ_APPOINTMENT_USE_EMAIL_NOTE'] = 'Отправлять информацию о записи на email';
-$MESS['ANZ_APPOINTMENT_USE_WAITING_LIST'] = sprintf($hintTemplate , "Запись в лист ожидания", 'При включенной опции запись в 1С будет создаваться не как Заявка, а как Лист ожидания');
-$MESS['ANZ_APPOINTMENT_EXCHANGE_CONFIRM_MODE'] = "Включить подтверждение записи";
+$MESS['ANZ_APPOINTMENT_USE_WAITING_LIST'] = sprintf($hintTemplate , "Запись в лист ожидания", 'При включенной опции запись в 1С будет создаваться не как «Заявка», а как «Лист ожидания»');
+$MESS['ANZ_APPOINTMENT_EXCHANGE_CONFIRM_MODE'] = sprintf($hintTemplate , 'Включить подтверждение записи', 'Для смс-подтверждения необходимо выбрать и настроить провайдера SMS в настройках модуля «Служба сообщений». Затем установить отправителя по умолчанию в настройках главного модуля.');
 $MESS['ANZ_APPOINTMENT_EXCHANGE_CONFIRM_NONE'] = "Выключено";
 $MESS['ANZ_APPOINTMENT_EXCHANGE_CONFIRM_PHONE'] = "По СМС";
 $MESS['ANZ_APPOINTMENT_EXCHANGE_CONFIRM_EMAIL'] = "По email";
-$MESS['ANZ_APPOINTMENT_EXCHANGE_CONFIRM_NOTE'] = 'Для смс-подтверждения необходимо выбрать и настроить провайдера SMS в настройках модуля "Служба сообщений". Затем установить отправителя по умолчанию в настройках главного модуля.';
-$MESS['ANZ_APPOINTMENT_EXCHANGE_DEFAULT_APPOINTMENT_DURATION'] = 'Длительность приёма по умолчанию, если не указана в 1С (в секундах)';
-$MESS['ANZ_APPOINTMENT_EXCHANGE_DEFAULT_APPOINTMENT_DURATION_NOTE'] = 'Применяется если не указана длительность приема у врача и услуги';
+$MESS['ANZ_APPOINTMENT_EXCHANGE_DEFAULT_APPOINTMENT_DURATION'] = sprintf($hintTemplate , 'Длительность приёма по умолчанию, если не указана в 1С (в секундах)', 'Применяется если не указана длительность приема у врача и услуги');
 
 $MESS['ANZ_APPOINTMENT_OTHER_SETTINGS'] = 'Устаревшие настройки. Актуальны для js-расширения "Первый вариант"';
-$MESS['ANZ_APPOINTMENT_SELECT_DOCTOR_BEFORE_SERVICE'] = 'Выбирать сначала доктора, потом услугу';
-$MESS['ANZ_APPOINTMENT_SELECT_DOCTOR_BEFORE_SERVICE_NOTE'] = 'При включенной опции, пользователю сначала будет предложено выбрать доктора, а потом откроется выбор услуг, которые он может оказать. При выключенной, наоборот - сначала выбор услуги, потом выбор доктора из списка тех, кто может эту услугу оказать';
-$MESS['ANZ_APPOINTMENT_USE_TIME_STEPS'] = 'Использовать дополнительные интервалы времени при записи';
-$MESS['ANZ_APPOINTMENT_USE_TIME_STEPS_NOTE'] = 'При включенной опции, время для записи будет дано с интервалом, указанным в поле "Длительность интервала". Например у доктора свободно время с 10-00 до 12-00. При включенной опции, длительности интервала 15мин и длительности выбранной услуги в 60мин будут показаны следующие интервалы для записи: 10.00-11.00, 10.15-11.15, 10.30-11.30, 10.45-11.45, 11.00-12.00. А при выключенной опции: 10.00-11.00, 11.00-12.00.';
+$MESS['ANZ_APPOINTMENT_SELECT_DOCTOR_BEFORE_SERVICE'] = sprintf($hintTemplate , 'Выбирать сначала доктора, потом услугу', 'При включенной опции, пользователю сначала будет предложено выбрать доктора, а потом откроется выбор услуг, которые он может оказать. При выключенной, наоборот - сначала выбор услуги, потом выбор доктора из списка тех, кто может эту услугу оказать');
+$MESS['ANZ_APPOINTMENT_USE_TIME_STEPS'] = sprintf($hintTemplate , 'Использовать дополнительные интервалы времени при записи', 'При включенной опции, время для записи будет дано с интервалом, указанным в поле «Длительность интервала». Например у доктора свободно время с 10-00 до 12-00. При включенной опции, длительности интервала 15мин и длительности выбранной услуги в 60мин будут показаны следующие интервалы для записи: 10.00-11.00, 10.15-11.15, 10.30-11.30, 10.45-11.45, 11.00-12.00. А при выключенной опции: 10.00-11.00, 11.00-12.00.');
 $MESS['ANZ_APPOINTMENT_TIME_STEP_DURATION'] = 'Длительность интервала (в минутах)';
-$MESS['ANZ_APPOINTMENT_STRICT_CHECKING_RELATIONS'] = 'Строгий контроль привязки врача к клинике';
-$MESS['ANZ_APPOINTMENT_STRICT_CHECKING_RELATIONS_NOTE'] = 'При включенной опции, после выбора филиала будут доступны для выбора только те специализации, по которым есть врачи, привязанные к выбранному филиалу. Иначе будут показаны все специализации.';
-$MESS['ANZ_APPOINTMENT_SHOW_DOCTORS_WITHOUT_DEPARTMENT'] = 'Показывать врачей, не привязанных к филиалу';
-$MESS['ANZ_APPOINTMENT_SHOW_DOCTORS_WITHOUT_DEPARTMENT_NOTE'] = 'В БИТ.УМЦ нет возможности привязать врача к нескольким филиалам, но иногда врач работает в разных филиалах посменно. В этом случае, у него нужно убрать привязку к филиалу в 1С. При включенной опции, врачи, не привязанные ни к одному филиалу, будут показаны во всех филиалах, если выбрана их специализация.';
+$MESS['ANZ_APPOINTMENT_STRICT_CHECKING_RELATIONS'] = sprintf($hintTemplate , 'Строгий контроль привязки врача к клинике', 'При включенной опции, после выбора филиала будут доступны для выбора только те специализации, по которым есть врачи, привязанные к выбранному филиалу. Иначе будут показаны все специализации.');
+$MESS['ANZ_APPOINTMENT_SHOW_DOCTORS_WITHOUT_DEPARTMENT'] = sprintf($hintTemplate , 'Показывать врачей, не привязанных к филиалу', 'В БИТ.УМЦ нет возможности привязать врача к нескольким филиалам, но иногда врач работает в разных филиалах посменно. В этом случае, у него нужно убрать привязку к филиалу в 1С. При включенной опции, врачи, не привязанные ни к одному филиалу, будут показаны во всех филиалах, если выбрана их специализация.');
 
 /*Exchange options*/
 $MESS['ANZ_APPOINTMENT_API_SETTINGS'] = "Настройки подключения";
 $MESS['ANZ_APPOINTMENT_API_ADDRESS'] = "Адрес WSDL опубликованной базы 1С БИТ.УМЦ";
 $MESS['ANZ_APPOINTMENT_API_LOGIN'] = "Логин пользователя 1С БИТ.УМЦ";
 $MESS['ANZ_APPOINTMENT_API_PASSWORD'] = "Пароль пользователя 1С БИТ.УМЦ";
+$MESS['ANZ_APPOINTMENT_EXCHANGE_MODE'] = "Режим обмена";
 $MESS['ANZ_APPOINTMENT_EXCHANGE_SETTINGS'] = 'Настройки обмена';
 $MESS['ANZ_APPOINTMENT_EXCHANGE_AGENT_ACTIVE'] = 'Активен';
 $MESS['ANZ_APPOINTMENT_EXCHANGE_EXEC_INTERVAL'] = 'Периодичность обмена (в минутах)';
+$MESS['ANZ_APPOINTMENT_EXCHANGE_CACHE_TTL'] = 'Время жизни кеша врачей, филиалов, услуг (в секундах)';
 $MESS['ANZ_APPOINTMENT_EXCHANGE_NEXT_EXEC_DATE'] = 'Дата/Время следующего обмена';
 $MESS['ANZ_APPOINTMENT_EXCHANGE_SCHEDULE_PERIOD'] = 'Период выгрузки расписания (в днях)';
-$MESS['ANZ_APPOINTMENT_EXCHANGE_USE_SERVICES'] = 'Выгружать услуги и цены';
-$MESS['ANZ_APPOINTMENT_EXCHANGE_USE_SERVICES_WARNING'] = "Внимание! Для выгрузки номенклатуры и прайсов необходимо <b>в 1С</b> создать настройку обмена с сайтом на необходимый филиал и указать прайс.<br>(Вкладка «Администрирование» – «Настройки обмена с сайтом»)";
+$MESS['ANZ_APPOINTMENT_EXCHANGE_USE_SERVICES'] = sprintf($hintTemplate , 'Выгружать услуги и цены', 'Для выгрузки номенклатуры и прайсов необходимо <b>в 1С</b> создать настройку обмена с сайтом на необходимый филиал и указать прайс.<br>(Вкладка «Администрирование» – «Настройки обмена с сайтом»)');
 
 $MESS['ANZ_APPOINTMENT_EXCHANGE_START_BTN'] = 'Провести обмен';
 $MESS['ANZ_APPOINTMENT_EXCHANGE_MANUAL_DONE'] = 'Обмен выполнен в ручном режиме';
@@ -69,7 +64,7 @@ $MESS['ANZ_APPOINTMENT_JS_EXTENSION'] = "Варианты формы запис�
 $MESS['ANZ_APPOINTMENT_JS_EXTENSION_SELECT'] = "Выбрать форму записи";
 $MESS['ANZ_APPOINTMENT_JS_EXTENSION_BX_POPUP'] = "Первый вариант";
 $MESS['ANZ_APPOINTMENT_JS_EXTENSION_FORM_VUE'] = "Второй вариант";
-$MESS['ANZ_APPOINTMENT_JS_EXTENSION_CUSTOM'] = "Своё js-расширение(при заполненной опции выбранные выше варианты подключены не будут)";
+$MESS['ANZ_APPOINTMENT_JS_EXTENSION_CUSTOM'] = sprintf($hintTemplate , 'Использовать своё js-расширение', 'При заполненной опции стандартные варианты подключены не будут');
 $MESS['ANZ_APPOINTMENT_MAIN_BTN_SETTINGS'] = 'Настройки кнопки "Онлайн-запись"';
 $MESS['ANZ_APPOINTMENT_MAIN_BTN_BG_COLOR'] = "Цвет фона";
 $MESS['ANZ_APPOINTMENT_MAIN_BTN_TEXT_COLOR'] = "Цвет текста";
@@ -91,9 +86,10 @@ $MESS['ANZ_APPOINTMENT_TAB_RIGHTS'] = "Настройки доступа";
 $MESS['ANZ_APPOINTMENT_TAB_TITLE_RIGHTS'] = "Уровень доступа к модулю";
 
 /*SOAP errors*/
-$MESS["ANZ_APPOINTMENT_SOAP_EXT_NOT_FOUND"] = "php-SOAP extension is not installed";
-$MESS['ANZ_APPOINTMENT_SOAP_AUTH_ERROR'] = "Soap auth data is empty, check module setting";
-$MESS['ANZ_APPOINTMENT_SOAP_URL_ERROR'] = "Soap url is empty, check module setting";
+$MESS["ANZ_APPOINTMENT_SOAP_EXT_NOT_FOUND"] = "Расширение php-soap не установлено";
+$MESS['ANZ_APPOINTMENT_SOAP_AUTH_ERROR'] = "В настройках модуля не заполнены логин или пароль для 1С";
+$MESS['ANZ_APPOINTMENT_SOAP_URL_ERROR'] = 'В настройках модуля адрес публикации базы 1С не заполнен или невалиден. Дополнительная информация об ошибке: "#ERROR#"';
+$MESS['ANZ_APPOINTMENT_EXCHANGE_MODE_ERROR'] = "В настройках модуля не установлен режим обмена";
 
 /*Data provider*/
 $MESS['ANZ_APPOINTMENT_XML_PARSER_CLINIC_KEY']   = "Клиника";

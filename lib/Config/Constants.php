@@ -28,6 +28,7 @@ class Constants
     const OPTION_KEY_API_WS_URL      = 'appointment_api_ws_url';
     const OPTION_KEY_API_WS_LOGIN    = 'appointment_api_db_login';
     const OPTION_KEY_API_WS_PASSWORD = 'appointment_api_db_password';
+    const OPTION_KEY_EXCHANGE_MODE = 'appointment_exchange_mode';
     const OPTION_KEY_EXCHANGE_USE_SERVICES   = 'appointment_exchange_use_services';
     const OPTION_KEY_EXCHANGE_AGENT_ACTIVE   = 'appointment_exchange_agent_active';
     const OPTION_KEY_EXCHANGE_NEXT_EXEC_DATE = 'appointment_exchange_next_exec_date';
@@ -35,6 +36,7 @@ class Constants
     const OPTION_KEY_EXCHANGE_EXEC_INTERVAL  = 'appointment_exchange_exec_interval';
     const OPTION_KEY_EXCHANGE_SCHEDULE_PERIOD = 'appointment_exchange_schedule_period';
     const OPTION_KEY_EXCHANGE_DEFAULT_APPOINTMENT_DURATION = 'appointment_exchange_default_app_duration';
+    const OPTION_KEY_EXCHANGE_CACHE_TTL = 'appointment_exchange_cache_ttl';
 
     const OPTION_KEY_USE_WAIT_LIST          = 'appointment_settings_use_waiting_list';
     const OPTION_KEY_EMAIL_NOTE             = 'appointment_settings_use_email_note';

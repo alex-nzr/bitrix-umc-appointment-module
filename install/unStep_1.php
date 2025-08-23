@@ -5,7 +5,8 @@
  * 10.07.2022
  * ==================================================
 */
-use ANZ\Appointment\Internals\ServiceManager;
+
+use ANZ\Appointment\Config\Configuration;
 use Bitrix\Main\Context;
 use Bitrix\Main\Localization\Loc;
 
@@ -18,7 +19,7 @@ $request = Context::getCurrent()->getRequest();
 ?>
 <form action="<?=$request->getRequestedPage();?>">
 	<input type="hidden" name="lang" value="<?=LANGUAGE_ID?>">
-    <input type="hidden" name="id" value="<?= ServiceManager::getModuleId()?>">
+    <input type="hidden" name="id" value="<?= Configuration::getModuleId()?>">
     <input type="hidden" name="uninstall" value="Y">
     <input type="hidden" name="step" value="2">
     <?php CAdminMessage::ShowMessage(Loc::getMessage("ANZ_APPOINTMENT_UNINSTALL_WARN"))?>

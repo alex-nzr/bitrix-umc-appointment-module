@@ -22,10 +22,10 @@ interface IExchangeService
     public function getEmployeesList(): Result;
 
     /**
-     * @param string $clinicGuid
+     * @param string $clinicUid
      * @return \Bitrix\Main\Result
      */
-    public function getNomenclatureList(string $clinicGuid): Result;
+    public function getNomenclatureList(string $clinicUid): Result;
 
     /**
      * @param array $params

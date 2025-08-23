@@ -7,7 +7,7 @@
 */
 namespace ANZ\Appointment\Service\Access;
 
-use ANZ\Appointment\Internals\ServiceManager;
+use ANZ\Appointment\Config\Configuration;
 use CMain;
 use CUser;
 
@@ -20,14 +20,20 @@ class UserPermissions
         $this->App = $GLOBALS['APPLICATION'];
     }
 
+    /**
+     * @throws \Exception
+     */
     public function checkReadPermissions(): bool
     {
-        return $this->App->GetGroupRight(ServiceManager::getModuleId()) >= "R";
+        return $this->App->GetGroupRight(Configuration::getModuleId()) >= "R";
     }
 
+    /**
+     * @throws \Exception
+     */
     public function checkOptionsWritePermissions(): bool
     {
-        return $this->App->GetGroupRight(ServiceManager::getModuleId()) === "W";
+        return $this->App->GetGroupRight(Configuration::getModuleId()) === "W";
     }
 
     public function isAdmin(): bool

@@ -5,40 +5,22 @@
  * 10.07.2022
  * ==================================================
 */
-namespace ANZ\Appointment\Service\Provider;
+namespace ANZ\Appointment\Integration\UmcSdk\Provider;
 
-use ANZ\Appointment\Service\Container;
-use ANZ\BitUmc\SDK\Service\XmlParser;
-use Bitrix\Main\Error;
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Result;
-use Exception;
 use ANZ\Appointment\Event\Event;
 use ANZ\Appointment\Event\EventType;
+use ANZ\BitUmc\SDK\Service\XmlParser;
+use Bitrix\Main\Error;
+use Bitrix\Main\Result;
+use Exception;
 use SimpleXMLElement;
 
-/**
- * @class ExchangeDataProvider
- * @package ANZ\Appointment\Service\Provider
- */
 class ExchangeDataProvider
 {
-    protected array $fieldMap;
-    protected XmlParser $sdkXmlParser;
-
-    /**
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     */
-    public function __construct()
+    public function __construct(protected XmlParser $sdkXmlParser)
     {
-        Loc::loadMessages(__FILE__);
-        $this->sdkXmlParser = Container::getInstance()->getXmlParser();
     }
 
-    /**
-     * @param \SimpleXMLElement $xml
-     * @return \Bitrix\Main\Result
-     */
     public function prepareClinicData(SimpleXMLElement $xml): Result
     {
         $result = new Result();
@@ -57,10 +39,6 @@ class ExchangeDataProvider
         return $result;
     }
 
-    /**
-     * @param \SimpleXMLElement $xml
-     * @return \Bitrix\Main\Result
-     */
     public function prepareEmployeesData(SimpleXMLElement $xml): Result
     {
         $result = new Result();
@@ -82,10 +60,6 @@ class ExchangeDataProvider
         return $result;
     }
 
-    /**
-     * @param \SimpleXMLElement $xml
-     * @return \Bitrix\Main\Result
-     */
     public function prepareNomenclatureData(SimpleXMLElement $xml): Result
     {
         $result = new Result();
@@ -108,10 +82,6 @@ class ExchangeDataProvider
         return $result;
     }
 
-    /**
-     * @param \SimpleXMLElement $xml
-     * @return \Bitrix\Main\Result
-     */
     public function prepareScheduleData(SimpleXMLElement $xml): Result
     {
         $result = new Result();
@@ -132,9 +102,6 @@ class ExchangeDataProvider
     }
 
     /**
-     * Parse result for add order, delete order and add wait list requests
-     * @param \SimpleXMLElement $xml
-     * @return \Bitrix\Main\Result
      * @throws \Exception
      */
     public function prepareCommonResultData(SimpleXMLElement $xml): Result
@@ -143,8 +110,6 @@ class ExchangeDataProvider
     }
 
     /**
-     * @param \SimpleXMLElement $xml
-     * @return \Bitrix\Main\Result
      * @throws \Exception
      */
     public function prepareReserveResultData(SimpleXMLElement $xml): Result
@@ -167,8 +132,6 @@ class ExchangeDataProvider
     }
 
     /**
-     * @param \SimpleXMLElement $xml
-     * @return \Bitrix\Main\Result
      * @throws \Exception
      */
     public function prepareStatusResultData(SimpleXMLElement $xml): Result

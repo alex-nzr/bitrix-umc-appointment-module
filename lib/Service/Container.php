@@ -8,159 +8,139 @@
 namespace ANZ\Appointment\Service;
 
 use ANZ\Appointment\Config\Configuration;
-use ANZ\Appointment\Config\Constants;
-use ANZ\Appointment\Integration\UmcSdk\Builder\ExchangeClient;
-use ANZ\Appointment\Integration\UmcSdk\Factory;
-use ANZ\Appointment\Integration\UmcSdk\Service\Exchange\Soap;
+use ANZ\Appointment\Core\Trait\Singleton;
+use ANZ\Appointment\Integration\UmcSdk\Cache\CacheProvider;
+use ANZ\Appointment\Integration\UmcSdk\Gateway\Sdk;
+use ANZ\Appointment\Integration\UmcSdk\Mapper\SdkResponseToDto;
+use ANZ\Appointment\Integration\UmcSdk\Validator\ResponseValidator;
 use ANZ\Appointment\Internals\Model\RecordTable;
-use ANZ\Appointment\Internals\ServiceManager;
 use ANZ\Appointment\Service\Access\UserPermissions;
 use ANZ\Appointment\Service\Message\Mailer;
 use ANZ\Appointment\Service\Message\Sms;
-use ANZ\Appointment\Service\OneC\Exchange;
-use ANZ\Appointment\Service\Provider\ExchangeDataProvider;
-use ANZ\BitUmc\SDK\Core\Contract\Service\IExchangeService;
-use ANZ\BitUmc\SDK\Core\Dictionary\ClientScope;
-use ANZ\BitUmc\SDK\Core\Trait\Singleton;
-use ANZ\BitUmc\SDK\Service\XmlParser;
-use Bitrix\Main\Config\Option;
 use Bitrix\Main\DI\ServiceLocator;
-use Bitrix\Main\Localization\Loc;
 use Exception;
+use Throwable;
 
 /**
- * Class Container
- * @package ANZ\Appointment\Service
- * @method static Container getInstance()
+  * @method static Container getInstance()
  */
 class Container
 {
     use Singleton;
 
     /**
-     * @throws \Exception | \Psr\Container\NotFoundExceptionInterface
+     * @throws \Exception
      */
-    public function getSdkExchangeService(): Soap
+    public function getSdkGateway(): Sdk
     {
-        $identifier = static::getIdentifierByClassName(IExchangeService::class);
-
-        if(!ServiceLocator::getInstance()->has($identifier))
+        try
         {
-            $login      = Option::get(ServiceManager::getModuleId(), Constants::OPTION_KEY_API_WS_LOGIN);
-            $password   = Option::get(ServiceManager::getModuleId(), Constants::OPTION_KEY_API_WS_PASSWORD);
+            $identifier = static::getIdentifierByClassName(Sdk::class);
 
-            if (empty($login) || empty($password)){
-                throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_SOAP_AUTH_ERROR"));
+            if(!ServiceLocator::getInstance()->has($identifier))
+            {
+                ServiceLocator::getInstance()->addInstance($identifier, new Sdk(
+                    Configuration::getInstance()->isDemoModeOn(),
+                    new SdkResponseToDto,
+                    new ResponseValidator,
+                    new CacheProvider
+                ));
             }
 
-            $url = trim(Option::get(ServiceManager::getModuleId(), Constants::OPTION_KEY_API_WS_URL));
-
-            if (empty($url)){
-                throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_SOAP_URL_ERROR"));
-            }
-
-            $client = ExchangeClient::init()
-                ->setLogin($login)
-                ->setPassword($password)
-                ->setFullBaseUrl($url)
-                ->setScope(ClientScope::WEB_SERVICE)
-                ->build();
-
-            $exchangeService = (new Factory\Exchange($client))->create();
-            ServiceLocator::getInstance()->addInstance($identifier, $exchangeService);
+            return ServiceLocator::getInstance()->get($identifier);
         }
-
-        return ServiceLocator::getInstance()->get($identifier);
+        catch(Throwable $e)
+        {
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     /**
-     * @return \ANZ\Appointment\Internals\Contract\Service\IExchangeService
      * @throws \Exception
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     */
-    public function getExchangeService(): \ANZ\Appointment\Internals\Contract\Service\IExchangeService
-    {
-        $identifier = static::getIdentifierByClassName(Exchange::class);
-
-        if(!ServiceLocator::getInstance()->has($identifier))
-        {
-            ServiceLocator::getInstance()->addInstance($identifier, new Exchange());
-        }
-
-        return ServiceLocator::getInstance()->get($identifier);
-    }
-
-    /**
-     * @return \ANZ\Appointment\Service\Message\Sms
-     * @throws \Exception
-     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function getSmsService(): Sms
     {
-        $identifier = static::getIdentifierByClassName(Sms::class);
-
-        if(!ServiceLocator::getInstance()->has($identifier))
+        try
         {
-            ServiceLocator::getInstance()->addInstance($identifier, new Sms);
+            $identifier = static::getIdentifierByClassName(Sms::class);
+            if(!ServiceLocator::getInstance()->has($identifier))
+            {
+                ServiceLocator::getInstance()->addInstance($identifier, new Sms);
+            }
+            return ServiceLocator::getInstance()->get($identifier);
         }
-
-        return ServiceLocator::getInstance()->get($identifier);
+        catch(Throwable $e)
+        {
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     /**
-     * @return \ANZ\Appointment\Service\Message\Mailer
      * @throws \Exception
-     * @throws \Psr\Container\NotFoundExceptionInterface
      */
     public function getMailerService(): Mailer
     {
-        $identifier = static::getIdentifierByClassName(Mailer::class);
-
-        if(!ServiceLocator::getInstance()->has($identifier))
+        try
         {
-            ServiceLocator::getInstance()->addInstance($identifier, new Mailer);
+            $identifier = static::getIdentifierByClassName(Mailer::class);
+            if(!ServiceLocator::getInstance()->has($identifier))
+            {
+                ServiceLocator::getInstance()->addInstance($identifier, new Mailer);
+            }
+            return ServiceLocator::getInstance()->get($identifier);
         }
-
-        return ServiceLocator::getInstance()->get($identifier);
+        catch(Throwable $e)
+        {
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        }
     }
 
-
-    /**
-     * @throws \Psr\Container\NotFoundExceptionInterface|\Exception
-     */
-    public function getExchangeDataProvider(): ExchangeDataProvider
+    public function getRecordDataClass(): RecordTable | string
     {
-        $identifier = static::getIdentifierByClassName(ExchangeDataProvider::class);
-
-        if(!ServiceLocator::getInstance()->has($identifier))
-        {
-            ServiceLocator::getInstance()->addInstance($identifier, new ExchangeDataProvider);
-        }
-
-        return ServiceLocator::getInstance()->get($identifier);
+        return RecordTable::class;
     }
 
     /**
-     * @return \ANZ\BitUmc\SDK\Service\XmlParser
-     * @throws \Psr\Container\NotFoundExceptionInterface
      * @throws \Exception
      */
-    public function getXmlParser(): XmlParser
+    public function getUserPermissions(): UserPermissions
     {
-        $identifier = static::getIdentifierByClassName(XmlParser::class);
-
-        if(!ServiceLocator::getInstance()->has($identifier))
+        try
         {
-            ServiceLocator::getInstance()->addInstance($identifier, new XmlParser);
+            $identifier = static::getIdentifierByClassName(UserPermissions::class);
+            if(!ServiceLocator::getInstance()->has($identifier))
+            {
+                ServiceLocator::getInstance()->addInstance($identifier, new UserPermissions);
+            }
+            return ServiceLocator::getInstance()->get($identifier);
         }
-
-        return ServiceLocator::getInstance()->get($identifier);
+        catch(Throwable $e)
+        {
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     /**
-     * @param string $className
-     * @param array|null $parameters
-     * @return string
+     * @throws \Exception
+     */
+    public function getOrderConverter(): Converter\Order
+    {
+        try
+        {
+            $identifier = static::getIdentifierByClassName(Converter\Order::class);
+            if(!ServiceLocator::getInstance()->has($identifier))
+            {
+                ServiceLocator::getInstance()->addInstance($identifier, new Converter\Order);
+            }
+            return ServiceLocator::getInstance()->get($identifier);
+        }
+        catch(Throwable $e)
+        {
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
      * @throws \Exception
      */
     public static function getIdentifierByClassName(string $className, array $parameters = null): string
@@ -197,45 +177,5 @@ class Container
         }
 
         return $identifier;
-    }
-
-    /**
-     * @return \ANZ\Appointment\Internals\Model\RecordTable|string
-     */
-    public function getRecordDataClass(): RecordTable | string
-    {
-        return RecordTable::class;
-    }
-
-    /**
-     * @throws \Psr\Container\NotFoundExceptionInterface|\Exception
-     */
-    public function getUserPermissions(): UserPermissions
-    {
-        $identifier = static::getIdentifierByClassName(UserPermissions::class);
-
-        if(!ServiceLocator::getInstance()->has($identifier))
-        {
-            ServiceLocator::getInstance()->addInstance($identifier, new UserPermissions);
-        }
-
-        return ServiceLocator::getInstance()->get($identifier);
-    }
-
-    /**
-     * @return \ANZ\Appointment\Service\Converter\Order
-     * @throws \Exception
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     */
-    public function getOrderConverter(): Converter\Order
-    {
-        $identifier = static::getIdentifierByClassName(Converter\Order::class);
-
-        if(!ServiceLocator::getInstance()->has($identifier))
-        {
-            ServiceLocator::getInstance()->addInstance($identifier, new Converter\Order);
-        }
-
-        return ServiceLocator::getInstance()->get($identifier);
     }
 }
