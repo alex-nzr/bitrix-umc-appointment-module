@@ -8,6 +8,7 @@
 
 namespace ANZ\Appointment\Integration\UmcSdk\Mapper;
 
+use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Config\TimeSlotStatus;
 use ANZ\Appointment\Dto\ClinicDto;
 use ANZ\Appointment\Dto\EmployeeDto;
@@ -39,23 +40,59 @@ class SdkResponseToDto
         );
     }
 
-    public function scheduleItemFromArray(array $item): ScheduleItemDto
+    /**
+     * @throws \Exception
+     */
+    public function scheduleItemFromArray(
+        string $clinicUid, string $specialtyUid, string $employeeUid, array $scheduleData
+    ): ScheduleItemDto
     {
+        $timeslots = [];
+        foreach ($scheduleData['timetable'] as $status => $statusData)
+        {
+            if (!key_exists($status, $timeslots))
+            {
+                $timeslots[$status] = [];
+            }
+            foreach ($statusData as $date => $timeslotsData)
+            {
+                foreach ($timeslotsData as $timeslot)
+                {
+                    if (!key_exists($date, $timeslots[$status]))
+                    {
+                        $timeslots[$status][$date] = [];
+                    }
+                    $timeslots[$status][$date][] = $this->timeslotFromArray($timeslot, $status);
+                }
+            }
+        }
+        $duration = (int)$scheduleData['durationInSeconds'];
         return new ScheduleItemDto(
-            $item['uid'],
-            $item['name'],
-            []
+            $clinicUid,
+            $specialtyUid,
+            $employeeUid,
+            (string)$scheduleData['specialtyName'],
+            (string)$scheduleData['employeeName'],
+            $duration > 0 ? $duration : Configuration::getInstance()->getDefaultAppointmentDuration(),
+            $timeslots
         );
     }
 
     /**
      * @throws \Exception
      */
-    public function timeslotFromArray(array $item): TimeSlotDto
+    public function timeslotFromArray(array $item, string $status): TimeSlotDto
     {
         return new TimeSlotDto(
+            (string)$item['typeOfTimeUid'],
+            (string)$item['date'],
+            (string)$item['timeBegin'],
+            (string)$item['timeEnd'],
+            (string)$item['formattedDate'],
+            (string)$item['formattedTimeBegin'],
+            (string)$item['formattedTimeEnd'],
             new DateTime($item['timeBegin']),
-            TimeSlotStatus::FREE
+            TimeSlotStatus::from($status)
         );
     }
 }

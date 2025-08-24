@@ -41,12 +41,11 @@ class CacheProvider
     /**
      * @throws \Exception
      */
-    public function get(string $cacheKey): ?array
+    public function get(string $cacheKey, int $ttl): ?array
     {
         try
         {
-            $cacheTtl = $cacheKey === 'schedule' ? $this->scheduleTtl : $this->ttl;
-            if ($this->cacheInstance->initCache($cacheTtl, $cacheKey, $this->cachePath))
+            if ($this->cacheInstance->initCache($ttl, $cacheKey, $this->cachePath))
             {
                 return $this->cacheInstance->getVars();
             }
@@ -62,12 +61,11 @@ class CacheProvider
     /**
      * @throws \Exception
      */
-    public function set(string $cacheKey, array $vars): void
+    public function set(string $cacheKey, int $ttl, array $vars): void
     {
         try
         {
-            $cacheTtl = $cacheKey === 'schedule' ? $this->scheduleTtl : $this->ttl;
-            if (!$this->cacheInstance->startDataCache($cacheTtl, $cacheKey, $this->cachePath))
+            if (!$this->cacheInstance->startDataCache($ttl, $cacheKey, $this->cachePath))
             {
                 throw new Exception('Can not start data cache');
             }
@@ -87,7 +85,7 @@ class CacheProvider
      */
     public function getClinics(): ?array
     {
-        return $this->get($this->cacheKeyManager->clinics());
+        return $this->get($this->cacheKeyManager->clinics(), $this->ttl);
     }
 
     /**
@@ -95,7 +93,7 @@ class CacheProvider
      */
     public function setClinics(array $data): void
     {
-        $this->set($this->cacheKeyManager->clinics(), $data);
+        $this->set($this->cacheKeyManager->clinics(), $this->ttl, $data);
     }
 
     /**
@@ -103,7 +101,7 @@ class CacheProvider
      */
     public function getEmployees(): ?array
     {
-        return $this->get($this->cacheKeyManager->employees());
+        return $this->get($this->cacheKeyManager->employees(), $this->ttl);
     }
 
     /**
@@ -111,7 +109,7 @@ class CacheProvider
      */
     public function setEmployees(array $data): void
     {
-        $this->set($this->cacheKeyManager->employees(), $data);
+        $this->set($this->cacheKeyManager->employees(), $this->ttl, $data);
     }
 
     /**
@@ -119,7 +117,7 @@ class CacheProvider
      */
     public function getServices(string $clinicUid): ?array
     {
-        return $this->get($this->cacheKeyManager->services($clinicUid));
+        return $this->get($this->cacheKeyManager->services($clinicUid), $this->ttl);
     }
 
     /**
@@ -127,7 +125,7 @@ class CacheProvider
      */
     public function setServices(array $data, string $clinicUid): void
     {
-        $this->set($this->cacheKeyManager->services($clinicUid), $data);
+        $this->set($this->cacheKeyManager->services($clinicUid), $this->ttl, $data);
     }
 
     /**
@@ -135,7 +133,7 @@ class CacheProvider
      */
     public function getSchedule(string $clinicUid = '', array $employees = []): ?array
     {
-        return $this->get($this->cacheKeyManager->schedule($clinicUid, $employees));
+        return $this->get($this->cacheKeyManager->schedule($clinicUid, $employees), $this->scheduleTtl);
     }
 
     /**
@@ -143,7 +141,7 @@ class CacheProvider
      */
     public function setSchedule(array $data, string $clinicUid = '', array $employees = []): void
     {
-        $this->set($this->cacheKeyManager->schedule($clinicUid, $employees), $data);
+        $this->set($this->cacheKeyManager->schedule($clinicUid, $employees), $this->scheduleTtl, $data);
     }
 
     public function cleanByKey(string $key): void

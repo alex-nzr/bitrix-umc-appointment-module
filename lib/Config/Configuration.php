@@ -268,4 +268,12 @@ final class Configuration
     {
         return ExchangeMode::tryFrom(Option::get(self::getModuleId(), Constants::OPTION_KEY_EXCHANGE_MODE));
     }
+
+    /**
+     * @throws \Exception
+     */
+    public function getDefaultAppointmentDuration(): int
+    {
+        return (int)Option::get(self::getModuleId(), Constants::OPTION_KEY_EXCHANGE_DEFAULT_APPOINTMENT_DURATION);
+    }
 }

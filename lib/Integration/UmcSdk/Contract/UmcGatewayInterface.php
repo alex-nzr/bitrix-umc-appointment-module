@@ -24,7 +24,6 @@ interface UmcGatewayInterface
     /** @return ServiceDto[] */
     public function getServices(string $clinicUid): array;
 
-    /** @return ScheduleItemDto[] */
     public function getSchedule(int $days = 14, string $clinicUid = '', array $employees = [], ?\DateTime $startDate = null): array;
 
     public function getAppointmentStatus(string $orderUid): AppointmentStatusDto;

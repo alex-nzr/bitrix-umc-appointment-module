@@ -171,6 +171,7 @@ class Sdk implements UmcGatewayInterface
                     }
 
                     $data = array_filter($result->getData(), fn($item) => $this->validator->validateClinic($item));
+                    $result->setData([]);
                     $this->cacheProvider->setClinics($data);
                     $this->releaseLock(__METHOD__);
                 }
@@ -213,6 +214,7 @@ class Sdk implements UmcGatewayInterface
                     }
 
                     $data = array_filter($result->getData(), fn($item) => $this->validator->validateEmployee($item));
+                    $result->setData([]);
                     $this->cacheProvider->setEmployees($data);
                     $this->releaseLock(__METHOD__);
                 }
@@ -255,6 +257,7 @@ class Sdk implements UmcGatewayInterface
                     }
 
                     $data = array_filter($result->getData(), fn($item) => $this->validator->validateService($item));
+                    $result->setData([]);
                     $this->cacheProvider->setServices($data, $clinicUid);
                     $this->releaseLock(__METHOD__);
                 }
@@ -265,11 +268,63 @@ class Sdk implements UmcGatewayInterface
     }
 
     /**
-     * @return ScheduleItemDto[]
+     * @throws \Exception
      */
     public function getSchedule(int $days = 14, string $clinicUid = '', array $employees = [], ?DateTime $startDate = null): array
     {
-        // TODO: Implement getSchedule() method.
+        if ($this->demoMode)
+        {
+            sleep(3);
+            try
+            {
+                $data = $this->demoData['schedule'];
+            }
+            catch (Throwable)
+            {
+                $data = [];
+            }
+        }
+        else
+        {
+            $data = $this->cacheProvider->getSchedule($clinicUid, $employees);
+            if (is_null($data))
+            {
+                if (!$this->isLocked(__METHOD__))
+                {
+                    $this->setLock(__METHOD__);
+                    $result = $this->sdkExchangeService->getSchedule($days, $clinicUid, $employees, $startDate);
+                    if (!$result->isSuccess())
+                    {
+                        throw new Exception(implode(PHP_EOL, $result->getErrorMessages()));
+                    }
+
+                    $data = $result->getData();
+                    $result->setData([]);
+                    foreach ($data as $clinicKey => $clinicData)
+                    {
+                        foreach ($clinicData as $specialtyKey => $specialtyData)
+                        {
+                            foreach ($specialtyData as $employeeKey => $scheduleData)
+                            {
+                                if ($this->validator->validateScheduleItem($scheduleData))
+                                {
+                                    $data[$clinicKey][$specialtyKey][$employeeKey] = $this->mapper->scheduleItemFromArray(
+                                        $clinicKey, $specialtyKey, $employeeKey, $scheduleData
+                                    );
+                                }
+                                else
+                                {
+                                    unset($data[$clinicKey][$specialtyKey][$employeeKey]);
+                                }
+                            }
+                        }
+                    }
+                    $this->cacheProvider->setSchedule($data, $clinicUid, $employees);
+                    $this->releaseLock(__METHOD__);
+                }
+            }
+        }
+        return $data;
     }
 
     public function getAppointmentStatus(string $orderUid): AppointmentStatusDto
@@ -302,7 +357,7 @@ class Sdk implements UmcGatewayInterface
      */
     private function isLocked(string $key): bool
     {
-        return is_array($this->cacheProvider->get($key));
+        return is_array($this->cacheProvider->get($key, 60));
     }
 
     /**
@@ -310,7 +365,7 @@ class Sdk implements UmcGatewayInterface
      */
     private function setLock(string $key): void
     {
-        $this->cacheProvider->set($this->lockKeyPrefix . $key, [true]);
+        $this->cacheProvider->set($this->lockKeyPrefix . $key, 60, [true]);
     }
 
     private function releaseLock(string $key): void

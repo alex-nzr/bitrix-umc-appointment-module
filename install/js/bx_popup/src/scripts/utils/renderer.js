@@ -394,11 +394,11 @@ export class Renderer
         const renderCustomIntervals = this.application.useServices && (serviceDuration > 0);
         const timeKey = renderCustomIntervals ? "free" : "freeFormatted";
 
-        if ((typeof scheduleItem['timetable']?.[timeKey] === 'object')
-            && (Object.keys(scheduleItem['timetable'][timeKey]).length > 0)
+        if ((typeof scheduleItem['timeslots']?.[timeKey] === 'object')
+            && (Object.keys(scheduleItem['timeslots'][timeKey]).length > 0)
         ){
 
-            const days = scheduleItem['timetable'][timeKey];
+            const days = scheduleItem['timeslots'][timeKey];
 
             for(let date in days)
             {

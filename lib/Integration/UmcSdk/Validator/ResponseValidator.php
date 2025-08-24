@@ -39,4 +39,13 @@ class ResponseValidator
         }
         return false;
     }
+
+    public function validateScheduleItem(mixed $data): bool
+    {
+        if (is_array($data) && key_exists('timetable', $data) && is_array($data['timetable']))
+        {
+            return true;
+        }
+        return false;
+    }
 }

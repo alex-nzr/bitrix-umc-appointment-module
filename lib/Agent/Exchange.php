@@ -38,14 +38,17 @@ class Exchange
                     Configuration::getInstance()->setExchangeActive(false);
 
                     $gateway = Container::getInstance()->getSdkGateway();
-                    $gateway->getClinics();
+                    $clinics = $gateway->getClinics();
 
                     if (Configuration::getInstance()->isServicesEnabled())
                     {
-                        //(new \ANZ\Appointment\Integration\Service\Exchange())->loadServices();
+                        foreach ($clinics as $clinic)
+                        {
+                            $gateway->getServices($clinic->uid);
+                        }
                     }
 
-                    //(new \ANZ\Appointment\Integration\Service\Exchange())->loadEmployees();
+                    $gateway->getEmployees();
 
                     Configuration::getInstance()->setLastExchangeExecutionDate(new PhpDateTime);
 
