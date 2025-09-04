@@ -15,6 +15,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\NotImplementedException;
 use DateTime as PhpDateTime;
 use Exception;
+use Throwable;
 
 /**
  * @method static Configuration getInstance()
@@ -145,17 +146,17 @@ final class Configuration
         return Option::get(self::$moduleId, Constants::OPTION_KEY_EXCHANGE_AGENT_ACTIVE) === 'Y';
     }
 
-    /**
-     * @throws \Exception
-     */
     public function getNextExchangeExecutionDate(): ?PhpDateTime
     {
         $val = Option::get(self::$moduleId, Constants::OPTION_KEY_EXCHANGE_NEXT_EXEC_DATE);
-        if (strlen($val) === strlen(self::DATE_FORMAT_FOR_OPTIONS))
+        try
         {
             return PhpDateTime::createFromFormat(self::DATE_FORMAT_FOR_OPTIONS, $val);
         }
-        return new PhpDateTime;
+        catch (Throwable)
+        {
+            return new PhpDateTime;
+        }
     }
 
     /**

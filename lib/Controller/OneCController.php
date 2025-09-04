@@ -7,7 +7,9 @@
 */
 namespace ANZ\Appointment\Controller;
 
+use ANZ\Appointment\Agent\Exchange;
 use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Integration\UmcSdk\Contract\UmcGatewayInterface;
 use ANZ\Appointment\Service\Container;
 use ANZ\Appointment\Service\Operation\Appointment;
@@ -57,6 +59,17 @@ class OneCController extends Controller
     public function getServicesAction(string $clinicUid): array
     {
         return $this->exchangeService->getServices($clinicUid);
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function executeAction(): array
+    {
+        Exchange::loadData(true, true);
+        return [
+            Constants::OPTION_KEY_EXCHANGE_NEXT_EXEC_DATE => Configuration::getInstance()->getNextExchangeExecutionDate()?->format(Configuration::DATE_FORMAT_FOR_OPTIONS)
+        ];
     }
 
     /**

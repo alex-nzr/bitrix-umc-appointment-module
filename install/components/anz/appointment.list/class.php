@@ -1,15 +1,10 @@
 <?php
-
 namespace ANZ\Appointment\Component;
 
 use ANZ\Appointment\Component\Appointment\ItemsList;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
-/**
- * @class UmcRecordList
- * @package ANZ\Appointment\Component
- */
 class UmcItemsList extends ItemsList
 {
 

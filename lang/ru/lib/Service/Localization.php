@@ -196,3 +196,6 @@ $MESS['ANZ_APPOINTMENT_TABLE_USER_ID'] = "ID пользователя";
 $MESS['ANZ_APPOINTMENT_BTN_DELETE_TEXT'] = "Удалить запись";
 $MESS['ANZ_APPOINTMENT_BTN_UPDATE_STATUS_TEXT'] = "Обновить статус";
 
+/* Appointment execute-btn component*/
+$MESS["ANZ_APPOINTMENT_EXCHANGE_START_BTN"] = "Провести обмен";
+$MESS["ANZ_APPOINTMENT_EXCHANGE_MANUAL_DONE"] = "Обмен выполнен в ручном режиме";

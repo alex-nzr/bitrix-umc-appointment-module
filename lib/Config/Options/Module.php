@@ -74,6 +74,11 @@ class Module implements IOptionStorage
                         "123456",
                         ['password', 50]
                     ],
+                    [
+                        'component' => 'anz:appointment.check-api-btn',
+                        'template' => '',
+                        'params' => []
+                    ],
 
                     Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_SETTINGS'),
                     [
