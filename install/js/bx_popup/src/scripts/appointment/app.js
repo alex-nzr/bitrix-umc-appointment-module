@@ -480,7 +480,7 @@ export class AppointmentSteps
 
     getListNomenclature(clinicUid){
         this.toggleLoader(true);
-        BX.ajax.runAction('anz:appointment.oneCController.getNomenclature', {
+        BX.ajax.runAction('anz:appointment.oneCController.getServices', {
             data: {
                 sessid: BX.bitrix_sessid(),
                 clinicUid: clinicUid,

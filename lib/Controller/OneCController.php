@@ -7,7 +7,8 @@
 */
 namespace ANZ\Appointment\Controller;
 
-use ANZ\Appointment\Internals\Contract\Service\IExchangeService;
+use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\Integration\UmcSdk\Contract\UmcGatewayInterface;
 use ANZ\Appointment\Service\Container;
 use ANZ\Appointment\Service\Operation\Appointment;
 use Bitrix\Main\Engine\Action;
@@ -23,56 +24,53 @@ use Bitrix\Main\Result;
  */
 class OneCController extends Controller
 {
-    private IExchangeService $exchangeService;
+    private UmcGatewayInterface $exchangeService;
 
     /**
-     * OneCController constructor
-     * @throws \Psr\Container\NotFoundExceptionInterface|\Exception
+     * @throws \Exception
      */
     public function __construct()
     {
         parent::__construct();
-        $this->exchangeService = Container::getInstance()->getExchangeService();
+        $this->exchangeService = Container::getInstance()->getSdkGateway();
     }
 
     /**
-     * @return \Bitrix\Main\Result
+     * @throws \Exception
      */
-    public function getClinicsAction(): Result
+    public function getClinicsAction(): array
     {
-        return $this->exchangeService->getClinicsList();
+        return $this->exchangeService->getClinics();
     }
 
     /**
-     * @return \Bitrix\Main\Result
+     * @throws \Exception
      */
-    public function getEmployeesAction(): Result
+    public function getEmployeesAction(): array
     {
-        return $this->exchangeService->getEmployeesList();
+        return $this->exchangeService->getEmployees();
     }
 
     /**
-     * @param string $clinicUid
-     * @return \Bitrix\Main\Result
+     * @throws \Exception
      */
-    public function getNomenclatureAction(string $clinicUid): Result
+    public function getServicesAction(string $clinicUid): array
     {
-        return $this->exchangeService->getNomenclatureList($clinicUid);
-    }
-
-    public function getScheduleAction(string $clinicUid, string $employeeUid): Result
-    {
-        return $this->exchangeService->getSchedule([
-            'clinicUid' => $clinicUid,
-            'employees' => [$employeeUid],
-        ]);
+        return $this->exchangeService->getServices($clinicUid);
     }
 
     /**
-     * @param string $params
-     * @return \Bitrix\Main\Result
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @throws \Exception
      */
+    public function getScheduleAction(string $clinicUid = '', string $employeeUid = ''): array
+    {
+        return $this->exchangeService->getSchedule(
+            Configuration::getInstance()->getExchangeSchedulePeriod(),
+            $clinicUid,
+            !empty($employeeUid) ? [$employeeUid] : []
+        );
+    }
+
     public function addOrderAction(string $params): Result
     {
         $arParams = json_decode($params, true);

@@ -12,6 +12,7 @@ use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Config\TimeSlotStatus;
 use ANZ\Appointment\Dto\ClinicDto;
 use ANZ\Appointment\Dto\EmployeeDto;
+use ANZ\Appointment\Dto\EmployeeServiceDto;
 use ANZ\Appointment\Dto\ScheduleItemDto;
 use ANZ\Appointment\Dto\ServiceDto;
 use ANZ\Appointment\Dto\TimeSlotDto;
@@ -21,22 +22,41 @@ class SdkResponseToDto
 {
     public function clinicFromArray(array $item): ClinicDto
     {
-        return new ClinicDto($item['uid'], $item['name']);
+        return new ClinicDto((string)$item['uid'], (string)$item['name']);
     }
 
     public function employeeFromArray(array $item): EmployeeDto
     {
         return new EmployeeDto(
-            $item['uid'],
-            $item['name']
+            (string)$item['uid'],
+            (string)$item['name'],
+            (string)$item['surname'],
+            (string)$item['middleName'],
+            (string)$item['fullName'],
+            (string)$item['clinicUid'],
+            (string)$item['photo'],
+            (string)$item['description'],
+            (string)$item['rating'],
+            (string)$item['specialtyName'],
+            (string)$item['specialtyUid'],
+            array_map(
+                fn (array $empService) => new EmployeeServiceDto((string)$empService['uid'], (int)$empService['personalDuration']),
+                is_array($item['services']) ? $item['services'] : []
+            ),
         );
     }
 
     public function serviceFromArray(array $item): ServiceDto
     {
         return new ServiceDto(
-            $item['uid'],
-            $item['name']
+            (string)$item['uid'],
+            (string)$item['name'],
+            (string)$item['typeOfItem'],
+            (string)$item['artNumber'],
+            (int)$item['price'],
+            (int)$item['duration'],
+            (string)$item['measureUnit'],
+            (string)$item['parent'],
         );
     }
 

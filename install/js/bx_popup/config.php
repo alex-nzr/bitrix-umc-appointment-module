@@ -8,8 +8,8 @@ return [
 	'css' => 'dist/bx_popup.bundle.css',
 	'js'  => 'dist/bx_popup.bundle.js',
 	'rel' => [
+		'date',
 		'main.core',
-        'date',
 		'ui.dialogs.messagebox',
 	],
 	'skip_core' => false,
