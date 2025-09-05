@@ -9,7 +9,6 @@ namespace ANZ\Appointment\Agent;
 
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Service\Container;
-use Bitrix\Main\Data\Cache;
 use Bitrix\Main\Diag\Debug;
 use Bitrix\Main\IO\Directory;
 use DateTime as PhpDateTime;
@@ -37,18 +36,7 @@ class Exchange
                 {
                     Configuration::getInstance()->setExchangeActive(false);
 
-                    $gateway = Container::getInstance()->getSdkGateway();
-                    $clinics = $gateway->getClinics();
-
-                    if (Configuration::getInstance()->isServicesEnabled())
-                    {
-                        foreach ($clinics as $clinic)
-                        {
-                            $gateway->getServices($clinic->uid);
-                        }
-                    }
-
-                    $gateway->getEmployees();
+                    Container::getInstance()->getExchangeManager()->renewCacheData($manuallyExecution);
 
                     Configuration::getInstance()->setLastExchangeExecutionDate(new PhpDateTime);
 
@@ -149,7 +137,7 @@ class Exchange
     {
         try
         {
-            Cache::createInstance()->cleanDir(Configuration::getModuleId());
+            Container::getInstance()->getUmcIntegrationCacheProvider()->cleanAll();
         }
         catch (Throwable $e)
         {

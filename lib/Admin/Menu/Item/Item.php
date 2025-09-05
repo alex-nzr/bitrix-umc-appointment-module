@@ -7,7 +7,7 @@
 */
 namespace ANZ\Appointment\Admin\Menu\Item;
 
-use ANZ\Appointment\Internals\Contract\Menu\IMenuItem;
+use ANZ\Appointment\Core\Contract\Menu\IMenuItem;
 use Bitrix\Main\Security\Random;
 use Exception;
 

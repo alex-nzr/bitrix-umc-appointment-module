@@ -101,51 +101,65 @@ class ExchangeDataProvider
         return $result;
     }
 
-    /**
-     * @throws \Exception
-     */
     public function prepareCommonResultData(SimpleXMLElement $xml): Result
     {
-        return (new Result())->setData($this->sdkXmlParser->prepareCommonResultData($xml));
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function prepareReserveResultData(SimpleXMLElement $xml): Result
-    {
         $result = new Result();
-        $data = $this->sdkXmlParser->prepareReserveResultData($xml);
-
-        if (key_exists('uid', $data) && !empty($data['uid']))
+        try
         {
-            $result->setData([
-                'success' => true,
-                'XML_ID'  => $data['uid']
-            ]);
+            $result->setData($this->sdkXmlParser->prepareCommonResultData($xml));
         }
-        else
+        catch (Exception $e)
         {
-            $result->addError(new Error('Something went wrong. Response - ' . json_encode($data)));
+            $result->addError(new Error($e->getMessage()));
         }
         return $result;
     }
 
-    /**
-     * @throws \Exception
-     */
+    public function prepareReserveResultData(SimpleXMLElement $xml): Result
+    {
+        $result = new Result();
+        try
+        {
+            $data = $this->sdkXmlParser->prepareReserveResultData($xml);
+
+            if (key_exists('uid', $data) && !empty($data['uid']))
+            {
+                $result->setData([
+                    'success' => true,
+                    'XML_ID'  => $data['uid']
+                ]);
+            }
+            else
+            {
+                $result->addError(new Error('Something went wrong. Response - ' . json_encode($data)));
+            }
+        }
+        catch (Exception $e)
+        {
+            $result->addError(new Error($e->getMessage()));
+        }
+        return $result;
+    }
+
     public function prepareStatusResultData(SimpleXMLElement $xml): Result
     {
         $result = new Result();
-        $data = $this->sdkXmlParser->prepareStatusResultData($xml);
+        try
+        {
+            $data = $this->sdkXmlParser->prepareStatusResultData($xml);
 
-        if (key_exists('statusId', $data) && key_exists('statusTitle', $data))
-        {
-            $result->setData(array_merge(['success' => true], $data));
+            if (key_exists('statusId', $data) && key_exists('statusTitle', $data))
+            {
+                $result->setData(array_merge(['success' => true], $data));
+            }
+            else
+            {
+                $result->addError(new Error('Something went wrong. Response - ' . json_encode($data)));
+            }
         }
-        else
+        catch (Exception $e)
         {
-            $result->addError(new Error('Something went wrong. Response - ' . json_encode($data)));
+            $result->addError(new Error($e->getMessage()));
         }
         return $result;
     }

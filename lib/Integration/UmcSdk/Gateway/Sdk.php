@@ -5,7 +5,6 @@
  * 22.08.2025
  * ==================================================
 */
-
 namespace ANZ\Appointment\Integration\UmcSdk\Gateway;
 
 use ANZ\Appointment\Config\Configuration;
@@ -13,10 +12,12 @@ use ANZ\Appointment\Config\ExchangeMode;
 use ANZ\Appointment\Dto\AppointmentStatusDto;
 use ANZ\Appointment\Dto\ClinicDto;
 use ANZ\Appointment\Dto\EmployeeDto;
-use ANZ\Appointment\Dto\ScheduleItemDto;
 use ANZ\Appointment\Dto\ServiceDto;
 use ANZ\Appointment\Integration\UmcSdk\Cache\CacheProvider;
 use ANZ\Appointment\Integration\UmcSdk\Contract\UmcGatewayInterface;
+use ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException;
+use ANZ\Appointment\Integration\UmcSdk\Exception\SdkDataMapperException;
+use ANZ\Appointment\Integration\UmcSdk\Exception\UmcIntegrationCacheException;
 use ANZ\Appointment\Integration\UmcSdk\Gateway\Client\SoapClient;
 use ANZ\Appointment\Integration\UmcSdk\Mapper\SdkResponseToDto;
 use ANZ\Appointment\Integration\UmcSdk\Provider\ExchangeDataProvider;
@@ -25,10 +26,11 @@ use ANZ\BitUmc\SDK\Core\Dictionary\ClientScope;
 use ANZ\BitUmc\SDK\Core\Dictionary\Protocol;
 use ANZ\BitUmc\SDK\Factory\Exchange as ExchangeFactory;
 use ANZ\BitUmc\SDK\Service\Exchange\Base as SdkExchangeService;
+use ANZ\BitUmc\SDK\Service\Exchange\Http;
+use ANZ\BitUmc\SDK\Service\Exchange\Soap;
 use ANZ\BitUmc\SDK\Service\XmlParser;
 use Bitrix\Main\Localization\Loc;
 use DateTime;
-use Exception;
 use Throwable;
 
 class Sdk implements UmcGatewayInterface
@@ -38,7 +40,7 @@ class Sdk implements UmcGatewayInterface
     private string $lockKeyPrefix = 'anz_lock_';
 
     /**
-     * @throws \Exception
+     * @throws GatewayException
      */
     public function __construct(
         private readonly bool                $demoMode,
@@ -58,7 +60,7 @@ class Sdk implements UmcGatewayInterface
                 else
                 {
                     $this->demoData = [];
-                    throw new Exception('Demo data file not found in ' . $filePath);
+                    throw new GatewayException('Demo data file not found in ' . $filePath);
                 }
             }
             else
@@ -66,81 +68,117 @@ class Sdk implements UmcGatewayInterface
                 $exchangeMode = Configuration::getInstance()->getExchangeMode();
                 if (is_null($exchangeMode))
                 {
-                    throw new Exception(Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_MODE_ERROR'));
+                    throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_MODE_ERROR'));
                 }
 
                 $login = Configuration::getInstance()->getOneCLogin();
                 $password = Configuration::getInstance()->getOneCPassword();
                 if (empty($login) || empty($password))
                 {
-                    throw new Exception(Loc::getMessage('ANZ_APPOINTMENT_SOAP_AUTH_ERROR'));
+                    throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_SOAP_AUTH_ERROR'));
                 }
 
                 $url = Configuration::getInstance()->getOneCApiUrl();
                 if (strlen($url) === 0)
                 {
-                    throw new Exception(Loc::getMessage('ANZ_APPOINTMENT_SOAP_URL_ERROR', [
+                    throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_SOAP_URL_ERROR', [
                         '#ERROR#' => 'Url is empty'
                     ]));
                 }
-                $scope = $exchangeMode === ExchangeMode::SOAP ? ClientScope::WEB_SERVICE : ClientScope::HTTP_SERVICE;
 
-                $arUri = parse_url($url);
-                if (!in_array($arUri['scheme'], [Protocol::HTTP->value, Protocol::HTTPS->value]))
-                {
-                    throw new Exception(Loc::getMessage('ANZ_APPOINTMENT_SOAP_URL_ERROR', [
-                        '#ERROR#' => 'Unexpected uri scheme - ' . $arUri['scheme']
-                    ]));
-                }
-                $publicationScheme = $arUri['scheme'] === Protocol::HTTPS->value ? Protocol::HTTPS : Protocol::HTTP;
-
-                if (strlen($arUri['host']) === 0)
-                {
-                    throw new Exception(Loc::getMessage('ANZ_APPOINTMENT_SOAP_URL_ERROR', [
-                        '#ERROR#' => 'Uri host is empty'
-                    ]));
-                }
-                $port = key_exists('port', $arUri) && !empty($arUri['port']) ? $arUri['port'] : null;
-                $publicationHost = $arUri['host'] . (is_null($port) ? '' : ":$port");
-
-                $path = $arUri['path'];
-                if (!str_contains($path, '/'.$scope->value.'/'))
-                {
-                    throw new Exception(Loc::getMessage('ANZ_APPOINTMENT_SOAP_URL_ERROR', [
-                        '#ERROR#' => 'Uri path not contains exchange scope - ' . '/'.$scope->value.'/'
-                    ]));
-                }
-                $arPath = explode('/'.$scope->value.'/', $path);
-                $baseName = trim(current($arPath), '/');
-                if (strlen($baseName) === 0)
-                {
-                    throw new Exception(Loc::getMessage('ANZ_APPOINTMENT_SOAP_URL_ERROR', [
-                        '#ERROR#' => 'Can not determine 1C base name from uri'
-                    ]));
-                }
-
-                $client = SoapClient::create(
-                    $login,
-                    $password,
-                    $publicationScheme,
-                    $publicationHost,
-                    $baseName,
-                    $scope,
-                    new ExchangeDataProvider(new XmlParser)
-                );
-
-                $this->sdkExchangeService = (new ExchangeFactory($client))->create();
+                $this->sdkExchangeService = $this->createExchangeService($exchangeMode, $login, $password, $url);
             }
         }
         catch(Throwable $e)
         {
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
+            throw new GatewayException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
     /**
+     * @throws GatewayException
+     */
+    protected function createExchangeService(ExchangeMode $exchangeMode, $login, $password, $url, $token = ''): Http|Soap
+    {
+        try
+        {
+            $scope = $exchangeMode === ExchangeMode::SOAP ? ClientScope::WEB_SERVICE : ClientScope::HTTP_SERVICE;
+
+            $arUri = parse_url($url);
+            if (!in_array($arUri['scheme'], [Protocol::HTTP->value, Protocol::HTTPS->value]))
+            {
+                throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_SOAP_URL_ERROR', [
+                    '#ERROR#' => 'Unexpected uri scheme - ' . $arUri['scheme']
+                ]));
+            }
+            $publicationScheme = $arUri['scheme'] === Protocol::HTTPS->value ? Protocol::HTTPS : Protocol::HTTP;
+
+            if (strlen($arUri['host']) === 0)
+            {
+                throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_SOAP_URL_ERROR', [
+                    '#ERROR#' => 'Uri host is empty'
+                ]));
+            }
+            $port = key_exists('port', $arUri) && !empty($arUri['port']) ? $arUri['port'] : null;
+            $publicationHost = $arUri['host'] . (is_null($port) ? '' : ":$port");
+
+            $path = $arUri['path'];
+            if (!str_contains($path, '/'.$scope->value.'/'))
+            {
+                throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_SOAP_URL_ERROR', [
+                    '#ERROR#' => 'Uri path not contains exchange scope - ' . '/'.$scope->value.'/'
+                ]));
+            }
+            $arPath = explode('/'.$scope->value.'/', $path);
+            $baseName = trim(current($arPath), '/');
+            if (strlen($baseName) === 0)
+            {
+                throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_SOAP_URL_ERROR', [
+                    '#ERROR#' => 'Can not determine 1C base name from uri'
+                ]));
+            }
+
+            $client = SoapClient::create(
+                $login,
+                $password,
+                $publicationScheme,
+                $publicationHost,
+                $baseName,
+                $scope,
+                new ExchangeDataProvider(new XmlParser)
+            );
+
+            return (new ExchangeFactory($client))->create();
+        }
+        catch(Throwable $e)
+        {
+            throw new GatewayException($e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * @throws GatewayException
+     */
+    public function checkConnection(string $strModeVal, string $url, string $login, string $password, string $token = ''): bool
+    {
+        $result = $this->createExchangeService(
+            ExchangeMode::from($strModeVal),
+            $login,
+            $password,
+            $url,
+            $token
+        )->getClinics();
+
+        if (!$result->isSuccess())
+        {
+            throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
+        }
+        return true;
+    }
+
+    /**
      * @return ClinicDto[]
-     * @throws \Exception
+     * @throws GatewayException | UmcIntegrationCacheException
      */
     public function getClinics(): array
     {
@@ -167,7 +205,7 @@ class Sdk implements UmcGatewayInterface
                     $result = $this->sdkExchangeService->getClinics();
                     if (!$result->isSuccess())
                     {
-                        throw new Exception(implode(PHP_EOL, $result->getErrorMessages()));
+                        throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
                     }
 
                     $data = array_filter($result->getData(), fn($item) => $this->validator->validateClinic($item));
@@ -183,7 +221,7 @@ class Sdk implements UmcGatewayInterface
 
     /**
      * @return EmployeeDto[]
-     * @throws \Exception
+     * @throws GatewayException | UmcIntegrationCacheException
      */
     public function getEmployees(): array
     {
@@ -210,7 +248,7 @@ class Sdk implements UmcGatewayInterface
                     $result = $this->sdkExchangeService->getEmployees();
                     if (!$result->isSuccess())
                     {
-                        throw new Exception(implode(PHP_EOL, $result->getErrorMessages()));
+                        throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
                     }
 
                     $data = array_filter($result->getData(), fn($item) => $this->validator->validateEmployee($item));
@@ -226,7 +264,7 @@ class Sdk implements UmcGatewayInterface
 
     /**
      * @return ServiceDto[]
-     * @throws \Exception
+     * @throws GatewayException | UmcIntegrationCacheException
      */
     public function getServices(string $clinicUid): array
     {
@@ -253,7 +291,7 @@ class Sdk implements UmcGatewayInterface
                     $result = $this->sdkExchangeService->getNomenclature($clinicUid);
                     if (!$result->isSuccess())
                     {
-                        throw new Exception(implode(PHP_EOL, $result->getErrorMessages()));
+                        throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
                     }
 
                     $data = array_filter($result->getData(), fn($item) => $this->validator->validateService($item));
@@ -268,7 +306,7 @@ class Sdk implements UmcGatewayInterface
     }
 
     /**
-     * @throws \Exception
+     * @throws GatewayException | SdkDataMapperException | UmcIntegrationCacheException
      */
     public function getSchedule(int $days = 14, string $clinicUid = '', array $employees = [], ?DateTime $startDate = null): array
     {
@@ -295,7 +333,7 @@ class Sdk implements UmcGatewayInterface
                     $result = $this->sdkExchangeService->getSchedule($days, $clinicUid, $employees, $startDate);
                     if (!$result->isSuccess())
                     {
-                        throw new Exception(implode(PHP_EOL, $result->getErrorMessages()));
+                        throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
                     }
 
                     $data = $result->getData();
@@ -353,7 +391,7 @@ class Sdk implements UmcGatewayInterface
     }
 
     /**
-     * @throws \Exception
+     * @throws UmcIntegrationCacheException
      */
     private function isLocked(string $key): bool
     {
@@ -361,7 +399,7 @@ class Sdk implements UmcGatewayInterface
     }
 
     /**
-     * @throws \Exception
+     * @throws UmcIntegrationCacheException
      */
     private function setLock(string $key): void
     {

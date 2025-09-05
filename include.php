@@ -1,7 +1,8 @@
 <?php
 
-use ANZ\Appointment\Internals\Debug\Logger;
-use ANZ\Appointment\Internals\ServiceManager;
+use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\Core\ServiceManager;
+use Bitrix\Main\Diag\Debug;
 
 try
 {
@@ -13,8 +14,10 @@ try
 }
 catch (Throwable $e)
 {
-    Logger::printToFile(
-        date("d.m.Y H:i:s") . '. Error on module including - ' . $e->getMessage(),
+    Debug::writeToFile(
+        'Error on module including - ' . $e->getMessage(),
+        date("d.m.Y H:i:s"),
+        Configuration::getInstance()->getCommonLogFilePath()
     );
 }
 ?>

@@ -7,8 +7,8 @@
 */
 
 use ANZ\Appointment\Agent\Exchange;
+use ANZ\Appointment\Core\Installation\Installer;
 use ANZ\Appointment\Event\EventManager as ANZEventManager;
-use ANZ\Appointment\Internals\Installation\Installer;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;

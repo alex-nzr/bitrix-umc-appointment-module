@@ -7,10 +7,10 @@
 */
 namespace ANZ\Appointment\Admin\Page;
 
-use CUser;
-use ANZ\Appointment\Internals\Contract\Page\IPage;
+use ANZ\Appointment\Core\Contract\Page\IPage;
 use Bitrix\Main\AccessDeniedException;
 use CMain;
+use CUser;
 
 abstract class BaseAdminPage implements IPage
 {

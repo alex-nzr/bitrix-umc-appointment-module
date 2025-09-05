@@ -15,6 +15,8 @@ use ANZ\Appointment\Dto\ServiceDto;
 
 interface UmcGatewayInterface
 {
+    public function checkConnection(string $strModeVal, string $url, string $login, string $password, string $token = ''): bool;
+
     /** @return ClinicDto[] */
     public function getClinics(): array;
 

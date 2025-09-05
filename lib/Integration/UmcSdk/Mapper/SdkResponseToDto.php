@@ -5,7 +5,6 @@
  * 22.08.2025
  * ==================================================
 */
-
 namespace ANZ\Appointment\Integration\UmcSdk\Mapper;
 
 use ANZ\Appointment\Config\Configuration;
@@ -16,7 +15,9 @@ use ANZ\Appointment\Dto\EmployeeServiceDto;
 use ANZ\Appointment\Dto\ScheduleItemDto;
 use ANZ\Appointment\Dto\ServiceDto;
 use ANZ\Appointment\Dto\TimeSlotDto;
+use ANZ\Appointment\Integration\UmcSdk\Exception\SdkDataMapperException;
 use DateTime;
+use Throwable;
 
 class SdkResponseToDto
 {
@@ -61,47 +62,54 @@ class SdkResponseToDto
     }
 
     /**
-     * @throws \Exception
+     * @throws SdkDataMapperException
      */
     public function scheduleItemFromArray(
         string $clinicUid, string $specialtyUid, string $employeeUid, array $scheduleData
     ): ScheduleItemDto
     {
-        $timeslots = [];
-        foreach ($scheduleData['timetable'] as $status => $statusData)
+        try
         {
-            if (!key_exists($status, $timeslots))
+            $timeslots = [];
+            foreach ($scheduleData['timetable'] as $status => $statusData)
             {
-                $timeslots[$status] = [];
-            }
-            foreach ($statusData as $date => $timeslotsData)
-            {
-                foreach ($timeslotsData as $timeslot)
+                if (!key_exists($status, $timeslots))
                 {
-                    if (!key_exists($date, $timeslots[$status]))
+                    $timeslots[$status] = [];
+                }
+                foreach ($statusData as $date => $timeslotsData)
+                {
+                    foreach ($timeslotsData as $timeslot)
                     {
-                        $timeslots[$status][$date] = [];
+                        if (!key_exists($date, $timeslots[$status]))
+                        {
+                            $timeslots[$status][$date] = [];
+                        }
+                        $timeslots[$status][$date][] = $this->timeslotFromArray($timeslot, $status);
                     }
-                    $timeslots[$status][$date][] = $this->timeslotFromArray($timeslot, $status);
                 }
             }
+            $duration = (int)$scheduleData['durationInSeconds'];
+            return new ScheduleItemDto(
+                $clinicUid,
+                $specialtyUid,
+                $employeeUid,
+                (string)$scheduleData['specialtyName'],
+                (string)$scheduleData['employeeName'],
+                $duration > 0 ? $duration : Configuration::getInstance()->getDefaultAppointmentDuration(),
+                $timeslots
+            );
         }
-        $duration = (int)$scheduleData['durationInSeconds'];
-        return new ScheduleItemDto(
-            $clinicUid,
-            $specialtyUid,
-            $employeeUid,
-            (string)$scheduleData['specialtyName'],
-            (string)$scheduleData['employeeName'],
-            $duration > 0 ? $duration : Configuration::getInstance()->getDefaultAppointmentDuration(),
-            $timeslots
-        );
+        catch (Throwable $e)
+        {
+            throw new SdkDataMapperException($e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     /**
-     * @throws \Exception
+     * @throws \DateMalformedStringException
      */
-    public function timeslotFromArray(array $item, string $status): TimeSlotDto
+    protected function timeslotFromArray(array $item, string $status): TimeSlotDto
     {
         return new TimeSlotDto(
             (string)$item['typeOfTimeUid'],

@@ -13,8 +13,10 @@ use ANZ\Appointment\Integration\UmcSdk\Cache\CacheProvider;
 use ANZ\Appointment\Integration\UmcSdk\Gateway\Sdk;
 use ANZ\Appointment\Integration\UmcSdk\Mapper\SdkResponseToDto;
 use ANZ\Appointment\Integration\UmcSdk\Validator\ResponseValidator;
-use ANZ\Appointment\Internals\Model\RecordTable;
+use ANZ\Appointment\Model\RecordTable;
+use ANZ\Appointment\Repository\UMC\AppointmentRepository;
 use ANZ\Appointment\Service\Access\UserPermissions;
+use ANZ\Appointment\Service\Exchange\Manager;
 use ANZ\Appointment\Service\Message\Mailer;
 use ANZ\Appointment\Service\Message\Sms;
 use Bitrix\Main\DI\ServiceLocator;
@@ -31,6 +33,29 @@ class Container
     /**
      * @throws \Exception
      */
+    public function getExchangeManager(): Manager
+    {
+        try
+        {
+            $identifier = static::getIdentifierByClassName(Manager::class);
+            if(!ServiceLocator::getInstance()->has($identifier))
+            {
+                ServiceLocator::getInstance()->addInstance($identifier, new Manager(
+                    $this->getSdkGateway(),
+                    new AppointmentRepository(RecordTable::getEntity())
+                ));
+            }
+            return ServiceLocator::getInstance()->get($identifier);
+        }
+        catch(Throwable $e)
+        {
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
     public function getSdkGateway(): Sdk
     {
         try
@@ -43,10 +68,30 @@ class Container
                     Configuration::getInstance()->isDemoModeOn(),
                     new SdkResponseToDto,
                     new ResponseValidator,
-                    new CacheProvider
+                    $this->getUmcIntegrationCacheProvider()
                 ));
             }
 
+            return ServiceLocator::getInstance()->get($identifier);
+        }
+        catch(Throwable $e)
+        {
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getUmcIntegrationCacheProvider(): CacheProvider
+    {
+        try
+        {
+            $identifier = static::getIdentifierByClassName(CacheProvider::class);
+            if(!ServiceLocator::getInstance()->has($identifier))
+            {
+                ServiceLocator::getInstance()->addInstance($identifier, new CacheProvider);
+            }
             return ServiceLocator::getInstance()->get($identifier);
         }
         catch(Throwable $e)

@@ -10,15 +10,19 @@ namespace ANZ\Appointment\Controller;
 use ANZ\Appointment\Agent\Exchange;
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Config\Constants;
-use ANZ\Appointment\Integration\UmcSdk\Contract\UmcGatewayInterface;
 use ANZ\Appointment\Service\Container;
+use ANZ\Appointment\Service\Exchange\Manager;
 use ANZ\Appointment\Service\Operation\Appointment;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\ActionFilter\Authentication;
 use Bitrix\Main\Engine\ActionFilter\Csrf;
 use Bitrix\Main\Engine\ActionFilter\HttpMethod;
 use Bitrix\Main\Engine\Controller;
+use Bitrix\Main\Error;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
+use Exception;
+use Throwable;
 
 /**
  * Class OneCController
@@ -26,7 +30,7 @@ use Bitrix\Main\Result;
  */
 class OneCController extends Controller
 {
-    private UmcGatewayInterface $exchangeService;
+    private Manager $exchangeService;
 
     /**
      * @throws \Exception
@@ -34,7 +38,7 @@ class OneCController extends Controller
     public function __construct()
     {
         parent::__construct();
-        $this->exchangeService = Container::getInstance()->getSdkGateway();
+        $this->exchangeService = Container::getInstance()->getExchangeManager();
     }
 
     /**
@@ -62,17 +66,6 @@ class OneCController extends Controller
     }
 
     /**
-     * @throws \Throwable
-     */
-    public function executeAction(): array
-    {
-        Exchange::loadData(true, true);
-        return [
-            Constants::OPTION_KEY_EXCHANGE_NEXT_EXEC_DATE => Configuration::getInstance()->getNextExchangeExecutionDate()?->format(Configuration::DATE_FORMAT_FOR_OPTIONS)
-        ];
-    }
-
-    /**
      * @throws \Exception
      */
     public function getScheduleAction(string $clinicUid = '', string $employeeUid = ''): array
@@ -82,6 +75,41 @@ class OneCController extends Controller
             $clinicUid,
             !empty($employeeUid) ? [$employeeUid] : []
         );
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function executeAction(): array
+    {
+        if (Configuration::getInstance()->isDemoModeOn())
+        {
+            throw new Exception(Loc::getMessage("ANZ_APPOINTMENT_EXCHANGE_MANUAL_ERROR_DEMO"));
+        }
+        Exchange::loadData(true, true);
+        return [
+            Constants::OPTION_KEY_EXCHANGE_NEXT_EXEC_DATE => Configuration::getInstance()->getNextExchangeExecutionDate()?->format(Configuration::DATE_FORMAT_FOR_OPTIONS)
+        ];
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function checkConnectionAction(string $mode, string $url, string $login, string $password, string $token = ''): ?array
+    {
+        try
+        {
+            if (Container::getInstance()->getExchangeManager()->checkConnection($mode, $url, $login, $password, $token))
+            {
+                return [];
+            }
+            throw new Exception('Connection failed with unknown error');
+        }
+        catch (Throwable $e)
+        {
+            $this->addError(new Error($e->getMessage()));
+            return null;
+        }
     }
 
     public function addOrderAction(string $params): Result

@@ -8,8 +8,8 @@
 namespace ANZ\Appointment\Event;
 
 use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\Core\ServiceManager;
 use ANZ\Appointment\Event\Handler\Main;
-use ANZ\Appointment\Internals\ServiceManager;
 use Bitrix\Main\EventManager as BitrixEventManager;
 
 class EventManager

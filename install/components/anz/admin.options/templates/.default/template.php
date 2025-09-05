@@ -9,8 +9,6 @@
  * @var \CBitrixComponentTemplate $this
  */
 
-use ANZ\Appointment\Internals\ServiceManager;
-use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();

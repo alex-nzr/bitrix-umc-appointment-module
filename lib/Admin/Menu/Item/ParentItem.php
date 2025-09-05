@@ -7,7 +7,7 @@
 */
 namespace ANZ\Appointment\Admin\Menu\Item;
 
-use ANZ\Appointment\Internals\Contract\Menu\IMenuItem;
+use ANZ\Appointment\Core\Contract\Menu\IMenuItem;
 
 class ParentItem extends Item
 {
@@ -49,7 +49,7 @@ class ParentItem extends Item
     }
 
     /**
-     * @param \ANZ\Appointment\Internals\Contract\Menu\IMenuItem $item
+     * @param \ANZ\Appointment\Core\Contract\Menu\IMenuItem $item
      * @return void
      */
     public function addChildItem(IMenuItem $item): void

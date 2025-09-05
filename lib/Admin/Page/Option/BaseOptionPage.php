@@ -8,7 +8,7 @@
 namespace ANZ\Appointment\Admin\Page\Option;
 
 use ANZ\Appointment\Admin\Page\BaseAdminPage;
-use ANZ\Appointment\Internals\Contract\Option\IOptionStorage;
+use ANZ\Appointment\Core\Contract\Option\IOptionStorage;
 use Exception;
 
 abstract class BaseOptionPage extends BaseAdminPage

@@ -7,8 +7,8 @@
 */
 namespace ANZ\Appointment\Config;
 
+use ANZ\Appointment\Core\Exception\ConfigurationException;
 use ANZ\Appointment\Core\Trait\Singleton;
-use ANZ\Appointment\Internals\ServiceManager;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
@@ -101,7 +101,7 @@ final class Configuration
     }
 
     /**
-     * @throws \Exception
+     * @throws ConfigurationException
      */
     public static function getModuleId(): string
     {
@@ -113,7 +113,7 @@ final class Configuration
     }
 
     /**
-     * @throws \Exception
+     * @throws ConfigurationException
      */
     public static function setModuleId(): void
     {
@@ -122,7 +122,7 @@ final class Configuration
         self::$moduleId = key_exists($i+1, $arr) ? $arr[$i+1] : '';
         if (empty(self::$moduleId))
         {
-            throw new Exception('Can not determine module ID');
+            throw new ConfigurationException('Can not determine module ID');
         }
     }
 
@@ -253,10 +253,8 @@ final class Configuration
         {
             case ExchangeMode::SOAP:
                 return trim(Option::get(self::getModuleId(), Constants::OPTION_KEY_API_WS_URL));
-                break;
             case ExchangeMode::HTTP:
                 throw new NotImplementedException('Http mode not implemented');
-                break;
             default:
                 throw new Exception('Unknown exchange mode');
         }

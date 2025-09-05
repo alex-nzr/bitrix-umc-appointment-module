@@ -8,7 +8,7 @@
 namespace ANZ\Appointment\Config\Options;
 
 
-use ANZ\Appointment\Internals\Contract\Option\IOptionStorage;
+use ANZ\Appointment\Core\Contract\Option\IOptionStorage;
 
 /**
  * Hidden from public access system options

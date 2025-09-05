@@ -8,6 +8,7 @@
 namespace ANZ\Appointment\Integration\UmcSdk\Cache;
 
 use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\Integration\UmcSdk\Exception\UmcIntegrationCacheException;
 use Bitrix\Main\Context;
 use Bitrix\Main\Data\Cache;
 use Exception;
@@ -23,7 +24,7 @@ class CacheProvider
     private string $siteId;
 
     /**
-     * @throws \Exception
+     * @throws \ANZ\Appointment\Core\Exception\ConfigurationException
      */
     public function __construct()
     {
@@ -39,7 +40,7 @@ class CacheProvider
     }
 
     /**
-     * @throws \Exception
+     * @throws UmcIntegrationCacheException
      */
     public function get(string $cacheKey, int $ttl): ?array
     {
@@ -53,13 +54,12 @@ class CacheProvider
         }
         catch (Throwable $e)
         {
-            //todo UmcServiceException
-            throw new Exception($e->getMessage());
+            throw new UmcIntegrationCacheException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
     /**
-     * @throws \Exception
+     * @throws UmcIntegrationCacheException
      */
     public function set(string $cacheKey, int $ttl, array $vars): void
     {
@@ -67,21 +67,19 @@ class CacheProvider
         {
             if (!$this->cacheInstance->startDataCache($ttl, $cacheKey, $this->cachePath))
             {
-                throw new Exception('Can not start data cache');
+                throw new UmcIntegrationCacheException('Can not start data cache');
             }
             $this->cacheInstance->endDataCache($vars);
         }
         catch (Throwable $e)
         {
             $this->cacheInstance->abortDataCache();
-
-            //todo UmcServiceException
-            throw new Exception($e->getMessage());
+            throw new UmcIntegrationCacheException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
     /**
-     * @throws \Exception
+     * @throws UmcIntegrationCacheException
      */
     public function getClinics(): ?array
     {
@@ -89,7 +87,7 @@ class CacheProvider
     }
 
     /**
-     * @throws \Exception
+     * @throws UmcIntegrationCacheException
      */
     public function setClinics(array $data): void
     {
@@ -97,7 +95,7 @@ class CacheProvider
     }
 
     /**
-     * @throws \Exception
+     * @throws UmcIntegrationCacheException
      */
     public function getEmployees(): ?array
     {
@@ -105,7 +103,7 @@ class CacheProvider
     }
 
     /**
-     * @throws \Exception
+     * @throws UmcIntegrationCacheException
      */
     public function setEmployees(array $data): void
     {
@@ -113,7 +111,7 @@ class CacheProvider
     }
 
     /**
-     * @throws \Exception
+     * @throws UmcIntegrationCacheException
      */
     public function getServices(string $clinicUid): ?array
     {
@@ -121,7 +119,7 @@ class CacheProvider
     }
 
     /**
-     * @throws \Exception
+     * @throws UmcIntegrationCacheException
      */
     public function setServices(array $data, string $clinicUid): void
     {
@@ -129,7 +127,7 @@ class CacheProvider
     }
 
     /**
-     * @throws \Exception
+     * @throws UmcIntegrationCacheException
      */
     public function getSchedule(string $clinicUid = '', array $employees = []): ?array
     {
@@ -137,7 +135,7 @@ class CacheProvider
     }
 
     /**
-     * @throws \Exception
+     * @throws UmcIntegrationCacheException
      */
     public function setSchedule(array $data, string $clinicUid = '', array $employees = []): void
     {

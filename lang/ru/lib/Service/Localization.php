@@ -199,3 +199,10 @@ $MESS['ANZ_APPOINTMENT_BTN_UPDATE_STATUS_TEXT'] = "Обновить статус
 /* Appointment execute-btn component*/
 $MESS["ANZ_APPOINTMENT_EXCHANGE_START_BTN"] = "Провести обмен";
 $MESS["ANZ_APPOINTMENT_EXCHANGE_MANUAL_DONE"] = "Обмен выполнен в ручном режиме";
+$MESS["ANZ_APPOINTMENT_EXCHANGE_MANUAL_ERROR_DEMO"] = "Обмен не выполнен, так как в настройках модуля включен демо-режим";
+
+/* Appointment check-api-btn component*/
+$MESS['ANZ_APPOINTMENT_API_CHECK_BTN'] = 'Проверить подключение';
+$MESS['ANZ_APPOINTMENT_API_CHECK_NOT_APPLIED'] = 'Проверка не производилась';
+$MESS['ANZ_APPOINTMENT_API_CHECK_SUCCESS'] = 'Подключение успешно';
+$MESS['ANZ_APPOINTMENT_API_CHECK_ERROR'] = 'Ошибка при подключении: ';

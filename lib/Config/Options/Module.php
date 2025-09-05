@@ -9,7 +9,7 @@ namespace ANZ\Appointment\Config\Options;
 
 use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Config\ExchangeMode;
-use ANZ\Appointment\Internals\Contract\Option\IOptionStorage;
+use ANZ\Appointment\Core\Contract\Option\IOptionStorage;
 use Bitrix\Main\Localization\Loc;
 
 
@@ -89,7 +89,7 @@ class Module implements IOptionStorage
                             'select',
                             [
                                 ExchangeMode::SOAP->value => ExchangeMode::SOAP->value,
-                                ExchangeMode::HTTP->value => ExchangeMode::HTTP->value
+                                //ExchangeMode::HTTP->value => ExchangeMode::HTTP->value
                             ]
                         ]
                     ],
