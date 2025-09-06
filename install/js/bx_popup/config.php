@@ -42,7 +42,7 @@ try
             ],
             [
                 "type"          => "text",
-                "placeholder"   => Loc::getMessage('ANZ_APPOINTMENT_FIELD_MIDDLE_NAME_PLACEHOLDER_PLACEHOLDER'),
+                "placeholder"   => Loc::getMessage('ANZ_APPOINTMENT_FIELD_MIDDLE_NAME_PLACEHOLDER'),
                 "id"            => "appointment-form-middleName",
                 "maxlength"     => "30",
                 "class"         => "appointment-form_input",
