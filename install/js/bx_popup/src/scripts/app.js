@@ -1,18 +1,18 @@
 // @disabled-flow
 'use strict';
 
-import '../../styles/app.css';
-import styles from "../../styles/app.css";
-import {convertHexToHsl, maskInput} from "../utils/functions";
+import '../styles/app.css';
+import styles from "../styles/app.css";
+import {convertHexToHsl, maskInput} from "./utils/functions";
 import "date";
 import {Event} from 'main.core';
-import {EventManager} from "../utils/eventManager";
+import {EventManager} from "./utils/eventManager";
 import {MessageBox, MessageBoxButtons} from 'ui.dialogs.messagebox';
-import {Renderer} from "../utils/renderer";
-import type {ITextObject} from "../../types/params";
-import {TextInputNames} from "../../types/params";
+import {Renderer} from "./utils/renderer";
+import {ITextObject} from "../types/params";
+import {TextInputNames} from "../types/params";
 
-export class AppointmentSteps
+export class ClassicForm
 {
     selectionStep: string         = '';
     currentFormStep: HTMLElement  = null;
@@ -46,10 +46,6 @@ export class AppointmentSteps
 
     selectDoctorBeforeService = true;
 
-    /**
-     * AppointmentSteps constructor
-     * @param params
-     */
     constructor(params)
     {
         this.firstInit      = true;

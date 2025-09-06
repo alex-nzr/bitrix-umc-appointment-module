@@ -9,11 +9,13 @@ namespace ANZ\Appointment\Component\Admin;
 
 use ANZ\Appointment\Component\BaseComponent;
 use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Event\EventType;
 use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Event;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\SiteTable;
 use CAdminTabControl;
 use CFile;
@@ -171,6 +173,26 @@ abstract class Options extends BaseComponent
                                 $optionValue = (int)$fid > 0 ? $fid : '';
                             }
                         }
+                        elseif ($optionType === 'password')
+                        {
+                            if (empty($optionValue))
+                            {
+                                if (!empty(Configuration::getInstance()->getOneCPassword()))
+                                {
+                                    global $APPLICATION;
+                                    $APPLICATION->ThrowException(Loc::getMessage('ANZ_APPOINTMENT_API_PASSWORD_EMPTY_ERROR'));
+                                    continue;
+                                }
+                            }
+                            elseif ($optionValue === Constants::PASSWORD_MASKED_VALUE)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                $optionValue = Container::getInstance()->getEncryptService()->encrypt($optionValue);
+                            }
+                        }
                         Option::set(
                             $this->moduleId,
                             $optionName,
@@ -293,10 +315,10 @@ abstract class Options extends BaseComponent
         <?php }
         else
         {
-            $currentVal = Option::get($module_id, $option[0], $option[2]);
+            $currentVal = !empty($option[0]) ? Option::get($module_id, $option[0], $option[2]) : '';
             echo "<tr>";
             $this->renderTitle((string)$option[1]);
-            $this->renderInput($option, $currentVal ?? '');
+            $this->renderInput($option, $currentVal);
             echo "</tr>";
         }
     }
@@ -319,6 +341,43 @@ abstract class Options extends BaseComponent
     {
         $name  = $option[0];
         $type  = $option[3];
+        $attrs = is_array($type['attrs']) ? $type['attrs'] : [];
+
+        $attrs['id'] = $name;
+        $attrs['name'] = $name;
+        if ($type[0] === 'text' || $type[0] === 'password')
+        {
+            $attrs['size'] = $attrs['size'] ?? '50';
+            $attrs['maxlength'] = $attrs['maxlength'] ?? '1000';
+
+            if ($type[0] === 'password')
+            {
+                $attrs['autocomplete'] = 'new-password';
+            }
+        }
+        elseif ($type[0] === 'number')
+        {
+            $attrs['size'] = $attrs['size'] ?? '10';
+            $attrs['min'] = $attrs['min'] ?? '1';
+            $attrs['max'] = $attrs['max'] ?? '999999';
+        }
+        elseif ($type[0] === 'textarea')
+        {
+            $attrs['rows'] = $attrs['rows'] ?? '50';
+            $attrs['cols'] = $attrs['cols'] ?? '4';
+        }
+        elseif ($type[0] === 'multiselect')
+        {
+            $attrs['name'] = $attrs['name'].'[]';
+            $attrs['size'] = $attrs['size'] ?? '5';
+        }
+        unset($attrs['type'], $attrs['value']);
+
+        $attrsString = '';
+        foreach($attrs as $attrName => $attrValue)
+        {
+            $attrsString .= " $attrName='$attrValue'";
+        }
         ?>
         <td style="width: 50%">
         <label for="<?=$name?>" class="module-option-label">
@@ -327,27 +386,26 @@ abstract class Options extends BaseComponent
             {
                 case "checkbox":
                     $checked = ($val === "Y") ? "checked" : '';
-                    echo "<input type='checkbox' id='$name' name='$name' value='Y' $checked>";
+                    echo "<input type='checkbox' value='Y' $checked $attrsString>";
                     break;
                 case "text":
                 case "password":
-                    $val = htmlspecialchars($val);
-                    $autocomplete = $type[0] === 'password' ? 'autocomplete="new-password"' : '';
-                    echo "<input type='$type[0]' id='$name' name='$name' value='$val' size='$type[1]' maxlength='1000' $autocomplete>";
+                    $val = $type[0] === 'password' ? Constants::PASSWORD_MASKED_VALUE : htmlspecialchars($val);
+                    echo "<input type='$type[0]' value='$val' $attrsString>";
                     break;
                 case "number":
                     $val = htmlspecialchars($val);
-                    echo "<input type='number' name='$name' value='$val' size='$type[1]' min='1' max='999999'>";
+                    echo "<input type='number' value='$val' $attrsString>";
                     break;
                 case "datetime":
-                    echo "<input type='datetime-local' id='$name' name='$name' value='$val'>";
+                    echo "<input type='datetime-local' value='$val' $attrsString>";
                     break;
                 case "hidden":
-                    echo "<input type='hidden' name='$name' value='$val'>";
+                    echo "<input type='hidden' value='$val' $attrsString>";
                     break;
                 case "select":
-                    $arr = is_array($type[1]) ? $type[1] : [];
-                    echo "<select id='$name' name='$name'>";
+                    $arr = is_array($type['LIST']) ? $type['LIST'] : [];
+                    echo "<select $attrsString>";
                     foreach($arr as $optionVal => $displayVal)
                     {
                         $displayVal = htmlspecialchars($displayVal);
@@ -357,10 +415,9 @@ abstract class Options extends BaseComponent
                     echo "</select>";
                     break;
                 case "multiselect":
-                    $arr = is_array($type[1]) ? $type[1] : [];
-                    $name .= '[]';
+                    $arr = is_array($type['LIST']) ? $type['LIST'] : [];
                     $arr_val = json_decode($val, true);
-                    echo "<select id='$name' name='$name' size='5' multiple>";
+                    echo "<select multiple $attrsString>";
                     foreach($arr as $optionVal => $displayVal)
                     {
                         $displayVal = htmlspecialchars($displayVal);
@@ -371,7 +428,7 @@ abstract class Options extends BaseComponent
                     break;
                 case "textarea":
                     $val = htmlspecialchars($val);
-                    echo "<textarea rows='$type[1]' cols='$type[2]' name='$name'>$val</textarea>";
+                    echo "<textarea $attrsString>$val</textarea>";
                     break;
                 case "staticText":
                     $val = htmlspecialchars($val);
@@ -381,15 +438,9 @@ abstract class Options extends BaseComponent
                     echo "<span style='font-weight: 600'>".(!empty($val) ? $val : $option[2])."</span>";
                     break;
                 case "colorPicker":
-                    echo "<input type='color' id='$name' name='$name' value='$val' style='width:200px;height:50px;cursor:pointer;'>";
+                    echo "<input type='color' value='$val' $attrsString>";
                     break;
                 case "file":
-                    $attrs = is_array($type[1]) ? $type[1] : [];
-                    $attrsString = '';
-                    foreach($attrs as $attrName => $attrValue)
-                    {
-                        $attrsString .= " $attrName='$attrValue'";
-                    }
                     if (is_numeric($val) && (int)$val > 0)
                     {
                         $arFile = CFile::GetFileArray($val);
@@ -411,7 +462,7 @@ abstract class Options extends BaseComponent
                             }
                         }
                     }
-                    echo "<input type='file' id='$name' name='$name' $attrsString/>";
+                    echo "<input type='file' $attrsString/>";
                     break;
                 default:
                     echo "<p>Unknown option type '$type[0]'</p>";

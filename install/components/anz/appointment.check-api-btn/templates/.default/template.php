@@ -27,7 +27,7 @@ $buttonId = str_replace(['.', ':'], '_', uniqid($component->getName()));
             `<?=Constants::OPTION_KEY_API_WS_URL?>`,
             `<?=Constants::OPTION_KEY_API_WS_LOGIN?>`,
             `<?=Constants::OPTION_KEY_API_WS_PASSWORD?>`,
-            `HS_TOKEN`,
+            `<?=Constants::OPTION_KEY_API_HS_TOKEN?>`,
             `<?=Loc::getMessage('ANZ_APPOINTMENT_API_CHECK_SUCCESS')?>`,
             `<?=Loc::getMessage('ANZ_APPOINTMENT_API_CHECK_ERROR')?>`
         );

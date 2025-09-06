@@ -8,6 +8,7 @@
 namespace ANZ\Appointment\Service;
 
 use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\Core\Exception\ServiceContainerException;
 use ANZ\Appointment\Core\Trait\Singleton;
 use ANZ\Appointment\Integration\UmcSdk\Cache\CacheProvider;
 use ANZ\Appointment\Integration\UmcSdk\Gateway\Sdk;
@@ -19,8 +20,8 @@ use ANZ\Appointment\Service\Access\UserPermissions;
 use ANZ\Appointment\Service\Exchange\Manager;
 use ANZ\Appointment\Service\Message\Mailer;
 use ANZ\Appointment\Service\Message\Sms;
+use ANZ\Appointment\Service\Security\Encryptor;
 use Bitrix\Main\DI\ServiceLocator;
-use Exception;
 use Throwable;
 
 /**
@@ -31,7 +32,7 @@ class Container
     use Singleton;
 
     /**
-     * @throws \Exception
+     * @throws ServiceContainerException
      */
     public function getExchangeManager(): Manager
     {
@@ -49,12 +50,12 @@ class Container
         }
         catch(Throwable $e)
         {
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
+            throw new ServiceContainerException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
     /**
-     * @throws \Exception
+     * @throws ServiceContainerException
      */
     public function getSdkGateway(): Sdk
     {
@@ -76,12 +77,12 @@ class Container
         }
         catch(Throwable $e)
         {
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
+            throw new ServiceContainerException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
     /**
-     * @throws \Exception
+     * @throws ServiceContainerException
      */
     public function getUmcIntegrationCacheProvider(): CacheProvider
     {
@@ -96,12 +97,12 @@ class Container
         }
         catch(Throwable $e)
         {
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
+            throw new ServiceContainerException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
     /**
-     * @throws \Exception
+     * @throws ServiceContainerException
      */
     public function getSmsService(): Sms
     {
@@ -116,12 +117,12 @@ class Container
         }
         catch(Throwable $e)
         {
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
+            throw new ServiceContainerException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
     /**
-     * @throws \Exception
+     * @throws ServiceContainerException
      */
     public function getMailerService(): Mailer
     {
@@ -136,7 +137,7 @@ class Container
         }
         catch(Throwable $e)
         {
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
+            throw new ServiceContainerException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -146,7 +147,7 @@ class Container
     }
 
     /**
-     * @throws \Exception
+     * @throws ServiceContainerException
      */
     public function getUserPermissions(): UserPermissions
     {
@@ -161,12 +162,12 @@ class Container
         }
         catch(Throwable $e)
         {
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
+            throw new ServiceContainerException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
     /**
-     * @throws \Exception
+     * @throws ServiceContainerException
      */
     public function getOrderConverter(): Converter\Order
     {
@@ -181,12 +182,12 @@ class Container
         }
         catch(Throwable $e)
         {
-            throw new Exception($e->getMessage(), $e->getCode(), $e);
+            throw new ServiceContainerException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
     /**
-     * @throws \Exception
+     * @throws ServiceContainerException
      */
     public static function getIdentifierByClassName(string $className, array $parameters = null): string
     {
@@ -206,7 +207,7 @@ class Container
 
         if (empty($identifier))
         {
-            throw new Exception('className should be a valid string');
+            throw new ServiceContainerException('className should be a valid string');
         }
 
         if(!empty($parameters))
@@ -222,5 +223,25 @@ class Container
         }
 
         return $identifier;
+    }
+
+    /**
+     * @throws ServiceContainerException
+     */
+    public function getEncryptService(): Encryptor
+    {
+        try
+        {
+            $identifier = static::getIdentifierByClassName(Encryptor::class);
+            if(!ServiceLocator::getInstance()->has($identifier))
+            {
+                ServiceLocator::getInstance()->addInstance($identifier, new Encryptor);
+            }
+            return ServiceLocator::getInstance()->get($identifier);
+        }
+        catch(Throwable $e)
+        {
+            throw new ServiceContainerException($e->getMessage(), $e->getCode(), $e);
+        }
     }
 }

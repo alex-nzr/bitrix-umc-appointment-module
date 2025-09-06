@@ -26,8 +26,9 @@ class Constants
     const OPTION_KEY_DEMO_MODE = 'appointment_settings_use_demo_mode';
 
     const OPTION_KEY_API_WS_URL      = 'appointment_api_ws_url';
-    const OPTION_KEY_API_WS_LOGIN    = 'appointment_api_db_login';
-    const OPTION_KEY_API_WS_PASSWORD = 'appointment_api_db_password';
+    const OPTION_KEY_API_WS_LOGIN    = 'appointment_api_ws_login';
+    const OPTION_KEY_API_WS_PASSWORD = 'appointment_api_ws_password';
+    const OPTION_KEY_API_HS_TOKEN = 'appointment_api_hs_token';
     const OPTION_KEY_EXCHANGE_MODE = 'appointment_exchange_mode';
     const OPTION_KEY_EXCHANGE_USE_SERVICES   = 'appointment_exchange_use_services';
     const OPTION_KEY_EXCHANGE_AGENT_ACTIVE   = 'appointment_exchange_agent_active';
@@ -41,7 +42,6 @@ class Constants
     const OPTION_KEY_USE_WAIT_LIST          = 'appointment_settings_use_waiting_list';
     const OPTION_KEY_EMAIL_NOTE             = 'appointment_settings_use_email_note';
     const OPTION_KEY_EXCHANGE_CONFIRM_MODE = 'appointment_exchange_confirm_mode';
-    const OPTION_KEY_DOCTOR_BEFORE_SERVICE  = 'appointment_settings_select_doctor_before_service';
     const OPTION_KEY_USE_TIME_STEPS         = 'appointment_settings_use_time_steps';
     const OPTION_KEY_TIME_STEP_DURATION     = 'appointment_settings_time_step_duration';
     const OPTION_KEY_STRICT_RELATIONS       = 'appointment_settings_strict_checking_relations';
@@ -54,11 +54,12 @@ class Constants
     const OPTION_KEY_CUSTOM_BTN_ID   = 'appointment_view_custom_main_btn_id';
     const OPTION_KEY_MAIN_BTN_BG        = '--appointment-start-btn-bg-color';
     const OPTION_KEY_MAIN_BTN_TEXT_CLR  = '--appointment-start-btn-text-color';
-    const OPTION_KEY_FORM_BG            = '--appointment-main-color';
+    const OPTION_KEY_TEMPLATE_MAIN_COLOR = '--appointment-main-color';
     const OPTION_KEY_FIELD_BG           = '--appointment-field-color';
     const OPTION_KEY_FORM_TEXT_CLR      = '--appointment-form-text-color';
     const OPTION_KEY_FORM_BTN_BG        = '--appointment-btn-bg-color';
     const OPTION_KEY_FORM_BTN_TEXT_CLR  = '--appointment-btn-text-color';
 
     const OPTION_KEY_DEBUG_LOGS_TTL = 'appointment_debug_logs_ttl';
+    const PASSWORD_MASKED_VALUE = '***********';
 }

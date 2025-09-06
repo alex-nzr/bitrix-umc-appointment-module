@@ -73,7 +73,7 @@ class ServiceManager
      */
     public function includeDependentExtensions(): void
     {
-        $list = ['ui.icons', 'ui.buttons', 'ui.hint'];
+        $list = ['ui.icons', 'ui.buttons', 'ui.hint', 'ui.alerts'];
         if (Context::getCurrent()->getRequest()->isAdminSection())
         {
             $list[] = Configuration::getModuleId() . '.admin';

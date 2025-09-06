@@ -8,10 +8,12 @@
 namespace ANZ\Appointment\Service\Exchange;
 
 use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\Config\Constants;
+use ANZ\Appointment\Core\Exception\ExchangeManagerException;
 use ANZ\Appointment\Integration\UmcSdk\Contract\UmcGatewayInterface;
-use ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException;
 use ANZ\Appointment\Repository\EntityRepository;
 use ANZ\Appointment\Service\Container;
+use Throwable;
 
 class Manager
 {
@@ -23,11 +25,13 @@ class Manager
     }
 
     /**
-     * @throws \Exception
+     * @throws ExchangeManagerException
      */
     public function renewCacheData(bool $force = false): void
     {
-        if ($force)
+        try
+        {
+            if ($force)
         {
             Container::getInstance()->getUmcIntegrationCacheProvider()->cleanAll();
         }
@@ -43,30 +47,89 @@ class Manager
         }
 
         $this->gateway->getEmployees();
+        }
+        catch (Throwable $e)
+        {
+            throw new ExchangeManagerException(__METHOD__, $e);
+        }
     }
 
+    /**
+     * @throws ExchangeManagerException
+     */
     public function checkConnection(string $mode, string $url, string $login, string $password, string $token = ''): bool
     {
-        return $this->gateway->checkConnection($mode, $url, $login, $password, $token);
+        try
+        {
+            if ($password === Constants::PASSWORD_MASKED_VALUE)
+            {
+                $password = Configuration::getInstance()->getOneCPassword();
+            }
+            return $this->gateway->checkConnection($mode, $url, $login, $password, $token);
+        }
+        catch (Throwable $e)
+        {
+            throw new ExchangeManagerException(__METHOD__, $e);
+        }
     }
 
+    /**
+     * @throws ExchangeManagerException
+     */
     public function getClinics(): array
     {
-        return $this->gateway->getClinics();
+        try
+        {
+            return $this->gateway->getClinics();
+        }
+        catch (Throwable $e)
+        {
+            throw new ExchangeManagerException(__METHOD__, $e);
+        }
     }
 
+    /**
+     * @throws ExchangeManagerException
+     */
     public function getEmployees(): array
     {
-        return $this->gateway->getEmployees();
+        try
+        {
+            return $this->gateway->getEmployees();
+        }
+        catch (Throwable $e)
+        {
+            throw new ExchangeManagerException(__METHOD__, $e);
+        }
     }
 
+    /**
+     * @throws ExchangeManagerException
+     */
     public function getServices(string $clinicUid): array
     {
-        return $this->gateway->getServices($clinicUid);
+        try
+        {
+            return $this->gateway->getServices($clinicUid);
+        }
+        catch (Throwable $e)
+        {
+            throw new ExchangeManagerException(__METHOD__, $e);
+        }
     }
 
+    /**
+     * @throws ExchangeManagerException
+     */
     public function getSchedule(int $days, string $clinicUid, array $employees): array
     {
-        return $this->gateway->getSchedule($days, $clinicUid, $employees);
+        try
+        {
+            return $this->gateway->getSchedule($days, $clinicUid, $employees);
+        }
+        catch (Throwable $e)
+        {
+            throw new ExchangeManagerException(__METHOD__, $e);
+        }
     }
 }

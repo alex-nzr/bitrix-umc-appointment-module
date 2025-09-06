@@ -95,7 +95,7 @@ class OneCController extends Controller
     /**
      * @throws \Throwable
      */
-    public function checkConnectionAction(string $mode, string $url, string $login, string $password, string $token = ''): ?array
+    public function checkConnectionAction(string $mode, string $url, string $login, string $password = '', string $token = ''): ?array
     {
         try
         {

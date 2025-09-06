@@ -36,7 +36,7 @@ use Throwable;
 class Sdk implements UmcGatewayInterface
 {
     private array $demoData;
-    private ?SdkExchangeService $sdkExchangeService;
+    private ?SdkExchangeService $sdkExchangeService = null;
     private string $lockKeyPrefix = 'anz_lock_';
 
     /**
@@ -63,36 +63,59 @@ class Sdk implements UmcGatewayInterface
                     throw new GatewayException('Demo data file not found in ' . $filePath);
                 }
             }
-            else
-            {
-                $exchangeMode = Configuration::getInstance()->getExchangeMode();
-                if (is_null($exchangeMode))
-                {
-                    throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_MODE_ERROR'));
-                }
-
-                $login = Configuration::getInstance()->getOneCLogin();
-                $password = Configuration::getInstance()->getOneCPassword();
-                if (empty($login) || empty($password))
-                {
-                    throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_SOAP_AUTH_ERROR'));
-                }
-
-                $url = Configuration::getInstance()->getOneCApiUrl();
-                if (strlen($url) === 0)
-                {
-                    throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_SOAP_URL_ERROR', [
-                        '#ERROR#' => 'Url is empty'
-                    ]));
-                }
-
-                $this->sdkExchangeService = $this->createExchangeService($exchangeMode, $login, $password, $url);
-            }
         }
         catch(Throwable $e)
         {
             throw new GatewayException($e->getMessage(), $e->getCode(), $e);
         }
+    }
+
+    /**
+     * @throws \ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException
+     */
+    protected function init(): void
+    {
+        try
+        {
+            $exchangeMode = Configuration::getInstance()->getExchangeMode();
+            if (is_null($exchangeMode))
+            {
+                throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_MODE_ERROR'));
+            }
+
+            $login = Configuration::getInstance()->getOneCLogin();
+            $password = Configuration::getInstance()->getOneCPassword();
+            if (empty($login) || empty($password))
+            {
+                throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_SOAP_AUTH_ERROR'));
+            }
+
+            $url = Configuration::getInstance()->getOneCApiUrl();
+            if (strlen($url) === 0)
+            {
+                throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_SOAP_URL_ERROR', [
+                    '#ERROR#' => 'Url is empty'
+                ]));
+            }
+
+            $this->sdkExchangeService = $this->createExchangeService($exchangeMode, $login, $password, $url);
+        }
+        catch(Throwable $e)
+        {
+            throw new GatewayException($e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * @throws GatewayException
+     */
+    protected function getSdkExchangeService(): ?SdkExchangeService
+    {
+        if (is_null($this->sdkExchangeService))
+        {
+            $this->init();
+        }
+        return $this->sdkExchangeService;
     }
 
     /**
@@ -202,7 +225,7 @@ class Sdk implements UmcGatewayInterface
                 if (!$this->isLocked(__METHOD__))
                 {
                     $this->setLock(__METHOD__);
-                    $result = $this->sdkExchangeService->getClinics();
+                    $result = $this->getSdkExchangeService()->getClinics();
                     if (!$result->isSuccess())
                     {
                         throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
@@ -245,7 +268,7 @@ class Sdk implements UmcGatewayInterface
                 if (!$this->isLocked(__METHOD__))
                 {
                     $this->setLock(__METHOD__);
-                    $result = $this->sdkExchangeService->getEmployees();
+                    $result = $this->getSdkExchangeService()->getEmployees();
                     if (!$result->isSuccess())
                     {
                         throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
@@ -288,7 +311,7 @@ class Sdk implements UmcGatewayInterface
                 if (!$this->isLocked(__METHOD__))
                 {
                     $this->setLock(__METHOD__);
-                    $result = $this->sdkExchangeService->getNomenclature($clinicUid);
+                    $result = $this->getSdkExchangeService()->getNomenclature($clinicUid);
                     if (!$result->isSuccess())
                     {
                         throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
@@ -330,7 +353,7 @@ class Sdk implements UmcGatewayInterface
                 if (!$this->isLocked(__METHOD__))
                 {
                     $this->setLock(__METHOD__);
-                    $result = $this->sdkExchangeService->getSchedule($days, $clinicUid, $employees, $startDate);
+                    $result = $this->getSdkExchangeService()->getSchedule($days, $clinicUid, $employees, $startDate);
                     if (!$result->isSuccess())
                     {
                         throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));

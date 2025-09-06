@@ -6,18 +6,31 @@
 После установки модуля в меню панели управления появится пункт "ANZ". 
 Из него можно перейти в настройки модуля, в которых необходимо заполнить
 доступы к базе 1С. 
-Остальные настройки по своему усмотрению. Почти к каждой опции есть поясняющий комментарий.
+Остальные настройки по своему усмотрению. Почти к каждой опции есть пояснения и подсказки.
 
 Также рекомендуется ознакомиться с [документацией](https://github.com/alex-nzr/bitrix-umc-appointment-module/blob/master/docs/anz.appointment-docs.pdf)
 
 #### [Пример кастомизации на событиях без изменения исходного кода модуля (для старых версий модуля)](https://github.com/alex-nzr/bitrix-umc-appointment-module/tree/customization_example)
 
 #### Минимальная версия БИТ.УМЦ - 2.1.24.9(Corp), 2.0.48.15(Prof)
-#### Минимальная версия Битрикса - 23.675.0
+#### Минимальная версия Битрикса - 24.0
 #### Минимальная версия PHP - 8.1
 
-//todo refactor options and admin pages
-//todo cache to iblock
-//todo cache schedule to file
-//todo refresh cache every 5-10m by agent
-//todo refresh schedule cache on hit|click every 3sec
+# Архитектура модуля
+
+                                      UMC
+                                       │
+                                       ▼
+                                      SDK
+                                       │
+                                       ▼
+              Integration (array → Dto через Mapper) ◁═══▷ CacheProvider
+                                       │
+                                       ▼
+         ExchangeService (работа с Integration, работа с БД через репозиторий)
+              ▲ │                      ▲                                ▲ │
+              │ ▼                      │                                │ ▼
+     Controller/Component            Agent            Repository (работа с моделями, валидация, CRUD)
+                                                                        ▲ │
+                                                                        │ ▼
+                                                                      HL/ИБ/БД

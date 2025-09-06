@@ -9,10 +9,12 @@ namespace ANZ\Appointment\Config;
 
 use ANZ\Appointment\Core\Exception\ConfigurationException;
 use ANZ\Appointment\Core\Trait\Singleton;
+use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\NotImplementedException;
+use CFile;
 use DateTime as PhpDateTime;
 use Exception;
 use Throwable;
@@ -233,7 +235,7 @@ final class Configuration
      */
     public function getOneCLogin(): string
     {
-        return Option::get(self::getModuleId(), Constants::OPTION_KEY_API_WS_LOGIN);
+        return Option::get(self::$moduleId, Constants::OPTION_KEY_API_WS_LOGIN);
     }
 
     /**
@@ -241,7 +243,19 @@ final class Configuration
      */
     public function getOneCPassword(): string
     {
-        return Option::get(self::getModuleId(), Constants::OPTION_KEY_API_WS_PASSWORD);
+        return Container::getInstance()->getEncryptService()->decrypt(
+            Option::get(self::$moduleId, Constants::OPTION_KEY_API_WS_PASSWORD)
+        );
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getOneCToken(): string
+    {
+        return Container::getInstance()->getEncryptService()->decrypt(
+            Option::get(self::$moduleId, Constants::OPTION_KEY_API_HS_TOKEN)
+        );
     }
 
     /**
@@ -252,7 +266,7 @@ final class Configuration
         switch ($this->getExchangeMode())
         {
             case ExchangeMode::SOAP:
-                return trim(Option::get(self::getModuleId(), Constants::OPTION_KEY_API_WS_URL));
+                return trim(Option::get(self::$moduleId, Constants::OPTION_KEY_API_WS_URL));
             case ExchangeMode::HTTP:
                 throw new NotImplementedException('Http mode not implemented');
             default:
@@ -265,14 +279,88 @@ final class Configuration
      */
     public function getExchangeMode(): ?ExchangeMode
     {
-        return ExchangeMode::tryFrom(Option::get(self::getModuleId(), Constants::OPTION_KEY_EXCHANGE_MODE));
+        return ExchangeMode::tryFrom(Option::get(self::$moduleId, Constants::OPTION_KEY_EXCHANGE_MODE));
     }
 
-    /**
-     * @throws \Exception
-     */
     public function getDefaultAppointmentDuration(): int
     {
-        return (int)Option::get(self::getModuleId(), Constants::OPTION_KEY_EXCHANGE_DEFAULT_APPOINTMENT_DURATION);
+        return (int)Option::get(self::$moduleId, Constants::OPTION_KEY_EXCHANGE_DEFAULT_APPOINTMENT_DURATION);
+    }
+
+    public function getLogoFilePath(): ?string
+    {
+        $val = (int)Option::get(self::$moduleId, Constants::OPTION_KEY_LOGO);
+        return $val > 0 ? CFile::GetPath($val) : '';
+    }
+
+    public function getTemplateColors(): array
+    {
+        return [
+            Constants::OPTION_KEY_TEMPLATE_MAIN_COLOR => Option::get(
+                self::$moduleId,
+                Constants::OPTION_KEY_TEMPLATE_MAIN_COLOR,
+                "#025ea1"
+            ),
+            Constants::OPTION_KEY_MAIN_BTN_TEXT_CLR => Option::get(
+                self::$moduleId,
+                Constants::OPTION_KEY_MAIN_BTN_TEXT_CLR,
+                "#ffffff"
+            ),
+            Constants::OPTION_KEY_MAIN_BTN_BG => Option::get(
+                self::$moduleId,
+                Constants::OPTION_KEY_MAIN_BTN_BG,
+                "#025ea1"
+            ),
+            Constants::OPTION_KEY_FIELD_BG => Option::get(
+                self::$moduleId,
+                Constants::OPTION_KEY_FIELD_BG,
+                "#1B3257"
+            ),
+            Constants::OPTION_KEY_FORM_TEXT_CLR => Option::get(
+                self::$moduleId,
+                Constants::OPTION_KEY_FORM_TEXT_CLR,
+                "#f5f5f5"
+            ),
+            Constants::OPTION_KEY_FORM_BTN_BG => Option::get(
+                self::$moduleId,
+                Constants::OPTION_KEY_FORM_BTN_BG,
+                "#12b1e3"
+            ),
+            Constants::OPTION_KEY_FORM_BTN_TEXT_CLR => Option::get(
+                self::$moduleId,
+                Constants::OPTION_KEY_FORM_BTN_TEXT_CLR,
+                "#ffffff"
+            ),
+        ];
+    }
+
+    public function isCustomTimeStepsEnabled(): bool
+    {
+        return Option::get(self::$moduleId, Constants::OPTION_KEY_USE_TIME_STEPS) === "Y";
+    }
+
+    public function getCustomTimeStepDurationMinutes(): bool
+    {
+        return (int)Option::get(self::$moduleId, Constants::OPTION_KEY_TIME_STEP_DURATION, 15);
+    }
+
+    public function isStrictCheckingRelationsEnabled(): bool
+    {
+        return Option::get(self::$moduleId, Constants::OPTION_KEY_STRICT_RELATIONS) === "Y";
+    }
+
+    public function isDoctorsWithoutDepartmentShowEnabled(): bool
+    {
+        return Option::get(self::$moduleId, Constants::OPTION_KEY_ALLOW_DOCTOR_WITHOUT_DPT) === "Y";
+    }
+
+    public function getPrivacyPageLink(): bool
+    {
+        return Option::get(self::$moduleId, Constants::OPTION_KEY_PRIVACY_PAGE, '#');
+    }
+
+    public function isEmailNotificationEnabled(): bool
+    {
+        return Option::get(self::$moduleId, Constants::OPTION_KEY_EMAIL_NOTE) === "Y";
     }
 }

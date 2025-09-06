@@ -2,8 +2,8 @@ const postcss = require('rollup-plugin-postcss');
 const postCssUrl = require('postcss-url');
 
 module.exports = {
-    input: 'src/scripts/index.js',
-    output: 'dist/bx_popup.bundle.js',
+    input: 'src/index.js',
+    output: 'dist/classic_form.bundle.js',
     namespace: 'BX.Anz.Appointment',
     browserslist: false,
     minification: 0,
