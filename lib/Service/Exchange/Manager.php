@@ -10,9 +10,11 @@ namespace ANZ\Appointment\Service\Exchange;
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Core\Exception\ExchangeManagerException;
+use ANZ\Appointment\Dto\BookingDto;
 use ANZ\Appointment\Integration\UmcSdk\Contract\UmcGatewayInterface;
 use ANZ\Appointment\Repository\EntityRepository;
 use ANZ\Appointment\Service\Container;
+use DateTime;
 use Throwable;
 
 class Manager
@@ -126,6 +128,28 @@ class Manager
         try
         {
             return $this->gateway->getSchedule($days, $clinicUid, $employees);
+        }
+        catch (Throwable $e)
+        {
+            throw new ExchangeManagerException(__METHOD__, $e);
+        }
+    }
+
+    /**
+     * @throws \ANZ\Appointment\Core\Exception\ExchangeManagerException
+     */
+    public function bookSlot(string $clinicUid, string $employeeUid, string $dateTimeBegin, int $serviceDuration = 0): BookingDto
+    {
+        try
+        {
+            if ($serviceDuration <= 0)
+            {
+                $serviceDuration = Configuration::getInstance()->getDefaultAppointmentDuration();
+            }
+
+            $oDateTimeBegin = new DateTime($dateTimeBegin);
+
+            return $this->gateway->bookSlot($clinicUid, $employeeUid, $oDateTimeBegin, $serviceDuration);
         }
         catch (Throwable $e)
         {

@@ -80,7 +80,7 @@ class OneCController extends Controller
     /**
      * @throws \Throwable
      */
-    public function executeAction(): array
+    public function loadDataAction(): array
     {
         if (Configuration::getInstance()->isDemoModeOn())
         {
@@ -99,11 +99,29 @@ class OneCController extends Controller
     {
         try
         {
-            if (Container::getInstance()->getExchangeManager()->checkConnection($mode, $url, $login, $password, $token))
+            if ($this->exchangeService->checkConnection($mode, $url, $login, $password, $token))
             {
                 return [];
             }
             throw new Exception('Connection failed with unknown error');
+        }
+        catch (Throwable $e)
+        {
+            $this->addError(new Error($e->getMessage()));
+            return null;
+        }
+    }
+
+    public function bookSlotAction(
+        string $clinicUid,
+        string $employeeUid,
+        string $dateTimeBegin,
+        int    $serviceDuration = 0,
+    ): ?array
+    {
+        try
+        {
+            return $this->exchangeService->bookSlot($clinicUid, $employeeUid, $dateTimeBegin, $serviceDuration)->toArray();
         }
         catch (Throwable $e)
         {

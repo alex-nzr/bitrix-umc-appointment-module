@@ -9,6 +9,7 @@ namespace ANZ\Appointment\Integration\UmcSdk\Mapper;
 
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Config\TimeSlotStatus;
+use ANZ\Appointment\Dto\AppointmentStatusDto;
 use ANZ\Appointment\Dto\ClinicDto;
 use ANZ\Appointment\Dto\EmployeeDto;
 use ANZ\Appointment\Dto\EmployeeServiceDto;
@@ -122,5 +123,10 @@ class SdkResponseToDto
             new DateTime($item['timeBegin']),
             TimeSlotStatus::from($status)
         );
+    }
+
+    public function statusFromArray(array $data): AppointmentStatusDto
+    {
+        return new AppointmentStatusDto($data['statusId'], $data['statusTitle']);
     }
 }

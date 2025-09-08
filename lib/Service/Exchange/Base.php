@@ -29,28 +29,6 @@ abstract class Base
     }
 
     /**
-     * @param string $orderUid
-     * @return \Bitrix\Main\Result
-     */
-    public function getOrderStatus(string $orderUid): Result
-    {
-        try
-        {
-            if ($this->demoMode)
-            {
-                throw new Exception('Can not use this request when DemoMode is ON');
-            }
-
-            $sdkResult = Container::getInstance()->getSdkExchangeService()->getOrderStatus($orderUid);
-            return Utils::convertSdkResultToBitrixResult($sdkResult);
-        }
-        catch (Throwable $e)
-        {
-            return (new Result)->addError(new Error($e->getMessage()));
-        }
-    }
-
-    /**
      * @param array $params
      * @return \Bitrix\Main\Result
      */

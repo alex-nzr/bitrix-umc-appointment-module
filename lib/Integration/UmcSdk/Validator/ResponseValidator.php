@@ -8,6 +8,9 @@
 
 namespace ANZ\Appointment\Integration\UmcSdk\Validator;
 
+use ANZ\Appointment\Core\Exception\ValidatorException;
+use ANZ\Appointment\Dto\BookingDto;
+
 class ResponseValidator
 {
     public function validateClinic(mixed $data): bool
@@ -47,5 +50,35 @@ class ResponseValidator
             return true;
         }
         return false;
+    }
+
+    /**
+     * @throws ValidatorException
+     */
+    public function validateBookingItem(BookingDto $dto): bool
+    {
+        if (strlen($dto->uid) <= 0)
+        {
+            throw new ValidatorException('Booking uid is empty');
+        }
+
+        return true;
+    }
+
+    /**
+     * @throws ValidatorException
+     */
+    public function validateAppointmentStatus(array $data): bool
+    {
+        if (!key_exists('statusId', $data) || empty($data['statusId']))
+        {
+            throw new ValidatorException('Status id is empty');
+        }
+        if (!key_exists('statusTitle', $data) || empty($data['statusTitle']))
+        {
+            throw new ValidatorException('Status title is empty');
+        }
+
+        return true;
     }
 }

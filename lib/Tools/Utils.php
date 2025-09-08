@@ -9,10 +9,7 @@ namespace ANZ\Appointment\Tools;
 
 use Bitrix\Main\SiteTable;
 
-/**
- * Class Utils
- * @package ANZ\Appointment\Tools
- */
+
 class Utils
 {
     /**

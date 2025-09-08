@@ -8,9 +8,12 @@
 
 namespace ANZ\Appointment\Tests\Unit\Integration\UmcSdk\Gateway;
 
+use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Dto\AppointmentStatusDto;
+use ANZ\Appointment\Dto\BookingDto;
 use ANZ\Appointment\Dto\ClinicDto;
 use ANZ\Appointment\Integration\UmcSdk\Contract\UmcGatewayInterface;
+use DateTime;
 use Throwable;
 
 class FakeSdk implements UmcGatewayInterface
@@ -52,19 +55,25 @@ class FakeSdk implements UmcGatewayInterface
         // TODO: Implement getServices() method.
     }
 
-    public function getSchedule(int $days = 14, string $clinicUid = '', array $employees = [], ?\DateTime $startDate = null): array
+    public function getSchedule(int $days = 14, string $clinicUid = '', array $employees = [], ?DateTime $startDate = null): array
     {
         // TODO: Implement getSchedule() method.
     }
 
-    public function getAppointmentStatus(string $orderUid): AppointmentStatusDto
+    public function getAppointmentStatus(string $appointmentUid): AppointmentStatusDto
     {
-        // TODO: Implement getAppointmentStatus() method.
+        return new AppointmentStatusDto('000', 'Fake status');
     }
 
-    public function bookSlot($reserve): array
+    public function bookSlot(string $clinicUid, string $employeeUid, DateTime $dateTimeBegin, int $serviceDuration): BookingDto
     {
-        // TODO: Implement bookSlot() method.
+        return new BookingDto(
+            uniqid('fake_uid_'),
+            $clinicUid,
+            $employeeUid,
+            $dateTimeBegin->format(Configuration::DATE_FORMAT_FOR_OPTIONS),
+            $serviceDuration
+        );
     }
 
     public function addWaitList($waitList): array
@@ -77,8 +86,8 @@ class FakeSdk implements UmcGatewayInterface
         // TODO: Implement sendAppointment() method.
     }
 
-    public function deleteAppointment(string $orderUid): array
+    public function deleteAppointment(string $uid): bool
     {
-        // TODO: Implement deleteAppointment() method.
+        return true;
     }
 }

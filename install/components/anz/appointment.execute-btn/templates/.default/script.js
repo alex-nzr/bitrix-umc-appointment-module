@@ -7,7 +7,7 @@ class ExecuteBtn
         const resultNode = executeBtn?.closest("div")?.querySelector(`span`);
         executeBtn?.addEventListener(`click`, () => {
             executeBtn.setAttribute(`disabled`, `true`);
-            BX.ajax.runAction(`anz:appointment.oneCController.execute`, {
+            BX.ajax.runAction(`anz:appointment.oneCController.loadData`, {
                 data: {
                     sessid: BX.bitrix_sessid(),
                 }

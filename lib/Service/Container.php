@@ -12,6 +12,7 @@ use ANZ\Appointment\Core\Exception\ServiceContainerException;
 use ANZ\Appointment\Core\Trait\Singleton;
 use ANZ\Appointment\Integration\UmcSdk\Cache\CacheProvider;
 use ANZ\Appointment\Integration\UmcSdk\Gateway\Sdk;
+use ANZ\Appointment\Integration\UmcSdk\Mapper\SdkRequestFromParams;
 use ANZ\Appointment\Integration\UmcSdk\Mapper\SdkResponseToDto;
 use ANZ\Appointment\Integration\UmcSdk\Validator\ResponseValidator;
 use ANZ\Appointment\Model\RecordTable;
@@ -68,6 +69,7 @@ class Container
                 ServiceLocator::getInstance()->addInstance($identifier, new Sdk(
                     Configuration::getInstance()->isDemoModeOn(),
                     new SdkResponseToDto,
+                    new SdkRequestFromParams,
                     new ResponseValidator,
                     $this->getUmcIntegrationCacheProvider()
                 ));

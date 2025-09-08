@@ -10,6 +10,7 @@ namespace ANZ\Appointment\Integration\UmcSdk\Gateway;
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Config\ExchangeMode;
 use ANZ\Appointment\Dto\AppointmentStatusDto;
+use ANZ\Appointment\Dto\BookingDto;
 use ANZ\Appointment\Dto\ClinicDto;
 use ANZ\Appointment\Dto\EmployeeDto;
 use ANZ\Appointment\Dto\ServiceDto;
@@ -19,6 +20,7 @@ use ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException;
 use ANZ\Appointment\Integration\UmcSdk\Exception\SdkDataMapperException;
 use ANZ\Appointment\Integration\UmcSdk\Exception\UmcIntegrationCacheException;
 use ANZ\Appointment\Integration\UmcSdk\Gateway\Client\SoapClient;
+use ANZ\Appointment\Integration\UmcSdk\Mapper\SdkRequestFromParams;
 use ANZ\Appointment\Integration\UmcSdk\Mapper\SdkResponseToDto;
 use ANZ\Appointment\Integration\UmcSdk\Provider\ExchangeDataProvider;
 use ANZ\Appointment\Integration\UmcSdk\Validator\ResponseValidator;
@@ -43,10 +45,11 @@ class Sdk implements UmcGatewayInterface
      * @throws GatewayException
      */
     public function __construct(
-        private readonly bool                $demoMode,
-        private readonly SdkResponseToDto    $mapper,
-        private readonly ResponseValidator   $validator,
-        private readonly CacheProvider       $cacheProvider,
+        private readonly bool                 $demoMode,
+        private readonly SdkResponseToDto     $responseMapper,
+        private readonly SdkRequestFromParams $requestMapper,
+        private readonly ResponseValidator    $responseValidator,
+        private readonly CacheProvider        $cacheProvider,
     ) {
         try
         {
@@ -231,7 +234,7 @@ class Sdk implements UmcGatewayInterface
                         throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
                     }
 
-                    $data = array_filter($result->getData(), fn($item) => $this->validator->validateClinic($item));
+                    $data = array_filter($result->getData(), fn($item) => $this->responseValidator->validateClinic($item));
                     $result->setData([]);
                     $this->cacheProvider->setClinics($data);
                     $this->releaseLock(__METHOD__);
@@ -239,7 +242,7 @@ class Sdk implements UmcGatewayInterface
             }
         }
 
-        return array_map(fn(array $item) => $this->mapper->clinicFromArray($item), $data);
+        return array_map(fn(array $item) => $this->responseMapper->clinicFromArray($item), $data);
     }
 
     /**
@@ -274,7 +277,7 @@ class Sdk implements UmcGatewayInterface
                         throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
                     }
 
-                    $data = array_filter($result->getData(), fn($item) => $this->validator->validateEmployee($item));
+                    $data = array_filter($result->getData(), fn($item) => $this->responseValidator->validateEmployee($item));
                     $result->setData([]);
                     $this->cacheProvider->setEmployees($data);
                     $this->releaseLock(__METHOD__);
@@ -282,7 +285,7 @@ class Sdk implements UmcGatewayInterface
             }
         }
 
-        return array_map(fn(array $item) => $this->mapper->employeeFromArray($item), $data);
+        return array_map(fn(array $item) => $this->responseMapper->employeeFromArray($item), $data);
     }
 
     /**
@@ -317,7 +320,7 @@ class Sdk implements UmcGatewayInterface
                         throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
                     }
 
-                    $data = array_filter($result->getData(), fn($item) => $this->validator->validateService($item));
+                    $data = array_filter($result->getData(), fn($item) => $this->responseValidator->validateService($item));
                     $result->setData([]);
                     $this->cacheProvider->setServices($data, $clinicUid);
                     $this->releaseLock(__METHOD__);
@@ -325,7 +328,7 @@ class Sdk implements UmcGatewayInterface
             }
         }
 
-        return array_map(fn(array $item) => $this->mapper->serviceFromArray($item), $data);
+        return array_map(fn(array $item) => $this->responseMapper->serviceFromArray($item), $data);
     }
 
     /**
@@ -367,9 +370,9 @@ class Sdk implements UmcGatewayInterface
                         {
                             foreach ($specialtyData as $employeeKey => $scheduleData)
                             {
-                                if ($this->validator->validateScheduleItem($scheduleData))
+                                if ($this->responseValidator->validateScheduleItem($scheduleData))
                                 {
-                                    $data[$clinicKey][$specialtyKey][$employeeKey] = $this->mapper->scheduleItemFromArray(
+                                    $data[$clinicKey][$specialtyKey][$employeeKey] = $this->responseMapper->scheduleItemFromArray(
                                         $clinicKey, $specialtyKey, $employeeKey, $scheduleData
                                     );
                                 }
@@ -388,14 +391,74 @@ class Sdk implements UmcGatewayInterface
         return $data;
     }
 
-    public function getAppointmentStatus(string $orderUid): AppointmentStatusDto
+    /**
+     * @throws GatewayException
+     */
+    public function getAppointmentStatus(string $appointmentUid): AppointmentStatusDto
     {
-        // TODO: Implement getOrderStatus() method.
+        try
+        {
+            if ($this->demoMode)
+            {
+                return new AppointmentStatusDto('demo', 'Demo mode is ON');
+            }
+
+            $sdkResult = $this->getSdkExchangeService()->getOrderStatus($appointmentUid);
+
+            $this->responseValidator->validateAppointmentStatus($sdkResult->getData());
+            return $this->responseMapper->statusFromArray($sdkResult->getData());
+        }
+        catch (Throwable $e)
+        {
+            throw new GatewayException($e->getMessage(), $e->getCode(), $e);
+        }
     }
 
-    public function bookSlot($reserve): array
+    /**
+     * @throws GatewayException
+     */
+    public function bookSlot(string $clinicUid, string $employeeUid, DateTime $dateTimeBegin, int $serviceDuration): BookingDto
     {
-        // TODO: Implement sendReserve() method.
+        $uid = null;
+        try
+        {
+            $dto = new BookingDto(
+                '',
+                $clinicUid,
+                $employeeUid,
+                $dateTimeBegin->format(Configuration::DATE_FORMAT_FOR_OPTIONS),
+                $serviceDuration
+            );
+
+            if ($this->demoMode)
+            {
+                sleep(3);
+                $dto->uid = uniqid('demo_mode_uid_');
+                return $dto;
+            }
+
+            $result = $this->getSdkExchangeService()->sendReserve(
+                $this->requestMapper->bookingItemFromParams($clinicUid, $employeeUid, $dateTimeBegin, $serviceDuration)
+            );
+            if (!$result->isSuccess())
+            {
+                throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
+            }
+
+            $dto->uid = (string)$result->getData()['uid'];
+            $this->responseValidator->validateBookingItem($dto);
+            return $dto;
+        }
+        catch (Throwable $e)
+        {
+            if ($uid !== null)
+            {
+                try {
+                    $this->deleteAppointment($uid);
+                }catch (Throwable){}
+            }
+            throw new GatewayException($e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     public function addWaitList($waitList): array
@@ -408,7 +471,7 @@ class Sdk implements UmcGatewayInterface
         // TODO: Implement sendOrder() method.
     }
 
-    public function deleteAppointment(string $orderUid): array
+    public function deleteAppointment(string $uid): bool
     {
         // TODO: Implement deleteOrder() method.
     }
