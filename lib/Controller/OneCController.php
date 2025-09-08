@@ -10,12 +10,14 @@ namespace ANZ\Appointment\Controller;
 use ANZ\Appointment\Agent\Exchange;
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Config\Constants;
+use ANZ\Appointment\Core\ActionFilter\Admin;
 use ANZ\Appointment\Service\Container;
 use ANZ\Appointment\Service\Exchange\Manager;
 use ANZ\Appointment\Service\Operation\Appointment;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\ActionFilter\Authentication;
 use Bitrix\Main\Engine\ActionFilter\Csrf;
+use Bitrix\Main\Engine\ActionFilter\FilterType;
 use Bitrix\Main\Engine\ActionFilter\HttpMethod;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Error;
@@ -154,6 +156,7 @@ class OneCController extends Controller
      */
     public function getOrderStatusAction(int $id, string $orderUid): Result
     {
+        //todo refactor this method
         return Appointment::getOrderStatus($id, $orderUid);
     }
 
@@ -204,8 +207,8 @@ class OneCController extends Controller
     {
         return [
             'deleteOrder'     => [
-                '+prefilters' => [
-                    new Authentication()
+                FilterType::EnablePrefilter->value => [
+                    new Admin
                 ],
             ],
         ];
