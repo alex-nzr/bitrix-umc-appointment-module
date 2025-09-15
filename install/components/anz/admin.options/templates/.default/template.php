@@ -29,6 +29,10 @@ $component->getTabControl()->Begin();
 try
 {
     ?>
+    <div class="ui-alert ui-alert-success">
+        <span class="ui-alert-message"><?=Loc::getMessage('ANZ_APPOINTMENT_MODULE_SETTINGS_INFO')?></span>
+    </div>
+
         <form method="POST" id="<?=$formId?>" action="<?=$arResult['FORM_ACTION']?>" name="<?=$arResult['MODULE_ID']?>_settings" enctype="multipart/form-data">
             <?php
             foreach ($arResult['TABS'] as $arTab)

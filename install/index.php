@@ -284,10 +284,7 @@ class anz_appointment extends CModule
 
     public function UnInstallAgents(): void
     {
-        foreach ($this->getModuleAgentsData() as $agent)
-        {
-            CAgent::RemoveAgent($agent['handler'], $this->MODULE_ID);
-        }
+        CAgent::RemoveModuleAgents($this->MODULE_ID);
     }
 
     protected function getModuleAgentsData(): array

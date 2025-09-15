@@ -1,5 +1,6 @@
 <?php
 $hintTemplate = '<span class="option-hint-container"><span>%s</span><span data-hint="%s" data-hint-html></span></span>';
+$moduleDir = \ANZ\Appointment\Config\Configuration::getModuleLocation(false);
 //sprintf($hintTemplate , 'option title', 'hint text');
 
 //Common
@@ -17,6 +18,7 @@ $MESS['ANZ_APPOINTMENT_MENU_LIST_TITLE'] = 'Список записей';
 $MESS['ANZ_APPOINTMENT_MENU_SETTINGS_TITLE'] = 'Настройки модуля';
 
 //Module Options
+$MESS['ANZ_APPOINTMENT_MODULE_SETTINGS_INFO'] = "<a href='$moduleDir/docs/anz.appointment-docs.pdf' target='_blank'>Инструкция по настройке модуля</a>";
 $MESS['ANZ_APPOINTMENT_MODULE_SETTINGS'] = "Настройки модуля";
 $MESS['ANZ_APPOINTMENT_PRIVACY_PAGE_URL'] = sprintf($hintTemplate,'Ссылка на политику конфиденциальности сайта', 'Необходима для размещения на форме записи');
 $MESS['ANZ_APPOINTMENT_USE_AUTO_INJECTING_ON'] = sprintf($hintTemplate, 'Автоматическое подключение', 'При включенной опции кнопка онлайн-записи появится на всех страницах сайта автоматически, если не указан id собственной кнопки.<br>При отключенной опции, нужно самостоятельно подключить на сайте js-расширение.');
