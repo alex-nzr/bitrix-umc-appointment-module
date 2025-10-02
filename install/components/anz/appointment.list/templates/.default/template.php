@@ -1,11 +1,11 @@
 <?php
-
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /**
  * @global CMain $APPLICATION
  * @var string $templateFolder
  * @var array $arResult
  * @var array $arParams
+ * @var \ANZ\Appointment\Component\Appointment\ItemsList\UmcComponent $component
  */
 ?>
     <div class="adm-toolbar-panel-container">
@@ -14,8 +14,8 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
                 "bitrix:main.ui.filter",
                 "",
                 $arResult['FILTER_PARAMS'],
-                false,
-                ["HIDE_ICONS" => true]
+                null,
+                ["HIDE_ICONS" => "Y"]
             );?>
         </div>
     </div>
@@ -24,6 +24,6 @@ $APPLICATION->includeComponent(
     "bitrix:main.ui.grid",
     "",
     $arResult['GRID_PARAMS'],
-    false,
+    null,
     ["HIDE_ICONS" => "Y"]
 );?>

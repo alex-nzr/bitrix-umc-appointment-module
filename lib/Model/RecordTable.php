@@ -8,11 +8,12 @@
 namespace ANZ\Appointment\Model;
 
 use ANZ\Appointment\Model\EntityObject\Record;
-use Bitrix\Main\Entity\ReferenceField;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Fields\DatetimeField;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Fields\Field;
 use Bitrix\Main\ORM\Fields\IntegerField;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Fields\StringField;
 use Bitrix\Main\ORM\Fields\TextField;
 use Bitrix\Main\Type;
@@ -24,7 +25,21 @@ use Bitrix\Main\UserTable;
  */
 class RecordTable extends Model
 {
-    const FIELD_NAME_EXTERNAL_ID = 'XML_ID';
+    const FIELD_NAME_ID = 'ID';
+    const FIELD_NAME_UID = 'XML_ID';
+    const FIELD_NAME_DATE_CREATE = 'DATE_CREATE';
+    const FIELD_NAME_CLINIC_TITLE = 'CLINIC_TITLE';
+    const FIELD_NAME_SPECIALTY = 'SPECIALTY';
+    const FIELD_NAME_DOCTOR_NAME = 'DOCTOR_NAME';
+    const FIELD_NAME_SERVICE_TITLE = 'SERVICE_TITLE';
+    const FIELD_NAME_DATETIME_VISIT = 'DATETIME_VISIT';
+    const FIELD_NAME_PATIENT_NAME = 'PATIENT_NAME';
+    const FIELD_NAME_PATIENT_PHONE = 'PATIENT_PHONE';
+    const FIELD_NAME_PATIENT_EMAIL = 'PATIENT_EMAIL';
+    const FIELD_NAME_STATUS_1C = 'STATUS_1C';
+    const FIELD_NAME_COMMENT = 'COMMENT';
+    const FIELD_NAME_DAYS_LEFT = 'DAYS_LEFT';
+    const FIELD_NAME_USER_ID = 'USER_ID';
 
     public static function getTableName(): string
     {
@@ -37,37 +52,58 @@ class RecordTable extends Model
     public static function getMap(): array
     {
         $fields = [
-            (new IntegerField('ID'))
+            (new IntegerField(static::FIELD_NAME_ID))
+                ->configureTitle(Loc::getMessage('ANZ_APPOINTMENT_TABLE_ID'))
                 ->configurePrimary()
                 ->configureAutocomplete(),
 
-            (new StringField('XML_ID')),
+            (new StringField(static::FIELD_NAME_UID))
+                ->configureTitle(Loc::getMessage('ANZ_APPOINTMENT_TABLE_XML_ID')),
 
-            (new DatetimeField('DATE_CREATE'))
+            (new DatetimeField(static::FIELD_NAME_DATE_CREATE))
+                ->configureTitle(Loc::getMessage('ANZ_APPOINTMENT_TABLE_DATE_CREATE'))
                 ->configureRequired()
                 ->configureDefaultValue(new Type\DateTime),
 
-            (new StringField('CLINIC_TITLE'))->configureRequired(),
+            (new StringField(static::FIELD_NAME_CLINIC_TITLE))
+                ->configureTitle(Loc::getMessage('ANZ_APPOINTMENT_TABLE_CLINIC_TITLE'))
+                ->configureRequired(),
 
-            (new StringField('SPECIALTY'))->configureRequired(),
+            (new StringField(static::FIELD_NAME_SPECIALTY))
+                ->configureTitle(Loc::getMessage('ANZ_APPOINTMENT_TABLE_SPECIALTY'))
+                ->configureRequired(),
 
-            (new StringField('DOCTOR_NAME'))->configureRequired(),
+            (new StringField(static::FIELD_NAME_DOCTOR_NAME))
+                ->configureTitle(Loc::getMessage('ANZ_APPOINTMENT_TABLE_DOCTOR_NAME'))
+                ->configureRequired(),
 
-            (new StringField('SERVICE_TITLE'))->configureRequired(),
+            (new StringField(static::FIELD_NAME_SERVICE_TITLE))
+                ->configureTitle(Loc::getMessage('ANZ_APPOINTMENT_TABLE_SERVICE_TITLE'))
+                ->configureRequired(),
 
-            (new DatetimeField('DATETIME_VISIT'))->configureRequired(),
+            (new DatetimeField(static::FIELD_NAME_DATETIME_VISIT))
+                ->configureTitle(Loc::getMessage('ANZ_APPOINTMENT_TABLE_DATETIME_VISIT'))
+                ->configureRequired(),
 
-            (new StringField('PATIENT_NAME'))->configureRequired(),
+            (new StringField(static::FIELD_NAME_PATIENT_NAME))
+                ->configureTitle(Loc::getMessage('ANZ_APPOINTMENT_TABLE_PATIENT_NAME'))
+                ->configureRequired(),
 
-            (new StringField('PATIENT_PHONE'))->configureRequired(),
+            (new StringField(static::FIELD_NAME_PATIENT_PHONE))
+                ->configureTitle(Loc::getMessage('ANZ_APPOINTMENT_TABLE_PATIENT_PHONE'))
+                ->configureRequired(),
 
-            (new StringField('PATIENT_EMAIL')),
+            (new StringField(static::FIELD_NAME_PATIENT_EMAIL))
+                ->configureTitle(Loc::getMessage('ANZ_APPOINTMENT_TABLE_PATIENT_EMAIL')),
 
-            (new TextField('COMMENT')),
 
-            (new StringField('STATUS_1C')),
+            (new StringField(static::FIELD_NAME_STATUS_1C))
+                ->configureTitle(Loc::getMessage('ANZ_APPOINTMENT_TABLE_STATUS_1C')),
 
-            new ExpressionField('DAYS_LEFT',
+            (new TextField(static::FIELD_NAME_COMMENT))
+                ->configureTitle(Loc::getMessage('ANZ_APPOINTMENT_TABLE_COMMENT')),
+
+            (new ExpressionField(static::FIELD_NAME_DAYS_LEFT,
                 'TIMESTAMPDIFF(DAY, NOW(), %s)', ['DATETIME_VISIT'],
                 [
                     'fetch_data_modification' => function () {
@@ -78,11 +114,12 @@ class RecordTable extends Model
                         ];
                     }
                 ]
-            ),
+            ))->configureTitle(Loc::getMessage('ANZ_APPOINTMENT_TABLE_DAYS_LEFT')),
 
-            new IntegerField("USER_ID"),
+            (new IntegerField(static::FIELD_NAME_USER_ID))
+                ->configureTitle(Loc::getMessage('ANZ_APPOINTMENT_TABLE_USER_ID')),
 
-            new ReferenceField(
+            new Reference(
                 "USER",
                 UserTable::class,
                 ["=this.USER_ID" => "ref.ID"]

@@ -22,9 +22,9 @@ class AppointmentRepository extends EntityRepository
      */
     protected function validate(EntityObject $entity): bool
     {
-        if (!$entity->has(RecordTable::FIELD_NAME_EXTERNAL_ID) || empty($entity->get(RecordTable::FIELD_NAME_EXTERNAL_ID)))
+        if (!$entity->has(RecordTable::FIELD_NAME_UID) || empty($entity->get(RecordTable::FIELD_NAME_UID)))
         {
-            throw new ValidatorException('Field ' . RecordTable::FIELD_NAME_EXTERNAL_ID . ' cannot be empty');
+            throw new ValidatorException('Field ' . RecordTable::FIELD_NAME_UID . ' cannot be empty');
         }
         return true;
     }

@@ -1,5 +1,8 @@
 <?php
 
+use ANZ\Appointment\Component\Appointment\ItemsList\Provider\EntitySelector\UserProvider;
+use ANZ\Appointment\Config\Configuration;
+
 return [
     'controllers' => [
         'value' => [
@@ -10,4 +13,18 @@ return [
         ],
         'readonly' => true,
     ],
+    'ui.entity-selector' => [
+        'value' => [
+            'entities' => [
+                [
+                    'entityId' => UserProvider::ENTITY_ID,
+                    'provider' => [
+                        'moduleId' => Configuration::getModuleId(),
+                        'className' => UserProvider::class,
+                    ],
+                ]
+            ]
+        ],
+        'readonly' => true,
+    ]
 ];

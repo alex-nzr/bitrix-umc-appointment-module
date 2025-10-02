@@ -1,0 +1,24 @@
+<?php
+/*
+ * ==================================================
+ * This file is part of project Bit UMC - Bitrix integration
+ * 02.10.2025
+ * ==================================================
+*/
+
+namespace ANZ\Appointment\Component\Appointment\ItemsList\Assembler\Field;
+
+use Bitrix\Main\Grid\Row\FieldAssembler;
+
+class PhoneFieldAssembler extends FieldAssembler
+{
+    protected function prepareColumn($value): ?string
+    {
+        if (is_string($value) && str_starts_with($value, '+7') && strlen($value) === 12)
+        {
+            return "<a href='tel:$value' target='_blank'>$value</a>";
+        }
+
+        return htmlspecialchars($value);
+    }
+}

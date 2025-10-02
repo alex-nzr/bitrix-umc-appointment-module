@@ -21,7 +21,7 @@ class UserPermissions
     }
 
     /**
-     * @throws \Exception
+     * @throws \ANZ\Appointment\Core\Exception\ConfigurationException
      */
     public function checkReadPermissions(): bool
     {
@@ -29,7 +29,7 @@ class UserPermissions
     }
 
     /**
-     * @throws \Exception
+     * @throws \ANZ\Appointment\Core\Exception\ConfigurationException
      */
     public function checkOptionsWritePermissions(): bool
     {
