@@ -229,7 +229,7 @@ class anz_appointment extends CModule
             {
                 while ($item = readdir($dir))
                 {
-                    if (is_dir($srcDir . $item) && is_dir($dstDir . $item))
+                    if (($item != "." && $item != "..") && is_dir($srcDir . $item) && is_dir($dstDir . $item))
                     {
                         try
                         {

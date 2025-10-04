@@ -7,8 +7,8 @@
 */
 namespace ANZ\Appointment\Component\Appointment\ItemsList\Provider;
 
-use ANZ\Appointment\Component\Appointment\ItemsList\Provider\EntitySelector\UserProvider;
 use ANZ\Appointment\Model\RecordTable;
+use ANZ\Appointment\UI\EntitySelector\UserProvider;
 use Bitrix\Main\Filter\Settings;
 use Bitrix\Main\Filter\TabletDataProvider;
 use Bitrix\Main\ORM\Entity;

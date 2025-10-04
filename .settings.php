@@ -1,7 +1,7 @@
 <?php
 
-use ANZ\Appointment\Component\Appointment\ItemsList\Provider\EntitySelector\UserProvider;
 use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\UI\EntitySelector\UserProvider;
 
 return [
     'controllers' => [

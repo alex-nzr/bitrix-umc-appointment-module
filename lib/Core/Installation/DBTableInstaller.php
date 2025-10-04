@@ -9,10 +9,10 @@ namespace ANZ\Appointment\Core\Installation;
 
 use ANZ\Appointment\Model\RecordTable;
 use Bitrix\Main\Application;
-use Bitrix\Main\Entity\Base;
 
 class DBTableInstaller
 {
+    /** @var \Bitrix\Main\ORM\Data\DataManager[]|string[]  */
     private static array $dataClasses = [
         RecordTable::class
     ];
@@ -22,7 +22,7 @@ class DBTableInstaller
      */
     public static function install(): void
     {
-        static::createDataTables(static::$dataClasses);
+        static::createDataTables();
     }
 
     /**
@@ -30,38 +30,35 @@ class DBTableInstaller
      */
     public static function uninstall(): void
     {
-        static::deleteDataTables(static::$dataClasses);
+        static::deleteDataTables();
     }
 
     /**
-     * @param array $dataClasses
      * @throws \Exception
      */
-    private static function createDataTables(array $dataClasses): void
+    private static function createDataTables(): void
     {
         $connection = Application::getConnection();
-
-        foreach ($dataClasses as $dataClass)
+        foreach (static::$dataClasses as $dataClass)
         {
-            $dataTableName = Base::getInstance($dataClass)->getDBTableName();
+            $dataTableName = $dataClass::getEntity()->getDBTableName();
             if(!$connection->isTableExists($dataTableName))
             {
-                Base::getInstance($dataClass)->createDbTable();
+                $dataClass::getEntity()->createDbTable();
             }
         }
     }
 
     /**
-     * @param array $dataClasses
      * @throws \Exception
      */
-    private static function deleteDataTables(array $dataClasses): void
+    private static function deleteDataTables(): void
     {
         $connection = Application::getConnection();
 
-        foreach ($dataClasses as $dataClass)
+        foreach (static::$dataClasses as $dataClass)
         {
-            $dataTableName = Base::getInstance($dataClass)->getDBTableName();
+            $dataTableName = $dataClass::getEntity()->getDBTableName();
             if($connection->isTableExists($dataTableName))
             {
                 $connection->dropTable($dataTableName);
