@@ -126,7 +126,7 @@ class ExchangeDataProvider
             {
                 $result->setData([
                     'success' => true,
-                    'XML_ID'  => $data['uid']
+                    'uid'  => $data['uid']
                 ]);
             }
             else

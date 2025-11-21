@@ -14,19 +14,8 @@ use Bitrix\Main\Sms\Event as SmsEvent;
 use Exception;
 use ANZ\Appointment\Config\Constants;
 
-/**
- * Class Sms
- * @package ANZ\Appointment\Service\Message
- */
 class Sms
 {
-    public function __construct(){}
-
-    /**
-     * @param string $phone
-     * @param string $code
-     * @return \Bitrix\Main\Result
-     */
     public function sendConfirmCode(string $phone, string $code): Result
     {
         $fields = [
@@ -37,11 +26,6 @@ class Sms
         return $this->send(Constants::SMS_CONFIRM_EVENT_CODE, $fields);
     }
 
-    /**
-     * @param $eventType
-     * @param $fields
-     * @return \Bitrix\Main\Result
-     */
     public function send($eventType, $fields): Result
     {
         try {

@@ -8,8 +8,7 @@
 namespace ANZ\Appointment\Core;
 
 use ANZ\Appointment\Config\Configuration;
-use ANZ\Appointment\Controller\MessageController;
-use ANZ\Appointment\Controller\OneCController;
+use ANZ\Appointment\Controller\Appointment;
 use ANZ\Appointment\Core\Trait\Singleton;
 use ANZ\Appointment\Service\Container;
 use ANZ\Appointment\Service\Localization;
@@ -44,8 +43,7 @@ class ServiceManager
     private function includeControllers(): void
     {
         $arControllers = [
-            OneCController::class  => 'lib/Controller/OneCController.php',
-            MessageController::class => 'lib/Controller/MessageController.php',
+            Appointment::class  => 'lib/Controller/Appointment.php',
         ];
 
         Loader::registerAutoLoadClasses(Configuration::getModuleId(), $arControllers);

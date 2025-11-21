@@ -22,8 +22,8 @@ export class ClassicForm
     timeExpires: number           = 0;
     requiredInputs: HTMLElement[] = [];
     initParams: any               = {};
-    eventHandlersAdded            = {};
-    servicesStorage               = {};
+    //eventHandlersAdded        = {};
+    servicesStorage           = {};
     dataKeys = {
         clinicsKey:     "clinics",
         specialtiesKey: "specialties",
@@ -38,7 +38,9 @@ export class ClassicForm
         [this.dataKeys.employeesKey]:   {},
         [this.dataKeys.scheduleKey]:    {}
     };
-    orderData       = {};
+    orderData       = {
+        bookingUid: null,
+    };
     selectionBlocks = {};
     selectionNodes  = {};
     textNodes       = {};
@@ -374,7 +376,7 @@ export class ClassicForm
 
     getListClinic(){
         this.toggleLoader(true);
-        BX.ajax.runAction('anz:appointment.oneCController.getClinics', {
+        BX.ajax.runAction('anz:appointment.Appointment.getClinics', {
             data: {
                 sessid: BX.bitrix_sessid()
             }
@@ -399,7 +401,7 @@ export class ClassicForm
 
     getListEmployees() {
         this.toggleLoader(true);
-        BX.ajax.runAction('anz:appointment.oneCController.getEmployees', {
+        BX.ajax.runAction('anz:appointment.Appointment.getEmployees', {
             data: {
                 sessid: BX.bitrix_sessid()
             }
@@ -432,7 +434,7 @@ export class ClassicForm
         }
         else
         {
-            BX.ajax.runAction('anz:appointment.oneCController.getSchedule', {
+            BX.ajax.runAction('anz:appointment.Appointment.getSchedule', {
                 data: {
                     sessid: BX.bitrix_sessid(),
                     clinicUid: clinicUid,
@@ -476,21 +478,21 @@ export class ClassicForm
 
     getListNomenclature(clinicUid){
         this.toggleLoader(true);
-        BX.ajax.runAction('anz:appointment.oneCController.getServices', {
+        BX.ajax.runAction('anz:appointment.Appointment.getServices', {
             data: {
                 sessid: BX.bitrix_sessid(),
                 clinicUid: clinicUid,
             }
         })
-        .then((nomenclature) => {
-            if (nomenclature.data?.error)
+        .then((result) => {
+            if (result.data?.error)
             {
-                throw new Error(nomenclature.data.error);
+                throw new Error(result.data.error);
             }
             else
             {
-                this.data.services = nomenclature.data ?? {};
-                if (Object.keys(nomenclature.data).length > 0)
+                this.data.services = result.data ?? {};
+                if (Object.keys(result.data).length > 0)
                 {
                     this.bindServicesToSpecialties();
                     this.servicesStorage[clinicUid] = {...this.data.services};
@@ -992,6 +994,10 @@ export class ClassicForm
         if (this.currentFormStep === this.formStepNodes.userData)
         {
             this.form.classList.add(styles['hide-logo']);
+            if (!this.orderData.bookingUid)
+            {
+                this.bookSlot();
+            }
         }
         else
         {
@@ -1024,27 +1030,14 @@ export class ClassicForm
         {
             this.messageNode ? (this.messageNode.textContent = "") : void(0);
             this.toggleLoader(true);
-            this.orderData = {...this.filledInputs.textValues};
-
-            for (let key in this.selectionNodes)
-            {
-                if(!this.useServices && (key === this.dataKeys.servicesKey)) {
-                    continue;
-                }
-
-                if (this.selectionNodes.hasOwnProperty(key) && this.filledInputs.hasOwnProperty(key))
-                {
-                    this.selectionNodes[key].inputNode.value = JSON.stringify(this.filledInputs[key]);
-                    this.orderData = {...this.orderData, ...this.filledInputs[key]};
-                }
-            }
+            this.fillOrderData();
 
             if (this.useConfirmWith !== this.confirmTypes.none){
                 this.sendConfirmCode();
             }
             else
             {
-                this.sendOrder();
+                this.sendAppointment();
             }
         }
         else
@@ -1058,7 +1051,7 @@ export class ClassicForm
 
         this.messageNode.textContent = "";
 
-        BX.ajax.runAction('anz:appointment.messageController.sendConfirmCode', {
+        BX.ajax.runAction('anz:appointment.Appointment.sendConfirmCode', {
             data: {
                 phone: this.orderData.phone,
                 email: this.orderData.email,
@@ -1092,14 +1085,14 @@ export class ClassicForm
             {
                 btnNode.classList.add(styles['loading']);
 
-                BX.ajax.runAction('anz:appointment.messageController.verifyConfirmCode', {
+                BX.ajax.runAction('anz:appointment.Appointment.verifyConfirmCode', {
                     data: {
                         code: code,
                         email: this.orderData.email,
                         sessid: BX.bitrix_sessid()
                     }
                 })
-                    .then(() => this.sendOrder())
+                    .then(() => this.sendAppointment())
                     .catch(result => {
                         btnNode.classList.remove(styles['loading']);
                         if (result.errors?.length > 0){
@@ -1118,10 +1111,46 @@ export class ClassicForm
         }
     }
 
-    sendOrder() {
-        BX.ajax.runAction('anz:appointment.oneCController.addOrder', {
+    bookSlot()
+    {
+        if (this.bookingInProgress)
+        {
+            return;
+        }
+        this.bookingInProgress = true;
+        this.fillOrderData();
+        this.submitBtn.classList.add(styles['loading']);
+        BX.ajax.runAction('anz:appointment.Appointment.bookSlot', {
             data: {
-                params: JSON.stringify(this.orderData),
+                clinicUid: this.orderData.clinicUid,
+                employeeUid: this.orderData.employeeUid,
+                dateTimeBegin: this.orderData.timeBegin,//.orderDate
+                serviceDuration: this.orderData.serviceDuration,
+            },
+            sessid: BX.bitrix_sessid()
+        })
+            .then((result) => {
+                if (result.data?.error)
+                {
+                    throw new Error(result.data.error);
+                }
+                this.orderData.bookingUid = result.data?.uid ?? null;
+                this.submitBtn.classList.remove(styles['loading']);
+                this.bookingInProgress = false;
+            })
+            .catch(result => {
+                this.submitBtn.classList.remove(styles['loading']);
+                this.changeFormStep(this.formStepNodes.two, true);
+                this.showError(BX.message('ANZ_JS_BOOKING_SLOT_ERROR'));
+                this.logResultErrors(result);
+                this.bookingInProgress = false;
+            });
+    }
+
+    sendAppointment() {
+        BX.ajax.runAction('anz:appointment.Appointment.sendAppointment', {
+            data: {
+                jsonData: JSON.stringify(this.orderData),
                 sessid: BX.bitrix_sessid()
             }
         })
@@ -1135,6 +1164,7 @@ export class ClassicForm
                 }
                 else
                 {
+                    this.orderData.bookingUid = null;
                     if (this.useEmailNote && this.orderData.email)
                     {
                         this.sendEmailNote();
@@ -1151,9 +1181,9 @@ export class ClassicForm
     }
 
     sendEmailNote() {
-        BX.ajax.runAction('anz:appointment.messageController.sendEmailNote', {
+        BX.ajax.runAction('anz:appointment.Appointment.sendEmailNote', {
             data: {
-                params: JSON.stringify(this.orderData),
+                jsonData: JSON.stringify(this.orderData),
                 sessid: BX.bitrix_sessid()
             }
         }).then().catch();
@@ -1530,5 +1560,23 @@ export class ClassicForm
         !this.useCustomMainBtn && this.startBtnWrap.classList.add(styles['hidden']);
         this.logResultErrors(e);
         this.alertError(BX.message("ANZ_JS_APPLICATION_ERROR_CONNECTION"));
+    }
+
+    fillOrderData()
+    {
+        this.orderData = {...this.orderData, ...this.filledInputs.textValues};
+
+        for (let key in this.selectionNodes)
+        {
+            if(!this.useServices && (key === this.dataKeys.servicesKey)) {
+                continue;
+            }
+
+            if (this.selectionNodes.hasOwnProperty(key) && this.filledInputs.hasOwnProperty(key))
+            {
+                this.selectionNodes[key].inputNode.value = JSON.stringify(this.filledInputs[key]);
+                this.orderData = {...this.orderData, ...this.filledInputs[key]};
+            }
+        }
     }
 }

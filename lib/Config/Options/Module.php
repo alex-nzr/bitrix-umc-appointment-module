@@ -8,6 +8,7 @@
 namespace ANZ\Appointment\Config\Options;
 
 use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\Config\ConfirmationType;
 use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Config\ExchangeMode;
 use ANZ\Appointment\Core\Contract\Option\IOptionStorage;
@@ -169,13 +170,13 @@ class Module implements IOptionStorage
                     [
                         Constants::OPTION_KEY_EXCHANGE_CONFIRM_MODE,
                         Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_CONFIRM_MODE'),
-                        Constants::CONFIRM_TYPE_NONE,
+                        ConfirmationType::NONE->value,
                         [
                             'select',
                             'LIST' => [
-                                Constants::CONFIRM_TYPE_NONE  => Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_CONFIRM_NONE'),
-                                Constants::CONFIRM_TYPE_PHONE => Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_CONFIRM_PHONE'),
-                                Constants::CONFIRM_TYPE_EMAIL => Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_CONFIRM_EMAIL')
+                                ConfirmationType::NONE->value  => Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_CONFIRM_NONE'),
+                                ConfirmationType::PHONE->value => Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_CONFIRM_PHONE'),
+                                ConfirmationType::EMAIL->value => Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_CONFIRM_EMAIL')
                             ]
                         ]
                     ],
@@ -230,7 +231,7 @@ class Module implements IOptionStorage
                             'select',
                             'LIST' => [
                                 Constants::JS_EXTENSION_BX_POPUP  => Loc::getMessage('ANZ_APPOINTMENT_JS_EXTENSION_BX_POPUP'),
-                                Constants::JS_EXTENSION_FORM_VUE => Loc::getMessage('ANZ_APPOINTMENT_JS_EXTENSION_FORM_VUE'),
+                                Constants::JS_EXTENSION_FORM_REACT => Loc::getMessage('ANZ_APPOINTMENT_JS_EXTENSION_FORM_REACT'),
                             ]
                         ]
                     ],

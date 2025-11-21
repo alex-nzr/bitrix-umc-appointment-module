@@ -10,6 +10,7 @@ namespace ANZ\Appointment\Core\Installation;
 use ANZ\Appointment\Core\Installation\Event\Email;
 use ANZ\Appointment\Core\Installation\Event\Sms;
 use ANZ\Appointment\Tools\Utils;
+use Bitrix\Main\SiteTable;
 
 class EventInstaller
 {
@@ -21,8 +22,12 @@ class EventInstaller
      */
     public static function install(): void
     {
-        $siteIds = Utils::getAllSiteIds();
-        $obSms   = new Sms();
+        $siteIds = array_column(
+            SiteTable::query()->setSelect(['LID'])->fetchAll(),
+            'LID'
+        );
+
+        $obSms = new Sms();
         $obEmail = new Email();
 
         $obEmail->createEmailNoteEvent();
@@ -40,8 +45,8 @@ class EventInstaller
      */
     public static function uninstall(): void
     {
-        $obSms       = new Sms();
-        $obEmail     = new Email();
+        $obSms = new Sms();
+        $obEmail = new Email();
 
         $obEmail->deleteEmailEvents();
         $obEmail->deleteEmailTemplates();

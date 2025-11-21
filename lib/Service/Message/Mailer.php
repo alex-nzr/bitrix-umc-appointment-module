@@ -15,22 +15,8 @@ use Bitrix\Main\Error;
 use Exception;
 use ANZ\Appointment\Config\Constants;
 
-/**
- * Class Mailer
- * @package ANZ\Appointment\Service\Message
- */
 class Mailer
 {
-    /**
-     * Mailer constructor.
-     */
-    public function __construct(){}
-
-    /**
-     * @param string $email
-     * @param string $code
-     * @return \Bitrix\Main\Result
-     */
     public function sendConfirmCode(string $email, string $code): Result
     {
         return Event::send(array(
@@ -43,10 +29,6 @@ class Mailer
         ));
     }
 
-    /**
-     * @param array $params
-     * @return \Bitrix\Main\Result
-     */
     public function sendEmailNote(array $params): Result
     {
         try

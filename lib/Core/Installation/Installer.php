@@ -7,6 +7,8 @@
 */
 namespace ANZ\Appointment\Core\Installation;
 
+use ANZ\Appointment\Config\Configuration;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
@@ -36,6 +38,7 @@ class Installer
         {
             DBTableInstaller::uninstall();
             EventInstaller::uninstall();
+            Option::delete(Configuration::getModuleId());
         }
         catch(Throwable $e)
         {

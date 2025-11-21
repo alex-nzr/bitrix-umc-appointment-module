@@ -13,12 +13,8 @@ class Constants
     const EMAIL_CONFIRM_EVENT_CODE = "ANZ_APPOINTMENT_EMAIL_CONFIRM";
     const SMS_CONFIRM_EVENT_CODE   = "ANZ_APPOINTMENT_SMS_CONFIRM";
 
-    const CONFIRM_TYPE_PHONE = 'phone';
-    const CONFIRM_TYPE_EMAIL = 'email';
-    const CONFIRM_TYPE_NONE  = 'none';
-
     const JS_EXTENSION_BX_POPUP = 'anz.appointment.bx_popup';
-    const JS_EXTENSION_FORM_VUE = 'anz.appointment.form-vue';
+    const JS_EXTENSION_FORM_REACT = 'anz.appointment.form-react';
 
     /**Option constants*/
     const OPTION_KEY_PRIVACY_PAGE = 'appointment_settings_privacy_page_url';
@@ -61,5 +57,6 @@ class Constants
     const OPTION_KEY_FORM_BTN_TEXT_CLR  = '--appointment-btn-text-color';
 
     const OPTION_KEY_DEBUG_LOGS_TTL = 'appointment_debug_logs_ttl';
+
     const PASSWORD_MASKED_VALUE = '***********';
 }

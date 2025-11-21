@@ -10,11 +10,20 @@ namespace ANZ\Appointment\Service\Exchange;
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Core\Exception\ExchangeManagerException;
+use ANZ\Appointment\Dto\AppointmentDto;
+use ANZ\Appointment\Dto\AppointmentStatusDto;
 use ANZ\Appointment\Dto\BookingDto;
+use ANZ\Appointment\Dto\WaitListDto;
+use ANZ\Appointment\Event\Event;
+use ANZ\Appointment\Event\EventType;
 use ANZ\Appointment\Integration\UmcSdk\Contract\UmcGatewayInterface;
+use ANZ\Appointment\Model\EntityObject\Record;
 use ANZ\Appointment\Repository\EntityRepository;
 use ANZ\Appointment\Service\Container;
+use Bitrix\Main\Context;
+use Bitrix\Main\Diag\Debug;
 use DateTime;
+use Exception;
 use Throwable;
 
 class Manager
@@ -34,21 +43,42 @@ class Manager
         try
         {
             if ($force)
-        {
-            Container::getInstance()->getUmcIntegrationCacheProvider()->cleanAll();
-        }
-
-        $clinics = $this->gateway->getClinics();
-
-        if (Configuration::getInstance()->isServicesEnabled())
-        {
-            foreach ($clinics as $clinic)
             {
-                $this->gateway->getServices($clinic->uid);
+                Container::getInstance()->getUmcIntegrationCacheProvider()->cleanAll();
             }
-        }
 
-        $this->gateway->getEmployees();
+            $clinics = $this->gateway->getClinics();
+            $this->gateway->getEmployees();
+
+            if (Configuration::getInstance()->isServicesEnabled())
+            {
+                $errors = [];
+                foreach ($clinics as $clinic)
+                {
+                    try
+                    {
+                        $this->gateway->getServices($clinic->uid);
+                    }
+                    catch (Throwable $e)
+                    {
+                        Debug::writeToFile(
+                            [
+                                'MESSAGE' => $e->getMessage(),
+                                'TRACE' => $e->getTrace()
+                            ],
+                            __METHOD__ . ' ' . date('Y-m-d H:i:s'),
+                            Configuration::getInstance()->getExchangeLogFilePath()
+                        );
+                        $errors[] = "$clinic->uid '$clinic->name'" . ' - ' .$e->getMessage();
+                        continue;
+                    }
+                }
+
+                if (Context::getCurrent()->getRequest()->isAdminSection() && !empty($errors))
+                {
+                    throw new ExchangeManagerException(__METHOD__, new Exception(implode(PHP_EOL, $errors)));
+                }
+            }
         }
         catch (Throwable $e)
         {
@@ -138,10 +168,15 @@ class Manager
     /**
      * @throws \ANZ\Appointment\Core\Exception\ExchangeManagerException
      */
-    public function bookSlot(string $clinicUid, string $employeeUid, string $dateTimeBegin, int $serviceDuration = 0): BookingDto
+    public function sendBooking(string $clinicUid, string $employeeUid, string $dateTimeBegin, int $serviceDuration = 0): ?BookingDto
     {
         try
         {
+            if (Configuration::getInstance()->isWaitListEnabled())
+            {
+                return null;
+            }
+
             if ($serviceDuration <= 0)
             {
                 $serviceDuration = Configuration::getInstance()->getDefaultAppointmentDuration();
@@ -149,7 +184,69 @@ class Manager
 
             $oDateTimeBegin = new DateTime($dateTimeBegin);
 
-            return $this->gateway->bookSlot($clinicUid, $employeeUid, $oDateTimeBegin, $serviceDuration);
+            return $this->gateway->sendBooking($clinicUid, $employeeUid, $oDateTimeBegin, $serviceDuration);
+        }
+        catch (Throwable $e)
+        {
+            throw new ExchangeManagerException(__METHOD__, $e);
+        }
+    }
+
+    /**
+     * @throws \ANZ\Appointment\Core\Exception\ExchangeManagerException
+     */
+    public function sendAppointment(array $data): AppointmentDto|WaitListDto
+    {
+        try
+        {
+            $data = Event::getEventHandlersResult(EventType::ON_BEFORE_ORDER_SEND, $data);
+            if (Configuration::getInstance()->isWaitListEnabled())
+            {
+                $dto = $this->gateway->sendWaitList($data);
+            }
+            else
+            {
+                $dto = $this->gateway->sendAppointment($data);
+                $this->repository->save(Record::fromArray($data));
+            }
+            return $dto;
+        }
+        catch (Throwable $e)
+        {
+            throw new ExchangeManagerException(__METHOD__, $e);
+        }
+    }
+
+    /**
+     * @throws \ANZ\Appointment\Core\Exception\ExchangeManagerException
+     */
+    public function deleteAppointment(int $id, string $uid): bool
+    {
+        try
+        {
+            return $this->gateway->deleteAppointment($uid) && $this->repository->delete($id);
+        }
+        catch (Throwable $e)
+        {
+            throw new ExchangeManagerException(__METHOD__, $e);
+        }
+    }
+
+    /**
+     * @throws \ANZ\Appointment\Core\Exception\ExchangeManagerException
+     */
+    public function updateAppointmentStatus(int $id, string $uid): AppointmentStatusDto
+    {
+        try
+        {
+            $dto = $this->gateway->getAppointmentStatus($uid);
+            /** @var Record $entityObject */
+            if ($entityObject = $this->repository->getByPrimary($id))
+            {
+                $entityObject->setStatus1c($dto->name);
+                $this->repository->save($entityObject);
+            }
+            return $dto;
         }
         catch (Throwable $e)
         {

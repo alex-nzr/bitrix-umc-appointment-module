@@ -14,10 +14,18 @@ use CUser;
 class UserPermissions
 {
     protected CMain $App;
+    protected CUser $globalUser;
+    protected int $userId;
 
     public function __construct()
     {
         $this->App = $GLOBALS['APPLICATION'];
+        if (!($GLOBALS['USER'] instanceof CUser))
+        {
+            $GLOBALS['USER'] = new CUser;
+        }
+        $this->globalUser = $GLOBALS['USER'];
+        $this->userId = (int)$this->globalUser->GetID();
     }
 
     /**
@@ -38,10 +46,11 @@ class UserPermissions
 
     public function isAdmin(): bool
     {
-        if (!$GLOBALS['USER'] instanceof CUser)
-        {
-            $GLOBALS['USER'] = new CUser;
-        }
-        return $GLOBALS['USER']->IsAdmin();
+        return $this->globalUser->IsAdmin();
+    }
+
+    public function getUserId(): int
+    {
+        return $this->userId;
     }
 }

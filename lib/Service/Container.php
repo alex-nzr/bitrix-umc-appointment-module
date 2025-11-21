@@ -14,6 +14,7 @@ use ANZ\Appointment\Integration\UmcSdk\Cache\CacheProvider;
 use ANZ\Appointment\Integration\UmcSdk\Gateway\Sdk;
 use ANZ\Appointment\Integration\UmcSdk\Mapper\SdkRequestFromParams;
 use ANZ\Appointment\Integration\UmcSdk\Mapper\SdkResponseToDto;
+use ANZ\Appointment\Integration\UmcSdk\Validator\RequestValidator;
 use ANZ\Appointment\Integration\UmcSdk\Validator\ResponseValidator;
 use ANZ\Appointment\Model\RecordTable;
 use ANZ\Appointment\Repository\UMC\AppointmentRepository;
@@ -71,6 +72,7 @@ class Container
                     new SdkResponseToDto,
                     new SdkRequestFromParams,
                     new ResponseValidator,
+                    new RequestValidator,
                     $this->getUmcIntegrationCacheProvider()
                 ));
             }
@@ -159,26 +161,6 @@ class Container
             if(!ServiceLocator::getInstance()->has($identifier))
             {
                 ServiceLocator::getInstance()->addInstance($identifier, new UserPermissions);
-            }
-            return ServiceLocator::getInstance()->get($identifier);
-        }
-        catch(Throwable $e)
-        {
-            throw new ServiceContainerException($e->getMessage(), $e->getCode(), $e);
-        }
-    }
-
-    /**
-     * @throws ServiceContainerException
-     */
-    public function getOrderConverter(): Converter\Order
-    {
-        try
-        {
-            $identifier = static::getIdentifierByClassName(Converter\Order::class);
-            if(!ServiceLocator::getInstance()->has($identifier))
-            {
-                ServiceLocator::getInstance()->addInstance($identifier, new Converter\Order);
             }
             return ServiceLocator::getInstance()->get($identifier);
         }

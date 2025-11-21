@@ -66,7 +66,7 @@ $MESS['ANZ_APPOINTMENT_LOGO_UPLOAD'] = "Логотип компании";
 $MESS['ANZ_APPOINTMENT_JS_EXTENSION'] = "Варианты формы записи";
 $MESS['ANZ_APPOINTMENT_JS_EXTENSION_SELECT'] = "Выбрать форму записи";
 $MESS['ANZ_APPOINTMENT_JS_EXTENSION_BX_POPUP'] = "Classic";
-$MESS['ANZ_APPOINTMENT_JS_EXTENSION_FORM_VUE'] = "Modern";
+$MESS['ANZ_APPOINTMENT_JS_EXTENSION_FORM_REACT'] = "Material UI";
 $MESS['ANZ_APPOINTMENT_JS_EXTENSION_CUSTOM'] = sprintf($hintTemplate , 'Использовать своё js-расширение', 'При заполненной опции стандартные варианты подключены не будут');
 $MESS['ANZ_APPOINTMENT_MAIN_BTN_SETTINGS'] = 'Настройки кнопки "Онлайн-запись"';
 $MESS['ANZ_APPOINTMENT_MAIN_BTN_BG_COLOR'] = "Цвет фона";
@@ -140,7 +140,7 @@ $MESS['ANZ_APPOINTMENT_XML_PARSER_COMMON_ERROR_DESC']   = 'ОписаниеОш�
 $MESS['ANZ_APPOINTMENT_XML_PARSER_COMMON_BOOKING_UID']  = 'УИД';
 
 /*Confirmation*/
-$MESS["ANZ_APPOINTMENT_CONFIRM_TYPE_ERROR"] = "Тип подтверждения записи не выбран или некорректен";
+$MESS["ANZ_APPOINTMENT_CONFIRM_TYPE_ERROR"] = "Тип подтверждения записи некорректен";
 $MESS['ANZ_APPOINTMENT_CONFIRM_CODE_NOT_EXPIRED'] = 'Запрашивать код подтверждения можно не чаще, чем раз в минуту';
 $MESS['ANZ_APPOINTMENT_CONFIRM_CODE_EXPIRED'] = 'Время действия кода подтверждения истекло';
 $MESS['ANZ_APPOINTMENT_CONFIRM_CODE_INCORRECT'] = 'Неверный код подтверждения';
@@ -176,7 +176,13 @@ ______________________________________
     
 #FULL_NAME#
 #PHONE#
-#COMMENT#   
+
+Филиал - #CLINIC#
+Направление - #SPECIALTY#   
+Врач - #EMPLOYEE#
+Услуги - #SERVICES#
+
+Комментарий: #COMMENT#   
     
 Желаемая дата: #DATE#
 Желаемое время: #TIME#";

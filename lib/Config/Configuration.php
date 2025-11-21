@@ -204,7 +204,7 @@ final class Configuration
 
     public function getExchangeConfirmMode(): string
     {
-        return Option::get(self::$moduleId, Constants::OPTION_KEY_EXCHANGE_CONFIRM_MODE, Constants::CONFIRM_TYPE_NONE);
+        return Option::get(self::$moduleId, Constants::OPTION_KEY_EXCHANGE_CONFIRM_MODE, ConfirmationType::NONE->value);
     }
 
     public function getLogsTTL(): int
@@ -362,5 +362,10 @@ final class Configuration
     public function isEmailNotificationEnabled(): bool
     {
         return Option::get(self::$moduleId, Constants::OPTION_KEY_EMAIL_NOTE) === "Y";
+    }
+
+    public function isWaitListEnabled(): bool
+    {
+        return Option::get(self::$moduleId, Constants::OPTION_KEY_USE_WAIT_LIST) === "Y";
     }
 }

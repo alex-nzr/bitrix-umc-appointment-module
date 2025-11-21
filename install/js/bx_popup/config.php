@@ -5,7 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use ANZ\Appointment\Config\Configuration;
-use ANZ\Appointment\Config\Constants;
+use ANZ\Appointment\Config\ConfirmationType;
 use Bitrix\Main\Localization\Loc;
 
 try
@@ -23,9 +23,9 @@ try
         "showDoctorsWithoutDepartment"  => Configuration::getInstance()->isDoctorsWithoutDepartmentShowEnabled() ? 'Y' : 'N',
         "useEmailNote"                  => Configuration::getInstance()->isEmailNotificationEnabled() ? 'Y' : 'N',
         "confirmTypes"                  => [
-            'phone'   => Constants::CONFIRM_TYPE_PHONE,
-            'email'   => Constants::CONFIRM_TYPE_EMAIL,
-            'none'    => Constants::CONFIRM_TYPE_NONE,
+            'phone'   => ConfirmationType::PHONE->value,
+            'email'   => ConfirmationType::EMAIL->value,
+            'none'    => ConfirmationType::NONE->value,
         ],
         "useConfirmWith"    => Configuration::getInstance()->getExchangeConfirmMode(),
         "privacyPageLink"   => Configuration::getInstance()->getPrivacyPageLink(),

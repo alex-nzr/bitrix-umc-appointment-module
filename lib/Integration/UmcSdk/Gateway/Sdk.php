@@ -9,20 +9,24 @@ namespace ANZ\Appointment\Integration\UmcSdk\Gateway;
 
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Config\ExchangeMode;
+use ANZ\Appointment\Dto\AppointmentDto;
 use ANZ\Appointment\Dto\AppointmentStatusDto;
 use ANZ\Appointment\Dto\BookingDto;
 use ANZ\Appointment\Dto\ClinicDto;
 use ANZ\Appointment\Dto\EmployeeDto;
 use ANZ\Appointment\Dto\ServiceDto;
+use ANZ\Appointment\Dto\WaitListDto;
 use ANZ\Appointment\Integration\UmcSdk\Cache\CacheProvider;
 use ANZ\Appointment\Integration\UmcSdk\Contract\UmcGatewayInterface;
 use ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException;
 use ANZ\Appointment\Integration\UmcSdk\Exception\SdkDataMapperException;
 use ANZ\Appointment\Integration\UmcSdk\Exception\UmcIntegrationCacheException;
+use ANZ\Appointment\Integration\UmcSdk\Gateway\Client\HttpClient;
 use ANZ\Appointment\Integration\UmcSdk\Gateway\Client\SoapClient;
 use ANZ\Appointment\Integration\UmcSdk\Mapper\SdkRequestFromParams;
 use ANZ\Appointment\Integration\UmcSdk\Mapper\SdkResponseToDto;
 use ANZ\Appointment\Integration\UmcSdk\Provider\ExchangeDataProvider;
+use ANZ\Appointment\Integration\UmcSdk\Validator\RequestValidator;
 use ANZ\Appointment\Integration\UmcSdk\Validator\ResponseValidator;
 use ANZ\BitUmc\SDK\Core\Dictionary\ClientScope;
 use ANZ\BitUmc\SDK\Core\Dictionary\Protocol;
@@ -49,6 +53,7 @@ class Sdk implements UmcGatewayInterface
         private readonly SdkResponseToDto     $responseMapper,
         private readonly SdkRequestFromParams $requestMapper,
         private readonly ResponseValidator    $responseValidator,
+        private readonly RequestValidator    $requestValidator,
         private readonly CacheProvider        $cacheProvider,
     ) {
         try
@@ -164,15 +169,25 @@ class Sdk implements UmcGatewayInterface
                 ]));
             }
 
-            $client = SoapClient::create(
-                $login,
-                $password,
-                $publicationScheme,
-                $publicationHost,
-                $baseName,
-                $scope,
-                new ExchangeDataProvider(new XmlParser)
-            );
+            $client = $exchangeMode === ExchangeMode::SOAP
+                ? SoapClient::create(
+                    $login,
+                    $password,
+                    $publicationScheme,
+                    $publicationHost,
+                    $baseName,
+                    $scope,
+                    new ExchangeDataProvider(new XmlParser)
+                )
+                : HttpClient::create(
+                    $login,
+                    $password,
+                    $publicationScheme,
+                    $publicationHost,
+                    $baseName,
+                    $scope,
+                    $token
+                );
 
             return (new ExchangeFactory($client))->create();
         }
@@ -417,7 +432,7 @@ class Sdk implements UmcGatewayInterface
     /**
      * @throws GatewayException
      */
-    public function bookSlot(string $clinicUid, string $employeeUid, DateTime $dateTimeBegin, int $serviceDuration): BookingDto
+    public function sendBooking(string $clinicUid, string $employeeUid, DateTime $dateTimeBegin, int $serviceDuration): BookingDto
     {
         $uid = null;
         try
@@ -455,25 +470,98 @@ class Sdk implements UmcGatewayInterface
             {
                 try {
                     $this->deleteAppointment($uid);
-                }catch (Throwable){}
+                }
+                catch (Throwable){}
             }
             throw new GatewayException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
-    public function addWaitList($waitList): array
+    /**
+     * @throws \ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException
+     */
+    public function sendAppointment(array $data): AppointmentDto
     {
-        // TODO: Implement sendWaitList() method.
+        try
+        {
+            $dto = $this->requestMapper->appointmentDtoFromArray($data);
+            $this->requestValidator->validateAppointment($dto);
+            if ($this->demoMode)
+            {
+                sleep(3);
+                return $dto;
+            }
+
+            $result = $this->getSdkExchangeService()->sendOrder(
+                $this->requestMapper->appointmentItemFromDto($dto)
+            );
+            if (!$result->isSuccess())
+            {
+                try
+                {
+                    $this->deleteAppointment($dto->uid);
+                }
+                catch (Throwable){}
+
+                throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
+            }
+
+            return $dto;
+        }
+        catch (Throwable $e)
+        {
+            if ($e instanceof GatewayException)
+            {
+                throw $e;
+            }
+            throw new GatewayException($e->getMessage(), $e->getCode(), $e);
+        }
     }
 
-    public function sendAppointment($order): array
+    /**
+     * @throws \ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException
+     */
+    public function sendWaitList(array $data): WaitListDto
     {
-        // TODO: Implement sendOrder() method.
+        try
+        {
+            $dto = $this->requestMapper->waitListDtoFromArray($data);
+            if ($this->demoMode)
+            {
+                sleep(3);
+                return $dto;
+            }
+
+            $result = $this->getSdkExchangeService()->sendWaitList(
+                $this->requestMapper->waitListItemFromDto($dto)
+            );
+            if (!$result->isSuccess())
+            {
+                throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
+            }
+            return $dto;
+        }
+        catch (Throwable $e)
+        {
+            if ($e instanceof GatewayException)
+            {
+                throw $e;
+            }
+            throw new GatewayException($e->getMessage(), $e->getCode(), $e);
+        }
     }
 
+    /**
+     * @throws \ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException
+     */
     public function deleteAppointment(string $uid): bool
     {
-        // TODO: Implement deleteOrder() method.
+        $res = $this->getSdkExchangeService()->deleteOrder($uid);
+        if (!$res->isSuccess())
+        {
+            throw new GatewayException(implode(PHP_EOL, $res->getErrorMessages()));
+        }
+        return true;
     }
 
     /**

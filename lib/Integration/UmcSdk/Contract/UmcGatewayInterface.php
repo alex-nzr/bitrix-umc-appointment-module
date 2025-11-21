@@ -7,11 +7,13 @@
 */
 namespace ANZ\Appointment\Integration\UmcSdk\Contract;
 
+use ANZ\Appointment\Dto\AppointmentDto;
 use ANZ\Appointment\Dto\AppointmentStatusDto;
 use ANZ\Appointment\Dto\BookingDto;
 use ANZ\Appointment\Dto\ClinicDto;
 use ANZ\Appointment\Dto\EmployeeDto;
 use ANZ\Appointment\Dto\ServiceDto;
+use ANZ\Appointment\Dto\WaitListDto;
 use DateTime;
 
 interface UmcGatewayInterface
@@ -31,11 +33,11 @@ interface UmcGatewayInterface
 
     public function getAppointmentStatus(string $appointmentUid): AppointmentStatusDto;
 
-    public function bookSlot(string $clinicUid, string $employeeUid, DateTime $dateTimeBegin, int $serviceDuration): BookingDto;
+    public function sendBooking(string $clinicUid, string $employeeUid, DateTime $dateTimeBegin, int $serviceDuration): BookingDto;
 
-    public function addWaitList(/*Order*/ $waitList): array;
+    public function sendWaitList(array $data): WaitListDto;
 
-    public function sendAppointment(/*Order*/ $order): array;
+    public function sendAppointment(array $data): AppointmentDto;
 
     public function deleteAppointment(string $uid): bool;
 }

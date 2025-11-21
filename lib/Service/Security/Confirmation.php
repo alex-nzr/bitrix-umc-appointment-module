@@ -5,9 +5,10 @@
  * 10.07.2022
  * ==================================================
 */
-namespace ANZ\Appointment\Service\Operation;
+namespace ANZ\Appointment\Service\Security;
 
 use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\Config\ConfirmationType;
 use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Application;
@@ -16,19 +17,10 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Exception;
 
-/**
- * Class Confirm
- * @package ANZ\Appointment\Service\Operation
- */
-class Confirm
+class Confirmation
 {
     public function __construct(){}
 
-    /**
-     * @param string $phone
-     * @param string $email
-     * @return \Bitrix\Main\Result
-     */
     public static function sendConfirmCode(string $phone, string $email): Result
     {
         try {
@@ -50,13 +42,14 @@ class Confirm
             }
 
             switch ($confirmWith){
-                case Constants::CONFIRM_TYPE_PHONE:
+                case ConfirmationType::PHONE->value:
                     $result = $smsService->sendConfirmCode($phone, $code);
                     break;
-                case Constants::CONFIRM_TYPE_EMAIL:
+                case ConfirmationType::EMAIL->value:
                     $result = $mailer->sendConfirmCode($email, $code);
                     break;
-                case Constants::CONFIRM_TYPE_NONE:
+                case ConfirmationType::NONE->value:
+                    break;
                 default:
                     $result->addError(new Error(Loc::getMessage("ANZ_APPOINTMENT_CONFIRM_TYPE_ERROR"), 400));
                     break;
@@ -77,10 +70,6 @@ class Confirm
         }
     }
 
-    /**
-     * @param string $code
-     * @return \Bitrix\Main\Result
-     */
     public static function verifyConfirmCode(string $code): Result
     {
         $result = new Result();

@@ -16,6 +16,7 @@ $MESS['ANZ_JS_EMPLOYEES_NOT_FOUND_ERROR']      = 'По выбранным пар
 $MESS['ANZ_JS_SPECIALTIES_NOT_FOUND_ERROR']    = 'В выбранном филиале не найдено доступных специализаций';
 $MESS['ANZ_JS_SERVICES_NOT_FOUND_ERROR']       = 'По выбранным параметрам нет подходящих услуг';
 $MESS['ANZ_JS_SCHEDULE_NOT_FOUND_ERROR']       = 'По выбранным параметрам нет свободного времени для записи';
+$MESS['ANZ_JS_BOOKING_SLOT_ERROR']             = 'Не удалось забронировать выбранный слот';
 
 $MESS['ANZ_JS_CLINICS_NODE_NOT_FOUND_ERROR']       = 'Селектор для вывода филиалов не найден';
 $MESS['ANZ_JS_SPECIALTIES_NODE_NOT_FOUND_ERROR']   = 'Селектор для вывода специализаций не найден';

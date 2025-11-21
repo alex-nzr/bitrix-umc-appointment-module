@@ -19,9 +19,6 @@ use Bitrix\Main\ModuleManager;
 
 Loc::loadMessages(__FILE__);
 
-/**
- * @class anz_appointment
- */
 class anz_appointment extends CModule
 {
     public $MODULE_ID = 'anz.appointment';
@@ -178,8 +175,6 @@ class anz_appointment extends CModule
                 ." - ". implode('; ', $res->getErrorMessages())
             );
         }
-
-        Option::delete($this->MODULE_ID);
     }
 
     /**
@@ -350,7 +345,7 @@ class anz_appointment extends CModule
         }
 
         $requireModules = [
-            'main'  => '24.0',
+            'main'  => '25.0',
         ];
 
         foreach ($requireModules as $moduleName => $moduleVersion)

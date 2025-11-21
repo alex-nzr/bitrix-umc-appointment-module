@@ -9,9 +9,11 @@
 namespace ANZ\Appointment\Tests\Unit\Integration\UmcSdk\Gateway;
 
 use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\Dto\AppointmentDto;
 use ANZ\Appointment\Dto\AppointmentStatusDto;
 use ANZ\Appointment\Dto\BookingDto;
 use ANZ\Appointment\Dto\ClinicDto;
+use ANZ\Appointment\Dto\WaitListDto;
 use ANZ\Appointment\Integration\UmcSdk\Contract\UmcGatewayInterface;
 use DateTime;
 use Throwable;
@@ -65,7 +67,7 @@ class FakeSdk implements UmcGatewayInterface
         return new AppointmentStatusDto('000', 'Fake status');
     }
 
-    public function bookSlot(string $clinicUid, string $employeeUid, DateTime $dateTimeBegin, int $serviceDuration): BookingDto
+    public function sendBooking(string $clinicUid, string $employeeUid, DateTime $dateTimeBegin, int $serviceDuration): BookingDto
     {
         return new BookingDto(
             uniqid('fake_uid_'),
@@ -76,12 +78,12 @@ class FakeSdk implements UmcGatewayInterface
         );
     }
 
-    public function addWaitList($waitList): array
+    public function sendWaitList(array $data): WaitListDto
     {
         // TODO: Implement addWaitList() method.
     }
 
-    public function sendAppointment($order): array
+    public function sendAppointment(array $data): AppointmentDto
     {
         // TODO: Implement sendAppointment() method.
     }
