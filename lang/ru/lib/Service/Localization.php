@@ -20,7 +20,7 @@ $MESS['ANZ_APPOINTMENT_MENU_SETTINGS_TITLE'] = 'Настройки модуля'
 //Module Options
 $MESS['ANZ_APPOINTMENT_MODULE_SETTINGS_INFO'] = "<a href='$moduleDir/docs/anz.appointment-docs.pdf' target='_blank'>Инструкция по настройке модуля</a>";
 $MESS['ANZ_APPOINTMENT_MODULE_SETTINGS'] = "Настройки модуля";
-$MESS['ANZ_APPOINTMENT_PRIVACY_PAGE_URL'] = sprintf($hintTemplate,'Ссылка на политику конфиденциальности сайта', 'Необходима для размещения на форме записи');
+$MESS['ANZ_APPOINTMENT_PRIVACY_PAGE_URL'] = sprintf($hintTemplate,'Ссылка на политику конфиденциальности сайта', 'Необходима для размещения на форме онлайн-записи');
 $MESS['ANZ_APPOINTMENT_USE_AUTO_INJECTING_ON'] = sprintf($hintTemplate, 'Автоматическое подключение', 'При включенной опции кнопка онлайн-записи появится на всех страницах сайта автоматически, если не указан id собственной кнопки.<br>При отключенной опции, нужно самостоятельно подключить на сайте js-расширение.');
 $MESS['ANZ_APPOINTMENT_USE_DEMO_MODE_ON'] = sprintf($hintTemplate , 'Включить демо-режим', 'При включённой опции данные будут загружаться из файла в директории модуля, а отправка заявки будет всегда успешна');
 
@@ -34,7 +34,7 @@ $MESS['ANZ_APPOINTMENT_EXCHANGE_CONFIRM_PHONE'] = "По СМС";
 $MESS['ANZ_APPOINTMENT_EXCHANGE_CONFIRM_EMAIL'] = "По email";
 $MESS['ANZ_APPOINTMENT_EXCHANGE_DEFAULT_APPOINTMENT_DURATION'] = sprintf($hintTemplate , 'Длительность приёма по умолчанию, если не указана в 1С (в секундах)', 'Применяется если не указана длительность приема у врача и услуги');
 
-$MESS['ANZ_APPOINTMENT_TEMPLATE_SETTINGS'] = 'Настройки шаблона';
+$MESS['ANZ_APPOINTMENT_CLASSIC_TEMPLATE_SETTINGS'] = 'Настройки шаблона Classic';
 $MESS['ANZ_APPOINTMENT_SELECT_DOCTOR_BEFORE_SERVICE'] = sprintf($hintTemplate , 'Выбирать сначала доктора, потом услугу', 'При включенной опции, пользователю сначала будет предложено выбрать доктора, а потом откроется выбор услуг, которые он может оказать. При выключенной, наоборот - сначала выбор услуги, потом выбор доктора из списка тех, кто может эту услугу оказать');
 $MESS['ANZ_APPOINTMENT_USE_TIME_STEPS'] = sprintf($hintTemplate , 'Использовать дополнительные интервалы времени при записи', 'При включенной опции, время для записи будет дано с интервалом, указанным в поле «Длительность интервала». Например у доктора свободно время с 10-00 до 12-00. При включенной опции, длительности интервала 15мин и длительности выбранной услуги в 60мин будут показаны следующие интервалы для записи: 10.00-11.00, 10.15-11.15, 10.30-11.30, 10.45-11.45, 11.00-12.00. А при выключенной опции: 10.00-11.00, 11.00-12.00.');
 $MESS['ANZ_APPOINTMENT_TIME_STEP_DURATION'] = 'Длительность интервала (в минутах)';
@@ -53,6 +53,7 @@ $MESS['ANZ_APPOINTMENT_EXCHANGE_EXEC_INTERVAL'] = 'Периодичность о
 $MESS['ANZ_APPOINTMENT_EXCHANGE_CACHE_TTL'] = 'Время жизни кеша врачей, филиалов, услуг (в секундах)';
 $MESS['ANZ_APPOINTMENT_EXCHANGE_NEXT_EXEC_DATE'] = 'Дата/Время следующего обмена';
 $MESS['ANZ_APPOINTMENT_EXCHANGE_SCHEDULE_PERIOD'] = 'Период выгрузки расписания (в днях)';
+$MESS['ANZ_APPOINTMENT_EXCHANGE_CLINIC_SELECTOR'] = sprintf($hintTemplate , 'Ограничение выгрузки по филиалам', 'Выгрузка расписания и услуг происходит только по выбранным филиалам.<br>(при отсутствии выбора выгружается по всем)');
 $MESS['ANZ_APPOINTMENT_EXCHANGE_USE_SERVICES'] = sprintf($hintTemplate , 'Выгружать услуги и цены', 'Для выгрузки номенклатуры и прайсов необходимо <b>в 1С</b> создать настройку обмена с сайтом на необходимый филиал и указать прайс.<br>(Вкладка «Администрирование» – «Настройки обмена с сайтом»)');
 
 $MESS['ANZ_APPOINTMENT_EXCHANGE_START_BTN'] = 'Загрузить данные';
@@ -61,10 +62,10 @@ $MESS['ANZ_APPOINTMENT_API_PASSWORD_EMPTY_ERROR'] = "<b>Внимание!</b> П
 
 /*View options*/
 $MESS['ANZ_APPOINTMENT_TAB_VIEW'] = "Внешний вид";
-$MESS['ANZ_APPOINTMENT_TAB_TITLE_VIEW'] = "Визуальные настройки формы записи";
+$MESS['ANZ_APPOINTMENT_TAB_TITLE_VIEW'] = "Визуальные настройки онлайн-записи";
 $MESS['ANZ_APPOINTMENT_LOGO_UPLOAD'] = "Логотип компании";
-$MESS['ANZ_APPOINTMENT_JS_EXTENSION'] = "Варианты формы записи";
-$MESS['ANZ_APPOINTMENT_JS_EXTENSION_SELECT'] = "Выбрать форму записи";
+$MESS['ANZ_APPOINTMENT_JS_EXTENSION'] = "Варианты онлайн-записи";
+$MESS['ANZ_APPOINTMENT_JS_EXTENSION_SELECT'] = "Выбрать шаблон";
 $MESS['ANZ_APPOINTMENT_JS_EXTENSION_BX_POPUP'] = "Classic";
 $MESS['ANZ_APPOINTMENT_JS_EXTENSION_FORM_REACT'] = "Material UI";
 $MESS['ANZ_APPOINTMENT_JS_EXTENSION_CUSTOM'] = sprintf($hintTemplate , 'Использовать своё js-расширение', 'При заполненной опции стандартные варианты подключены не будут');
@@ -72,7 +73,7 @@ $MESS['ANZ_APPOINTMENT_MAIN_BTN_SETTINGS'] = 'Настройки кнопки "�
 $MESS['ANZ_APPOINTMENT_MAIN_BTN_BG_COLOR'] = "Цвет фона";
 $MESS['ANZ_APPOINTMENT_MAIN_BTN_TEXT_COLOR'] = "Цвет текста";
 $MESS['ANZ_APPOINTMENT_USE_CUSTOM_MAIN_BTN'] = "Использовать свою кнопку";
-$MESS['ANZ_APPOINTMENT_CUSTOM_BTN_ID'] = 'Значение атрибута "id" собственной кнопки';
+$MESS['ANZ_APPOINTMENT_CUSTOM_BTN_SELECTOR'] = 'CSS селектор собственной кнопки вызова виджета';
 $MESS['ANZ_APPOINTMENT_TEMPLATE_COLORS_SETTINGS'] = "Настройки цветовой гаммы";
 $MESS['ANZ_APPOINTMENT_TEMPLATE_COLOR_MAIN'] = "Основной цвет";
 $MESS['ANZ_APPOINTMENT_FORM_COLOR_FIELD'] = "Цвет полей ввода";

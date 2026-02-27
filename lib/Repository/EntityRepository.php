@@ -10,6 +10,7 @@ namespace ANZ\Appointment\Repository;
 use ANZ\Appointment\Core\Exception\EntityRepositoryException;
 use Bitrix\Main\ORM\Entity;
 use Bitrix\Main\ORM\Objectify\EntityObject;
+use Exception;
 use Throwable;
 
 abstract class EntityRepository implements RepositoryInterface
@@ -30,7 +31,7 @@ abstract class EntityRepository implements RepositoryInterface
                 $result = $entityObject->save();
                 if (!$result->isSuccess())
                 {
-                    throw new \Exception(implode("\n", $result->getErrorMessages()));
+                    throw new Exception(implode("\n", $result->getErrorMessages()));
                 }
             }
             return $entityObject->getId();
@@ -48,7 +49,7 @@ abstract class EntityRepository implements RepositoryInterface
     {
         try
         {
-            $result = $this->getByPrimary($primary)->delete();
+            $result = $this->entity->getDataClass()::delete($primary);
             if (!$result->isSuccess())
             {
                 throw new EntityRepositoryException(implode("\n", $result->getErrorMessages()));
@@ -68,7 +69,7 @@ abstract class EntityRepository implements RepositoryInterface
     {
         try
         {
-            return $this->entity->getDataClass()::getByPrimary($primary)->fetchObject();
+            return $this->entity->getDataClass()::getByPrimary($primary, ['select' => ['*']])->fetchObject();
         }
         catch (Throwable $e)
         {

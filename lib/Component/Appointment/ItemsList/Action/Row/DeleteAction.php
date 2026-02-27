@@ -39,7 +39,7 @@ class DeleteAction extends BaseAction
 
         $this->default = true;
         $this->onclick = 'confirm("'.Loc::getMessage('ANZ_APPOINTMENT_BTN_DELETE_TEXT').'?") 
-                                ? BX.Anz.Appointment.Admin.deleteRecord('.$id.', "'.$gridId.'", "'.$uid.'") 
+                                ? BX.Anz?.Appointment?.Admin?.AppointmentList?.deleteAppointment('.$id.', "'.$gridId.'", "'.$uid.'") 
                                 : void(0)';
 
         return parent::getControl($rawFields);

@@ -65,7 +65,7 @@ export class ClassicForm
         this.useEmailNote                   = (params.useEmailNote === "Y");
 
         this.companyLogo      = params.companyLogo ?? false;
-        this.useCustomMainBtn = (params.useCustomMainBtn === "Y") && params['customMainBtnId'];
+        this.useCustomMainBtn = (params.useCustomMainBtn === "Y") && params['customMainBtnSelector'];
         this.customColors     = params.customColors ?? {};
 
         this.filledInputs = {
@@ -167,7 +167,7 @@ export class ClassicForm
         try {
             this.initCustomEvents();
             this.initFormStepNodes();
-            this.initStartBtn();
+            this.initStartButtons();
             this.initBaseNodes();
             this.initOverlayAction();
             this.initForm();
@@ -233,23 +233,27 @@ export class ClassicForm
         this.formStepNodes.userData = BX(this.selectors.formStepIds.userData);
     }
 
-    /**
-     * find or create start button and add event handler for click
-     */
-    initStartBtn() {
+    initStartButtons() {
         if(!this.firstInit && this.useCustomMainBtn){
             return;
         }
-        const startBtnId = this.useCustomMainBtn ? this.initParams['customMainBtnId'] : this.selectors.startBtnId;
-        this.startBtn = BX(startBtnId);
-        if (BX.type.isDomNode(this.startBtn))
+
+        if (this.useCustomMainBtn)
         {
-            EventManager.bind(this.startBtn, 'click', this.togglePopup.bind(this));
+            this.startButtons = document.querySelectorAll(this.initParams['customMainBtnSelector']);
         }
         else
         {
-            throw new Error(`${BX.message('ANZ_JS_NODE_NOT_FOUND')} "${this.initParams['customMainBtnId']}"`)
+            this.startButtons = document.querySelectorAll(`#${this.selectors.startBtnId}`);
         }
+
+        if (!this.startButtons?.length)
+        {
+            this.startButtons = null;
+            throw new Error(`Start buttons not found by selector "${this.useCustomMainBtn ? this.initParams['customMainBtnSelector'] : '#'+this.selectors.startBtnId}"`)
+        }
+
+        this.startButtons?.forEach(btn => EventManager.bind(btn, 'click', this.togglePopup.bind(this)));
     }
 
     /**
@@ -1242,8 +1246,19 @@ export class ClassicForm
     }
 
     finalAnimations(){
-        this.startBtn.classList.remove(styles['active']);
-        this.startBtn.classList.add(styles['success']);
+        this.startButtons?.forEach(btn => {
+            if (this.useCustomMainBtn)
+            {
+                btn.classList.remove('active');
+                btn.classList.add('success');
+            }
+            else
+            {
+                btn.classList.remove(styles['active']);
+                btn.classList.add(styles['success']);
+            }
+        });
+
         setTimeout(()=>{
             this.reload();
         }, 5000);
@@ -1385,8 +1400,12 @@ export class ClassicForm
      */
     togglePopup() {
         this.overlay.classList.toggle(styles['active']);
-        this.useCustomMainBtn ? this.startBtn.classList.toggle('active')
-            : this.startBtn.classList.toggle(styles['active']);
+        this.startButtons?.forEach(btn => {
+            this.useCustomMainBtn
+                ? btn.classList.toggle('active')
+                : btn.classList.toggle(styles['active']);
+        });
+
         if (!this.ready){
             this.start();
         }

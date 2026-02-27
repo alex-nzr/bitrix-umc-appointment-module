@@ -9,7 +9,6 @@ namespace ANZ\Appointment\Service\Security;
 
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Config\ConfirmationType;
-use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Application;
 use Bitrix\Main\Error;
@@ -19,11 +18,10 @@ use Exception;
 
 class Confirmation
 {
-    public function __construct(){}
-
-    public static function sendConfirmCode(string $phone, string $email): Result
+    public function sendConfirmCode(string $phone, string $email): Result
     {
-        try {
+        try
+        {
             $mailer = Container::getInstance()->getMailerService();
             $smsService = Container::getInstance()->getSmsService();
 
@@ -70,7 +68,7 @@ class Confirmation
         }
     }
 
-    public static function verifyConfirmCode(string $code): Result
+    public function verifyConfirmCode(string $code): Result
     {
         $result = new Result();
         $session = Application::getInstance()->getSession();

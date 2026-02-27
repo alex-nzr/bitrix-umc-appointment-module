@@ -66,6 +66,16 @@ final class Configuration
     }
 
     /**
+     * @throws \ANZ\Appointment\Core\Exception\ConfigurationException
+     */
+    public static function isInLocalHolder(): bool
+    {
+        $moduleHolder = Loader::LOCAL_HOLDER;
+        $moduleDir = Application::getDocumentRoot() . "/$moduleHolder/modules/" . self::getModuleId();
+        return is_dir($moduleDir);
+    }
+
+    /**
      * @throws \Exception
      */
     public function getLogFileDir(bool $fullPath = false): string
@@ -138,9 +148,9 @@ final class Configuration
         return Option::get(self::$moduleId, Constants::OPTION_KEY_USE_CUSTOM_BTN) === 'Y';
     }
 
-    public function getCustomBtnAttrId(): string
+    public function getCustomBtnSelector(): string
     {
-        return Option::get(self::$moduleId, Constants::OPTION_KEY_CUSTOM_BTN_ID);
+        return Option::get(self::$moduleId, Constants::OPTION_KEY_CUSTOM_BTN_SELECTOR);
     }
 
     public function isExchangeActive(): bool
@@ -167,6 +177,18 @@ final class Configuration
     public function setExchangeActive(bool $value): void
     {
         Option::set(self::$moduleId, Constants::OPTION_KEY_EXCHANGE_AGENT_ACTIVE, $value ? 'Y' : 'N');
+    }
+
+    public function getSelectedClinics(): array
+    {
+        try {
+            $val = Option::get(self::$moduleId, Constants::OPTION_KEY_EXCHANGE_CLINIC_SELECTOR);
+            $decoded = json_decode($val, true);
+        }
+        catch (Throwable){
+            $decoded = [];
+        }
+        return is_array($decoded) ? $decoded : [];
     }
 
     public function isServicesEnabled(): bool

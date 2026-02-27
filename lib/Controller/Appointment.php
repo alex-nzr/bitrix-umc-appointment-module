@@ -13,7 +13,7 @@ use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Core\ActionFilter\Admin;
 use ANZ\Appointment\Service\Container;
 use ANZ\Appointment\Service\Exchange\Manager;
-use ANZ\Appointment\Service\Security\Confirmation;
+use ANZ\Appointment\UI\Adapter\ReactMUI;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\ActionFilter\Csrf;
 use Bitrix\Main\Engine\ActionFilter\FilterType;
@@ -36,6 +36,23 @@ class Appointment extends Controller
     {
         parent::__construct();
         $this->exchangeService = Container::getInstance()->getExchangeManager();
+    }
+
+    public function getDataAction(): ?array
+    {
+        try
+        {
+            return [
+                'clinics' => ReactMUI::prepareClinicsData($this->exchangeService->getClinics()),
+                'employees' => ReactMUI::prepareEmployeesData($this->exchangeService->getEmployees()),
+                'nomenclature' => $this->exchangeService->getServices('f679444a-22b7-11df-8618-002618dcef2c'),
+            ];
+        }
+        catch (Throwable $e)
+        {
+            $this->addError(new Error($e->getMessage()));
+            return null;
+        }
     }
 
     public function getClinicsAction(): ?array
@@ -197,14 +214,30 @@ class Appointment extends Controller
         }
     }
 
-    public function sendConfirmCodeAction(string $phone = '', string $email = ''): Result
+    public function sendConfirmCodeAction(string $phone = '', string $email = ''): ?Result
     {
-        return Confirmation::sendConfirmCode($phone, $email);
+        try
+        {
+            return Container::getInstance()->getConfirmationService()->sendConfirmCode($phone, $email);
+        }
+        catch (Throwable $e)
+        {
+            $this->addError(new Error($e->getMessage()));
+            return null;
+        }
     }
 
-    public function verifyConfirmCodeAction(string $code): Result
+    public function verifyConfirmCodeAction(string $code): ?Result
     {
-        return Confirmation::verifyConfirmCode($code);
+        try
+        {
+            return Container::getInstance()->getConfirmationService()->verifyConfirmCode($code);
+        }
+        catch (Throwable $e)
+        {
+            $this->addError(new Error($e->getMessage()));
+            return null;
+        }
     }
 
     public function sendEmailNoteAction(string $jsonData): Result

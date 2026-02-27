@@ -1,11 +1,4 @@
-label.anz-appointment-adm-label input[disabled][readonly]{
-    opacity: .5;
-}
-label.anz-appointment-adm-label input[readonly]{
-    opacity: 1;
-}
 
-/*Menu*/
 #global_menu_anz_appointment .adm-main-menu-item-icon{
     background-position: top 15px center;
     background-size: 80%;

@@ -26,6 +26,7 @@ class Constants
     const OPTION_KEY_API_WS_PASSWORD = 'appointment_api_ws_password';
     const OPTION_KEY_API_HS_TOKEN = 'appointment_api_hs_token';
     const OPTION_KEY_EXCHANGE_MODE = 'appointment_exchange_mode';
+    const OPTION_KEY_EXCHANGE_CLINIC_SELECTOR = 'appointment_exchange_clinic_selector';
     const OPTION_KEY_EXCHANGE_USE_SERVICES   = 'appointment_exchange_use_services';
     const OPTION_KEY_EXCHANGE_AGENT_ACTIVE   = 'appointment_exchange_agent_active';
     const OPTION_KEY_EXCHANGE_NEXT_EXEC_DATE = 'appointment_exchange_next_exec_date';
@@ -47,7 +48,7 @@ class Constants
     const OPTION_KEY_CUSTOM_JS_EXTENSION = 'appointment_view_custom_js_ext';
     const OPTION_KEY_LOGO            = 'appointment_view_logo_image';
     const OPTION_KEY_USE_CUSTOM_BTN  = 'appointment_view_use_custom_main_btn';
-    const OPTION_KEY_CUSTOM_BTN_ID   = 'appointment_view_custom_main_btn_id';
+    const OPTION_KEY_CUSTOM_BTN_SELECTOR   = 'appointment_view_custom_main_btn_selector';
     const OPTION_KEY_MAIN_BTN_BG        = '--appointment-start-btn-bg-color';
     const OPTION_KEY_MAIN_BTN_TEXT_CLR  = '--appointment-start-btn-text-color';
     const OPTION_KEY_TEMPLATE_MAIN_COLOR = '--appointment-main-color';

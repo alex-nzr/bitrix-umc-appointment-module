@@ -17,7 +17,7 @@ use ANZ\Appointment\Dto\WaitListDto;
 use ANZ\Appointment\Event\Event;
 use ANZ\Appointment\Event\EventType;
 use ANZ\Appointment\Integration\UmcSdk\Contract\UmcGatewayInterface;
-use ANZ\Appointment\Model\EntityObject\Record;
+use ANZ\Appointment\Model\RecordTable;
 use ANZ\Appointment\Repository\EntityRepository;
 use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Context;
@@ -207,7 +207,7 @@ class Manager
             else
             {
                 $dto = $this->gateway->sendAppointment($data);
-                $this->repository->save(Record::fromArray($data));
+                $this->repository->save(RecordTable::fromArray($data));
             }
             return $dto;
         }
@@ -240,10 +240,9 @@ class Manager
         try
         {
             $dto = $this->gateway->getAppointmentStatus($uid);
-            /** @var Record $entityObject */
             if ($entityObject = $this->repository->getByPrimary($id))
             {
-                $entityObject->setStatus1c($dto->name);
+                $entityObject->setStatus_1c($dto->name);
                 $this->repository->save($entityObject);
             }
             return $dto;

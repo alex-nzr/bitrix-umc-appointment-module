@@ -53,27 +53,17 @@ try
             <input type="submit" name="Update" value="<?=Loc::getMessage('MAIN_SAVE')?>" class="adm-btn-save">
             <input type="reset"  name="reset" value="<?=Loc::getMessage('MAIN_RESET')?>">
         </form>
-        <script type="text/javascript">
+        <script>
             BX.ready(function() {
-                BX.UI?.Hint?.init(BX('<?=$formId?>'));
-
-                const templateSelector = BX(`<?=Constants::OPTION_KEY_JS_EXTENSION?>`);
-                const templateOptions = document.querySelectorAll(`[data-extension]`)
-                templateSelector && templateSelector.addEventListener('change', () => prepareTemplateOptions());
-                const prepareTemplateOptions = () => {
-                    templateOptions.length && templateOptions.forEach(option => {
-                        if (templateSelector.value === option.dataset.extension)
-                        {
-                            option.closest('tr')?.classList.remove('hidden');
-                        }
-                        else
-                        {
-                            option.closest('tr')?.classList.add('hidden');
-                        }
-                    })
-                }
-
-                prepareTemplateOptions();
+                const namespace = BX.namespace('Anz.Appointment.Admin');
+                namespace.ModuleOptions = new ModuleOptions(<?=json_encode([
+                    'formId' => $formId,
+                    'jsExtOptionKey' => Constants::OPTION_KEY_JS_EXTENSION,
+                    'useCustomBtnOptionKey' => Constants::OPTION_KEY_USE_CUSTOM_BTN,
+                    'customBtnSelectorOptionKey' => Constants::OPTION_KEY_CUSTOM_BTN_SELECTOR,
+                    'mainBtnBgOptionKey' => Constants::OPTION_KEY_MAIN_BTN_BG,
+                    'mainBtnTextColorOptionKey' => Constants::OPTION_KEY_MAIN_BTN_TEXT_CLR,
+                ])?>);
             })
         </script>
     <?php

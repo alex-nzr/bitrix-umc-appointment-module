@@ -22,6 +22,7 @@ use CFile;
 use CModule;
 use COption;
 use Exception;
+use Throwable;
 
 abstract class Options extends BaseComponent
 {
@@ -45,10 +46,6 @@ abstract class Options extends BaseComponent
         return $arParams;
     }
 
-    /**
-     * @return void
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     */
     public function processRequest(): void
     {
         try
@@ -219,18 +216,11 @@ abstract class Options extends BaseComponent
         }
     }
 
-    /**
-     * @return \CAdminTabControl
-     */
     public function getTabControl(): CAdminTabControl
     {
         return $this->tabControl;
     }
 
-    /**
-     * @return array
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     */
     public function getResult(): array
     {
         $this->processRequest();
@@ -243,9 +233,6 @@ abstract class Options extends BaseComponent
         ];
     }
 
-    /**
-     * @return string
-     */
     public function getFormAction(): string
     {
         return $this->request->getRequestedPage() . "?" . http_build_query([
@@ -260,7 +247,7 @@ abstract class Options extends BaseComponent
     }
 
     /**
-     * @throws \Exception
+     * @throws \ANZ\Appointment\Core\Exception\ConfigurationException
      */
     public function drawSettingsRow(string $module_id, $option): void
     {
@@ -323,18 +310,12 @@ abstract class Options extends BaseComponent
         }
     }
 
-    /**
-     * @param string $text
-     */
     protected function renderTitle(string $text): void
     {
         echo "<td><span>$text</span></td>";
     }
 
     /**
-     * @param array $option
-     * @param string $val
-     * @return void
      * @throws \Exception
      */
     protected function renderInput(array $option, string $val): void
@@ -416,7 +397,15 @@ abstract class Options extends BaseComponent
                     break;
                 case "multiselect":
                     $arr = is_array($type['LIST']) ? $type['LIST'] : [];
-                    $arr_val = json_decode($val, true);
+                    try{
+                        $arr_val = json_decode($val, true);
+                        if (!is_array($arr_val))
+                        {
+                            $arr_val = [];
+                        }
+                    }catch (Throwable){
+                        $arr_val = [];
+                    }
                     echo "<select multiple $attrsString>";
                     foreach($arr as $optionVal => $displayVal)
                     {

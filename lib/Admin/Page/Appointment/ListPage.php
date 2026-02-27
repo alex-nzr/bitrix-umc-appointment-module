@@ -17,7 +17,7 @@ class ListPage extends BaseAdminPage
     public function __construct()
     {
         parent::__construct();
-        $this->pageTitle = Loc::getMessage('ANZ_ADMIN_LIST_PAGE_TITLE');
+        $this->pageTitle = Loc::getMessage('ANZ_ADMIN_LIST_PAGE_TITLE') ?? 'empty page title';
     }
 
     public function draw(): void

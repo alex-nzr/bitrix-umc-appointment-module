@@ -8,6 +8,7 @@
 
 namespace ANZ\Appointment\Integration\UmcSdk\Validator;
 
+use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Core\Exception\ValidatorException;
 use ANZ\Appointment\Core\Trait\Validator;
 use ANZ\Appointment\Dto\BookingDto;
@@ -16,12 +17,20 @@ class ResponseValidator
 {
     use Validator;
 
+    private array $clinicsFilter;
+
+    public function __construct()
+    {
+        $this->clinicsFilter = Configuration::getInstance()->getSelectedClinics();
+    }
+
     public function validateClinic(mixed $data): bool
     {
         if (is_array($data))
         {
             return key_exists('uid', $data) && !empty($data['uid'])
-                    && key_exists('name', $data) && !empty($data['name']);
+                    && key_exists('name', $data) && !empty($data['name'])
+                    && (empty($this->clinicsFilter) || in_array($data['uid'], $this->clinicsFilter));
         }
         return false;
     }

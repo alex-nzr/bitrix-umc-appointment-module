@@ -368,9 +368,9 @@ class Sdk implements UmcGatewayInterface
             $data = $this->cacheProvider->getSchedule($clinicUid, $employees);
             if (is_null($data))
             {
-                if (!$this->isLocked(__METHOD__))
+                if (!$this->isLocked(__METHOD__, $this->cacheProvider->getScheduleTtl()))
                 {
-                    $this->setLock(__METHOD__);
+                    $this->setLock(__METHOD__, $this->cacheProvider->getScheduleTtl());
                     $result = $this->getSdkExchangeService()->getSchedule($days, $clinicUid, $employees, $startDate);
                     if (!$result->isSuccess())
                     {
@@ -567,17 +567,17 @@ class Sdk implements UmcGatewayInterface
     /**
      * @throws UmcIntegrationCacheException
      */
-    private function isLocked(string $key): bool
+    private function isLocked(string $key, int $lockTime = 60): bool
     {
-        return is_array($this->cacheProvider->get($key, 60));
+        return is_array($this->cacheProvider->get($key, $lockTime));
     }
 
     /**
      * @throws UmcIntegrationCacheException
      */
-    private function setLock(string $key): void
+    private function setLock(string $key, int $lockTime = 60): void
     {
-        $this->cacheProvider->set($this->lockKeyPrefix . $key, 60, [true]);
+        $this->cacheProvider->set($this->lockKeyPrefix . $key, $lockTime, [true]);
     }
 
     private function releaseLock(string $key): void

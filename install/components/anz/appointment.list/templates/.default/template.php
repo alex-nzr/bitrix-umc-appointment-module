@@ -27,3 +27,9 @@ $APPLICATION->includeComponent(
     null,
     ["HIDE_ICONS" => "Y"]
 );?>
+<script>
+    BX.ready(function() {
+        const namespace = BX.namespace('Anz.Appointment.Admin');
+        namespace.AppointmentList = new AppointmentList();
+    })
+</script>

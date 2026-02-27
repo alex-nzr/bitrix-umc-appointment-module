@@ -38,7 +38,7 @@ class UpdateStatusAction extends BaseAction
         $gridId = Component::getGridId();
 
         $this->default = true;
-        $this->onclick = 'BX.Anz.Appointment.Admin.updateRecord('.$id.', "'.$gridId.'", "'.$uid.'")';
+        $this->onclick = 'BX.Anz?.Appointment?.Admin?.AppointmentList?.updateAppointmentStatus('.$id.', "'.$gridId.'", "'.$uid.'")';
 
         return parent::getControl($rawFields);
     }

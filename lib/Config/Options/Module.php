@@ -12,7 +12,10 @@ use ANZ\Appointment\Config\ConfirmationType;
 use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Config\ExchangeMode;
 use ANZ\Appointment\Core\Contract\Option\IOptionStorage;
+use ANZ\Appointment\Dto\ClinicDto;
+use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Localization\Loc;
+use Throwable;
 
 
 class Module implements IOptionStorage
@@ -23,6 +26,15 @@ class Module implements IOptionStorage
      */
     public function getTabs(): array
     {
+        try
+        {
+            $clinics = Container::getInstance()->getExchangeManager()->getClinics();
+        }
+        catch (Throwable $e)
+        {
+            ShowError($e->getMessage());
+            $clinics = [];
+        }
         return [
             [
                 'DIV'   => "settings_tab",
@@ -127,6 +139,18 @@ class Module implements IOptionStorage
                         ['number']
                     ],
                     [
+                        Constants::OPTION_KEY_EXCHANGE_CLINIC_SELECTOR,
+                        Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_CLINIC_SELECTOR'),
+                        '',
+                        [
+                            'multiselect',
+                            'LIST' => array_combine(
+                                array_map(fn(ClinicDto $clinic) => $clinic->uid, $clinics),
+                                array_map(fn(ClinicDto $clinic) => $clinic->name, $clinics)
+                            )
+                        ]
+                    ],
+                    [
                         Constants::OPTION_KEY_EXCHANGE_USE_SERVICES,
                         Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_USE_SERVICES'),
                         'N',
@@ -198,6 +222,12 @@ class Module implements IOptionStorage
 
                     Loc::getMessage("ANZ_APPOINTMENT_MAIN_BTN_SETTINGS"),
                     [
+                        Constants::OPTION_KEY_USE_CUSTOM_BTN,
+                        Loc::getMessage("ANZ_APPOINTMENT_USE_CUSTOM_MAIN_BTN"),
+                        "N",
+                        ['checkbox']
+                    ],
+                    [
                         Constants::OPTION_KEY_MAIN_BTN_BG,
                         Loc::getMessage("ANZ_APPOINTMENT_MAIN_BTN_BG_COLOR"),
                         "#025ea1",
@@ -210,14 +240,8 @@ class Module implements IOptionStorage
                         ['colorPicker']
                     ],
                     [
-                        Constants::OPTION_KEY_USE_CUSTOM_BTN,
-                        Loc::getMessage("ANZ_APPOINTMENT_USE_CUSTOM_MAIN_BTN"),
-                        "N",
-                        ['checkbox']
-                    ],
-                    [
-                        Constants::OPTION_KEY_CUSTOM_BTN_ID,
-                        Loc::getMessage("ANZ_APPOINTMENT_CUSTOM_BTN_ID"),
+                        Constants::OPTION_KEY_CUSTOM_BTN_SELECTOR,
+                        Loc::getMessage("ANZ_APPOINTMENT_CUSTOM_BTN_SELECTOR"),
                         "",
                         ['text']
                     ],
@@ -242,7 +266,7 @@ class Module implements IOptionStorage
                         ['text']
                     ],
 
-                    Loc::getMessage("ANZ_APPOINTMENT_TEMPLATE_SETTINGS"),
+                    Loc::getMessage("ANZ_APPOINTMENT_CLASSIC_TEMPLATE_SETTINGS"),
                     [
                         Constants::OPTION_KEY_USE_TIME_STEPS,
                         Loc::getMessage('ANZ_APPOINTMENT_USE_TIME_STEPS'),
@@ -268,12 +292,11 @@ class Module implements IOptionStorage
                         ['checkbox', 'attrs' => ['data-extension' => Constants::JS_EXTENSION_BX_POPUP]]
                     ],
 
-                    Loc::getMessage("ANZ_APPOINTMENT_TEMPLATE_COLORS_SETTINGS"),
                     [
                         Constants::OPTION_KEY_TEMPLATE_MAIN_COLOR,
                         Loc::getMessage("ANZ_APPOINTMENT_TEMPLATE_COLOR_MAIN"),
                         "#025ea1",
-                        ['colorPicker']
+                        ['colorPicker', 'attrs' => ['data-extension' => Constants::JS_EXTENSION_BX_POPUP]]
                     ],
                     [
                         Constants::OPTION_KEY_FIELD_BG,

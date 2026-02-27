@@ -86,7 +86,7 @@ abstract class Item implements IMenuItem
     {
         if (!key_exists('TITLE', $data) || empty($data['TITLE']))
         {
-            throw new Exception('TITLE can not be empty');
+            $data['TITLE'] = 'empty item title';
         }
 
         return [

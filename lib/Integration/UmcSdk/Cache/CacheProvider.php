@@ -134,6 +134,11 @@ class CacheProvider
         return $this->get($this->cacheKeyManager->schedule($clinicUid, $employees), $this->scheduleTtl);
     }
 
+    public function getScheduleTtl(): int
+    {
+        return $this->scheduleTtl;
+    }
+
     /**
      * @throws UmcIntegrationCacheException
      */

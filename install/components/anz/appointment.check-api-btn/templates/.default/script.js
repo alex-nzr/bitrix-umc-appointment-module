@@ -16,7 +16,7 @@ class CheckApiBtn
 
             checkBtn.setAttribute(`disabled`, `true`);
 
-            BX.ajax.runAction(`anz:appointment.oneCController.checkConnection`, {
+            BX.ajax.runAction(`anz:appointment.Appointment.checkConnection`, {
                 data: {
                     mode,
                     url,

@@ -74,7 +74,9 @@ class ServiceManager
         $list = ['ui.icons', 'ui.buttons', 'ui.hint', 'ui.alerts'];
         if (Context::getCurrent()->getRequest()->isAdminSection())
         {
-            $list[] = Configuration::getModuleId() . '.admin';
+            global $APPLICATION;
+            $moduleDir = Configuration::getModuleLocation(false);
+            $APPLICATION->SetAdditionalCSS($moduleDir.'/assets/admin/menu.css');
         }
         Extension::load($list);
     }

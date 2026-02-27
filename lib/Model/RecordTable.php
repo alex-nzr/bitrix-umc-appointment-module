@@ -7,7 +7,7 @@
 */
 namespace ANZ\Appointment\Model;
 
-use ANZ\Appointment\Model\EntityObject\Record;
+use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Fields\DatetimeField;
 use Bitrix\Main\ORM\Fields\ExpressionField;
@@ -16,13 +16,11 @@ use Bitrix\Main\ORM\Fields\IntegerField;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Fields\StringField;
 use Bitrix\Main\ORM\Fields\TextField;
+use Bitrix\Main\ORM\Objectify\EntityObject;
 use Bitrix\Main\Type;
+use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\UserTable;
 
-/**
- * @method static EntityObject\Record createObject($setDefaultValues = true)
- * @method static EntityObject\Record wakeUpObject($row)
- */
 class RecordTable extends Model
 {
     const FIELD_NAME_ID = 'ID';
@@ -137,18 +135,29 @@ class RecordTable extends Model
     }
 
     /**
-     * @return string
+     * @throws \Exception
      */
-    public static function getUfId(): string
+    public static function fromArray(array $data): EntityObject
     {
-        return "UMC_RECORD";
+        return static::createObject()
+            ->setXmlId($data['bookingUid'])
+            ->setClinicTitle($data['clinicName'])
+            ->setSpecialty($data['specialty'])
+            ->setDoctorName($data['doctorName'])
+            ->setServiceTitle($data['serviceName'] ?? '')
+            ->setDatetimeVisit(DateTime::createFromTimestamp(strtotime($data['timeBegin'])))
+            ->setPatientName($data['surname'] ." ". $data['name'] ." ". $data['middleName'])
+            ->setPatientPhone($data['phone'])
+            ->setPatientEmail($data['email'] ?? '')
+            ->setComment($data['comment'] ?? '')
+            ->setUserId(Container::getInstance()->getUserPermissions()->getUserId());
     }
 
     /**
      * @return string
      */
-    public static function getObjectClass(): string
+    public static function getUfId(): string
     {
-        return Record::class;
+        return "UMC_RECORD";
     }
 }

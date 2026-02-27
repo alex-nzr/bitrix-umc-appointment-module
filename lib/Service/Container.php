@@ -22,6 +22,7 @@ use ANZ\Appointment\Service\Access\UserPermissions;
 use ANZ\Appointment\Service\Exchange\Manager;
 use ANZ\Appointment\Service\Message\Mailer;
 use ANZ\Appointment\Service\Message\Sms;
+use ANZ\Appointment\Service\Security\Confirmation;
 use ANZ\Appointment\Service\Security\Encryptor;
 use Bitrix\Main\DI\ServiceLocator;
 use Throwable;
@@ -220,6 +221,26 @@ class Container
             if(!ServiceLocator::getInstance()->has($identifier))
             {
                 ServiceLocator::getInstance()->addInstance($identifier, new Encryptor);
+            }
+            return ServiceLocator::getInstance()->get($identifier);
+        }
+        catch(Throwable $e)
+        {
+            throw new ServiceContainerException($e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * @throws \ANZ\Appointment\Core\Exception\ServiceContainerException
+     */
+    public function getConfirmationService(): Confirmation
+    {
+        try
+        {
+            $identifier = static::getIdentifierByClassName(Confirmation::class);
+            if(!ServiceLocator::getInstance()->has($identifier))
+            {
+                ServiceLocator::getInstance()->addInstance($identifier, new Confirmation);
             }
             return ServiceLocator::getInstance()->get($identifier);
         }

@@ -13,7 +13,7 @@ try
     $settings = [
         "companyLogo"      => Configuration::getInstance()->getLogoFilePath(),
         "useCustomMainBtn" => Configuration::getInstance()->isCustomBtnEnabled() ? 'Y' : 'N',
-        "customMainBtnId"  => Configuration::getInstance()->getCustomBtnAttrId(),
+        "customMainBtnSelector"  => Configuration::getInstance()->getCustomBtnSelector(),
         "customColors"     => Configuration::getInstance()->getTemplateColors(),
 
         "useServices"                   => Configuration::getInstance()->isServicesEnabled() ? 'Y' : 'N',
