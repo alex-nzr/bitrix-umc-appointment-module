@@ -29,11 +29,15 @@ class ReactMUI
         foreach ($employees as $employee)
         {
             $arEmployee = $employee->toArray();
+            $arEmployee['isActive'] = true;
+            $arEmployee['inSchedule'] = true;
             if ($employee->specialtyUid)
             {
                 $arEmployee['specialties'] = [
                     $employee->specialtyUid => [
-                        'name' => $employee->specialtyName
+                        'uid' => $employee->specialtyUid,
+                        'name' => $employee->specialtyName,
+                        'isMain' => true
                     ]
                 ];
             }
@@ -43,30 +47,54 @@ class ReactMUI
                 $arEmployee['clinicUid'] = $defaultClinicUid;
             }
 
-            $arEmployee['clinic'] = '';
+            $arEmployee['clinicName'] = '';
             foreach (static::$clinics as $clinic)
             {
                 if ($clinic['uid'] === $arEmployee['clinicUid'])
                 {
-                    $arEmployee['clinic'] = $clinic['name'];
+                    $arEmployee['clinicName'] = $clinic['name'];
                 }
             }
 
-            //todo logic
-            /*if (is_array($employee['services']))
-            {
-                foreach ($employee['services'] as $serviceUid => $serviceData)
-                {
-                    $employee['services'][$serviceUid] = [
-                        'title' => ''
-                    ];
-                }
-            }*/
-
-            $preparedData[$arEmployee['uid']] = $arEmployee;
+            $preparedData[] = $arEmployee;
         }
 
         return $preparedData;
+    }
+
+    public static function prepareServicesData(array $services = [], array $employees = []): array
+    {
+        $preparedData = [];
+        /** @var ServiceDto $service */
+        foreach ($services as $service)
+        {
+            $arService = $service->toArray();
+            $arService['specialties'] = [];
+            /** @var EmployeeDto $employee */
+            foreach ($employees as $employee)
+            {
+                foreach ($employee->services as $empService)
+                {
+                    if ($empService->uid === $service->uid)
+                    {
+                        $arService['specialties'][$employee->specialtyUid] = [
+                            'uid' => $employee->specialtyUid,
+                            'name' => $employee->specialtyName
+                        ];
+                        break;
+                    }
+                }
+            }
+
+            $preparedData[] = $arService;
+        }
+
+        return $preparedData;
+    }
+
+    public static function prepareScheduleData(array $schedule)
+    {
+        //todo method
     }
 
     private static function getDefaultClinicUid(): string
@@ -75,8 +103,8 @@ class ReactMUI
         if (is_null($defaultClinicUid))
         {
             $selectedClinics = Configuration::getInstance()->getSelectedClinics();
-            $defaultClinicUid = count($selectedClinics) > 0 ? (string)current($selectedClinics) : '';
+            $defaultClinicUid = count($selectedClinics) === 1 ? (string)current($selectedClinics) : '';
         }
-        return strlen(trim($defaultClinicUid)) === 0 ? (string)current(static::$clinics)['uid'] : $defaultClinicUid;
+        return $defaultClinicUid;
     }
 }

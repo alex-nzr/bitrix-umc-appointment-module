@@ -28,6 +28,7 @@ use Throwable;
 class Appointment extends Controller
 {
     private Manager $exchangeService;
+    private bool $isReactMuiExt;
 
     /**
      * @throws \Exception
@@ -36,30 +37,16 @@ class Appointment extends Controller
     {
         parent::__construct();
         $this->exchangeService = Container::getInstance()->getExchangeManager();
-    }
-
-    public function getDataAction(): ?array
-    {
-        try
-        {
-            return [
-                'clinics' => ReactMUI::prepareClinicsData($this->exchangeService->getClinics()),
-                'employees' => ReactMUI::prepareEmployeesData($this->exchangeService->getEmployees()),
-                'nomenclature' => $this->exchangeService->getServices('f679444a-22b7-11df-8618-002618dcef2c'),
-            ];
-        }
-        catch (Throwable $e)
-        {
-            $this->addError(new Error($e->getMessage()));
-            return null;
-        }
+        $this->isReactMuiExt = Configuration::getInstance()->getJsExtensionName() === Constants::JS_EXTENSION_FORM_REACT;
     }
 
     public function getClinicsAction(): ?array
     {
         try
         {
-            return $this->exchangeService->getClinics();
+            return $this->isReactMuiExt
+                ? ReactMUI::prepareClinicsData($this->exchangeService->getClinics())
+                : $this->exchangeService->getClinics();
         }
         catch (Throwable $e)
         {
@@ -72,7 +59,9 @@ class Appointment extends Controller
     {
         try
         {
-            return $this->exchangeService->getEmployees();
+            return $this->isReactMuiExt
+                ? ReactMUI::prepareEmployeesData($this->exchangeService->getEmployees())
+                : $this->exchangeService->getEmployees();
         }
         catch (Throwable $e)
         {
@@ -85,7 +74,11 @@ class Appointment extends Controller
     {
         try
         {
-            return $this->exchangeService->getServices($clinicUid);
+            return $this->isReactMuiExt
+                ? ReactMUI::prepareServicesData(
+                    $this->exchangeService->getServices($clinicUid), $this->exchangeService->getEmployees()
+                )
+                : $this->exchangeService->getServices($clinicUid);
         }
         catch (Throwable $e)
         {
@@ -98,11 +91,17 @@ class Appointment extends Controller
     {
         try
         {
-            return $this->exchangeService->getSchedule(
-                Configuration::getInstance()->getExchangeSchedulePeriod(),
-                $clinicUid,
-                !empty($employeeUid) ? [$employeeUid] : []
-            );
+            return $this->isReactMuiExt
+                    ? ReactMUI::prepareScheduleData($this->exchangeService->getSchedule(
+                            Configuration::getInstance()->getExchangeSchedulePeriod(),
+                            $clinicUid,
+                            !empty($employeeUid) ? [$employeeUid] : []
+                        ))
+                : $this->exchangeService->getSchedule(
+                    Configuration::getInstance()->getExchangeSchedulePeriod(),
+                    $clinicUid,
+                    !empty($employeeUid) ? [$employeeUid] : []
+                );
         }
         catch (Throwable $e)
         {

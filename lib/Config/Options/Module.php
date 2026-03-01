@@ -266,37 +266,12 @@ class Module implements IOptionStorage
                         ['text']
                     ],
 
-                    Loc::getMessage("ANZ_APPOINTMENT_CLASSIC_TEMPLATE_SETTINGS"),
-                    [
-                        Constants::OPTION_KEY_USE_TIME_STEPS,
-                        Loc::getMessage('ANZ_APPOINTMENT_USE_TIME_STEPS'),
-                        "N",
-                        ['checkbox', 'attrs' => ['data-extension' => Constants::JS_EXTENSION_BX_POPUP]]
-                    ],
-                    [
-                        Constants::OPTION_KEY_TIME_STEP_DURATION,
-                        Loc::getMessage('ANZ_APPOINTMENT_TIME_STEP_DURATION'),
-                        15,
-                        ['number', 'attrs' => ['data-extension' => Constants::JS_EXTENSION_BX_POPUP]]
-                    ],
-                    [
-                        Constants::OPTION_KEY_STRICT_RELATIONS,
-                        Loc::getMessage('ANZ_APPOINTMENT_STRICT_CHECKING_RELATIONS'),
-                        "N",
-                        ['checkbox', 'attrs' => ['data-extension' => Constants::JS_EXTENSION_BX_POPUP]]
-                    ],
-                    [
-                        Constants::OPTION_KEY_ALLOW_DOCTOR_WITHOUT_DPT,
-                        Loc::getMessage('ANZ_APPOINTMENT_SHOW_DOCTORS_WITHOUT_DEPARTMENT'),
-                        "N",
-                        ['checkbox', 'attrs' => ['data-extension' => Constants::JS_EXTENSION_BX_POPUP]]
-                    ],
-
+                    Loc::getMessage("ANZ_APPOINTMENT_TEMPLATE_SETTINGS"),
                     [
                         Constants::OPTION_KEY_TEMPLATE_MAIN_COLOR,
                         Loc::getMessage("ANZ_APPOINTMENT_TEMPLATE_COLOR_MAIN"),
                         "#025ea1",
-                        ['colorPicker', 'attrs' => ['data-extension' => Constants::JS_EXTENSION_BX_POPUP]]
+                        ['colorPicker']
                     ],
                     [
                         Constants::OPTION_KEY_FIELD_BG,
@@ -321,6 +296,31 @@ class Module implements IOptionStorage
                         Loc::getMessage("ANZ_APPOINTMENT_FORM_COLOR_BTN_TEXT"),
                         "#ffffff",
                         ['colorPicker', 'attrs' => ['data-extension' => Constants::JS_EXTENSION_BX_POPUP]]
+                    ],
+
+                    [
+                        Constants::OPTION_KEY_USE_TIME_STEPS,
+                        Loc::getMessage('ANZ_APPOINTMENT_USE_TIME_STEPS'),
+                        "N",
+                        ['checkbox', 'attrs' => ['data-extension' => Constants::JS_EXTENSION_BX_POPUP]]
+                    ],
+                    [
+                        Constants::OPTION_KEY_TIME_STEP_DURATION,
+                        Loc::getMessage('ANZ_APPOINTMENT_TIME_STEP_DURATION'),
+                        15,
+                        ['number', 'attrs' => ['data-extension' => Constants::JS_EXTENSION_BX_POPUP]]
+                    ],
+                    [
+                        Constants::OPTION_KEY_STRICT_RELATIONS,
+                        Loc::getMessage('ANZ_APPOINTMENT_STRICT_CHECKING_RELATIONS'),
+                        "N",
+                        ['checkbox', 'attrs' => ['data-extension' => Constants::JS_EXTENSION_BX_POPUP]]
+                    ],
+                    [
+                        Constants::OPTION_KEY_ALLOW_DOCTOR_WITHOUT_DPT,
+                        Loc::getMessage('ANZ_APPOINTMENT_SHOW_DOCTORS_WITHOUT_DEPARTMENT'),
+                        "N",
+                        ['checkbox', 'attrs' => ['data-extension' => Constants::JS_EXTENSION_BX_POPUP]]
                     ],
                 ]
             ],

@@ -1,30 +1,52 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './components/App';
-import {CssBaseline} from "@mui/material";
-import {configure, spy} from "mobx";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { Providers } from "./app/providers";
+import { App } from "./app/App";
 
-configure({
-    reactionScheduler: (f) => {
-        setTimeout(f)
-    }
-})
-
-if (process.env.NODE_ENV !== 'production'){
-    spy((event) => {
-        event.type === "action" ? console.log(event) : void(0)
-    })
+export interface WidgetSettings {
+    mainColor?: string;
+    privacyPolicyUrl?: string;
+    defaultClinicUid?: string;
+    error?: string;
 }
 
-const root = document.createElement('div');
-root.setAttribute('id', 'appointment-widget-root-'+Number(new Date()));
+function mountAppointmentWidget(
+    container: HTMLElement,
+    settings: WidgetSettings
+) {
+    const root = ReactDOM.createRoot(container);
 
-document.addEventListener('DOMContentLoaded', () => document.body.append(root));
+    root.render(
+        <React.StrictMode>
+            <Providers settings={settings}>
+                <App />
+            </Providers>
+        </React.StrictMode>
+    );
+}
 
-ReactDOM.render(
-  <React.StrictMode>
-      <CssBaseline />
-      <App />
-  </React.StrictMode>,
-    root
-);
+window.BX.ready(() => {
+    try
+    {
+        const settings = window.BX.Extension.getSettings('anz.appointment.form-react');
+        if (settings?.error)
+        {
+            console.error(settings.error);
+        }
+        else
+        {
+            const widgetRoot = document.createElement('div');
+            widgetRoot.setAttribute('id', 'appointment-widget-root-'+Number(new Date()));
+            document.body.append(widgetRoot);
+
+            mountAppointmentWidget(widgetRoot, settings);
+        }
+    }
+    catch (e) {
+        console.error(e);
+    }
+});
+
+
+
+

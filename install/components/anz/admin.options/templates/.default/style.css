@@ -41,6 +41,7 @@ label.anz-appointment-adm-label input[readonly]{
 }
 
 .disabled{
-    opacity: 0.7!important;
+    opacity: 0.3!important;
     pointer-events: none!important;
+    filter: grayscale(100%);
 }

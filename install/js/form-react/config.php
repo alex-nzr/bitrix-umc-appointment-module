@@ -4,13 +4,40 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
     die();
 }
 use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\Config\Constants;
 use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 
-$css = '';
-$js = '';
+$assets = [];
+$settings = [];
 try
 {
+    $assets = resolveExtensionAssets();
+
+    $settings = [
+        'mainColor' => Configuration::getInstance()->getTemplateColors()[Constants::OPTION_KEY_TEMPLATE_MAIN_COLOR],
+        'privacyPolicyUrl' => Configuration::getInstance()->getPrivacyPageLink(),
+        'defaultClinicUid' => null,
+    ];
+}
+catch (Throwable $e)
+{
+    $settings = ['error' => $e->getMessage()];
+}
+
+return $assets + [
+    'rel' => ['date', 'masked_input'],
+    'skip_core' => false,
+    'settings' => $settings,
+];
+
+/**
+ * @throws \ANZ\Appointment\Core\Exception\ConfigurationException
+ */
+function resolveExtensionAssets(): array
+{
+    $css = '';
+    $js = '';
     $root = Application::getDocumentRoot();
     $pathToJs = '/js/anz/appointment/form-react/build/static/js/';
     $pathToCss = '/js/anz/appointment/form-react/build/static/css/';
@@ -37,14 +64,9 @@ try
     {
         $css = 'build/static/css/'.basename(current($cssFiles));
     }
-}
-catch (Throwable)
-{
-}
 
-return [
-	'css' => $css,
-	'js' => $js,
-	'rel' => ['date', 'masked_input'],
-	'skip_core' => false,
-];
+    return [
+        'js' => $js,
+        'css' => $css,
+    ];
+}
