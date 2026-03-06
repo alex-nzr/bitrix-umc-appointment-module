@@ -33,6 +33,7 @@ $MESS['ANZ_APPOINTMENT_EXCHANGE_CONFIRM_NONE'] = "Выключено";
 $MESS['ANZ_APPOINTMENT_EXCHANGE_CONFIRM_PHONE'] = "По СМС";
 $MESS['ANZ_APPOINTMENT_EXCHANGE_CONFIRM_EMAIL'] = "По email";
 $MESS['ANZ_APPOINTMENT_EXCHANGE_DEFAULT_APPOINTMENT_DURATION'] = sprintf($hintTemplate , 'Длительность приёма по умолчанию, если не указана в 1С (в секундах)', 'Применяется если не указана длительность приема у врача и услуги');
+$MESS['ANZ_APPOINTMENT_NO_SELECTION'] = 'Не выбрано';
 
 $MESS['ANZ_APPOINTMENT_TEMPLATE_SETTINGS'] = 'Настройки шаблона';
 $MESS['ANZ_APPOINTMENT_SELECT_DOCTOR_BEFORE_SERVICE'] = sprintf($hintTemplate , 'Выбирать сначала доктора, потом услугу', 'При включенной опции, пользователю сначала будет предложено выбрать доктора, а потом откроется выбор услуг, которые он может оказать. При выключенной, наоборот - сначала выбор услуги, потом выбор доктора из списка тех, кто может эту услугу оказать');
@@ -54,6 +55,7 @@ $MESS['ANZ_APPOINTMENT_EXCHANGE_CACHE_TTL'] = 'Время жизни кеша в
 $MESS['ANZ_APPOINTMENT_EXCHANGE_NEXT_EXEC_DATE'] = 'Дата/Время следующего обмена';
 $MESS['ANZ_APPOINTMENT_EXCHANGE_SCHEDULE_PERIOD'] = 'Период выгрузки расписания (в днях)';
 $MESS['ANZ_APPOINTMENT_EXCHANGE_CLINIC_SELECTOR'] = sprintf($hintTemplate , 'Ограничение выгрузки по филиалам', 'Выгрузка расписания и услуг происходит только по выбранным филиалам.<br>(при отсутствии выбора выгружается по всем)');
+$MESS['ANZ_APPOINTMENT_EXCHANGE_CLINIC_DEFAULT'] = sprintf($hintTemplate , 'Филиал по умолчанию', 'Филиал выбранный по умолчанию при открытии формы записи (не работает для  Basic form)');
 $MESS['ANZ_APPOINTMENT_EXCHANGE_USE_SERVICES'] = sprintf($hintTemplate , 'Выгружать услуги и цены', 'Для выгрузки номенклатуры и прайсов необходимо <b>в 1С</b> создать настройку обмена с сайтом на необходимый филиал и указать прайс.<br>(Вкладка «Администрирование» – «Настройки обмена с сайтом»)');
 
 $MESS['ANZ_APPOINTMENT_EXCHANGE_START_BTN'] = 'Загрузить данные';

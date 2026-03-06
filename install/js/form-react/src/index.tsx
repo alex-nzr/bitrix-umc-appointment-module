@@ -2,13 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { Providers } from "./app/providers";
 import { App } from "./app/App";
-
-export interface WidgetSettings {
-    mainColor?: string;
-    privacyPolicyUrl?: string;
-    defaultClinicUid?: string;
-    error?: string;
-}
+import {WidgetSettings} from "./shared/settings/widgetSettings";
 
 function mountAppointmentWidget(
     container: HTMLElement,

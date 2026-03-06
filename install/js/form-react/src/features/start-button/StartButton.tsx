@@ -14,7 +14,7 @@ export const StartButton:FC = () => {
                 loadingPosition="center"
                 variant={`${isOpen ? 'outlined' : 'contained'}`}
             >
-                Запись на приём
+                {window.BX.message('START_BTN_TEXT')}
             </Button>
         </div>
     );

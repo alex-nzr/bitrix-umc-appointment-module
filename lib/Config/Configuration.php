@@ -191,6 +191,11 @@ final class Configuration
         return is_array($decoded) ? $decoded : [];
     }
 
+    public function getDefaultClinic(): string
+    {
+        return Option::get(self::$moduleId, Constants::OPTION_KEY_EXCHANGE_CLINIC_DEFAULT);
+    }
+
     public function isServicesEnabled(): bool
     {
         return Option::get(self::$moduleId, Constants::OPTION_KEY_EXCHANGE_USE_SERVICES) === 'Y';

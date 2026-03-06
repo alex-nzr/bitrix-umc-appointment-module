@@ -139,6 +139,21 @@ class Module implements IOptionStorage
                         ['number']
                     ],
                     [
+                        Constants::OPTION_KEY_EXCHANGE_CLINIC_DEFAULT,
+                        Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_CLINIC_DEFAULT'),
+                        '',
+                        [
+                            'select',
+                            'LIST' => array_merge(
+                                ['' => Loc::getMessage('ANZ_APPOINTMENT_NO_SELECTION')],
+                                array_combine(
+                                    array_map(fn(ClinicDto $clinic) => $clinic->uid, $clinics),
+                                    array_map(fn(ClinicDto $clinic) => $clinic->name, $clinics)
+                                )
+                            )
+                        ]
+                    ],
+                    [
                         Constants::OPTION_KEY_EXCHANGE_CLINIC_SELECTOR,
                         Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_CLINIC_SELECTOR'),
                         '',

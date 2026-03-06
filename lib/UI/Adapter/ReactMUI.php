@@ -3,9 +3,13 @@
 namespace ANZ\Appointment\UI\Adapter;
 
 use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\Config\TimeSlotStatus;
 use ANZ\Appointment\Dto\ClinicDto;
 use ANZ\Appointment\Dto\EmployeeDto;
+use ANZ\Appointment\Dto\ScheduleItemDto;
 use ANZ\Appointment\Dto\ServiceDto;
+use ANZ\Appointment\Dto\TimeSlotDto;
+use ANZ\Appointment\Service\Container;
 
 class ReactMUI
 {
@@ -92,9 +96,83 @@ class ReactMUI
         return $preparedData;
     }
 
-    public static function prepareScheduleData(array $schedule)
+    /**
+     * @throws \Exception
+     */
+    public static function prepareScheduleData(array $schedule, array $serviceUIDs = []): array
     {
-        //todo method
+        $employees = Container::getInstance()->getExchangeManager()->getEmployees();
+
+        $preparedData = [];
+        foreach ($schedule as $clinicUid => $clinicData)
+        {
+            $services = Container::getInstance()->getExchangeManager()->getServices($clinicUid);
+            foreach ($clinicData as $specialtyData)
+            {
+                /** @var ScheduleItemDto $scheduleItem */
+                foreach ($specialtyData as $employeeUid => $scheduleItem)
+                {
+                    $duration = $scheduleItem->durationInSeconds;
+                    //todo calc duration
+                    //$employees[$employeeUid]?->services[$serviceUid]
+                    //$services[$serviceUid]?->duration
+                    if (is_array($scheduleItem->timeslots[TimeSlotStatus::FREE->value]))
+                    {
+                        foreach ($scheduleItem->timeslots[TimeSlotStatus::FREE->value] as $timeslots)
+                        {
+                            /** @var TimeSlotDto $timeslot */
+                            foreach ($timeslots as $timeslot)
+                            {
+                                $preparedData = array_merge(
+                                    $preparedData,
+                                    static::splitTimeSlot($timeslot, $clinicUid, $employeeUid, $duration)
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $preparedData;
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public static function splitTimeSlot(TimeSlotDto $timeSlot, string $clinicUid, string $doctorUid, int $duration = 0): array
+    {
+        if ($duration <= 0)
+        {
+            $duration = Configuration::getInstance()->getDefaultAppointmentDuration();
+        }
+        $timestampTimeBegin = (int)strtotime($timeSlot->timeBegin);
+        $timestampTimeEnd = (int)strtotime($timeSlot->timeEnd);
+        $timeDifference = $timestampTimeEnd - $timestampTimeBegin;
+        $timeslotsCount = round($timeDifference / ($duration));
+
+        $result = [];
+        for ($i = 0; $i < $timeslotsCount; $i++)
+        {
+            $start = $timestampTimeBegin + ($duration * $i);
+            $end = $timestampTimeBegin + ($duration * ($i+1));
+
+            $result[] = [
+                'clinicUid' => $clinicUid,
+                'doctorUid' => $doctorUid,
+                'isAvailable' => $timeSlot->status === TimeSlotStatus::FREE,
+                'status' => $timeSlot->status->value,
+                'date' => $timeSlot->date,
+                'timeBegin' => date("Y-m-d", $start) ."T". date("H:i:s", $start),
+                'timeEnd' => date("Y-m-d", $end) ."T". date("H:i:s", $end),
+                'formattedDate' => $timeSlot->formattedDate,
+                'formattedTimeBegin' => date("H:i", $start),
+                'formattedTimeEnd' => date("H:i", $end),
+                'typeOfTimeUid' => $timeSlot->typeOfTimeUid,
+                'duration' => $end - $start,
+            ];
+        }
+
+        return $result;
     }
 
     private static function getDefaultClinicUid(): string

@@ -7,7 +7,8 @@ export interface Slot {
     formattedDate:      string
     formattedTimeBegin: string
     formattedTimeEnd:   string
-    duration:           number,
+    duration:           number
     typeOfTimeUid?:     string
     isAvailable:        boolean
+    status:             string
 }

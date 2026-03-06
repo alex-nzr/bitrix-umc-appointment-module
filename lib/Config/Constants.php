@@ -27,6 +27,7 @@ class Constants
     const OPTION_KEY_API_HS_TOKEN = 'appointment_api_hs_token';
     const OPTION_KEY_EXCHANGE_MODE = 'appointment_exchange_mode';
     const OPTION_KEY_EXCHANGE_CLINIC_SELECTOR = 'appointment_exchange_clinic_selector';
+    const OPTION_KEY_EXCHANGE_CLINIC_DEFAULT = 'appointment_exchange_clinic_default';
     const OPTION_KEY_EXCHANGE_USE_SERVICES   = 'appointment_exchange_use_services';
     const OPTION_KEY_EXCHANGE_AGENT_ACTIVE   = 'appointment_exchange_agent_active';
     const OPTION_KEY_EXCHANGE_NEXT_EXEC_DATE = 'appointment_exchange_next_exec_date';

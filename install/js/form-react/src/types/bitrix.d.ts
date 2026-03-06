@@ -7,6 +7,7 @@ declare global {
             Extension: {
                 getSettings: (extension: string) => any;
             };
+            message: (code: string) => string
         };
     }
 }

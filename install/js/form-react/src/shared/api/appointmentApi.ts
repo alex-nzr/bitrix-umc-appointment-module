@@ -65,11 +65,14 @@ export const appointmentApi = {
         return await prepareResponse(res);
     },
 
-    async getSlots(clinicUid: string, doctorUid: string): Promise<Slot[]> {
+    async getSlots(clinicUid: string, doctorUid: string, serviceUIDs: string[]): Promise<Slot[]> {
         const action = `${CONTROLLER}.getSchedule`;
         const data = new FormData();
-        data.set('clinicUid', clinicUid); //Сюда передать uid выбранной юзером клиники
-        data.set('employeeUid', doctorUid); //Сюда передать uid выбранного юзером доктора
+        data.set('clinicUid', clinicUid);
+        data.set('employeeUid', doctorUid);
+        serviceUIDs.length && serviceUIDs.forEach(uid => {
+            data.append('serviceUIDs[]', uid);
+        });
         const res = await fetch(`${API_URL}?sessid=${sessid}&action=${action}`, {
             method: 'POST',
             body: data,
@@ -78,12 +81,12 @@ export const appointmentApi = {
         return await prepareResponse(res);
     },
 
-    async bookSlot(reserve: Reserve) {
+    async bookSlot(reserve: Reserve): Promise<Reserve | null> {
         const action = `${CONTROLLER}.bookSlot`;
         const data = new FormData();
         data.set('clinicUid', reserve.clinicUid);
         data.set('employeeUid', reserve.doctorUid);
-        data.set('dateTimeBegin', `${reserve.date}T${reserve.timeBegin}:00`);
+        data.set('dateTimeBegin', reserve.timeBegin);
         data.set('serviceDuration', `${reserve.duration}`);
         const res = await fetch(`${API_URL}?sessid=${sessid}&action=${action}`, {
             method: 'POST',

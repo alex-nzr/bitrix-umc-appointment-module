@@ -4,10 +4,9 @@ import {appointmentApi} from "../../../shared/api/appointmentApi";
 import {Specialty} from "../../../entities/specialty/model";
 import { Doctor } from '../../../entities/doctor/model';
 
-export const useDirections = (clinicUid: string|null = null) => {
-    const { setIsLoading, doctorsCache, setDoctorsCache } = useAppointmentStore();
+export const useDoctors = (clinicUid: string|null = null) => {
+    const { setIsLoading, doctorsCache, setDoctorsCache, error, setError} = useAppointmentStore();
     const [specialties, setSpecialties] = useState<Specialty[]>([])
-    const [error, setError] = useState<string|null>(null)
 
     useEffect(() => {
         if (!clinicUid) {
@@ -36,6 +35,7 @@ export const useDirections = (clinicUid: string|null = null) => {
             return;
         }
 
+        setError(null);
         setIsLoading(true)
         appointmentApi
             .getDoctors()
@@ -43,9 +43,13 @@ export const useDirections = (clinicUid: string|null = null) => {
                 setDoctorsCache(data);
                 setSpecialtiesByClinic(data);
             })
-            .catch((e) => setError(String(e)))
+            .catch((e) => setError(Array.isArray(e) ? String(e[0]?.message) : String(e)))
             .finally(() => setIsLoading(false))
     }, [clinicUid])
 
-    return { specialties, doctors: doctorsCache, directionsError: error }
+    return {
+        specialties,
+        doctors: doctorsCache,
+        useDoctorsError: error ? window.BX.message('EMPLOYEES_ERROR') : null
+    }
 }

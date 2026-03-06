@@ -87,7 +87,7 @@ class Appointment extends Controller
         }
     }
 
-    public function getScheduleAction(string $clinicUid = '', string $employeeUid = ''): ?array
+    public function getScheduleAction(string $clinicUid = '', string $employeeUid = '', array $serviceUIDs = []): ?array
     {
         try
         {
@@ -96,7 +96,7 @@ class Appointment extends Controller
                             Configuration::getInstance()->getExchangeSchedulePeriod(),
                             $clinicUid,
                             !empty($employeeUid) ? [$employeeUid] : []
-                        ))
+                        ), $serviceUIDs)
                 : $this->exchangeService->getSchedule(
                     Configuration::getInstance()->getExchangeSchedulePeriod(),
                     $clinicUid,

@@ -2,12 +2,13 @@ import {
     Stack,
     Typography,
     Autocomplete,
-    TextField,
+    TextField
 } from "@mui/material";
 import React, {useMemo} from "react";
 import { useAppointmentStore } from "../../../shared/store/appointmentStore";
-import { useDirections } from "../hooks/useDirections";
+import { useDoctors } from "../hooks/useDoctors";
 import { useServices } from "../hooks/useServices";
+import {NavigationButtons} from "./NavigationButtons";
 
 export const StepDoctorService = () => {
     const {
@@ -17,10 +18,10 @@ export const StepDoctorService = () => {
         serviceUIDs,
         mode,
         setDoctor,
-        setServices,
+        setServices
     } = useAppointmentStore();
 
-    const {doctors} = useDirections(clinicUid);
+    const {doctors} = useDoctors(clinicUid);
     const {services, serviceError} = useServices(clinicUid ?? '');
 
     const doctorsBySpecialty = useMemo(() => {
@@ -33,7 +34,7 @@ export const StepDoctorService = () => {
         return clinicUid ? services.filter(
             (s) => Object.values(s.specialties)?.some((s) => s.uid === specialtyUid)
         ) : [];
-    }, [clinicUid, specialtyUid]);
+    }, [clinicUid, specialtyUid, services]);
 
     const doctorsByService = useMemo(() => {
         if (serviceUIDs.length === 0) {
@@ -56,18 +57,16 @@ export const StepDoctorService = () => {
         const doctor = doctors.find((d) => d.uid === doctorUid);
         if (doctor)
         {
-            return servicesBySpecialty.filter((s) => doctor.services.hasOwnProperty(s.uid));
+            return services.filter((s) => doctor.services.hasOwnProperty(s.uid));
         }
         return [];
-    }, [doctorUid, doctors]);
-
-    if (serviceError)
-    {
-        return <Typography component="h1" variant="subtitle1" align="center">{serviceError}</Typography>;
-    }
+    }, [doctorUid, doctors, services]);
 
     return (
-        <Stack spacing={3} p={3}>
+        <Stack spacing={3}>
+            {
+                serviceError && <Typography component="h1" variant="subtitle1" align="center">{serviceError}</Typography>
+            }
             {/* DOCTOR FIRST */}
             {mode === "doctor-first" && (
                 <>
@@ -81,6 +80,7 @@ export const StepDoctorService = () => {
                         renderInput={(params) => (
                             <TextField {...params} label="Врач" />
                         )}
+                        value={doctorUid ? doctors.find(d =>  d.uid === doctorUid) :  null}
                     />
 
                     <Autocomplete
@@ -94,6 +94,7 @@ export const StepDoctorService = () => {
                         renderInput={(params) => (
                             <TextField {...params} label="Услуга" />
                         )}
+                        value={serviceUIDs.length ? services.filter(s =>  serviceUIDs.includes(s.uid)) : undefined}
                     />
                 </>
             )}
@@ -112,6 +113,7 @@ export const StepDoctorService = () => {
                         renderInput={(params) => (
                             <TextField {...params} label="Услуга" />
                         )}
+                        value={serviceUIDs.length ? services.filter(s =>  serviceUIDs.includes(s.uid)) : undefined}
                     />
 
                     <Autocomplete
@@ -124,9 +126,12 @@ export const StepDoctorService = () => {
                         renderInput={(params) => (
                             <TextField {...params} label="Врач" />
                         )}
+                        value={doctorUid ? doctors.find(d =>  d.uid === doctorUid) :  null}
                     />
                 </>
             )}
+
+            <NavigationButtons nextDisabled={!doctorUid || serviceUIDs.length <= 0}/>
         </Stack>
     );
 };

@@ -17,7 +17,9 @@ try
     $settings = [
         'mainColor' => Configuration::getInstance()->getTemplateColors()[Constants::OPTION_KEY_TEMPLATE_MAIN_COLOR],
         'privacyPolicyUrl' => Configuration::getInstance()->getPrivacyPageLink(),
-        'defaultClinicUid' => null,
+        'schedulePeriodDays' => Configuration::getInstance()->getExchangeSchedulePeriod(),
+        'logoImageSrc' => Configuration::getInstance()->getLogoFilePath(),
+        'defaultClinicUid' => Configuration::getInstance()->getDefaultClinic()
     ];
 }
 catch (Throwable $e)
@@ -26,9 +28,10 @@ catch (Throwable $e)
 }
 
 return $assets + [
-    'rel' => ['date', 'masked_input'],
+    'rel' => ['main.core'],
     'skip_core' => false,
     'settings' => $settings,
+    'lang' => ['lang/ru/lang.php'],
 ];
 
 /**

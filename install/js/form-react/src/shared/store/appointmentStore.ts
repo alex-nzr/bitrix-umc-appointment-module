@@ -9,19 +9,20 @@ export type FlowMode = 'doctor-first' | 'service-first'
 
 interface AppointmentStore {
     step: number;
-    mode: FlowMode | null | undefined;
+    mode: FlowMode | null;
     isOpen: boolean;
     isLoading: boolean;
 
-    bookingUid: string | null | undefined
-    clinicUid: string | null | undefined
-    specialtyUid: string | null | undefined
-    doctorUid: string | null | undefined
+    bookingUid: string | null
+    clinicUid: string | null
+    specialtyUid: string | null
+    doctorUid: string | null
     serviceUIDs: string[]
 
-    slot: Slot | null | undefined
-    contact: ContactInfo | null | undefined
-    comment: string | null | undefined
+    slot: Slot | null
+    contact: ContactInfo | null
+    comment: string | null
+    error: string | null
 
     setMode: (mode: FlowMode) => void
     setIsOpen: (isOpen: boolean) => void
@@ -31,21 +32,24 @@ interface AppointmentStore {
     goToStep: (step: number) => void;
     reset: () => void
 
-    setBookingUid: (uid: string) => void
+    setBookingUid: (uid: string | null) => void
     setClinic: (uid: string) => void
     setSpecialty: (uid: string) => void
     setDoctor: (uid: string) => void
     setServices: (UIDs: string[]) => void
-    setSlot: (slot: Slot) => void
+    setSlot: (slot: Slot|null) => void
     setContact: (contact: ContactInfo) => void
-    setComment: (comment: string) => void
+    setComment: (comment: string | null) => void
+    setError: (error: string | null) => void
 
     clinicsCache: Clinic[]
     doctorsCache: Doctor[]
     servicesCache: Record<string, Service[]>
+    slotsCache: Record<string, Slot[]>
     setClinicsCache: (data: Clinic[]) => void
     setDoctorsCache: (data: Doctor[]) => void
     setServicesCache: (clinicUid: string, data: Service[]) => void
+    setSlotsCache: (key: string, slots: Slot[]) => void
 }
 
 export const useAppointmentStore = create<AppointmentStore>((set) => ({
@@ -63,20 +67,19 @@ export const useAppointmentStore = create<AppointmentStore>((set) => ({
     slot: null,
     contact: null,
     comment: null,
+    error: null,
 
     clinicsCache: [],
     doctorsCache: [],
     servicesCache: {},
+    slotsCache: {},
 
-    setMode: (mode) => set({
-        mode,
-        step: 1,
-    }),
+    setMode: (mode) => set({ mode }),
 
     setIsOpen: (isOpen) => set({ isOpen }),
     setIsLoading: (isLoading) => set({ isLoading }),
 
-    setBookingUid: (uid: string) => set({
+    setBookingUid: (uid: string | null) => set({
         bookingUid: uid,
     }),
 
@@ -107,6 +110,8 @@ export const useAppointmentStore = create<AppointmentStore>((set) => ({
 
     setComment: (comment) => set({ comment }),
 
+    setError: (error) => set({ error }),
+
     setClinicsCache: (data) => set({ clinicsCache: data }),
 
     setDoctorsCache: (data) => set({ doctorsCache: data }),
@@ -117,6 +122,14 @@ export const useAppointmentStore = create<AppointmentStore>((set) => ({
             [clinicUid]: data
         }
     })),
+
+    setSlotsCache: (key, slots) =>
+        set((state) => ({
+            slotsCache: {
+                ...state.slotsCache,
+                [key]: slots
+            }
+        })),
 
     nextStep: () => set(state => ({ step: state.step + 1 })),
     prevStep: () => set(state => ({

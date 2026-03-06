@@ -13,6 +13,8 @@ use ANZ\Appointment\Core\Exception\ExchangeManagerException;
 use ANZ\Appointment\Dto\AppointmentDto;
 use ANZ\Appointment\Dto\AppointmentStatusDto;
 use ANZ\Appointment\Dto\BookingDto;
+use ANZ\Appointment\Dto\EmployeeDto;
+use ANZ\Appointment\Dto\ServiceDto;
 use ANZ\Appointment\Dto\WaitListDto;
 use ANZ\Appointment\Event\Event;
 use ANZ\Appointment\Event\EventType;
@@ -121,7 +123,8 @@ class Manager
     }
 
     /**
-     * @throws ExchangeManagerException
+     * @return EmployeeDto[]
+     * @throws \ANZ\Appointment\Core\Exception\ExchangeManagerException
      */
     public function getEmployees(): array
     {
@@ -136,7 +139,9 @@ class Manager
     }
 
     /**
-     * @throws ExchangeManagerException
+     * @param string $clinicUid
+     * @return ServiceDto[]
+     * @throws \ANZ\Appointment\Core\Exception\ExchangeManagerException
      */
     public function getServices(string $clinicUid): array
     {
