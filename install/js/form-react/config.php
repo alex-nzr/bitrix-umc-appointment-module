@@ -19,7 +19,10 @@ try
         'privacyPolicyUrl' => Configuration::getInstance()->getPrivacyPageLink(),
         'schedulePeriodDays' => Configuration::getInstance()->getExchangeSchedulePeriod(),
         'logoImageSrc' => Configuration::getInstance()->getLogoFilePath(),
-        'defaultClinicUid' => Configuration::getInstance()->getDefaultClinic()
+        'defaultClinicUid' => Configuration::getInstance()->getDefaultClinic(),
+        'servicesEnabled' => Configuration::getInstance()->isServicesEnabled(),
+        'confirmationType' => Configuration::getInstance()->getExchangeConfirmMode(),
+        'phoneInputMask' => "+7(000)000-00-00",
     ];
 }
 catch (Throwable $e)

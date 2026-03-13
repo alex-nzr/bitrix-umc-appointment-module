@@ -1,4 +1,4 @@
-import {useRef} from 'react'
+import {useRef, useState} from 'react'
 import {useAppointmentStore} from "../../../shared/store/appointmentStore";
 import {appointmentApi} from "../../../shared/api/appointmentApi";
 import {Reserve} from "../../../entities/appointment/model";
@@ -12,9 +12,8 @@ export const useBooking = () => {
         bookingUid,
         setIsLoading,
         setBookingUid,
-        error, setError
     } = useAppointmentStore();
-
+    const [error, setError] = useState<string | null>(null);
     const bookingRef = useRef(false);
 
     const bookSlot = async (): Promise<boolean> => {

@@ -1,10 +1,11 @@
 import {useAppointmentStore} from "../../../shared/store/appointmentStore";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import { Slot } from "../../../entities/slot/model";
 import { appointmentApi } from "../../../shared/api/appointmentApi";
 
 export const useSlots = (clinicUid: string | null, doctorUid: string | null, serviceUIDs: string[]) => {
-    const { setIsLoading, slotsCache, setSlotsCache, error, setError } = useAppointmentStore();
+    const { setIsLoading, slotsCache, setSlotsCache } = useAppointmentStore();
+    const [error, setError] = useState<string | null>(null);
     const cacheKey = `${clinicUid}_${doctorUid}_${[...serviceUIDs].sort().join(',')}`;
     const slots = slotsCache[cacheKey] ?? []
     useEffect(() => {

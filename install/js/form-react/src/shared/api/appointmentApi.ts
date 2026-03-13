@@ -126,7 +126,7 @@ export const appointmentApi = {
     },
 
     async verifyConfirmCode(code: string) {
-        const action = `${CONTROLLER}.sendConfirmCode`;
+        const action = `${CONTROLLER}.verifyConfirmCode`;
         const data = new FormData();
         data.set('code', code);
         const res = await fetch(`${API_URL}?sessid=${sessid}&action=${action}`, {

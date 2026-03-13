@@ -1,12 +1,14 @@
 import {useAppointmentStore} from "../../shared/store/appointmentStore";
-import { StepClinicSpecialty } from "./steps/StepClinicSpecialty";
+import {StepClinicSpecialty} from "./steps/StepClinicSpecialty";
 import {
     Backdrop,
     Box,
     CircularProgress,
     Dialog,
-    DialogContent, Fade,
-    IconButton, MobileStepper,
+    DialogContent,
+    Fade,
+    IconButton,
+    MobileStepper,
     Step,
     StepLabel,
     Stepper,
@@ -17,16 +19,22 @@ import {
 import React, {FC} from "react";
 import CloseIcon from "@mui/icons-material/Close";
 import {StepDoctorService} from "./steps/StepDoctorService";
-import { StepDateTime } from "./steps/StepDateTime";
+import {StepDateTime} from "./steps/StepDateTime";
 import {StepContactForm} from "./steps/StepContactForm";
+import {useSettings} from "./hooks/useSettings";
+import {StepConfirmation} from "./steps/StepConfirmation";
+import {ConfirmationType} from "../../shared/settings/widgetSettings";
+import {FinalScreen} from "./steps/FinalScreen";
 
 export const AppointmentForm: FC = () => {
     const { step, isOpen, setIsOpen, isLoading } = useAppointmentStore();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const {confirmationType} = useSettings();
+
     const steps = [
         {
-            id: 'clinicSpecialty',
+            id: 'ClinicSpecialty',
             label: "Филиал и направление",
             component: StepClinicSpecialty,
         },
@@ -41,14 +49,23 @@ export const AppointmentForm: FC = () => {
             component: StepDateTime,
         },
         {
-            id: 'contact',
+            id: 'ContactForm',
             label: "Контакты",
             component: StepContactForm,
         },
+
+        ...(confirmationType !== ConfirmationType.none
+            ? [{
+                id: 'Confirmation',
+                label: "Подтверждение",
+                component: StepConfirmation
+            }]
+            : []),
+
         {
-            id: 'final',
+            id: 'Final',
             label: "Результат",
-            component: () => <>final-screen</>
+            component: FinalScreen
         },
     ];
 
@@ -58,7 +75,7 @@ export const AppointmentForm: FC = () => {
         <Dialog open={isOpen}
                 onClose={()=> setIsOpen(false)}
                 aria-labelledby={`appointment-form`}
-                keepMounted={step !== 4}
+                keepMounted={steps[step]?.id !== 'Final'}
                 fullScreen={isMobile}
                 slotProps={{
                     paper: {

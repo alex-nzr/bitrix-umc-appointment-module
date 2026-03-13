@@ -3,7 +3,8 @@ import {useEffect, useState} from "react";
 import {useAppointmentStore} from "../../../shared/store/appointmentStore";
 
 export const useServices = (clinicUid: string | null) => {
-    const { servicesCache, setServicesCache, setIsLoading, error, setError} = useAppointmentStore();
+    const { servicesCache, setServicesCache, setIsLoading } = useAppointmentStore();
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (!clinicUid || servicesCache[clinicUid]) return;

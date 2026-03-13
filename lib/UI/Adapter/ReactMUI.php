@@ -180,8 +180,12 @@ class ReactMUI
         static $defaultClinicUid = null;
         if (is_null($defaultClinicUid))
         {
-            $selectedClinics = Configuration::getInstance()->getSelectedClinics();
-            $defaultClinicUid = count($selectedClinics) === 1 ? (string)current($selectedClinics) : '';
+            $defaultClinicUid = Configuration::getInstance()->getDefaultClinic();
+            if (is_null($defaultClinicUid))
+            {
+                $selectedClinics = Configuration::getInstance()->getSelectedClinics();
+                $defaultClinicUid = count($selectedClinics) === 1 ? (string)current($selectedClinics) : '';
+            }
         }
         return $defaultClinicUid;
     }

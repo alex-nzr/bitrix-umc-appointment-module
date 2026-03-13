@@ -20,9 +20,8 @@ interface AppointmentStore {
     serviceUIDs: string[]
 
     slot: Slot | null
-    contact: ContactInfo | null
-    comment: string | null
-    error: string | null
+    contact: ContactInfo
+    code: string | null
 
     setMode: (mode: FlowMode) => void
     setIsOpen: (isOpen: boolean) => void
@@ -39,8 +38,7 @@ interface AppointmentStore {
     setServices: (UIDs: string[]) => void
     setSlot: (slot: Slot|null) => void
     setContact: (contact: ContactInfo) => void
-    setComment: (comment: string | null) => void
-    setError: (error: string | null) => void
+    setCode: (code: string | null) => void
 
     clinicsCache: Clinic[]
     doctorsCache: Doctor[]
@@ -65,9 +63,14 @@ export const useAppointmentStore = create<AppointmentStore>((set) => ({
     serviceUIDs: [],
 
     slot: null,
-    contact: null,
-    comment: null,
-    error: null,
+    contact: {
+        firstName: '',
+        secondName: '',
+        lastName: '',
+        phone: '',
+        birthday: ''
+    },
+    code: null,
 
     clinicsCache: [],
     doctorsCache: [],
@@ -88,29 +91,31 @@ export const useAppointmentStore = create<AppointmentStore>((set) => ({
         specialtyUid: null,
         doctorUid: null,
         serviceUIDs: [],
+        slot: null
     }),
 
     setSpecialty: (uid) => set({
         specialtyUid: uid,
         doctorUid: null,
         serviceUIDs: [],
+        slot: null
     }),
 
     setDoctor: (uid) => set({
         doctorUid: uid,
+        slot: null
     }),
 
     setServices: (UIDs) => set({
         serviceUIDs: UIDs,
+        slot: null
     }),
 
     setSlot: (slot) => set({ slot }),
 
     setContact: (contact) => set({ contact }),
 
-    setComment: (comment) => set({ comment }),
-
-    setError: (error) => set({ error }),
+    setCode: (code) => set({ code }),
 
     setClinicsCache: (data) => set({ clinicsCache: data }),
 
@@ -146,7 +151,12 @@ export const useAppointmentStore = create<AppointmentStore>((set) => ({
         serviceUIDs: [],
 
         slot: null,
-        contact: null,
-        comment: null,
+        contact: {
+            firstName: '',
+            secondName: '',
+            lastName: '',
+            phone: '',
+            birthday: ''
+        },
     })
 }))

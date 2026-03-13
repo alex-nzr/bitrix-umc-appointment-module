@@ -1,128 +1,88 @@
-import React, { useState, useMemo } from "react";
-import {
-    Stack,
-    TextField,
-} from "@mui/material";
-import { useAppointmentStore } from "../../../shared/store/appointmentStore";
-import { NavigationButtons } from "./NavigationButtons";
-import {DatePicker} from "@mui/lab";
-import {Dayjs} from "dayjs";
+import React, {useEffect, useState} from "react";
+import {DialogContentText, Link, Stack, Typography} from "@mui/material";
+import {useAppointmentStore} from "../../../shared/store/appointmentStore";
+import {NavigationButtons} from "./NavigationButtons";
+import {TextInput} from "./StepContactForm/TextInput";
+import {useSettings} from "../hooks/useSettings";
+import {validateContact} from "../../../entities/appointment/validator";
+import {getFormFields} from "../../../entities/appointment/formFields";
+import {useAppointment} from "../hooks/useAppointment";
+import {ConfirmationType} from "../../../shared/settings/widgetSettings";
 
 export const StepContactForm = () => {
-
     const {
         prevStep,
-        goToStep,
+        nextStep,
+        contact,
+        setContact
     } = useAppointmentStore();
 
-    const [form, setForm] = useState<{
-        name: string;
-        middleName: string;
-        surname: string;
-        phone: string;
-        email: string;
-        comment: string;
-        birthday: Dayjs | null;
-    }>({
-        name: '',
-        middleName: '',
-        surname: '',
-        phone: '',
-        email: '',
-        comment: '',
-        birthday: null
-    });
+    const [isValid, setIsValid] = useState(false)
+    const {privacyPolicyUrl, confirmationType, phoneInputMask} = useSettings();
+    const {sendAppointment, appointmentError} = useAppointment();
 
-    const handleChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-        setForm(prev => ({
-            ...prev,
-            [field]: e.target.value
-        }));
-    };
+    useEffect(() => {
+        if (!contact)
+        {
+            return;
+        }
+        setIsValid(validateContact(contact, confirmationType));
+    }, [contact, confirmationType]);
 
-    const isValid = useMemo(() => {
-        return (
-            form.name.trim() &&
-            form.surname.trim() &&
-            form.phone.trim() &&
-            form.birthday
-        );
-    }, [form]);
-
-    const submit = () => {
-        if (!isValid) return;
-
-        //createBooking(form);
-        goToStep(4);
-    };
+    const submit = async() => {
+        if (isValid)
+        {
+            if (confirmationType === ConfirmationType.none)
+            {
+                const isSuccess = await sendAppointment();
+                if (isSuccess)
+                {
+                    nextStep();
+                }
+            }
+            else
+            {
+                nextStep();
+            }
+        }
+    }
 
     return (
         <Stack spacing={3}>
+            {appointmentError && (
+                <Typography component="h1" color={'red'} variant="subtitle1" align="center">{appointmentError}</Typography>
+            )}
 
-            <TextField
-                label="Фамилия"
-                value={form.surname}
-                onChange={handleChange("surname")}
-                required
-                fullWidth
-            />
+            {
+                getFormFields(confirmationType, phoneInputMask).map(field => {
+                    return (
+                        <TextInput key={field.name}
+                                   {...field}
+                                   value={contact[field.name] ?? ''}
+                                   setValue={(value: any) => {
+                                       setContact({
+                                           ...contact,
+                                           [field.name]: value
+                                       });
+                                   }}
+                        />
+                    );
+                })
+            }
 
-            <TextField
-                label="Имя"
-                value={form.name}
-                onChange={handleChange("name")}
-                required
-                fullWidth
-            />
-
-            <TextField
-                label="Отчество"
-                value={form.middleName}
-                onChange={handleChange("middleName")}
-                fullWidth
-            />
-
-            <TextField
-                label="Телефон"
-                value={form.phone}
-                onChange={handleChange("phone")}
-                required
-                fullWidth
-            />
-
-            <TextField
-                label="Email"
-                value={form.email}
-                onChange={handleChange("email")}
-                type="email"
-                fullWidth
-            />
-
-            <DatePicker
-                label="Дата рождения"
-                value={form.birthday}
-                onChange={(date: Dayjs | null) =>
-                    setForm(prev => ({
-                        ...prev,
-                        birthday: date
-                    }))
-                }
-                slotProps={{
-                    textField: {
-                        required: true,
-                        fullWidth: true
-                    }
-                }}
-            />
-
-            <TextField
-                label="Комментарий"
-                value={form.comment}
-                onChange={handleChange("comment")}
-                multiline
-                rows={3}
-                fullWidth
-            />
+            {privacyPolicyUrl && (
+                <DialogContentText sx={{textAlign:'center'}}>
+                    <span>Отправляя заявку вы соглашаетесь с </span>
+                    <Link
+                        href={privacyPolicyUrl}
+                        target="_blank"
+                        variant="body2"
+                    >
+                        политикой конфиденциальности
+                    </Link>
+                    <span> сайта</span>
+                </DialogContentText>
+            )}
 
             <NavigationButtons
                 backHandler={prevStep}
@@ -130,7 +90,6 @@ export const StepContactForm = () => {
                 nextText="Записаться"
                 nextDisabled={!isValid}
             />
-
         </Stack>
     );
 };

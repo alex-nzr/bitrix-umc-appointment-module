@@ -5,15 +5,13 @@ import {Specialty} from "../../../entities/specialty/model";
 import { Doctor } from '../../../entities/doctor/model';
 
 export const useDoctors = (clinicUid: string|null = null) => {
-    const { setIsLoading, doctorsCache, setDoctorsCache, error, setError} = useAppointmentStore();
+    const { setIsLoading, specialtyUid, setSpecialty, doctorsCache, setDoctorsCache } = useAppointmentStore();
     const [specialties, setSpecialties] = useState<Specialty[]>([])
-
+    const [error, setError] = useState<string | null>(null);
     useEffect(() => {
         if (!clinicUid) {
             return;
         }
-
-        setSpecialties([]);
 
         const setSpecialtiesByClinic = (data: Doctor[]) => {
             const specMap: Record<string, Specialty> = {};
@@ -28,6 +26,9 @@ export const useDoctors = (clinicUid: string|null = null) => {
             });
 
             setSpecialties(Object.values(specMap))
+            if (specialtyUid && !specMap[specialtyUid]){
+                setSpecialty('');
+            }
         }
 
         if (doctorsCache.length) {

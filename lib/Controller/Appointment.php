@@ -10,13 +10,11 @@ namespace ANZ\Appointment\Controller;
 use ANZ\Appointment\Agent\Exchange;
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Config\Constants;
-use ANZ\Appointment\Core\ActionFilter\Admin;
 use ANZ\Appointment\Service\Container;
 use ANZ\Appointment\Service\Exchange\Manager;
 use ANZ\Appointment\UI\Adapter\ReactMUI;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\ActionFilter\Csrf;
-use Bitrix\Main\Engine\ActionFilter\FilterType;
 use Bitrix\Main\Engine\ActionFilter\HttpMethod;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Error;
@@ -292,11 +290,11 @@ class Appointment extends Controller
     public function configureActions(): array
     {
         return [
-            'deleteAppointment' => [
-                FilterType::EnablePrefilter->value => [
-                    new Admin
+            /*'deleteAppointment' => [
+                \Bitrix\Main\Engine\ActionFilter\FilterType::EnablePrefilter->value => [
+                    new \ANZ\Appointment\Core\ActionFilter\Admin
                 ],
-            ],
+            ],*/
         ];
     }
 }

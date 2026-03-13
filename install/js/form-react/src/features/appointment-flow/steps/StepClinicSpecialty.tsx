@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React from "react";
 import {
     Stack,
     TextField,
@@ -15,6 +15,7 @@ import {useSettings} from "../hooks/useSettings";
 export const StepClinicSpecialty = () => {
     const {
         isOpen,
+        isLoading,
         clinicUid,
         specialtyUid,
         setClinic,
@@ -25,13 +26,7 @@ export const StepClinicSpecialty = () => {
 
     const {clinics, clinicsError} = useClinics();
     const { specialties, useDoctorsError } = useDoctors(clinicUid);
-    const {defaultClinicUid} = useSettings();
-
-    useEffect(() => {
-        if (defaultClinicUid && !clinicUid) {
-            setClinic(defaultClinicUid);
-        }
-    }, [defaultClinicUid, clinicUid, setClinic]);
+    const {servicesEnabled} = useSettings();
 
     if(!isOpen)
     {
@@ -41,10 +36,15 @@ export const StepClinicSpecialty = () => {
     const selectedClinic = clinics.find((c: Clinic) => c.uid === clinicUid) || null;
     const selectedSpec = specialties?.find((s: Specialty) => s.uid === specialtyUid) || null;
 
+    if (specialtyUid && !selectedSpec)
+    {
+        return null;
+    }
+
     return (
         <Stack spacing={3}>
             {(clinicsError || useDoctorsError) && (
-                <Typography variant="subtitle1" align="center">
+                <Typography variant="subtitle1" color={'red'} align="center">
                     {clinicsError}
                     {clinicsError && useDoctorsError && <br />}
                     {useDoctorsError}
@@ -66,7 +66,7 @@ export const StepClinicSpecialty = () => {
                 getOptionLabel={(option) => option.name}
                 isOptionEqualToValue={(a, b) => a.uid === b.uid}
                 value={selectedSpec}
-                disabled={!clinicUid}
+                disabled={!clinicUid || isLoading}
                 onChange={(_, value) => setSpecialty(value?.uid ?? '')}
                 renderInput={(params) => (
                     <TextField {...params} label="Специализация" />
@@ -75,17 +75,18 @@ export const StepClinicSpecialty = () => {
 
             <NavigationButtons
                 backHandler={() => {
-                    setMode("doctor-first");
-                    goToStep(1);
-                }}
-                nextHandler={() => {
                     setMode("service-first");
                     goToStep(1);
                 }}
-                backText={'Выбрать врача'}
-                nextText={'Выбрать услугу'}
+                backText={'Выбрать услугу'}
+                backDisabled={!(clinicUid && specialtyUid) || !servicesEnabled}
+
+                nextHandler={() => {
+                    setMode("doctor-first");
+                    goToStep(1);
+                }}
+                nextText={'Выбрать врача'}
                 nextDisabled={!(clinicUid && specialtyUid)}
-                backDisabled={!(clinicUid && specialtyUid)}
             />
         </Stack>
     );

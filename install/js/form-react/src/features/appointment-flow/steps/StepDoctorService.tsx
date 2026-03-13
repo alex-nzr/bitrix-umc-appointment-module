@@ -9,6 +9,7 @@ import { useAppointmentStore } from "../../../shared/store/appointmentStore";
 import { useDoctors } from "../hooks/useDoctors";
 import { useServices } from "../hooks/useServices";
 import {NavigationButtons} from "./NavigationButtons";
+import {useSettings} from "../hooks/useSettings";
 
 export const StepDoctorService = () => {
     const {
@@ -23,6 +24,7 @@ export const StepDoctorService = () => {
 
     const {doctors} = useDoctors(clinicUid);
     const {services, serviceError} = useServices(clinicUid ?? '');
+    const {servicesEnabled} = useSettings();
 
     const doctorsBySpecialty = useMemo(() => {
         return doctors.filter((d) =>
@@ -65,7 +67,7 @@ export const StepDoctorService = () => {
     return (
         <Stack spacing={3}>
             {
-                serviceError && <Typography component="h1" variant="subtitle1" align="center">{serviceError}</Typography>
+                serviceError && <Typography component="h1" color={'red'} variant="subtitle1" align="center">{serviceError}</Typography>
             }
             {/* DOCTOR FIRST */}
             {mode === "doctor-first" && (
@@ -73,6 +75,7 @@ export const StepDoctorService = () => {
                     <Autocomplete
                         options={doctorsBySpecialty}
                         getOptionLabel={(o) => o.fullName}
+                        isOptionEqualToValue={(a,b) => a.uid === b.uid}
                         onChange={(_, v) => {
                             setDoctor(v?.uid ?? '');
                             setServices([]);
@@ -80,21 +83,22 @@ export const StepDoctorService = () => {
                         renderInput={(params) => (
                             <TextField {...params} label="Врач" />
                         )}
-                        value={doctorUid ? doctors.find(d =>  d.uid === doctorUid) :  null}
+                        value={doctors.find(d => d.uid === doctorUid) ?? null}
                     />
 
                     <Autocomplete
-                        disabled={!doctorUid}
+                        disabled={!doctorUid || !servicesEnabled}
                         options={servicesByDoctor}
                         multiple={true}
                         getOptionLabel={(o) => o.name}
+                        isOptionEqualToValue={(a,b) => a.uid === b.uid}
                         onChange={(_, v) =>
                             setServices(v.map(s => s.uid) ?? [])
                         }
                         renderInput={(params) => (
                             <TextField {...params} label="Услуга" />
                         )}
-                        value={serviceUIDs.length ? services.filter(s =>  serviceUIDs.includes(s.uid)) : undefined}
+                        value={services.filter(s => serviceUIDs.includes(s.uid))}
                     />
                 </>
             )}
@@ -106,6 +110,7 @@ export const StepDoctorService = () => {
                         options={servicesBySpecialty}
                         multiple={true}
                         getOptionLabel={(o) => o.name}
+                        isOptionEqualToValue={(a,b) => a.uid === b.uid}
                         onChange={(_, v) => {
                             setServices(v.map(s => s.uid) ?? [])
                             setDoctor('');
@@ -113,25 +118,30 @@ export const StepDoctorService = () => {
                         renderInput={(params) => (
                             <TextField {...params} label="Услуга" />
                         )}
-                        value={serviceUIDs.length ? services.filter(s =>  serviceUIDs.includes(s.uid)) : undefined}
+                        value={services.filter(s => serviceUIDs.includes(s.uid))}
                     />
 
                     <Autocomplete
                         disabled={serviceUIDs.length <= 0}
                         options={doctorsByService}
                         getOptionLabel={(o) => o.fullName}
+                        isOptionEqualToValue={(a,b) => a.uid === b.uid}
                         onChange={(_, v) =>
                             setDoctor(v?.uid ?? '')
                         }
                         renderInput={(params) => (
                             <TextField {...params} label="Врач" />
                         )}
-                        value={doctorUid ? doctors.find(d =>  d.uid === doctorUid) :  null}
+                        value={doctors.find(d => d.uid === doctorUid) ?? null}
                     />
                 </>
             )}
 
-            <NavigationButtons nextDisabled={!doctorUid || serviceUIDs.length <= 0}/>
+            <NavigationButtons nextDisabled={servicesEnabled
+                                                ? !doctorUid || serviceUIDs.length <= 0
+                                                : !doctorUid
+                                            }
+            />
         </Stack>
     );
 };

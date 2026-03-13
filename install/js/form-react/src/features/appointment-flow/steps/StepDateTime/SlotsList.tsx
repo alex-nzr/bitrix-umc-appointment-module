@@ -1,6 +1,6 @@
 import {Box, Button, Grid, Typography} from "@mui/material";
 import {useAppointmentStore} from "../../../../shared/store/appointmentStore";
-import React, {useEffect, useRef} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import dayjs, {Dayjs} from "dayjs";
 import "dayjs/locale/ru";
 import {Slot} from "../../../../entities/slot/model";
@@ -16,6 +16,7 @@ export const SlotsList = ({date, slots}: SlotsListProps) => {
     const selectedRef = useRef<HTMLButtonElement | null>(null);
     const {slot, setSlot, isLoading, step, bookingUid } = useAppointmentStore()
     const {cancelBooking} = useBooking();
+    const [cancelProcessing, setCancelProcessing] = useState(false);
     const selectedSlot = slot;
 
     useEffect(() => {
@@ -25,19 +26,34 @@ export const SlotsList = ({date, slots}: SlotsListProps) => {
         });
     }, [selectedSlot, step]);
 
+    let text = null;
+
     const handleSelectSlot = async (slot: Slot) => {
-        if (bookingUid) {
-            await cancelBooking();
+        const isSameSlot = selectedSlot?.timeBegin === slot.timeBegin
+                                    && selectedSlot?.doctorUid === slot.doctorUid
+                                    && selectedSlot?.clinicUid === slot.clinicUid;
+        if (bookingUid && !isSameSlot) {
+            setCancelProcessing(true);
+            cancelBooking().then(() => {
+                setCancelProcessing(false);
+                setSlot(slot)
+            })
         }
-        setSlot(slot);
+        else
+        {
+            setSlot(slot);
+        }
     };
 
-    let text = null;
-    if (!slots.length && isLoading)
+    if (cancelProcessing)
+    {
+        text = 'Освобождение ранее забронированного слота...';
+    }
+    else if (!slots.length && isLoading)
     {
         text = 'Загрузка расписания...';
     }
-    else if (slots.length && isLoading)
+    else if (slots.length && isLoading && !bookingUid)
     {
         text = 'Бронирование слота...';
     }
