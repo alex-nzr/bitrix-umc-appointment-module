@@ -246,13 +246,13 @@ class Module implements IOptionStorage
                         Constants::OPTION_KEY_MAIN_BTN_BG,
                         Loc::getMessage("ANZ_APPOINTMENT_MAIN_BTN_BG_COLOR"),
                         "#025ea1",
-                        ['colorPicker']
+                        ['colorPicker', 'attrs' => ['data-extension' => Constants::JS_EXTENSION_BX_POPUP]]
                     ],
                     [
                         Constants::OPTION_KEY_MAIN_BTN_TEXT_CLR,
                         Loc::getMessage("ANZ_APPOINTMENT_MAIN_BTN_TEXT_COLOR"),
                         "#fff",
-                        ['colorPicker']
+                        ['colorPicker', 'attrs' => ['data-extension' => Constants::JS_EXTENSION_BX_POPUP]]
                     ],
                     [
                         Constants::OPTION_KEY_CUSTOM_BTN_SELECTOR,

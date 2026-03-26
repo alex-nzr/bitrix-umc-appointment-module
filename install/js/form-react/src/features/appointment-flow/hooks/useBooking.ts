@@ -2,6 +2,7 @@ import {useRef, useState} from 'react'
 import {useAppointmentStore} from "../../../shared/store/appointmentStore";
 import {appointmentApi} from "../../../shared/api/appointmentApi";
 import {Reserve} from "../../../entities/appointment/model";
+import {useSettings} from "./useSettings";
 
 export const useBooking = () => {
     const {
@@ -15,9 +16,10 @@ export const useBooking = () => {
     } = useAppointmentStore();
     const [error, setError] = useState<string | null>(null);
     const bookingRef = useRef(false);
+    const {servicesEnabled} = useSettings();
 
     const bookSlot = async (): Promise<boolean> => {
-        if (bookingRef.current || !clinicUid || !doctorUid || !serviceUIDs.length || !slot)
+        if (bookingRef.current || !clinicUid || !doctorUid || (servicesEnabled && !serviceUIDs.length) || !slot)
         {
             return false;
         }

@@ -1,4 +1,4 @@
-import {useRef, useState} from 'react'
+import {useCallback, useRef, useState} from 'react'
 import {useAppointmentStore} from "../../../shared/store/appointmentStore";
 import {appointmentApi} from "../../../shared/api/appointmentApi";
 import {Appointment} from "../../../entities/appointment/model";
@@ -22,14 +22,14 @@ export const useAppointment = () => {
         setIsLoading,
     } = useAppointmentStore();
     const [error, setError] = useState<string | null>(null);
-    const {servicesEnabled} = useSettings();
+    const {servicesEnabled, emailNotificationEnabled} = useSettings();
     const { clinics } = useClinics();
     const { specialties, doctors } = useDoctors(clinicUid);
     const { services } = useServices(clinicUid);
 
     const appRef = useRef(false);
 
-    const sendAppointment = async (): Promise<boolean> => {
+    const sendAppointment = useCallback(async (): Promise<boolean> => {
         const selectedClinic = clinics.find((c: Clinic) => c.uid === clinicUid) || null;
         const selectedSpec = specialties.find((s: Specialty) => s.uid === specialtyUid) || null;
         const selectedDoctor = doctors.find((d: Doctor) => d.uid === doctorUid) || null;
@@ -68,6 +68,16 @@ export const useAppointment = () => {
                 contact,
             };
             await appointmentApi.sendAppointment(appointment);
+            if (emailNotificationEnabled && appointment.contact.email?.trim()) {
+                try
+                {
+                    await appointmentApi.sendEmailNoteAction(appointment);
+                }
+                catch (e)
+                {
+                    console.error('Email notification failed', e);
+                }
+            }
             return true;
         }
         catch (e: any)
@@ -80,7 +90,22 @@ export const useAppointment = () => {
             appRef.current = false;
             setIsLoading(false);
         }
-    };
+    }, [
+        bookingUid,
+        clinicUid,
+        clinics,
+        contact,
+        doctorUid,
+        doctors,
+        emailNotificationEnabled,
+        serviceUIDs,
+        services,
+        servicesEnabled,
+        setIsLoading,
+        slot,
+        specialtyUid,
+        specialties,
+    ]);
 
     return {
         sendAppointment,

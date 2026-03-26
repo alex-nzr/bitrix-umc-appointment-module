@@ -10,8 +10,11 @@ export interface WidgetSettings {
     defaultClinicUid: string|null;
     schedulePeriodDays: number;
     logoImageSrc: string|null;
-    servicesEnabled: boolean,
-    confirmationType: ConfirmationType,
-    phoneInputMask: string,
+    servicesEnabled: boolean;
+    emailNotificationEnabled: boolean;
+    confirmationType: ConfirmationType;
+    useCustomButton: boolean;
+    customButtonSelector: string|null;
+    phoneInputMask: string;
     error?: string;
 }

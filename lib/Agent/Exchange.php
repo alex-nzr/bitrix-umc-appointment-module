@@ -23,6 +23,7 @@ class Exchange
     public static function loadData(bool $manuallyExecution = false, bool $throwError = false): string
     {
         $isActive = null;
+        $exchangeStateChanged = false;
         try
         {
             $isActive = Configuration::getInstance()->isExchangeActive();
@@ -35,6 +36,7 @@ class Exchange
                 )
                 {
                     Configuration::getInstance()->setExchangeActive(false);
+                    $exchangeStateChanged = true;
 
                     Container::getInstance()->getExchangeManager()->renewCacheData($manuallyExecution);
 
@@ -47,6 +49,7 @@ class Exchange
                     );
 
                     Configuration::getInstance()->setExchangeActive(true);
+                    $exchangeStateChanged = false;
                 }
             }
         }
@@ -67,9 +70,9 @@ class Exchange
                 throw $e;
             }
 
-            if ($isActive)
+            if ($exchangeStateChanged)
             {
-                Configuration::getInstance()->setExchangeActive(true);
+                Configuration::getInstance()->setExchangeActive($isActive === true);
             }
         }
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {useAppointmentStore} from "../../../shared/store/appointmentStore";
 import {appointmentApi} from "../../../shared/api/appointmentApi";
 import {Specialty} from "../../../entities/specialty/model";
@@ -8,27 +8,27 @@ export const useDoctors = (clinicUid: string|null = null) => {
     const { setIsLoading, specialtyUid, setSpecialty, doctorsCache, setDoctorsCache } = useAppointmentStore();
     const [specialties, setSpecialties] = useState<Specialty[]>([])
     const [error, setError] = useState<string | null>(null);
+    const setSpecialtiesByClinic = useCallback((data: Doctor[]) => {
+        const specMap: Record<string, Specialty> = {};
+        data.length && data.forEach((doctor) => {
+            if(!doctor.clinicUid || doctor.clinicUid === clinicUid)
+            {
+                for (let specUid in doctor.specialties)
+                {
+                    specMap[specUid] = doctor.specialties[specUid];
+                }
+            }
+        });
+
+        setSpecialties(Object.values(specMap))
+        if (specialtyUid && !specMap[specialtyUid]){
+            setSpecialty('');
+        }
+    }, [clinicUid, setSpecialty, specialtyUid]);
+
     useEffect(() => {
         if (!clinicUid) {
             return;
-        }
-
-        const setSpecialtiesByClinic = (data: Doctor[]) => {
-            const specMap: Record<string, Specialty> = {};
-            data.length && data.forEach((doctor) => {
-                if(!doctor.clinicUid || doctor.clinicUid === clinicUid)
-                {
-                    for (let specUid in doctor.specialties)
-                    {
-                        specMap[specUid] = doctor.specialties[specUid];
-                    }
-                }
-            });
-
-            setSpecialties(Object.values(specMap))
-            if (specialtyUid && !specMap[specialtyUid]){
-                setSpecialty('');
-            }
         }
 
         if (doctorsCache.length) {
@@ -46,7 +46,7 @@ export const useDoctors = (clinicUid: string|null = null) => {
             })
             .catch((e) => setError(Array.isArray(e) ? String(e[0]?.message) : String(e)))
             .finally(() => setIsLoading(false))
-    }, [clinicUid])
+    }, [clinicUid, doctorsCache, setDoctorsCache, setIsLoading, setSpecialtiesByClinic])
 
     return {
         specialties,

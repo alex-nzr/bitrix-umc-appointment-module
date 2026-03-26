@@ -43,6 +43,11 @@ abstract class Options extends BaseComponent
         $this->tabs = (key_exists('TABS', $arParams) && is_array($arParams['TABS'])) ? $arParams['TABS'] : [];
         $this->tabControl = new CAdminTabControl('tabControl', $this->tabs);
 
+        if(isset($arParams['PAGE_TITLE']))
+        {
+            $this->App->SetTitle($arParams['PAGE_TITLE']);
+        }
+
         return $arParams;
     }
 

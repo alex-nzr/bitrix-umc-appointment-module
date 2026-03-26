@@ -9,12 +9,14 @@ export const useFirstAvailableDate = (
 
     useEffect(() => {
         if (availableDates.size === 0) return;
-        const first = Array.from(availableDates)
-            .sort()[0];
 
-        if (!selectedDate.isSame(first, "day")) {
-            setSelectedDate(dayjs(first));
+        const selectedDateKey = selectedDate.format("YYYY-MM-DD");
+
+        if (availableDates.has(selectedDateKey)) {
+            return;
         }
 
-    }, [availableDates]);
+        const first = Array.from(availableDates).sort()[0];
+        setSelectedDate(dayjs(first));
+    }, [availableDates, selectedDate, setSelectedDate]);
 };

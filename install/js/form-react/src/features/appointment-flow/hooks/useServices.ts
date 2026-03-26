@@ -15,7 +15,7 @@ export const useServices = (clinicUid: string | null) => {
             .then(data => setServicesCache(clinicUid, data))
             .catch((e) => setError(Array.isArray(e) ? String(e[0]?.message) : String(e)))
             .finally(() => setIsLoading(false));
-    }, [clinicUid]);
+    }, [clinicUid, servicesCache, setIsLoading, setServicesCache]);
 
     return {
         services: servicesCache[clinicUid ?? ''] ?? [],

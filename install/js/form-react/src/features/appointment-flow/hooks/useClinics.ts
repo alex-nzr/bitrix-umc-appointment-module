@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react'
+import {useCallback, useEffect, useState} from 'react'
 import {Clinic} from "../../../entities/clinic/model";
 import {useAppointmentStore} from "../../../shared/store/appointmentStore";
 import {appointmentApi} from "../../../shared/api/appointmentApi";
@@ -9,7 +9,7 @@ export const useClinics = () => {
     const [error, setError] = useState<string | null>(null);
     const {defaultClinicUid} = useSettings();
 
-    const setDefaultClinic = (data: Clinic[]) => {
+    const setDefaultClinic = useCallback((data: Clinic[]) => {
         const defaultClinic = defaultClinicUid
             ? data.find((c: Clinic) => c.uid === defaultClinicUid)
             : data.find((c: Clinic) => c.isDefault)
@@ -18,7 +18,7 @@ export const useClinics = () => {
         {
             setClinic(defaultClinic.uid)
         }
-    }
+    }, [clinicUid, defaultClinicUid, isOpen, setClinic]);
 
     useEffect(() => {
         if (!isOpen)
@@ -44,7 +44,7 @@ export const useClinics = () => {
                 setError(Array.isArray(e) ? String(e[0]?.message) : String(e));
                 setIsLoading(false);
             })
-    }, [isOpen])
+    }, [clinicsCache, isOpen, setClinicsCache, setDefaultClinic, setIsLoading])
 
     return { clinics: clinicsCache, clinicsError: error ? window.BX.message('CLINICS_ERROR') : null}
 }

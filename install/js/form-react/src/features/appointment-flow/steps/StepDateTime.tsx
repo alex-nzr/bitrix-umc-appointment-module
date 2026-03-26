@@ -24,7 +24,7 @@ export const StepDateTime = () => {
         if (slot && !dayjs(slot.timeBegin).isSame(selectedDate, 'day')) {
             setSlot(null)
         }
-    }, [selectedDate])
+    }, [selectedDate, setSlot, slot])
 
     const handleNext = async () => {
         const success = await bookSlot();

@@ -7,6 +7,7 @@
 */
 namespace ANZ\Appointment\Model;
 
+use ANZ\Appointment\Dto\AppointmentDto;
 use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Fields\DatetimeField;
@@ -151,6 +152,27 @@ class RecordTable extends Model
             ->setPatientEmail($data['email'] ?? '')
             ->setComment($data['comment'] ?? '')
             ->setUserId(Container::getInstance()->getUserPermissions()->getUserId());
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public static function fromAppointmentPayload(array $data, AppointmentDto $dto): EntityObject
+    {
+        return static::fromArray([
+            'bookingUid' => $dto->uid,
+            'clinicName' => $data['clinicName'] ?? $dto->clinicUid,
+            'specialty' => $data['specialty'] ?? '',
+            'doctorName' => $data['doctorName'] ?? $dto->employeeUid,
+            'serviceName' => $data['serviceName'] ?? implode(', ', $dto->services),
+            'timeBegin' => $dto->dateTimeBegin->format(DATE_ATOM),
+            'surname' => $dto->lastName,
+            'name' => $dto->name,
+            'middleName' => $dto->secondName,
+            'phone' => $dto->phone,
+            'email' => $dto->email ?? '',
+            'comment' => $dto->comment ?? '',
+        ]);
     }
 
     /**

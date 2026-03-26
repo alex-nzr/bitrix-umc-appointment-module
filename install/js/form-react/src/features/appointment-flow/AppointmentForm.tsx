@@ -1,6 +1,7 @@
 import {useAppointmentStore} from "../../shared/store/appointmentStore";
 import {StepClinicSpecialty} from "./steps/StepClinicSpecialty";
 import {
+    Avatar,
     Backdrop,
     Box,
     CircularProgress,
@@ -25,12 +26,14 @@ import {useSettings} from "./hooks/useSettings";
 import {StepConfirmation} from "./steps/StepConfirmation";
 import {ConfirmationType} from "../../shared/settings/widgetSettings";
 import {FinalScreen} from "./steps/FinalScreen";
+import {useBooking} from "./hooks/useBooking";
 
 export const AppointmentForm: FC = () => {
-    const { step, isOpen, setIsOpen, isLoading } = useAppointmentStore();
+    const { step, isOpen, setIsOpen, isLoading, bookingUid, reset } = useAppointmentStore();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const {confirmationType} = useSettings();
+    const {confirmationType, logoImageSrc} = useSettings();
+    const {cancelBooking} = useBooking();
 
     const steps = [
         {
@@ -70,10 +73,20 @@ export const AppointmentForm: FC = () => {
     ];
 
     const StepComponent = steps[step]?.component;
+    const finalStepIndex = steps.length - 1;
+
+    const handleClose = async () => {
+        if (bookingUid && step < finalStepIndex) {
+            await cancelBooking();
+        }
+
+        reset();
+        setIsOpen(false);
+    };
 
     return (
         <Dialog open={isOpen}
-                onClose={()=> setIsOpen(false)}
+                onClose={handleClose}
                 aria-labelledby={`appointment-form`}
                 keepMounted={steps[step]?.id !== 'Final'}
                 fullScreen={isMobile}
@@ -88,8 +101,25 @@ export const AppointmentForm: FC = () => {
         >
             <DialogContent>
                 <Box sx={{p: { xs: 2, md: 2 } }}>
+                    {logoImageSrc && (
+                        <Box sx={{display: 'flex', justifyContent: 'center', mb: 2}}>
+                            <Avatar
+                                src={logoImageSrc}
+                                alt="Logo"
+                                variant="rounded"
+                                sx={{
+                                    width: 'auto',
+                                    height: { xs: 56, md: 72 },
+                                    maxWidth: '100%',
+                                    '& img': {
+                                        objectFit: 'contain'
+                                    }
+                                }}
+                            />
+                        </Box>
+                    )}
                     <Typography component="h1" variant="h4" align="center">Онлайн-запись</Typography>
-                    <IconButton onClick={()=> setIsOpen(false)}
+                    <IconButton onClick={handleClose}
                                 sx={{position: 'absolute', top: '10px', right: '10px'}}
                                 aria-label={window.BX.message('FORM_BTN_CLOSE')}
                     >

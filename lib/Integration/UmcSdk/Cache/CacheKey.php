@@ -7,6 +7,8 @@
 */
 namespace ANZ\Appointment\Integration\UmcSdk\Cache;
 
+use DateTimeInterface;
+
 class CacheKey
 {
     public function __construct(protected string $siteId, protected string $prefix = '')
@@ -28,9 +30,23 @@ class CacheKey
         return $this->prefix . ".services:$clinicUid:$this->siteId";
     }
 
-    public function schedule(string $clinicUid = '', array $employees = []): string
+    public function schedule(
+        int $days = 14,
+        string $clinicUid = '',
+        array $employees = [],
+        ?DateTimeInterface $startDate = null
+    ): string
     {
-        $scope = (!empty($clinicUid) || !empty($employees)) ? $clinicUid . '_' . implode('_', $employees) : 'full';
-        return $this->prefix . ".schedule:$scope:$this->siteId";
+        $employees = array_values(array_unique(array_filter($employees, 'strlen')));
+        sort($employees);
+
+        $scope = [
+            'days:' . $days,
+            'clinic:' . ($clinicUid !== '' ? $clinicUid : 'all'),
+            'employees:' . (!empty($employees) ? implode('_', $employees) : 'all'),
+            'start:' . ($startDate?->format(DATE_ATOM) ?? 'default'),
+        ];
+
+        return $this->prefix . '.schedule:' . md5(implode('|', $scope)) . ':' . $this->siteId;
     }
 }

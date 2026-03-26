@@ -50,6 +50,14 @@ class Manager
             }
 
             $clinics = $this->gateway->getClinics();
+            $selectedClinics = Configuration::getInstance()->getSelectedClinics();
+            if (!empty($selectedClinics))
+            {
+                $clinics = array_values(array_filter(
+                    $clinics,
+                    static fn($clinic) => in_array($clinic->uid, $selectedClinics, true)
+                ));
+            }
             $this->gateway->getEmployees();
 
             if (Configuration::getInstance()->isServicesEnabled())
@@ -212,7 +220,7 @@ class Manager
             else
             {
                 $dto = $this->gateway->sendAppointment($data);
-                $this->repository->save(RecordTable::fromArray($data));
+                $this->repository->save(RecordTable::fromAppointmentPayload($data, $dto));
             }
             return $dto;
         }
@@ -229,7 +237,12 @@ class Manager
     {
         try
         {
-            return $this->gateway->deleteAppointment($uid) && $this->repository->delete($id);
+            if (!$this->gateway->deleteAppointment($uid))
+            {
+                return false;
+            }
+
+            return $id > 0 ? $this->repository->delete($id) : true;
         }
         catch (Throwable $e)
         {

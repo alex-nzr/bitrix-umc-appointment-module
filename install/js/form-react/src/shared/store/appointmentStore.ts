@@ -144,6 +144,7 @@ export const useAppointmentStore = create<AppointmentStore>((set) => ({
     reset: () => set({
         step: 0,
         mode: null,
+        bookingUid: null,
 
         clinicUid: null,
         specialtyUid: null,
@@ -151,6 +152,7 @@ export const useAppointmentStore = create<AppointmentStore>((set) => ({
         serviceUIDs: [],
 
         slot: null,
+        code: null,
         contact: {
             firstName: '',
             secondName: '',

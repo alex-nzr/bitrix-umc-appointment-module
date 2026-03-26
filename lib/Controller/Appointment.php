@@ -72,11 +72,10 @@ class Appointment extends Controller
     {
         try
         {
+            $services = $this->exchangeService->getServices($clinicUid);
             return $this->isReactMuiExt
-                ? ReactMUI::prepareServicesData(
-                    $this->exchangeService->getServices($clinicUid), $this->exchangeService->getEmployees()
-                )
-                : $this->exchangeService->getServices($clinicUid);
+                ? ReactMUI::prepareServicesData($services, $this->exchangeService->getEmployees())
+                : $services;
         }
         catch (Throwable $e)
         {
@@ -89,17 +88,13 @@ class Appointment extends Controller
     {
         try
         {
+            $schedulePeriod = Configuration::getInstance()->getExchangeSchedulePeriod();
+            $employees = !empty($employeeUid) ? [$employeeUid] : [];
+            $schedule = $this->exchangeService->getSchedule($schedulePeriod, $clinicUid, $employees);
+
             return $this->isReactMuiExt
-                    ? ReactMUI::prepareScheduleData($this->exchangeService->getSchedule(
-                            Configuration::getInstance()->getExchangeSchedulePeriod(),
-                            $clinicUid,
-                            !empty($employeeUid) ? [$employeeUid] : []
-                        ), $serviceUIDs)
-                : $this->exchangeService->getSchedule(
-                    Configuration::getInstance()->getExchangeSchedulePeriod(),
-                    $clinicUid,
-                    !empty($employeeUid) ? [$employeeUid] : []
-                );
+                ? ReactMUI::prepareScheduleData($schedule, $serviceUIDs)
+                : $schedule;
         }
         catch (Throwable $e)
         {

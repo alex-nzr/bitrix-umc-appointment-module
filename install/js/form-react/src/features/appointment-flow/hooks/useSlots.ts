@@ -19,7 +19,7 @@ export const useSlots = (clinicUid: string | null, doctorUid: string | null, ser
             .then((data: Slot[]) => setSlotsCache(cacheKey, data))
             .catch((e) => setError(Array.isArray(e) ? String(e[0]?.message) : String(e)))
             .finally(() => setIsLoading(false));
-    }, [cacheKey]);
+    }, [cacheKey, clinicUid, doctorUid, serviceUIDs, setIsLoading, setSlotsCache, slotsCache]);
 
     return {slots, slotsError: error ? window.BX.message('SCHEDULE_ERROR') : null};
 };

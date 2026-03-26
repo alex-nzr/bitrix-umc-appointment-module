@@ -13,6 +13,8 @@ use ANZ\Appointment\Dto\AppointmentDto;
 use ANZ\Appointment\Dto\AppointmentStatusDto;
 use ANZ\Appointment\Dto\BookingDto;
 use ANZ\Appointment\Dto\ClinicDto;
+use ANZ\Appointment\Dto\EmployeeDto;
+use ANZ\Appointment\Dto\ServiceDto;
 use ANZ\Appointment\Dto\WaitListDto;
 use ANZ\Appointment\Integration\UmcSdk\Contract\UmcGatewayInterface;
 use DateTime;
@@ -22,23 +24,55 @@ class FakeSdk implements UmcGatewayInterface
 {
 
     public ?Throwable $toThrow = null;
+    public array $clinics;
+    public array $employees;
+    public array $services;
+    public array $schedule;
+    public string $statusCode = '000';
+    public string $statusName = 'Fake status';
 
-    public function checkConnection(string $strModeVal, string $url, string $login, string $password, string $token = ''): bool
+    public function __construct()
+    {
+        $this->clinics = [new ClinicDto('uniq-uid-12345', 'testClinic')];
+        $this->employees = [
+            new EmployeeDto(
+                'employee-1',
+                'Ivan',
+                'Ivanov',
+                'Ivanovich',
+                'Ivanov Ivan Ivanovich',
+                'uniq-uid-12345',
+                '',
+                '',
+                '',
+                'Therapist',
+                'specialty-1'
+            )
+        ];
+        $this->services = [
+            new ServiceDto('service-1', 'Consultation', 'service', 'ART-1', 1000, 30, 'pcs', '')
+        ];
+        $this->schedule = [];
+    }
+
+    private function throwIfNeeded(): void
     {
         if (!is_null($this->toThrow))
         {
             throw $this->toThrow;
         }
+    }
+
+    public function checkConnection(string $strModeVal, string $url, string $login, string $password, string $token = ''): bool
+    {
+        $this->throwIfNeeded();
         return true;
     }
 
     public function getClinics(): array
     {
-        if (!is_null($this->toThrow))
-        {
-            throw $this->toThrow;
-        }
-        return [new ClinicDto('uniq-uid-12345', 'testClinic')];
+        $this->throwIfNeeded();
+        return $this->clinics;
     }
 
     /**
@@ -46,7 +80,8 @@ class FakeSdk implements UmcGatewayInterface
      */
     public function getEmployees(): array
     {
-        // TODO: Implement getEmployees() method.
+        $this->throwIfNeeded();
+        return $this->employees;
     }
 
     /**
@@ -54,21 +89,25 @@ class FakeSdk implements UmcGatewayInterface
      */
     public function getServices(string $clinicUid): array
     {
-        // TODO: Implement getServices() method.
+        $this->throwIfNeeded();
+        return $this->services;
     }
 
     public function getSchedule(int $days = 14, string $clinicUid = '', array $employees = [], ?DateTime $startDate = null): array
     {
-        // TODO: Implement getSchedule() method.
+        $this->throwIfNeeded();
+        return $this->schedule;
     }
 
     public function getAppointmentStatus(string $appointmentUid): AppointmentStatusDto
     {
-        return new AppointmentStatusDto('000', 'Fake status');
+        $this->throwIfNeeded();
+        return new AppointmentStatusDto($this->statusCode, $this->statusName);
     }
 
     public function sendBooking(string $clinicUid, string $employeeUid, DateTime $dateTimeBegin, int $serviceDuration): BookingDto
     {
+        $this->throwIfNeeded();
         return new BookingDto(
             uniqid('fake_uid_'),
             $clinicUid,
@@ -80,16 +119,50 @@ class FakeSdk implements UmcGatewayInterface
 
     public function sendWaitList(array $data): WaitListDto
     {
-        // TODO: Implement addWaitList() method.
+        $this->throwIfNeeded();
+
+        return new WaitListDto(
+            (string)$data['clinicUid'],
+            (string)($data['clinicName'] ?? 'Clinic'),
+            (string)$data['employeeUid'],
+            (string)($data['doctorName'] ?? 'Doctor'),
+            (string)($data['specialty'] ?? 'Specialty'),
+            !empty($data['serviceName']) ? [(string)$data['serviceName']] : [],
+            new DateTime((string)$data['timeBegin']),
+            (string)$data['phone'],
+            (string)$data['surname'],
+            (string)$data['name'],
+            (string)$data['middleName'],
+            (string)($data['email'] ?? ''),
+            (string)($data['comment'] ?? '')
+        );
     }
 
     public function sendAppointment(array $data): AppointmentDto
     {
-        // TODO: Implement sendAppointment() method.
+        $this->throwIfNeeded();
+
+        return new AppointmentDto(
+            (string)$data['bookingUid'],
+            (string)$data['clinicUid'],
+            (string)$data['employeeUid'],
+            !empty($data['serviceUid']) ? [(string)$data['serviceUid']] : [],
+            (int)($data['serviceDuration'] ?? 30),
+            new DateTime((string)$data['timeBegin']),
+            (string)$data['phone'],
+            (string)$data['surname'],
+            (string)$data['name'],
+            (string)$data['middleName'],
+            (string)($data['email'] ?? ''),
+            null,
+            (string)($data['address'] ?? ''),
+            (string)($data['comment'] ?? '')
+        );
     }
 
     public function deleteAppointment(string $uid): bool
     {
+        $this->throwIfNeeded();
         return true;
     }
 }

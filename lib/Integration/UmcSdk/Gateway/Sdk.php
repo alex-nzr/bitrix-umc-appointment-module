@@ -41,6 +41,9 @@ use Throwable;
 
 class Sdk implements UmcGatewayInterface
 {
+    private const CACHE_WAIT_TIMEOUT_MS = 10000;
+    private const CACHE_WAIT_INTERVAL_MS = 100;
+
     private array $demoData;
     private ?SdkExchangeService $sdkExchangeService = null;
     private string $lockKeyPrefix = 'anz_lock_';
@@ -240,24 +243,35 @@ class Sdk implements UmcGatewayInterface
             $data = $this->cacheProvider->getClinics();
             if (is_null($data))
             {
-                if (!$this->isLocked(__METHOD__))
+                $lockKey = $this->buildLockKey(__METHOD__);
+                if ($this->isLocked($lockKey))
                 {
-                    $this->setLock(__METHOD__);
-                    $result = $this->getSdkExchangeService()->getClinics();
-                    if (!$result->isSuccess())
+                    $data = $this->waitForCache(fn() => $this->cacheProvider->getClinics(), $lockKey) ?? [];
+                }
+                else
+                {
+                    $this->setLock($lockKey);
+                    try
                     {
-                        throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
-                    }
+                        $result = $this->getSdkExchangeService()->getClinics();
+                        if (!$result->isSuccess())
+                        {
+                            throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
+                        }
 
-                    $data = array_filter($result->getData(), fn($item) => $this->responseValidator->validateClinic($item));
-                    $result->setData([]);
-                    $this->cacheProvider->setClinics($data);
-                    $this->releaseLock(__METHOD__);
+                        $data = array_filter($result->getData(), fn($item) => $this->responseValidator->validateClinic($item));
+                        $result->setData([]);
+                        $this->cacheProvider->setClinics($data);
+                    }
+                    finally
+                    {
+                        $this->releaseLock($lockKey);
+                    }
                 }
             }
         }
 
-        return array_map(fn(array $item) => $this->responseMapper->clinicFromArray($item), $data);
+        return array_map(fn(array $item) => $this->responseMapper->clinicFromArray($item), $data ?? []);
     }
 
     /**
@@ -283,24 +297,35 @@ class Sdk implements UmcGatewayInterface
             $data = $this->cacheProvider->getEmployees();
             if (is_null($data))
             {
-                if (!$this->isLocked(__METHOD__))
+                $lockKey = $this->buildLockKey(__METHOD__);
+                if ($this->isLocked($lockKey))
                 {
-                    $this->setLock(__METHOD__);
-                    $result = $this->getSdkExchangeService()->getEmployees();
-                    if (!$result->isSuccess())
+                    $data = $this->waitForCache(fn() => $this->cacheProvider->getEmployees(), $lockKey) ?? [];
+                }
+                else
+                {
+                    $this->setLock($lockKey);
+                    try
                     {
-                        throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
-                    }
+                        $result = $this->getSdkExchangeService()->getEmployees();
+                        if (!$result->isSuccess())
+                        {
+                            throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
+                        }
 
-                    $data = array_filter($result->getData(), fn($item) => $this->responseValidator->validateEmployee($item));
-                    $result->setData([]);
-                    $this->cacheProvider->setEmployees($data);
-                    $this->releaseLock(__METHOD__);
+                        $data = array_filter($result->getData(), fn($item) => $this->responseValidator->validateEmployee($item));
+                        $result->setData([]);
+                        $this->cacheProvider->setEmployees($data);
+                    }
+                    finally
+                    {
+                        $this->releaseLock($lockKey);
+                    }
                 }
             }
         }
 
-        return array_map(fn(array $item) => $this->responseMapper->employeeFromArray($item), $data);
+        return array_map(fn(array $item) => $this->responseMapper->employeeFromArray($item), $data ?? []);
     }
 
     /**
@@ -326,24 +351,35 @@ class Sdk implements UmcGatewayInterface
             $data = $this->cacheProvider->getServices($clinicUid);
             if (is_null($data))
             {
-                if (!$this->isLocked(__METHOD__))
+                $lockKey = $this->buildLockKey(__METHOD__, [$clinicUid]);
+                if ($this->isLocked($lockKey))
                 {
-                    $this->setLock(__METHOD__);
-                    $result = $this->getSdkExchangeService()->getNomenclature($clinicUid);
-                    if (!$result->isSuccess())
+                    $data = $this->waitForCache(fn() => $this->cacheProvider->getServices($clinicUid), $lockKey) ?? [];
+                }
+                else
+                {
+                    $this->setLock($lockKey);
+                    try
                     {
-                        throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
-                    }
+                        $result = $this->getSdkExchangeService()->getNomenclature($clinicUid);
+                        if (!$result->isSuccess())
+                        {
+                            throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
+                        }
 
-                    $data = array_filter($result->getData(), fn($item) => $this->responseValidator->validateService($item));
-                    $result->setData([]);
-                    $this->cacheProvider->setServices($data, $clinicUid);
-                    $this->releaseLock(__METHOD__);
+                        $data = array_filter($result->getData(), fn($item) => $this->responseValidator->validateService($item));
+                        $result->setData([]);
+                        $this->cacheProvider->setServices($data, $clinicUid);
+                    }
+                    finally
+                    {
+                        $this->releaseLock($lockKey);
+                    }
                 }
             }
         }
 
-        return array_map(fn(array $item) => $this->responseMapper->serviceFromArray($item), $data);
+        return array_map(fn(array $item) => $this->responseMapper->serviceFromArray($item), $data ?? []);
     }
 
     /**
@@ -365,45 +401,69 @@ class Sdk implements UmcGatewayInterface
         }
         else
         {
-            $data = $this->cacheProvider->getSchedule($clinicUid, $employees);
+            $data = $this->cacheProvider->getSchedule($days, $clinicUid, $employees, $startDate);
             if (is_null($data))
             {
-                if (!$this->isLocked(__METHOD__, $this->cacheProvider->getScheduleTtl()))
-                {
-                    $this->setLock(__METHOD__, $this->cacheProvider->getScheduleTtl());
-                    $result = $this->getSdkExchangeService()->getSchedule($days, $clinicUid, $employees, $startDate);
-                    if (!$result->isSuccess())
-                    {
-                        throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
-                    }
+                $lockKey = $this->buildLockKey(__METHOD__, [
+                    $days,
+                    $clinicUid,
+                    ...$employees,
+                    $startDate?->format(DATE_ATOM) ?? '',
+                ]);
 
-                    $data = $result->getData();
-                    $result->setData([]);
-                    foreach ($data as $clinicKey => $clinicData)
+                if ($this->isLocked($lockKey, $this->cacheProvider->getScheduleTtl()))
+                {
+                    $data = $this->waitForCache(
+                        fn() => $this->cacheProvider->getSchedule($days, $clinicUid, $employees, $startDate),
+                        $lockKey,
+                        $this->cacheProvider->getScheduleTtl()
+                    ) ?? [];
+                }
+                else
+                {
+                    $this->setLock($lockKey, $this->cacheProvider->getScheduleTtl());
+                    try
                     {
-                        foreach ($clinicData as $specialtyKey => $specialtyData)
+                        $result = $this->getSdkExchangeService()->getSchedule($days, $clinicUid, $employees, $startDate);
+                        if (!$result->isSuccess())
                         {
-                            foreach ($specialtyData as $employeeKey => $scheduleData)
+                            throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
+                        }
+
+                        $data = $result->getData();
+                        $result->setData([]);
+                        foreach ($data as $clinicKey => $clinicData)
+                        {
+                            foreach ($clinicData as $specialtyKey => $specialtyData)
                             {
-                                if ($this->responseValidator->validateScheduleItem($scheduleData))
+                                foreach ($specialtyData as $employeeKey => $scheduleData)
                                 {
-                                    $data[$clinicKey][$specialtyKey][$employeeKey] = $this->responseMapper->scheduleItemFromArray(
-                                        $clinicKey, $specialtyKey, $employeeKey, $scheduleData
-                                    );
-                                }
-                                else
-                                {
-                                    unset($data[$clinicKey][$specialtyKey][$employeeKey]);
+                                    if ($this->responseValidator->validateScheduleItem($scheduleData))
+                                    {
+                                        $data[$clinicKey][$specialtyKey][$employeeKey] = $this->responseMapper->scheduleItemFromArray(
+                                            $clinicKey,
+                                            $specialtyKey,
+                                            $employeeKey,
+                                            $scheduleData
+                                        );
+                                    }
+                                    else
+                                    {
+                                        unset($data[$clinicKey][$specialtyKey][$employeeKey]);
+                                    }
                                 }
                             }
                         }
+                        $this->cacheProvider->setSchedule($data, $days, $clinicUid, $employees, $startDate);
                     }
-                    $this->cacheProvider->setSchedule($data, $clinicUid, $employees);
-                    $this->releaseLock(__METHOD__);
+                    finally
+                    {
+                        $this->releaseLock($lockKey);
+                    }
                 }
             }
         }
-        return $data;
+        return $data ?? [];
     }
 
     /**
@@ -461,6 +521,7 @@ class Sdk implements UmcGatewayInterface
             }
 
             $dto->uid = (string)$result->getData()['uid'];
+            $uid = $dto->uid;
             $this->responseValidator->validateBookingItem($dto);
             return $dto;
         }
@@ -577,11 +638,42 @@ class Sdk implements UmcGatewayInterface
      */
     private function setLock(string $key, int $lockTime = 60): void
     {
-        $this->cacheProvider->set($this->lockKeyPrefix . $key, $lockTime, [true]);
+        $this->cacheProvider->set($key, $lockTime, [true]);
     }
 
     private function releaseLock(string $key): void
     {
-        $this->cacheProvider->cleanByKey($this->lockKeyPrefix . $key);
+        $this->cacheProvider->cleanByKey($key);
+    }
+
+    private function buildLockKey(string $method, array $context = []): string
+    {
+        $normalizedContext = array_map(
+            static fn($item) => is_scalar($item) || $item === null ? (string)$item : json_encode($item, JSON_UNESCAPED_UNICODE),
+            $context
+        );
+
+        return $this->lockKeyPrefix . md5($method . '|' . implode('|', $normalizedContext));
+    }
+
+    /**
+     * @throws \ANZ\Appointment\Integration\UmcSdk\Exception\UmcIntegrationCacheException
+     */
+    private function waitForCache(callable $cacheGetter, string $lockKey, int $lockTime = 60): ?array
+    {
+        $deadline = microtime(true) + (self::CACHE_WAIT_TIMEOUT_MS / 1000);
+
+        do
+        {
+            usleep(self::CACHE_WAIT_INTERVAL_MS * 1000);
+            $cached = $cacheGetter();
+            if ($cached !== null)
+            {
+                return $cached;
+            }
+        }
+        while ($this->isLocked($lockKey, $lockTime) && microtime(true) < $deadline);
+
+        return $cacheGetter();
     }
 }

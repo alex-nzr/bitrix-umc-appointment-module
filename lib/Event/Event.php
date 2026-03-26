@@ -50,8 +50,16 @@ class Event extends \Bitrix\Main\Event
                     throw new Exception(json_encode($event->getParameters()));
                 case EventResult::SUCCESS:
                     $handlerResult = $eventResult->getParameters();
-                    if (is_array($handlerResult)){
-                        $result = array_merge($result, $handlerResult);
+                    if (is_array($handlerResult))
+                    {
+                        if (array_is_list($result) || array_is_list($handlerResult))
+                        {
+                            $result = $handlerResult;
+                        }
+                        else
+                        {
+                            $result = array_replace_recursive($result, $handlerResult);
+                        }
                     }
                     break;
                 case EventResult::UNDEFINED:

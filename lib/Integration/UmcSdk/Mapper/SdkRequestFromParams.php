@@ -32,7 +32,7 @@ class SdkRequestFromParams
     }
 
     /**
-     * @throws \DateMalformedStringException
+     * @throws \Exception
      */
     public function appointmentDtoFromArray(array $data): AppointmentDto
     {
@@ -42,9 +42,9 @@ class SdkRequestFromParams
         }
         elseif(!empty($data['timeBegin']) && !empty($data['timeEnd']))
         {
-            $startDate = new DateTime($data['timeBegin']);
-            $diff = $startDate->diff(new DateTime($data['timeEnd']));
-            $serviceDuration = $diff->s;
+            $startTimestamp = (new DateTime($data['timeBegin']))->getTimestamp();
+            $endTimestamp = (new DateTime($data['timeEnd']))->getTimestamp();
+            $serviceDuration = max(1, (int)ceil(abs($endTimestamp - $startTimestamp) / 60));
         }
         else
         {
@@ -141,7 +141,7 @@ class SdkRequestFromParams
 
         $waitList = OrderBuilder::createWaitList()
             ->setClinicUid($dto->clinicUid)
-            ->setEmployeeUid($dto->clinicUid)
+            ->setEmployeeUid($dto->employeeUid)
             ->setSpecialtyName($dto->specialtyName)
             ->setDateTimeBegin($dto->dateTimeBegin)
             ->setLastName($dto->lastName)

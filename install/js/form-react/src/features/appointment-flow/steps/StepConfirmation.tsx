@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {Box, Button, Typography} from "@mui/material";
 import {appointmentApi} from "../../../shared/api/appointmentApi";
 import {useAppointmentStore} from "../../../shared/store/appointmentStore";
@@ -19,20 +19,7 @@ export const StepConfirmation = () => {
     const [error, setError] = useState<string | null>(null);
     const {confirmationType} = useSettings();
 
-    useEffect(() => {
-        send();
-    }, []);
-
-    useEffect(() => {
-        if (!confirmed)
-        {
-            return;
-        }
-        sendAppointment()
-            .then(isSuccess => isSuccess ? nextStep() : void(0))
-    }, [confirmed]);
-
-    const initTimer = () => {
+    const initTimer = useCallback(() => {
         setSeconds(60);
         const interval = setInterval(() => {
             setSeconds((s) => {
@@ -44,15 +31,35 @@ export const StepConfirmation = () => {
                 return s - 1;
             });
         }, 1000);
-    }
+    }, [setCode]);
 
-    const send = () => {
+    const send = useCallback(() => {
         setIsLoading(true);
         appointmentApi.sendConfirmCode(contact.phone, contact.email)
             .then(() => initTimer())
             .catch((e) => setError(Array.isArray(e) ? String(e[0]?.message) : String(e)))
             .finally(() => setIsLoading(false))
-    };
+    }, [contact.email, contact.phone, initTimer, setIsLoading]);
+
+    useEffect(() => {
+        send();
+    }, [send]);
+
+    useEffect(() => {
+        if (!confirmed)
+        {
+            return;
+        }
+        sendAppointment()
+            .then((isSuccess) => {
+                if (isSuccess) {
+                    nextStep();
+                    return;
+                }
+
+                setConfirmed(false);
+            });
+    }, [confirmed, nextStep, sendAppointment]);
 
     const verify = () => {
         if (!code)

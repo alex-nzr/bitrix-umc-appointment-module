@@ -11,6 +11,7 @@ use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Integration\UmcSdk\Exception\UmcIntegrationCacheException;
 use Bitrix\Main\Context;
 use Bitrix\Main\Data\Cache;
+use DateTimeInterface;
 use Exception;
 use Throwable;
 
@@ -129,9 +130,14 @@ class CacheProvider
     /**
      * @throws UmcIntegrationCacheException
      */
-    public function getSchedule(string $clinicUid = '', array $employees = []): ?array
+    public function getSchedule(
+        int $days = 14,
+        string $clinicUid = '',
+        array $employees = [],
+        ?DateTimeInterface $startDate = null
+    ): ?array
     {
-        return $this->get($this->cacheKeyManager->schedule($clinicUid, $employees), $this->scheduleTtl);
+        return $this->get($this->cacheKeyManager->schedule($days, $clinicUid, $employees, $startDate), $this->scheduleTtl);
     }
 
     public function getScheduleTtl(): int
@@ -142,9 +148,15 @@ class CacheProvider
     /**
      * @throws UmcIntegrationCacheException
      */
-    public function setSchedule(array $data, string $clinicUid = '', array $employees = []): void
+    public function setSchedule(
+        array $data,
+        int $days = 14,
+        string $clinicUid = '',
+        array $employees = [],
+        ?DateTimeInterface $startDate = null
+    ): void
     {
-        $this->set($this->cacheKeyManager->schedule($clinicUid, $employees), $this->scheduleTtl, $data);
+        $this->set($this->cacheKeyManager->schedule($days, $clinicUid, $employees, $startDate), $this->scheduleTtl, $data);
     }
 
     public function cleanByKey(string $key): void

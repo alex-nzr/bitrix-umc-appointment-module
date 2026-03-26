@@ -21,7 +21,10 @@ try
         'logoImageSrc' => Configuration::getInstance()->getLogoFilePath(),
         'defaultClinicUid' => Configuration::getInstance()->getDefaultClinic(),
         'servicesEnabled' => Configuration::getInstance()->isServicesEnabled(),
+        'emailNotificationEnabled' => Configuration::getInstance()->isEmailNotificationEnabled(),
         'confirmationType' => Configuration::getInstance()->getExchangeConfirmMode(),
+        'useCustomButton' => Configuration::getInstance()->isCustomBtnEnabled(),
+        'customButtonSelector' => Configuration::getInstance()->getCustomBtnSelector(),
         'phoneInputMask' => "+7(000)000-00-00",
     ];
 }

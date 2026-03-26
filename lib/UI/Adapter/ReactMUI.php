@@ -35,6 +35,11 @@ class ReactMUI
             $arEmployee = $employee->toArray();
             $arEmployee['isActive'] = true;
             $arEmployee['inSchedule'] = true;
+            $arEmployee['services'] = [];
+            foreach ($employee->services as $service)
+            {
+                $arEmployee['services'][$service->uid] = $service->toArray();
+            }
             if ($employee->specialtyUid)
             {
                 $arEmployee['specialties'] = [
@@ -102,20 +107,35 @@ class ReactMUI
     public static function prepareScheduleData(array $schedule, array $serviceUIDs = []): array
     {
         $employees = Container::getInstance()->getExchangeManager()->getEmployees();
+        $employeesByUid = [];
+        /** @var EmployeeDto $employee */
+        foreach ($employees as $employee)
+        {
+            $employeesByUid[$employee->uid] = $employee;
+        }
 
         $preparedData = [];
         foreach ($schedule as $clinicUid => $clinicData)
         {
             $services = Container::getInstance()->getExchangeManager()->getServices($clinicUid);
+            $servicesByUid = [];
+            /** @var ServiceDto $service */
+            foreach ($services as $service)
+            {
+                $servicesByUid[$service->uid] = $service;
+            }
             foreach ($clinicData as $specialtyData)
             {
                 /** @var ScheduleItemDto $scheduleItem */
                 foreach ($specialtyData as $employeeUid => $scheduleItem)
                 {
-                    $duration = $scheduleItem->durationInSeconds;
-                    //todo calc duration
-                    //$employees[$employeeUid]?->services[$serviceUid]
-                    //$services[$serviceUid]?->duration
+                    $duration = static::resolveScheduleItemDuration(
+                        $scheduleItem->durationInSeconds,
+                        $serviceUIDs,
+                        $employeesByUid[$employeeUid] ?? null,
+                        $servicesByUid
+                    );
+
                     if (is_array($scheduleItem->timeslots[TimeSlotStatus::FREE->value]))
                     {
                         foreach ($scheduleItem->timeslots[TimeSlotStatus::FREE->value] as $timeslots)
@@ -134,6 +154,58 @@ class ReactMUI
             }
         }
         return $preparedData;
+    }
+
+    /**
+     * @param string[] $serviceUIDs
+     * @param array<string, ServiceDto> $servicesByUid
+     */
+    private static function resolveScheduleItemDuration(
+        int $defaultDuration,
+        array $serviceUIDs,
+        ?EmployeeDto $employee,
+        array $servicesByUid
+    ): int
+    {
+        $resolvedDuration = 0;
+
+        if (!empty($serviceUIDs))
+        {
+            foreach ($serviceUIDs as $serviceUid)
+            {
+                $serviceDuration = 0;
+
+                if ($employee instanceof EmployeeDto)
+                {
+                    foreach ($employee->services as $employeeService)
+                    {
+                        if ($employeeService->uid === $serviceUid && $employeeService->personalDuration > 0)
+                        {
+                            $serviceDuration = $employeeService->personalDuration;
+                            break;
+                        }
+                    }
+                }
+
+                if (
+                    $serviceDuration <= 0
+                    &&
+                    isset($servicesByUid[$serviceUid])
+                    && $servicesByUid[$serviceUid] instanceof ServiceDto
+                    && $servicesByUid[$serviceUid]->duration > 0
+                )
+                {
+                    $serviceDuration = $servicesByUid[$serviceUid]->duration;
+                }
+
+                if ($serviceDuration > 0)
+                {
+                    $resolvedDuration += $serviceDuration;
+                }
+            }
+        }
+
+        return $resolvedDuration > 0 ? $resolvedDuration : $defaultDuration;
     }
 
     /**

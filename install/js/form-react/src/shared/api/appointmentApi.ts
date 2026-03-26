@@ -32,6 +32,49 @@ const prepareResponse = async (res: Response) => {
     }
 }
 
+const buildDateTime = (date: string, value: string) => {
+    if (!value) {
+        return '';
+    }
+
+    if (value.includes('T')) {
+        return value;
+    }
+
+    return `${date}T${value.length === 5 ? `${value}:00` : value}`;
+}
+
+const buildAppointmentPayload = (appointment: Appointment) => {
+    const primaryService = appointment.services[0] ?? null;
+
+    return {
+        bookingUid: appointment.uid,
+        clinicUid: appointment.clinicUid,
+        clinicName: appointment.clinicName,
+        specialtyUid: appointment.specialtyUid,
+        specialty: appointment.specialtyName,
+        doctorName: appointment.doctorName,
+        employeeUid: appointment.doctorUid,
+        serviceUid: primaryService?.uid ?? '',
+        serviceName: primaryService?.name ?? '',
+        services: appointment.services.map((service) => ({
+            uid: service.uid,
+            name: service.name,
+        })),
+        timeBegin: buildDateTime(appointment.date, appointment.timeBegin),
+        timeEnd: buildDateTime(appointment.date, appointment.timeEnd),
+        serviceDuration: appointment.duration,
+        surname: appointment.contact.lastName,
+        name: appointment.contact.firstName,
+        middleName: appointment.contact.secondName,
+        phone: appointment.contact.phone,
+        email: appointment.contact.email ?? '',
+        birthday: appointment.contact.birthday || '',
+        address: appointment.contact.address ?? '',
+        comment: appointment.contact.comment ?? '',
+    };
+}
+
 export const appointmentApi = {
     async getClinics(): Promise<Clinic[]> {
         const action = `${CONTROLLER}.getClinics`;
@@ -96,14 +139,11 @@ export const appointmentApi = {
         return await prepareResponse(res);
     },
 
-    async sendAppointment(appointment: Appointment) {
+    async sendAppointment(appointment: Appointment): Promise<any> {
         const action = `${CONTROLLER}.sendAppointment`;
+        const payload = buildAppointmentPayload(appointment);
         const data = new FormData();
-        data.set('clinicUid', appointment.clinicUid);
-        data.set('employeeUid', appointment.doctorUid);
-        data.set('dateTimeBegin', `${appointment.date}T${appointment.timeBegin}:00`);
-        data.set('serviceDuration', `${appointment.duration}`);
-        //todo fill other fields or send JSON.stringify(appointment)
+        data.set('jsonData', JSON.stringify(payload));
         const res = await fetch(`${API_URL}?sessid=${sessid}&action=${action}`, {
             method: 'POST',
             body: data,
@@ -150,7 +190,15 @@ export const appointmentApi = {
         return await prepareResponse(res);
     },
 
-    async sendEmailNoteAction(appointment: Appointment) {
-
+    async sendEmailNoteAction(appointment: Appointment): Promise<any> {
+        const action = `${CONTROLLER}.sendEmailNote`;
+        const data = new FormData();
+        data.set('jsonData', JSON.stringify(buildAppointmentPayload(appointment)));
+        const res = await fetch(`${API_URL}?sessid=${sessid}&action=${action}`, {
+            method: 'POST',
+            body: data,
+        });
+        // @ts-ignore
+        return await prepareResponse(res);
     }
 }
