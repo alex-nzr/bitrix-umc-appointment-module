@@ -75,8 +75,7 @@ class ServiceManager
         if (Context::getCurrent()->getRequest()->isAdminSection())
         {
             global $APPLICATION;
-            $moduleDir = Configuration::getModuleLocation(false);
-            $APPLICATION->SetAdditionalCSS($moduleDir.'/assets/admin/menu.css');
+            $APPLICATION->SetAdditionalCSS('/bitrix/panel/'.Configuration::getModuleId().'/menu.css');
         }
         Extension::load($list);
     }

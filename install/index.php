@@ -200,6 +200,7 @@ class anz_appointment extends CModule
         CopyDirFiles(__DIR__.'/admin/', $this->docRoot.'/bitrix/admin');
         CopyDirFiles(__DIR__.'/wizards/', $this->docRoot.'/bitrix/wizards', true, true);
         CopyDirFiles(__DIR__.'/components/', $this->docRoot.'/bitrix/components', true, true);
+        CopyDirFiles(__DIR__.'/panel/', $this->docRoot.'/bitrix/panel', true, true);
     }
 
     public function UnInstallFiles(): void
@@ -214,6 +215,9 @@ class anz_appointment extends CModule
         }
         if (Dir::isDirectoryExists($this->docRoot . '/bitrix/wizards/'.$this->partnerId."/".$this->moduleNameShort.'/')){
             Dir::deleteDirectory($this->docRoot . '/bitrix/wizards/'.$this->partnerId."/".$this->moduleNameShort.'/');
+        }
+        if (Dir::isDirectoryExists($this->docRoot . '/bitrix/panel/'.$this->MODULE_ID.'/')){
+            Dir::deleteDirectory($this->docRoot . '/bitrix/panel/'.$this->MODULE_ID.'/');
         }
 
         $srcDir = __DIR__.'/components/'.$this->partnerId.'/';

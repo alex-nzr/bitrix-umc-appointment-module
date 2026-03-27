@@ -108,7 +108,6 @@ class ReactMUI
     {
         $employees = Container::getInstance()->getExchangeManager()->getEmployees();
         $employeesByUid = [];
-        /** @var EmployeeDto $employee */
         foreach ($employees as $employee)
         {
             $employeesByUid[$employee->uid] = $employee;
@@ -119,7 +118,6 @@ class ReactMUI
         {
             $services = Container::getInstance()->getExchangeManager()->getServices($clinicUid);
             $servicesByUid = [];
-            /** @var ServiceDto $service */
             foreach ($services as $service)
             {
                 $servicesByUid[$service->uid] = $service;
@@ -130,7 +128,7 @@ class ReactMUI
                 foreach ($specialtyData as $employeeUid => $scheduleItem)
                 {
                     $duration = static::resolveScheduleItemDuration(
-                        $scheduleItem->durationInSeconds,
+                        $scheduleItem->durationInSeconds ?? Configuration::getInstance()->getDefaultAppointmentDuration(),
                         $serviceUIDs,
                         $employeesByUid[$employeeUid] ?? null,
                         $servicesByUid

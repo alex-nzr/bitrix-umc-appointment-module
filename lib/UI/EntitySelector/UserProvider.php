@@ -30,7 +30,7 @@ class UserProvider extends BaseProvider
     public function __construct(protected $options = [])
     {
         parent::__construct();
-        $this->defaultAvatar = Configuration::getModuleLocation(false) . '/assets/common/img/ui-user.svg';
+        $this->defaultAvatar = '/bitrix/panel/'.Configuration::getModuleId().'/ui-user.svg';
     }
 
     /**
