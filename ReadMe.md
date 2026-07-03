@@ -10,7 +10,30 @@
 
 Также рекомендуется ознакомиться с [документацией](https://github.com/alex-nzr/bitrix-umc-appointment-module/blob/master/docs/anz.appointment-docs.pdf)
 
-#### [Пример кастомизации на событиях без изменения исходного кода модуля (для старых версий модуля)](https://github.com/alex-nzr/bitrix-umc-appointment-module/tree/customization_example)
+#### Кастомизация данных из 1С
+
+Модуль поддерживает события для доработок без изменения исходного кода:
+
+- `onBeforeClinicsParsed`
+- `onAfterClinicsParsed`
+- `onBeforeEmployeesParsed`
+- `onAfterEmployeesParsed`
+- `onBeforeNomenclatureParsed`
+- `onAfterNomenclatureParsed`
+- `onBeforeScheduleParsed`
+- `onAfterScheduleParsed`
+- `onBeforeOrderSend`
+
+Начиная с интеграции через SDK 2.x, неизвестные поля из 1С сохраняются автоматически:
+
+- в массивах SDK они доступны в ключе `_extra`;
+- после преобразования в DTO и ответа контроллера они доступны в ключе `extra`.
+
+События `onBefore...Parsed` оставлены для совместимости и диагностики. Они получают данные до пользовательских модификаций, но их результат не используется для изменения обмена.
+
+Для изменения данных используйте события `onAfter...Parsed`: обработчик может вернуть `\Bitrix\Main\EventResult` с измененным массивом.
+
+#### [Пример кастомизации на событиях без изменения исходного кода модуля](https://github.com/alex-nzr/bitrix-umc-appointment-module/tree/customization_example)
 
 #### Минимальная версия БИТ.УМЦ - 2.1.24.9(Corp), 2.0.48.15(Prof)
 #### Минимальная версия Битрикса - 25.0

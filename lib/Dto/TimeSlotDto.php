@@ -21,7 +21,8 @@ class TimeSlotDto extends BaseDto
         public string $formattedTimeBegin,
         public string $formattedTimeEnd,
         public DateTime $dateTime,
-        public TimeSlotStatus $status
+        public TimeSlotStatus $status,
+        public array $extra = []
     ){
     }
 }

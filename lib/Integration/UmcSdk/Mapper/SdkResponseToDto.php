@@ -24,7 +24,11 @@ class SdkResponseToDto
 {
     public function clinicFromArray(array $item): ClinicDto
     {
-        return new ClinicDto((string)$item['uid'], (string)$item['name']);
+        return new ClinicDto(
+            (string)$item['uid'],
+            (string)$item['name'],
+            $this->extraFromArray($item)
+        );
     }
 
     public function employeeFromArray(array $item): EmployeeDto
@@ -42,9 +46,14 @@ class SdkResponseToDto
             (string)$item['specialtyName'],
             (string)$item['specialtyUid'],
             array_map(
-                fn (array $empService) => new EmployeeServiceDto((string)$empService['uid'], (int)$empService['personalDuration']),
+                fn (array $empService) => new EmployeeServiceDto(
+                    (string)$empService['uid'],
+                    (int)$empService['personalDuration'],
+                    $this->extraFromArray($empService)
+                ),
                 is_array($item['services']) ? $item['services'] : []
             ),
+            $this->extraFromArray($item),
         );
     }
 
@@ -59,6 +68,7 @@ class SdkResponseToDto
             (int)$item['duration'],
             (string)$item['measureUnit'],
             (string)$item['parent'],
+            $this->extraFromArray($item),
         );
     }
 
@@ -98,7 +108,8 @@ class SdkResponseToDto
                 (string)$scheduleData['specialtyName'],
                 (string)$scheduleData['employeeName'],
                 $duration > 0 ? $duration : Configuration::getInstance()->getDefaultAppointmentDuration(),
-                $timeslots
+                $timeslots,
+                $this->extraFromArray($scheduleData)
             );
         }
         catch (Throwable $e)
@@ -121,12 +132,18 @@ class SdkResponseToDto
             (string)$item['formattedTimeBegin'],
             (string)$item['formattedTimeEnd'],
             new DateTime($item['timeBegin']),
-            TimeSlotStatus::from($status)
+            TimeSlotStatus::from($status),
+            $this->extraFromArray($item)
         );
     }
 
     public function statusFromArray(array $data): AppointmentStatusDto
     {
         return new AppointmentStatusDto($data['statusId'], $data['statusTitle']);
+    }
+
+    private function extraFromArray(array $item): array
+    {
+        return (key_exists('_extra', $item) && is_array($item['_extra'])) ? $item['_extra'] : [];
     }
 }

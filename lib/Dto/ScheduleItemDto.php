@@ -21,6 +21,7 @@ class ScheduleItemDto extends BaseDto
 
         /** @var [TimeSlotStatus => TimeSlotDto[]] */
         public array $timeslots,
+        public array $extra = [],
     ){
     }
 }

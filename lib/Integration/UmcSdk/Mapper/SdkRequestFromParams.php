@@ -11,8 +11,9 @@ namespace ANZ\Appointment\Integration\UmcSdk\Mapper;
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Dto\AppointmentDto;
 use ANZ\Appointment\Dto\WaitListDto;
-use ANZ\BitUmc\SDK\Builder\Order as OrderBuilder;
-use ANZ\BitUmc\SDK\Item\Order as OrderItem;
+use ANZ\BitUmc\SDK\Domain\Request\BookAppointmentRequest;
+use ANZ\BitUmc\SDK\Domain\Request\ReserveRequest;
+use ANZ\BitUmc\SDK\Domain\Request\WaitListRequest;
 use Bitrix\Main\Localization\Loc;
 use DateTime;
 
@@ -21,14 +22,9 @@ class SdkRequestFromParams
     /**
      * @throws \Exception
      */
-    public function bookingItemFromParams(string $clinicUid, string $employeeUid, DateTime $dateTimeBegin, int $serviceDuration): OrderItem
+    public function bookingItemFromParams(string $clinicUid, string $employeeUid, DateTime $dateTimeBegin, int $serviceDuration): ReserveRequest
     {
-        return OrderBuilder::createReserve()
-            ->setClinicUid($clinicUid)
-            ->setEmployeeUid($employeeUid)
-            ->setDateTimeBegin($dateTimeBegin)
-            ->setAppointmentDuration($serviceDuration)
-            ->build();
+        return new ReserveRequest($clinicUid, $employeeUid, $dateTimeBegin);
     }
 
     /**
@@ -44,7 +40,7 @@ class SdkRequestFromParams
         {
             $startTimestamp = (new DateTime($data['timeBegin']))->getTimestamp();
             $endTimestamp = (new DateTime($data['timeEnd']))->getTimestamp();
-            $serviceDuration = max(1, (int)ceil(abs($endTimestamp - $startTimestamp) / 60));
+            $serviceDuration = max(1, abs($endTimestamp - $startTimestamp));
         }
         else
         {
@@ -71,33 +67,25 @@ class SdkRequestFromParams
     /**
      * @throws \Exception
      */
-    public function appointmentItemFromDto(AppointmentDto $dto): OrderItem
+    public function appointmentItemFromDto(AppointmentDto $dto): BookAppointmentRequest
     {
-        $order = OrderBuilder::createOrder()
-            ->setOrderUid($dto->uid)
-            ->setClinicUid($dto->clinicUid)
-            ->setEmployeeUid($dto->employeeUid)
-            ->setServices($dto->services)
-            ->setDateTimeBegin($dto->dateTimeBegin)
-            ->setAppointmentDuration($dto->serviceDuration)
-            ->setLastName($dto->lastName)
-            ->setName($dto->name)
-            ->setSecondName($dto->secondName)
-            ->setPhone($dto->phone)
-            ->setAddress($dto->address ?? '')
-            ->setComment($dto->comment ?? '');
-
-        if (is_string($dto->email) && strlen($dto->email) > 0)
-        {
-            $order->setEmail($dto->email);
-        }
-
-        if ($dto->birthday instanceof DateTime)
-        {
-            $order->setClientBirthday($dto->birthday);
-        }
-
-        return $order->build();
+        return new BookAppointmentRequest(
+            $dto->clinicUid,
+            $dto->employeeUid,
+            $dto->name,
+            $dto->lastName,
+            $dto->secondName !== '' ? $dto->secondName : ' ',
+            $dto->phone,
+            $dto->dateTimeBegin,
+            '',
+            $dto->email ?? '',
+            $dto->address ?? '',
+            $dto->comment ?? '',
+            $dto->uid,
+            $dto->birthday,
+            $dto->serviceDuration,
+            $dto->services
+        );
     }
 
     /**
@@ -125,7 +113,7 @@ class SdkRequestFromParams
     /**
      * @throws \Exception
      */
-    public function waitListItemFromDto(WaitListDto $dto): OrderItem
+    public function waitListItemFromDto(WaitListDto $dto): WaitListRequest
     {
         $comment = Loc::getMessage('ANZ_APPOINTMENT_WAITING_LIST_COMMENT', [
             '#CLINIC#' => $dto->clinicName,
@@ -139,23 +127,17 @@ class SdkRequestFromParams
             '#COMMENT#'   => $dto->comment ?? '',
         ]);
 
-        $waitList = OrderBuilder::createWaitList()
-            ->setClinicUid($dto->clinicUid)
-            ->setEmployeeUid($dto->employeeUid)
-            ->setSpecialtyName($dto->specialtyName)
-            ->setDateTimeBegin($dto->dateTimeBegin)
-            ->setLastName($dto->lastName)
-            ->setName($dto->name)
-            ->setSecondName($dto->secondName)
-            ->setPhone($dto->phone)
-            ->setAddress($dto->address ?? '')
-            ->setComment($comment);
-
-        if (is_string($dto->email) && strlen($dto->email) > 0)
-        {
-            $waitList->setEmail($dto->email);
-        }
-
-        return $waitList->build();
+        return new WaitListRequest(
+            $dto->clinicUid,
+            $dto->name,
+            $dto->lastName,
+            $dto->secondName !== '' ? $dto->secondName : ' ',
+            $dto->phone,
+            $dto->dateTimeBegin,
+            $dto->specialtyName,
+            $dto->email ?? '',
+            '',
+            $comment
+        );
     }
 }

@@ -18,6 +18,7 @@ class ServiceDto extends BaseDto
         public int $duration,
         public string $measureUnit,
         public string $parent,
+        public array $extra = [],
     ){
     }
 }

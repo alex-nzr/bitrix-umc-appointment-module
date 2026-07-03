@@ -23,6 +23,7 @@ class EmployeeDto extends BaseDto
         public string $specialtyUid,
         /** @var EmployeeServiceDto[] $services */
         public array $services = [],
+        public array $extra = [],
 
     ){
     }

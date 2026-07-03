@@ -1,10 +1,5 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 22.08.2025
- * ==================================================
-*/
+
 namespace ANZ\Appointment\Integration\UmcSdk\Gateway;
 
 use ANZ\Appointment\Config\Configuration;
@@ -16,25 +11,23 @@ use ANZ\Appointment\Dto\ClinicDto;
 use ANZ\Appointment\Dto\EmployeeDto;
 use ANZ\Appointment\Dto\ServiceDto;
 use ANZ\Appointment\Dto\WaitListDto;
+use ANZ\Appointment\Event\Event;
+use ANZ\Appointment\Event\EventType;
 use ANZ\Appointment\Integration\UmcSdk\Cache\CacheProvider;
 use ANZ\Appointment\Integration\UmcSdk\Contract\UmcGatewayInterface;
 use ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException;
 use ANZ\Appointment\Integration\UmcSdk\Exception\SdkDataMapperException;
 use ANZ\Appointment\Integration\UmcSdk\Exception\UmcIntegrationCacheException;
-use ANZ\Appointment\Integration\UmcSdk\Gateway\Client\HttpClient;
-use ANZ\Appointment\Integration\UmcSdk\Gateway\Client\SoapClient;
 use ANZ\Appointment\Integration\UmcSdk\Mapper\SdkRequestFromParams;
 use ANZ\Appointment\Integration\UmcSdk\Mapper\SdkResponseToDto;
-use ANZ\Appointment\Integration\UmcSdk\Provider\ExchangeDataProvider;
 use ANZ\Appointment\Integration\UmcSdk\Validator\RequestValidator;
 use ANZ\Appointment\Integration\UmcSdk\Validator\ResponseValidator;
-use ANZ\BitUmc\SDK\Core\Dictionary\ClientScope;
-use ANZ\BitUmc\SDK\Core\Dictionary\Protocol;
-use ANZ\BitUmc\SDK\Factory\Exchange as ExchangeFactory;
-use ANZ\BitUmc\SDK\Service\Exchange\Base as SdkExchangeService;
-use ANZ\BitUmc\SDK\Service\Exchange\Http;
-use ANZ\BitUmc\SDK\Service\Exchange\Soap;
-use ANZ\BitUmc\SDK\Service\XmlParser;
+use ANZ\BitUmc\SDK\BitUmcClient;
+use ANZ\BitUmc\SDK\Domain\Request\ScheduleQuery;
+use ANZ\BitUmc\SDK\Transport\Auth\BasicAuth;
+use ANZ\BitUmc\SDK\Transport\ConnectionOptions;
+use ANZ\BitUmc\SDK\Transport\Protocol as SdkProtocol;
+use ANZ\BitUmc\SDK\Transport\TransportType;
 use Bitrix\Main\Localization\Loc;
 use DateTime;
 use Throwable;
@@ -44,19 +37,16 @@ class Sdk implements UmcGatewayInterface
     private const CACHE_WAIT_TIMEOUT_MS = 10000;
     private const CACHE_WAIT_INTERVAL_MS = 100;
 
-    private array $demoData;
-    private ?SdkExchangeService $sdkExchangeService = null;
+    private array $demoData = [];
+    private ?BitUmcClient $client = null;
     private string $lockKeyPrefix = 'anz_lock_';
 
-    /**
-     * @throws GatewayException
-     */
     public function __construct(
         private readonly bool                 $demoMode,
         private readonly SdkResponseToDto     $responseMapper,
         private readonly SdkRequestFromParams $requestMapper,
         private readonly ResponseValidator    $responseValidator,
-        private readonly RequestValidator    $requestValidator,
+        private readonly RequestValidator     $requestValidator,
         private readonly CacheProvider        $cacheProvider,
     ) {
         try
@@ -66,11 +56,10 @@ class Sdk implements UmcGatewayInterface
                 $filePath = Configuration::getInstance()->getDemoDataFilePath(true);
                 if (is_file($filePath))
                 {
-                    $this->demoData = json_decode(file_get_contents($filePath), true);
+                    $this->demoData = json_decode(file_get_contents($filePath), true) ?: [];
                 }
                 else
                 {
-                    $this->demoData = [];
                     throw new GatewayException('Demo data file not found in ' . $filePath);
                 }
             }
@@ -81,9 +70,6 @@ class Sdk implements UmcGatewayInterface
         }
     }
 
-    /**
-     * @throws \ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException
-     */
     protected function init(): void
     {
         try
@@ -109,7 +95,7 @@ class Sdk implements UmcGatewayInterface
                 ]));
             }
 
-            $this->sdkExchangeService = $this->createExchangeService($exchangeMode, $login, $password, $url);
+            $this->client = $this->createClient($exchangeMode, $login, $password, $url, Configuration::getInstance()->getOneCToken());
         }
         catch(Throwable $e)
         {
@@ -117,95 +103,113 @@ class Sdk implements UmcGatewayInterface
         }
     }
 
-    /**
-     * @throws GatewayException
-     */
-    protected function getSdkExchangeService(): ?SdkExchangeService
+    protected function getSdkClient(): BitUmcClient
     {
-        if (is_null($this->sdkExchangeService))
+        if (is_null($this->client))
         {
             $this->init();
         }
-        return $this->sdkExchangeService;
+        return $this->client;
     }
 
-    /**
-     * @throws GatewayException
-     */
-    protected function createExchangeService(ExchangeMode $exchangeMode, $login, $password, $url, $token = ''): Http|Soap
+    protected function createClient(ExchangeMode $exchangeMode, string $login, string $password, string $url, string $token = ''): BitUmcClient
     {
         try
         {
-            $scope = $exchangeMode === ExchangeMode::SOAP ? ClientScope::WEB_SERVICE : ClientScope::HTTP_SERVICE;
-
-            $arUri = parse_url($url);
-            if (!in_array($arUri['scheme'], [Protocol::HTTP->value, Protocol::HTTPS->value]))
+            if ($exchangeMode !== ExchangeMode::SOAP)
             {
-                throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_SOAP_URL_ERROR', [
-                    '#ERROR#' => 'Unexpected uri scheme - ' . $arUri['scheme']
-                ]));
-            }
-            $publicationScheme = $arUri['scheme'] === Protocol::HTTPS->value ? Protocol::HTTPS : Protocol::HTTP;
-
-            if (strlen($arUri['host']) === 0)
-            {
-                throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_SOAP_URL_ERROR', [
-                    '#ERROR#' => 'Uri host is empty'
-                ]));
-            }
-            $port = key_exists('port', $arUri) && !empty($arUri['port']) ? $arUri['port'] : null;
-            $publicationHost = $arUri['host'] . (is_null($port) ? '' : ":$port");
-
-            $path = $arUri['path'];
-            if (!str_contains($path, '/'.$scope->value.'/'))
-            {
-                throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_SOAP_URL_ERROR', [
-                    '#ERROR#' => 'Uri path not contains exchange scope - ' . '/'.$scope->value.'/'
-                ]));
-            }
-            $arPath = explode('/'.$scope->value.'/', $path);
-            $baseName = trim(current($arPath), '/');
-            if (strlen($baseName) === 0)
-            {
-                throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_SOAP_URL_ERROR', [
-                    '#ERROR#' => 'Can not determine 1C base name from uri'
-                ]));
+                throw new GatewayException('HTTP exchange mode is not supported by bit-umc-sdk 2.0.1');
             }
 
-            $client = $exchangeMode === ExchangeMode::SOAP
-                ? SoapClient::create(
-                    $login,
-                    $password,
-                    $publicationScheme,
-                    $publicationHost,
-                    $baseName,
-                    $scope,
-                    new ExchangeDataProvider(new XmlParser)
+            $endpoint = $this->parsePublicationUrl($url);
+
+            return new BitUmcClient(
+                TransportType::SOAP,
+                new ConnectionOptions(
+                    protocol: $endpoint['protocol'],
+                    host: $endpoint['host'],
+                    baseName: $endpoint['baseName'],
+                    auth: new BasicAuth($login, $password, $token !== '' ? $token : null),
+                    apiKey: $token !== '' ? $token : null
                 )
-                : HttpClient::create(
-                    $login,
-                    $password,
-                    $publicationScheme,
-                    $publicationHost,
-                    $baseName,
-                    $scope,
-                    $token
-                );
-
-            return (new ExchangeFactory($client))->create();
+            );
         }
         catch(Throwable $e)
         {
+            if ($e instanceof GatewayException)
+            {
+                throw $e;
+            }
             throw new GatewayException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
-    /**
-     * @throws GatewayException
-     */
+    private function parsePublicationUrl(string $url): array
+    {
+        $arUri = parse_url($url);
+        if (!is_array($arUri))
+        {
+            throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_SOAP_URL_ERROR', [
+                '#ERROR#' => 'Can not parse uri'
+            ]));
+        }
+
+        $scheme = (string)($arUri['scheme'] ?? '');
+        $protocol = match ($scheme) {
+            SdkProtocol::HTTP->value => SdkProtocol::HTTP,
+            SdkProtocol::HTTPS->value => SdkProtocol::HTTPS,
+            default => throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_SOAP_URL_ERROR', [
+                '#ERROR#' => 'Unexpected uri scheme - ' . $scheme
+            ])),
+        };
+
+        $host = (string)($arUri['host'] ?? '');
+        if ($host === '')
+        {
+            throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_SOAP_URL_ERROR', [
+                '#ERROR#' => 'Uri host is empty'
+            ]));
+        }
+
+        if (!empty($arUri['port']))
+        {
+            $host .= ':' . $arUri['port'];
+        }
+
+        $path = trim((string)($arUri['path'] ?? ''), '/');
+        $pathParts = array_values(array_filter(explode('/', $path), 'strlen'));
+        $scopeIndex = null;
+        foreach ($pathParts as $index => $part)
+        {
+            if (in_array(strtolower($part), ['ws', 'hs'], true))
+            {
+                $scopeIndex = $index;
+                break;
+            }
+        }
+
+        $baseName = $scopeIndex === null
+            ? ($pathParts[0] ?? '')
+            : implode('/', array_slice($pathParts, 0, $scopeIndex));
+
+        $baseName = trim($baseName, '/');
+        if ($baseName === '')
+        {
+            throw new GatewayException(Loc::getMessage('ANZ_APPOINTMENT_SOAP_URL_ERROR', [
+                '#ERROR#' => 'Can not determine 1C base name from uri'
+            ]));
+        }
+
+        return [
+            'protocol' => $protocol,
+            'host' => $host,
+            'baseName' => $baseName,
+        ];
+    }
+
     public function checkConnection(string $strModeVal, string $url, string $login, string $password, string $token = ''): bool
     {
-        $result = $this->createExchangeService(
+        $this->createClient(
             ExchangeMode::from($strModeVal),
             $login,
             $password,
@@ -213,30 +217,15 @@ class Sdk implements UmcGatewayInterface
             $token
         )->getClinics();
 
-        if (!$result->isSuccess())
-        {
-            throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
-        }
         return true;
     }
 
-    /**
-     * @return ClinicDto[]
-     * @throws GatewayException | UmcIntegrationCacheException
-     */
     public function getClinics(): array
     {
         if ($this->demoMode)
         {
             sleep(3);
-            try
-            {
-                $data = $this->demoData['clinics'];
-            }
-            catch (Throwable)
-            {
-                $data = [];
-            }
+            $data = $this->demoData['clinics'] ?? [];
         }
         else
         {
@@ -253,14 +242,14 @@ class Sdk implements UmcGatewayInterface
                     $this->setLock($lockKey);
                     try
                     {
-                        $result = $this->getSdkExchangeService()->getClinics();
-                        if (!$result->isSuccess())
-                        {
-                            throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
-                        }
-
-                        $data = array_filter($result->getData(), fn($item) => $this->responseValidator->validateClinic($item));
-                        $result->setData([]);
+                        $data = array_filter(
+                            $this->applyParseEvents(
+                                EventType::ON_BEFORE_CLINICS_PARSED,
+                                EventType::ON_AFTER_CLINICS_PARSED,
+                                $this->getSdkClient()->getClinics()
+                            ),
+                            fn($item) => $this->responseValidator->validateClinic($item)
+                        );
                         $this->cacheProvider->setClinics($data);
                     }
                     finally
@@ -274,23 +263,12 @@ class Sdk implements UmcGatewayInterface
         return array_map(fn(array $item) => $this->responseMapper->clinicFromArray($item), $data ?? []);
     }
 
-    /**
-     * @return EmployeeDto[]
-     * @throws GatewayException | UmcIntegrationCacheException
-     */
     public function getEmployees(): array
     {
         if ($this->demoMode)
         {
             sleep(3);
-            try
-            {
-                $data = $this->demoData['employees'];
-            }
-            catch (Throwable)
-            {
-                $data = [];
-            }
+            $data = $this->demoData['employees'] ?? [];
         }
         else
         {
@@ -307,14 +285,14 @@ class Sdk implements UmcGatewayInterface
                     $this->setLock($lockKey);
                     try
                     {
-                        $result = $this->getSdkExchangeService()->getEmployees();
-                        if (!$result->isSuccess())
-                        {
-                            throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
-                        }
-
-                        $data = array_filter($result->getData(), fn($item) => $this->responseValidator->validateEmployee($item));
-                        $result->setData([]);
+                        $data = array_filter(
+                            $this->applyParseEvents(
+                                EventType::ON_BEFORE_EMPLOYEES_PARSED,
+                                EventType::ON_AFTER_EMPLOYEES_PARSED,
+                                $this->getSdkClient()->getEmployees()
+                            ),
+                            fn($item) => $this->responseValidator->validateEmployee($item)
+                        );
                         $this->cacheProvider->setEmployees($data);
                     }
                     finally
@@ -328,23 +306,12 @@ class Sdk implements UmcGatewayInterface
         return array_map(fn(array $item) => $this->responseMapper->employeeFromArray($item), $data ?? []);
     }
 
-    /**
-     * @return ServiceDto[]
-     * @throws GatewayException | UmcIntegrationCacheException
-     */
     public function getServices(string $clinicUid): array
     {
         if ($this->demoMode)
         {
             sleep(3);
-            try
-            {
-                $data = $this->demoData['services'];
-            }
-            catch (Throwable)
-            {
-                $data = [];
-            }
+            $data = $this->demoData['services'] ?? [];
         }
         else
         {
@@ -361,14 +328,14 @@ class Sdk implements UmcGatewayInterface
                     $this->setLock($lockKey);
                     try
                     {
-                        $result = $this->getSdkExchangeService()->getNomenclature($clinicUid);
-                        if (!$result->isSuccess())
-                        {
-                            throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
-                        }
-
-                        $data = array_filter($result->getData(), fn($item) => $this->responseValidator->validateService($item));
-                        $result->setData([]);
+                        $data = array_filter(
+                            $this->applyParseEvents(
+                                EventType::ON_BEFORE_NOMENCLATURE_PARSED,
+                                EventType::ON_AFTER_NOMENCLATURE_PARSED,
+                                $this->getSdkClient()->getNomenclature($clinicUid)
+                            ),
+                            fn($item) => $this->responseValidator->validateService($item)
+                        );
                         $this->cacheProvider->setServices($data, $clinicUid);
                     }
                     finally
@@ -382,22 +349,12 @@ class Sdk implements UmcGatewayInterface
         return array_map(fn(array $item) => $this->responseMapper->serviceFromArray($item), $data ?? []);
     }
 
-    /**
-     * @throws GatewayException | SdkDataMapperException | UmcIntegrationCacheException
-     */
     public function getSchedule(int $days = 14, string $clinicUid = '', array $employees = [], ?DateTime $startDate = null): array
     {
         if ($this->demoMode)
         {
             sleep(3);
-            try
-            {
-                $data = $this->demoData['schedule'];
-            }
-            catch (Throwable)
-            {
-                $data = [];
-            }
+            $data = $this->demoData['schedule'] ?? [];
         }
         else
         {
@@ -424,14 +381,11 @@ class Sdk implements UmcGatewayInterface
                     $this->setLock($lockKey, $this->cacheProvider->getScheduleTtl());
                     try
                     {
-                        $result = $this->getSdkExchangeService()->getSchedule($days, $clinicUid, $employees, $startDate);
-                        if (!$result->isSuccess())
-                        {
-                            throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
-                        }
-
-                        $data = $result->getData();
-                        $result->setData([]);
+                        $data = $this->applyParseEvents(
+                            EventType::ON_BEFORE_SCHEDULE_PARSED,
+                            EventType::ON_AFTER_SCHEDULE_PARSED,
+                            $this->getSdkClient()->getSchedule(new ScheduleQuery($days, $clinicUid, $employees, $startDate))
+                        );
                         foreach ($data as $clinicKey => $clinicData)
                         {
                             foreach ($clinicData as $specialtyKey => $specialtyData)
@@ -463,12 +417,10 @@ class Sdk implements UmcGatewayInterface
                 }
             }
         }
+
         return $data ?? [];
     }
 
-    /**
-     * @throws GatewayException
-     */
     public function getAppointmentStatus(string $appointmentUid): AppointmentStatusDto
     {
         try
@@ -478,10 +430,9 @@ class Sdk implements UmcGatewayInterface
                 return new AppointmentStatusDto('demo', 'Demo mode is ON');
             }
 
-            $sdkResult = $this->getSdkExchangeService()->getOrderStatus($appointmentUid);
-
-            $this->responseValidator->validateAppointmentStatus($sdkResult->getData());
-            return $this->responseMapper->statusFromArray($sdkResult->getData());
+            $data = $this->getSdkClient()->getAppointmentStatus($appointmentUid);
+            $this->responseValidator->validateAppointmentStatus($data);
+            return $this->responseMapper->statusFromArray($data);
         }
         catch (Throwable $e)
         {
@@ -489,9 +440,6 @@ class Sdk implements UmcGatewayInterface
         }
     }
 
-    /**
-     * @throws GatewayException
-     */
     public function sendBooking(string $clinicUid, string $employeeUid, DateTime $dateTimeBegin, int $serviceDuration): BookingDto
     {
         $uid = null;
@@ -512,15 +460,11 @@ class Sdk implements UmcGatewayInterface
                 return $dto;
             }
 
-            $result = $this->getSdkExchangeService()->sendReserve(
+            $data = $this->getSdkClient()->sendReserve(
                 $this->requestMapper->bookingItemFromParams($clinicUid, $employeeUid, $dateTimeBegin, $serviceDuration)
             );
-            if (!$result->isSuccess())
-            {
-                throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
-            }
 
-            $dto->uid = (string)$result->getData()['uid'];
+            $dto->uid = (string)($data['uid'] ?? '');
             $uid = $dto->uid;
             $this->responseValidator->validateBookingItem($dto);
             return $dto;
@@ -538,9 +482,6 @@ class Sdk implements UmcGatewayInterface
         }
     }
 
-    /**
-     * @throws \ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException
-     */
     public function sendAppointment(array $data): AppointmentDto
     {
         try
@@ -553,10 +494,10 @@ class Sdk implements UmcGatewayInterface
                 return $dto;
             }
 
-            $result = $this->getSdkExchangeService()->sendOrder(
+            $result = $this->getSdkClient()->sendAppointment(
                 $this->requestMapper->appointmentItemFromDto($dto)
             );
-            if (!$result->isSuccess())
+            if (($result['success'] ?? false) !== true)
             {
                 try
                 {
@@ -564,7 +505,7 @@ class Sdk implements UmcGatewayInterface
                 }
                 catch (Throwable){}
 
-                throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
+                throw new GatewayException('Appointment was not created');
             }
 
             return $dto;
@@ -579,9 +520,6 @@ class Sdk implements UmcGatewayInterface
         }
     }
 
-    /**
-     * @throws \ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException
-     */
     public function sendWaitList(array $data): WaitListDto
     {
         try
@@ -593,13 +531,10 @@ class Sdk implements UmcGatewayInterface
                 return $dto;
             }
 
-            $result = $this->getSdkExchangeService()->sendWaitList(
+            $this->getSdkClient()->sendWaitList(
                 $this->requestMapper->waitListItemFromDto($dto)
             );
-            if (!$result->isSuccess())
-            {
-                throw new GatewayException(implode(PHP_EOL, $result->getErrorMessages()));
-            }
+
             return $dto;
         }
         catch (Throwable $e)
@@ -612,30 +547,39 @@ class Sdk implements UmcGatewayInterface
         }
     }
 
-    /**
-     * @throws \ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException
-     */
     public function deleteAppointment(string $uid): bool
     {
-        $res = $this->getSdkExchangeService()->deleteOrder($uid);
-        if (!$res->isSuccess())
+        try
         {
-            throw new GatewayException(implode(PHP_EOL, $res->getErrorMessages()));
+            $data = $this->getSdkClient()->deleteAppointment($uid);
+            return ($data['success'] ?? false) === true;
         }
-        return true;
+        catch (Throwable $e)
+        {
+            throw new GatewayException($e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    private function applyEvent(string $eventName, array $data): array
+    {
+        $result = Event::getEventHandlersResult($eventName, $data);
+        return is_array($result) ? $result : $data;
     }
 
     /**
-     * @throws UmcIntegrationCacheException
+     * @throws \Exception
      */
+    private function applyParseEvents(string $beforeEventName, string $afterEventName, array $data): array
+    {
+        Event::getEventHandlersResult($beforeEventName, $data);
+        return $this->applyEvent($afterEventName, $data);
+    }
+
     private function isLocked(string $key, int $lockTime = 60): bool
     {
         return is_array($this->cacheProvider->get($key, $lockTime));
     }
 
-    /**
-     * @throws UmcIntegrationCacheException
-     */
     private function setLock(string $key, int $lockTime = 60): void
     {
         $this->cacheProvider->set($key, $lockTime, [true]);
@@ -656,9 +600,6 @@ class Sdk implements UmcGatewayInterface
         return $this->lockKeyPrefix . md5($method . '|' . implode('|', $normalizedContext));
     }
 
-    /**
-     * @throws \ANZ\Appointment\Integration\UmcSdk\Exception\UmcIntegrationCacheException
-     */
     private function waitForCache(callable $cacheGetter, string $lockKey, int $lockTime = 60): ?array
     {
         $deadline = microtime(true) + (self::CACHE_WAIT_TIMEOUT_MS / 1000);
