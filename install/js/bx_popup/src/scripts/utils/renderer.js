@@ -357,27 +357,32 @@ export class Renderer
             }
             else
             {
+                const itemName = this.application.getItemDisplayName(dataKey, items[key]);
+                const itemPrice = Number(items[key]['price'] ?? 0);
+                const itemDisplay = itemPrice > 0 ? `${itemName} ${items[key]['price']}₽` : itemName;
                 const dataAttrs = {
                     uid:  items[key].uid ?? key,
-                    name: items[key].name,
+                    name: itemName,
+                    display: itemDisplay,
                 }
-                items[key].duration ? (dataAttrs.duration = items[key].duration): void(0);
+                const duration = items[key].duration ?? items[key].durationInSeconds ?? items[key].serviceDuration;
+                duration ? (dataAttrs.duration = duration): void(0);
 
                 const itemChildren = [];
                 if(items[key].hasOwnProperty('price')){
                     itemChildren.push(BX.create('p', {
                         children: [
-                            BX.create('span', { text: items[key].name ?? '' }),
+                            BX.create('span', { text: itemName }),
                             BX.create('br'),
                             BX.create('b', {
-                                text: Number(items[key]['price']) > 0 ? `${items[key]['price']}₽` : ''
+                                text: itemPrice > 0 ? `${items[key]['price']}₽` : ''
                             })
                         ]
                     }));
                 }
                 else
                 {
-                    itemChildren.push(BX.create('span', { text: items[key].name ?? '' }));
+                    itemChildren.push(BX.create('span', { text: itemName }));
                 }
 
                 BX.append(BX.create('li', {
@@ -406,12 +411,13 @@ export class Renderer
         const serviceDuration = this.application.getServiceDuration();
         const renderCustomIntervals = this.application.useServices && (serviceDuration > 0);
         const timeKey = renderCustomIntervals ? "free" : "freeFormatted";
+        const timeslots = scheduleItem['timeslots'] ?? scheduleItem['timetable'] ?? {};
 
-        if ((typeof scheduleItem['timeslots']?.[timeKey] === 'object')
-            && (Object.keys(scheduleItem['timeslots'][timeKey]).length > 0)
+        if ((typeof timeslots?.[timeKey] === 'object')
+            && (Object.keys(timeslots[timeKey]).length > 0)
         ){
 
-            const days = scheduleItem['timeslots'][timeKey];
+            const days = timeslots[timeKey];
 
             for(let date in days)
             {
@@ -422,7 +428,7 @@ export class Renderer
                     {
                         dayIntervals = this.application.getIntervalsForServiceDuration(dayIntervals, serviceDuration*1000);
                         if (dayIntervals.length <= 0) {
-                            break;
+                            continue;
                         }
                     }
 

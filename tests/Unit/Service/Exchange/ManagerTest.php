@@ -122,6 +122,55 @@ class ManagerTest extends TestCase
         $this->assertInstanceOf(BookingDto::class, $booking);
     }
 
+    /**
+     * @throws ExchangeManagerException
+     */
+    public function testSendBookingAllowsEmployeeWithDifferentDictionaryClinicWhenSlotExists(): void
+    {
+        $gateway = new FakeSdk();
+        $gateway->employees = [
+            new EmployeeDto(
+                'employee-1',
+                'Ivan',
+                'Ivanov',
+                'Ivanovich',
+                'Ivanov Ivan Ivanovich',
+                'another-clinic',
+                '',
+                '',
+                '',
+                'Therapist',
+                'specialty-1'
+            )
+        ];
+
+        $svc = new Manager($gateway, new FakeAppointmentRepository(FakeRecordTable::getEntity()));
+
+        $booking = $svc->sendBooking('clinic-1', 'employee-1', '2026-03-26 10:00:00', 1800);
+
+        $this->assertInstanceOf(BookingDto::class, $booking);
+        $this->assertSame('clinic-1', $booking->clinicUid);
+    }
+
+    /**
+     * @throws ExchangeManagerException
+     */
+    public function testSendBookingSkipsSlotAvailabilityCheckInDemoMode(): void
+    {
+        Option::set(Configuration::getModuleId(), Constants::OPTION_KEY_DEMO_MODE, 'Y');
+        $this->clearConfigurationOptionCache();
+
+        $svc = new Manager(new FakeSdk(), new FakeAppointmentRepository(FakeRecordTable::getEntity()));
+
+        $booking = $svc->sendBooking('clinic-1', 'employee-1', '2026-04-09 11:00:00', 3600);
+
+        $this->assertInstanceOf(BookingDto::class, $booking);
+        $this->assertSame('clinic-1', $booking->clinicUid);
+
+        Option::set(Configuration::getModuleId(), Constants::OPTION_KEY_DEMO_MODE, 'N');
+        $this->clearConfigurationOptionCache();
+    }
+
     public function testSendAppointmentAllowsEmployeeWithoutServiceRelations(): void
     {
         Option::set(Configuration::getModuleId(), Constants::OPTION_KEY_EXCHANGE_USE_SERVICES, 'Y');

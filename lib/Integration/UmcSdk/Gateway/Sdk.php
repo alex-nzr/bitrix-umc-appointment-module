@@ -355,6 +355,8 @@ class Sdk implements UmcGatewayInterface
         {
             sleep(3);
             $data = $this->demoData['schedule'] ?? [];
+            $data = $this->filterScheduleItems($data, $clinicUid, $employees);
+            $data = $this->mapScheduleItems($data);
         }
         else
         {
@@ -419,6 +421,98 @@ class Sdk implements UmcGatewayInterface
         }
 
         return $data ?? [];
+    }
+
+    private function filterScheduleItems(array $data, string $clinicUid = '', array $employees = []): array
+    {
+        if ($clinicUid !== '')
+        {
+            $data = isset($data[$clinicUid]) ? [$clinicUid => $data[$clinicUid]] : [];
+        }
+
+        $employees = array_values(array_filter(array_map('strval', $employees)));
+        if (empty($employees))
+        {
+            return $data;
+        }
+
+        foreach ($data as $clinicKey => $clinicData)
+        {
+            if (!is_array($clinicData))
+            {
+                unset($data[$clinicKey]);
+                continue;
+            }
+
+            foreach ($clinicData as $specialtyKey => $specialtyData)
+            {
+                if (!is_array($specialtyData))
+                {
+                    unset($data[$clinicKey][$specialtyKey]);
+                    continue;
+                }
+
+                foreach (array_keys($specialtyData) as $employeeKey)
+                {
+                    if (!in_array((string)$employeeKey, $employees, true))
+                    {
+                        unset($data[$clinicKey][$specialtyKey][$employeeKey]);
+                    }
+                }
+
+                if (empty($data[$clinicKey][$specialtyKey]))
+                {
+                    unset($data[$clinicKey][$specialtyKey]);
+                }
+            }
+
+            if (empty($data[$clinicKey]))
+            {
+                unset($data[$clinicKey]);
+            }
+        }
+
+        return $data;
+    }
+
+    private function mapScheduleItems(array $data): array
+    {
+        foreach ($data as $clinicKey => $clinicData)
+        {
+            if (!is_array($clinicData))
+            {
+                unset($data[$clinicKey]);
+                continue;
+            }
+
+            foreach ($clinicData as $specialtyKey => $specialtyData)
+            {
+                if (!is_array($specialtyData))
+                {
+                    unset($data[$clinicKey][$specialtyKey]);
+                    continue;
+                }
+
+                foreach ($specialtyData as $employeeKey => $scheduleData)
+                {
+                    if ($this->responseValidator->validateScheduleItem($scheduleData))
+                    {
+                        $data[$clinicKey][$specialtyKey][$employeeKey] = $this->responseMapper->scheduleItemFromArray(
+                            (string)$clinicKey,
+                            (string)$specialtyKey,
+                            (string)$employeeKey,
+                            $scheduleData
+                        );
+                    }
+                    else
+                    {
+                        unset($data[$clinicKey][$specialtyKey][$employeeKey]);
+                    }
+                }
+            }
+        }
+
+        return $data;
     }
 
     public function getAppointmentStatus(string $appointmentUid): AppointmentStatusDto

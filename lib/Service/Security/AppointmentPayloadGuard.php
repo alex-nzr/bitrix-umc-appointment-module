@@ -23,9 +23,13 @@ class AppointmentPayloadGuard
     ): int
     {
         $this->assertClinicAllowed($exchange, $clinicUid);
-        $employee = $this->findEmployee($exchange, $employeeUid);
-        $this->assertEmployeeBelongsToClinic($employee, $clinicUid);
+        $this->findEmployee($exchange, $employeeUid);
         $duration = $this->resolveDuration($serviceDuration);
+        if (Configuration::getInstance()->isDemoModeOn())
+        {
+            return $duration;
+        }
+
         $this->assertSlotExists($exchange, $clinicUid, $employeeUid, $dateTimeBegin, $duration);
 
         return $duration;
@@ -67,7 +71,6 @@ class AppointmentPayloadGuard
 
         $this->assertClinicAllowed($exchange, (string)$data['clinicUid']);
         $employee = $this->findEmployee($exchange, (string)$data['employeeUid']);
-        $this->assertEmployeeBelongsToClinic($employee, (string)$data['clinicUid']);
         if (Configuration::getInstance()->isServicesEnabled())
         {
             $this->assertServicesBelongToEmployee($employee, $this->getServiceUids($data));
@@ -97,14 +100,6 @@ class AppointmentPayloadGuard
             }
         }
         throw new ArgumentException('Invalid employee');
-    }
-
-    private function assertEmployeeBelongsToClinic(EmployeeDto $employee, string $clinicUid): void
-    {
-        if ($employee->clinicUid !== '' && $employee->clinicUid !== $clinicUid)
-        {
-            throw new ArgumentException('Invalid employee clinic');
-        }
     }
 
     private function assertServicesBelongToEmployee(EmployeeDto $employee, array $serviceUids): void

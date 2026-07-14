@@ -646,6 +646,16 @@ export class ClassicForm
         return serviceDuration;
     }
 
+    getItemDisplayName(dataKey: string, item: any): string
+    {
+        if (dataKey === this.dataKeys.employeesKey)
+        {
+            return item.fullName || item.employeeName || item.name || '';
+        }
+
+        return item.name || item.fullName || item.employeeName || '';
+    }
+
     getIntervalsForServiceDuration(intervals, serviceDurationMs) {
         const newIntervals = [];
         intervals.length && intervals.forEach((day) => {
@@ -735,7 +745,7 @@ export class ClassicForm
                     this.selectionNodes[dataKey].listNode.classList.remove(styles['active']);
                     BX.cleanNode(this.selectionNodes[dataKey].selectedNode);
                     BX.append(BX.create('span', {
-                        text: e.currentTarget.textContent
+                        text: e.currentTarget.dataset.display || e.currentTarget.textContent
                     }), this.selectionNodes[dataKey].selectedNode);
                     this.changeSelectionStep(dataKey, e.currentTarget);
                     if(dataKey !== this.dataKeys.specialtiesKey)
@@ -787,13 +797,13 @@ export class ClassicForm
 
                 break;
             case this.dataKeys.servicesKey:
-                this.filledInputs[dataKey].serviceName = target.textContent;
+                this.filledInputs[dataKey].serviceName = target.dataset.name || target.textContent;
                 this.filledInputs[dataKey].serviceUid = target.dataset.uid;
                 this.filledInputs[dataKey].serviceDuration = target.dataset.duration;
                 this.selectDoctorBeforeService ? this.renderScheduleList(): this.renderEmployeesList();
                 break;
             case this.dataKeys.employeesKey:
-                this.filledInputs[dataKey].doctorName = target.textContent;
+                this.filledInputs[dataKey].doctorName = target.dataset.name || target.textContent;
                 this.filledInputs[dataKey].employeeUid = target.dataset.uid;
                 this.getSchedule(this.filledInputs[this.dataKeys.clinicsKey].clinicUid, this.filledInputs[dataKey].employeeUid);
                 break;
