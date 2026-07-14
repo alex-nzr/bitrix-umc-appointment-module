@@ -9,12 +9,16 @@
 namespace ANZ\Appointment\Tests\Unit\Integration\UmcSdk\Gateway;
 
 use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\Config\TimeSlotStatus;
 use ANZ\Appointment\Dto\AppointmentDto;
 use ANZ\Appointment\Dto\AppointmentStatusDto;
 use ANZ\Appointment\Dto\BookingDto;
 use ANZ\Appointment\Dto\ClinicDto;
+use ANZ\Appointment\Dto\EmployeeServiceDto;
 use ANZ\Appointment\Dto\EmployeeDto;
+use ANZ\Appointment\Dto\ScheduleItemDto;
 use ANZ\Appointment\Dto\ServiceDto;
+use ANZ\Appointment\Dto\TimeSlotDto;
 use ANZ\Appointment\Dto\WaitListDto;
 use ANZ\Appointment\Integration\UmcSdk\Contract\UmcGatewayInterface;
 use DateTime;
@@ -33,7 +37,10 @@ class FakeSdk implements UmcGatewayInterface
 
     public function __construct()
     {
-        $this->clinics = [new ClinicDto('uniq-uid-12345', 'testClinic')];
+        $this->clinics = [
+            new ClinicDto('uniq-uid-12345', 'testClinic'),
+            new ClinicDto('clinic-1', 'Test clinic for booking'),
+        ];
         $this->employees = [
             new EmployeeDto(
                 'employee-1',
@@ -41,18 +48,50 @@ class FakeSdk implements UmcGatewayInterface
                 'Ivanov',
                 'Ivanovich',
                 'Ivanov Ivan Ivanovich',
-                'uniq-uid-12345',
+                'clinic-1',
                 '',
                 '',
                 '',
                 'Therapist',
-                'specialty-1'
+                'specialty-1',
+                [new EmployeeServiceDto('service-1', 1800)]
             )
         ];
         $this->services = [
             new ServiceDto('service-1', 'Consultation', 'service', 'ART-1', 1000, 30, 'pcs', '')
         ];
-        $this->schedule = [];
+        $slotDateTime = new DateTime('2026-03-26 10:00:00');
+        $this->schedule = [
+            'clinic-1' => [
+                'specialty-1' => [
+                    new ScheduleItemDto(
+                        'clinic-1',
+                        'specialty-1',
+                        'employee-1',
+                        'Therapist',
+                        'Ivanov Ivan Ivanovich',
+                        1800,
+                        [
+                            TimeSlotStatus::FREE_FORMATTED->value => [
+                                '2026-03-26' => [
+                                    new TimeSlotDto(
+                                        '',
+                                        '2026-03-26',
+                                        '2026-03-26 10:00:00',
+                                        '2026-03-26 10:30:00',
+                                        '26.03.2026',
+                                        '10:00',
+                                        '10:30',
+                                        $slotDateTime,
+                                        TimeSlotStatus::FREE_FORMATTED
+                                    ),
+                                ],
+                            ],
+                        ]
+                    ),
+                ],
+            ],
+        ];
     }
 
     private function throwIfNeeded(): void

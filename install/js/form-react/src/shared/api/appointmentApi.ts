@@ -178,7 +178,7 @@ export const appointmentApi = {
     },
 
     async deleteAppointment(uid: string, id: number = 0) {
-        const action = `${CONTROLLER}.deleteAppointment`;
+        const action = `${CONTROLLER}.cancelOwnAppointment`;
         const data = new FormData();
         data.set('uid', uid);
         data.set('id', `${id}`);

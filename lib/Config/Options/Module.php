@@ -20,6 +20,11 @@ use Throwable;
 
 class Module implements IOptionStorage
 {
+    private const LOGO_MAX_FILE_SIZE = 3145728;
+    private const LOGO_MAX_WIDTH = 3000;
+    private const LOGO_MAX_HEIGHT = 3000;
+    private const LOGO_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
+
     /**
      * @return array
      * @throws \Exception
@@ -232,7 +237,16 @@ class Module implements IOptionStorage
                         Constants::OPTION_KEY_LOGO,
                         Loc::getMessage("ANZ_APPOINTMENT_LOGO_UPLOAD"),
                         "",
-                        ['file', 'attrs' => ['accept' => 'image/*']]
+                        [
+                            'file',
+                            'attrs' => ['accept' => '.jpg,.jpeg,.png,.webp'],
+                            'maxSize' => self::LOGO_MAX_FILE_SIZE,
+                            'extensions' => self::LOGO_EXTENSIONS,
+                            'image' => [
+                                'maxWidth' => self::LOGO_MAX_WIDTH,
+                                'maxHeight' => self::LOGO_MAX_HEIGHT,
+                            ],
+                        ]
                     ],
 
                     Loc::getMessage("ANZ_APPOINTMENT_MAIN_BTN_SETTINGS"),

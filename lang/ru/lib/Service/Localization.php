@@ -7,6 +7,11 @@ $moduleDir = \ANZ\Appointment\Config\Configuration::getModuleLocation(false);
 //Common
 $MESS['ANZ_APPOINTMENT_MODULE_NOT_LOADED'] = "Не удалось подключить модуль записи на приём";
 $MESS["ANZ_APPOINTMENT_ACCESS_DENIED"] = "Доступ к модулю запрещён";
+$MESS['ANZ_APPOINTMENT_PUBLIC_ERROR_DEFAULT'] = 'Сервис временно недоступен';
+$MESS['ANZ_APPOINTMENT_PUBLIC_ERROR_BOOK_SLOT'] = 'Не удалось забронировать выбранное время';
+$MESS['ANZ_APPOINTMENT_PUBLIC_ERROR_CREATE_APPOINTMENT'] = 'Не удалось создать запись';
+$MESS['ANZ_APPOINTMENT_PUBLIC_ERROR_CANCEL_APPOINTMENT'] = 'Не удалось отменить запись';
+$MESS['ANZ_APPOINTMENT_PUBLIC_ERROR_EMAIL_NOTE'] = 'Не удалось отправить уведомление';
 
 //Admin pages
 $MESS['ANZ_ADMIN_LIST_PAGE_TITLE'] = "Список записей на приём";
@@ -29,7 +34,7 @@ $MESS['ANZ_APPOINTMENT_USE_DEMO_MODE_ON'] = sprintf($hintTemplate , 'Включ�
 $MESS['ANZ_APPOINTMENT_APP_SETTINGS'] = 'Настройки записи на приём';
 $MESS['ANZ_APPOINTMENT_USE_EMAIL_NOTE'] = 'Отправлять информацию о записи на email';
 $MESS['ANZ_APPOINTMENT_USE_WAITING_LIST'] = sprintf($hintTemplate , "Запись в лист ожидания", 'При включенной опции запись в 1С будет создаваться не как «Заявка», а как «Лист ожидания»');
-$MESS['ANZ_APPOINTMENT_EXCHANGE_CONFIRM_MODE'] = sprintf($hintTemplate , 'Включить подтверждение записи', 'Для смс-подтверждения необходимо выбрать и настроить провайдера SMS в настройках модуля «Служба сообщений». Затем установить отправителя по умолчанию в настройках главного модуля.');
+$MESS['ANZ_APPOINTMENT_EXCHANGE_CONFIRM_MODE'] = sprintf($hintTemplate , 'Включить подтверждение создания/отмены записи', 'Настройка не распространяется на операции с заявкой из административного интерфейса. Для смс-подтверждения необходимо выбрать и настроить провайдера SMS в настройках модуля «Служба сообщений». Затем установить отправителя по умолчанию в настройках главного модуля.');
 $MESS['ANZ_APPOINTMENT_EXCHANGE_CONFIRM_NONE'] = "Выключено";
 $MESS['ANZ_APPOINTMENT_EXCHANGE_CONFIRM_PHONE'] = "По СМС";
 $MESS['ANZ_APPOINTMENT_EXCHANGE_CONFIRM_EMAIL'] = "По email";

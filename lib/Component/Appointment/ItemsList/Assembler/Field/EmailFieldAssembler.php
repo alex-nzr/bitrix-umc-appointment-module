@@ -23,6 +23,7 @@ class EmailFieldAssembler extends FieldAssembler
 
     protected function getUserEmailLink(string $email): string
     {
-        return "<a href='mailto:$email' target='_blank'>$email</a>";
+        $safeEmail = htmlspecialcharsbx($email);
+        return '<a href="mailto:' . $safeEmail . '" target="_blank">' . $safeEmail . '</a>';
     }
 }

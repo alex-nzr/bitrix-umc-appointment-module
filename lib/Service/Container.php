@@ -23,7 +23,14 @@ use ANZ\Appointment\Service\Exchange\Manager;
 use ANZ\Appointment\Service\Message\Mailer;
 use ANZ\Appointment\Service\Message\Sms;
 use ANZ\Appointment\Service\Security\Confirmation;
+use ANZ\Appointment\Service\Security\AppointmentAccess;
+use ANZ\Appointment\Service\Security\AppointmentPayloadGuard;
+use ANZ\Appointment\Service\Security\BookingSession;
 use ANZ\Appointment\Service\Security\Encryptor;
+use ANZ\Appointment\Service\Security\OneCUrlGuard;
+use ANZ\Appointment\Service\Security\RateLimiter;
+use ANZ\Appointment\Service\Security\RateLimitPolicy;
+use ANZ\Appointment\Service\Security\SecurityLogger;
 use Bitrix\Main\DI\ServiceLocator;
 use Throwable;
 
@@ -39,22 +46,10 @@ class Container
      */
     public function getExchangeManager(): Manager
     {
-        try
-        {
-            $identifier = static::getIdentifierByClassName(Manager::class);
-            if(!ServiceLocator::getInstance()->has($identifier))
-            {
-                ServiceLocator::getInstance()->addInstance($identifier, new Manager(
-                    $this->getSdkGateway(),
-                    new AppointmentRepository(RecordTable::getEntity())
-                ));
-            }
-            return ServiceLocator::getInstance()->get($identifier);
-        }
-        catch(Throwable $e)
-        {
-            throw new ServiceContainerException($e->getMessage(), $e->getCode(), $e);
-        }
+        return $this->getShared(Manager::class, fn() => new Manager(
+            $this->getSdkGateway(),
+            new AppointmentRepository(RecordTable::getEntity())
+        ));
     }
 
     /**
@@ -62,28 +57,14 @@ class Container
      */
     public function getSdkGateway(): Sdk
     {
-        try
-        {
-            $identifier = static::getIdentifierByClassName(Sdk::class);
-
-            if(!ServiceLocator::getInstance()->has($identifier))
-            {
-                ServiceLocator::getInstance()->addInstance($identifier, new Sdk(
-                    Configuration::getInstance()->isDemoModeOn(),
-                    new SdkResponseToDto,
-                    new SdkRequestFromParams,
-                    new ResponseValidator,
-                    new RequestValidator,
-                    $this->getUmcIntegrationCacheProvider()
-                ));
-            }
-
-            return ServiceLocator::getInstance()->get($identifier);
-        }
-        catch(Throwable $e)
-        {
-            throw new ServiceContainerException($e->getMessage(), $e->getCode(), $e);
-        }
+        return $this->getShared(Sdk::class, fn() => new Sdk(
+            Configuration::getInstance()->isDemoModeOn(),
+            new SdkResponseToDto,
+            new SdkRequestFromParams,
+            new ResponseValidator,
+            new RequestValidator,
+            $this->getUmcIntegrationCacheProvider()
+        ));
     }
 
     /**
@@ -91,19 +72,7 @@ class Container
      */
     public function getUmcIntegrationCacheProvider(): CacheProvider
     {
-        try
-        {
-            $identifier = static::getIdentifierByClassName(CacheProvider::class);
-            if(!ServiceLocator::getInstance()->has($identifier))
-            {
-                ServiceLocator::getInstance()->addInstance($identifier, new CacheProvider);
-            }
-            return ServiceLocator::getInstance()->get($identifier);
-        }
-        catch(Throwable $e)
-        {
-            throw new ServiceContainerException($e->getMessage(), $e->getCode(), $e);
-        }
+        return $this->getShared(CacheProvider::class, fn() => new CacheProvider);
     }
 
     /**
@@ -111,19 +80,7 @@ class Container
      */
     public function getSmsService(): Sms
     {
-        try
-        {
-            $identifier = static::getIdentifierByClassName(Sms::class);
-            if(!ServiceLocator::getInstance()->has($identifier))
-            {
-                ServiceLocator::getInstance()->addInstance($identifier, new Sms);
-            }
-            return ServiceLocator::getInstance()->get($identifier);
-        }
-        catch(Throwable $e)
-        {
-            throw new ServiceContainerException($e->getMessage(), $e->getCode(), $e);
-        }
+        return $this->getShared(Sms::class, fn() => new Sms);
     }
 
     /**
@@ -131,19 +88,7 @@ class Container
      */
     public function getMailerService(): Mailer
     {
-        try
-        {
-            $identifier = static::getIdentifierByClassName(Mailer::class);
-            if(!ServiceLocator::getInstance()->has($identifier))
-            {
-                ServiceLocator::getInstance()->addInstance($identifier, new Mailer);
-            }
-            return ServiceLocator::getInstance()->get($identifier);
-        }
-        catch(Throwable $e)
-        {
-            throw new ServiceContainerException($e->getMessage(), $e->getCode(), $e);
-        }
+        return $this->getShared(Mailer::class, fn() => new Mailer);
     }
 
     public function getRecordDataClass(): RecordTable | string
@@ -156,19 +101,7 @@ class Container
      */
     public function getUserPermissions(): UserPermissions
     {
-        try
-        {
-            $identifier = static::getIdentifierByClassName(UserPermissions::class);
-            if(!ServiceLocator::getInstance()->has($identifier))
-            {
-                ServiceLocator::getInstance()->addInstance($identifier, new UserPermissions);
-            }
-            return ServiceLocator::getInstance()->get($identifier);
-        }
-        catch(Throwable $e)
-        {
-            throw new ServiceContainerException($e->getMessage(), $e->getCode(), $e);
-        }
+        return $this->getShared(UserPermissions::class, fn() => new UserPermissions);
     }
 
     /**
@@ -215,19 +148,7 @@ class Container
      */
     public function getEncryptService(): Encryptor
     {
-        try
-        {
-            $identifier = static::getIdentifierByClassName(Encryptor::class);
-            if(!ServiceLocator::getInstance()->has($identifier))
-            {
-                ServiceLocator::getInstance()->addInstance($identifier, new Encryptor);
-            }
-            return ServiceLocator::getInstance()->get($identifier);
-        }
-        catch(Throwable $e)
-        {
-            throw new ServiceContainerException($e->getMessage(), $e->getCode(), $e);
-        }
+        return $this->getShared(Encryptor::class, fn() => new Encryptor);
     }
 
     /**
@@ -235,12 +156,76 @@ class Container
      */
     public function getConfirmationService(): Confirmation
     {
+        return $this->getShared(Confirmation::class, fn() => new Confirmation);
+    }
+
+    /**
+     * @throws ServiceContainerException
+     */
+    public function getSecurityLogger(): SecurityLogger
+    {
+        return $this->getShared(SecurityLogger::class, fn() => new SecurityLogger());
+    }
+
+    /**
+     * @throws ServiceContainerException
+     */
+    public function getRateLimiter(): RateLimiter
+    {
+        return $this->getShared(RateLimiter::class, fn() => new RateLimiter());
+    }
+
+    /**
+     * @throws ServiceContainerException
+     */
+    public function getRateLimitPolicy(): RateLimitPolicy
+    {
+        return $this->getShared(RateLimitPolicy::class, fn() => new RateLimitPolicy($this->getRateLimiter()));
+    }
+
+    /**
+     * @throws ServiceContainerException
+     */
+    public function getOneCUrlGuard(): OneCUrlGuard
+    {
+        return $this->getShared(OneCUrlGuard::class, fn() => new OneCUrlGuard());
+    }
+
+    /**
+     * @throws ServiceContainerException
+     */
+    public function getBookingSession(): BookingSession
+    {
+        return $this->getShared(BookingSession::class, fn() => new BookingSession());
+    }
+
+    /**
+     * @throws ServiceContainerException
+     */
+    public function getAppointmentAccess(): AppointmentAccess
+    {
+        return $this->getShared(AppointmentAccess::class, fn() => new AppointmentAccess($this->getBookingSession()));
+    }
+
+    /**
+     * @throws ServiceContainerException
+     */
+    public function getAppointmentPayloadGuard(): AppointmentPayloadGuard
+    {
+        return $this->getShared(AppointmentPayloadGuard::class, fn() => new AppointmentPayloadGuard());
+    }
+
+    /**
+     * @throws ServiceContainerException
+     */
+    private function getShared(string $className, callable $factory): mixed
+    {
         try
         {
-            $identifier = static::getIdentifierByClassName(Confirmation::class);
+            $identifier = static::getIdentifierByClassName($className);
             if(!ServiceLocator::getInstance()->has($identifier))
             {
-                ServiceLocator::getInstance()->addInstance($identifier, new Confirmation);
+                ServiceLocator::getInstance()->addInstance($identifier, $factory());
             }
             return ServiceLocator::getInstance()->get($identifier);
         }

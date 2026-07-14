@@ -19,6 +19,8 @@ use DateTime;
 
 class SdkRequestFromParams
 {
+    private const MIN_CALCULATED_DURATION_SECONDS = 1;
+
     /**
      * @throws \Exception
      */
@@ -40,7 +42,7 @@ class SdkRequestFromParams
         {
             $startTimestamp = (new DateTime($data['timeBegin']))->getTimestamp();
             $endTimestamp = (new DateTime($data['timeEnd']))->getTimestamp();
-            $serviceDuration = max(1, abs($endTimestamp - $startTimestamp));
+            $serviceDuration = max(self::MIN_CALCULATED_DURATION_SECONDS, abs($endTimestamp - $startTimestamp));
         }
         else
         {
@@ -50,7 +52,7 @@ class SdkRequestFromParams
             (string)$data['bookingUid'],
             (string)$data['clinicUid'],
             (string)$data['employeeUid'],
-            !empty($data['serviceUid']) ? [(string)$data['serviceUid']] : [],
+            $this->serviceUidsFromArray($data),
             $serviceDuration,
             new DateTime((string)$data['timeBegin']),
             (string)$data['phone'],
@@ -62,6 +64,26 @@ class SdkRequestFromParams
             key_exists('address', $data) ? (string)$data['address'] : null,
             (string)$data['comment'],
         );
+    }
+
+    private function serviceUidsFromArray(array $data): array
+    {
+        $uids = [];
+        if (!empty($data['serviceUid']))
+        {
+            $uids[] = (string)$data['serviceUid'];
+        }
+        if (is_array($data['services'] ?? null))
+        {
+            foreach ($data['services'] as $service)
+            {
+                if (is_array($service) && !empty($service['uid']))
+                {
+                    $uids[] = (string)$service['uid'];
+                }
+            }
+        }
+        return array_values(array_unique(array_filter($uids)));
     }
 
     /**

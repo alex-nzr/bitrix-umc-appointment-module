@@ -13,6 +13,7 @@ use Bitrix\Main\Grid\Row\Action\BaseAction;
 use Bitrix\Main\HttpRequest;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
+use Bitrix\Main\Web\Json;
 
 class DeleteAction extends BaseAction
 {
@@ -38,8 +39,8 @@ class DeleteAction extends BaseAction
         $gridId = Component::getGridId();
 
         $this->default = true;
-        $this->onclick = 'confirm("'.Loc::getMessage('ANZ_APPOINTMENT_BTN_DELETE_TEXT').'?") 
-                                ? BX.Anz?.Appointment?.Admin?.AppointmentList?.deleteAppointment('.$id.', "'.$gridId.'", "'.$uid.'") 
+        $this->onclick = 'confirm('.Json::encode(Loc::getMessage('ANZ_APPOINTMENT_BTN_DELETE_TEXT').'?').') 
+                                ? BX.Anz?.Appointment?.Admin?.AppointmentList?.deleteAppointment('.(int)$id.', '.Json::encode($gridId).', '.Json::encode($uid).') 
                                 : void(0)';
 
         return parent::getControl($rawFields);

@@ -16,7 +16,8 @@ class PhoneFieldAssembler extends FieldAssembler
     {
         if (is_string($value) && str_starts_with($value, '+7') && strlen($value) === 12)
         {
-            return "<a href='tel:$value' target='_blank'>$value</a>";
+            $safeValue = htmlspecialcharsbx($value);
+            return '<a href="tel:' . $safeValue . '" target="_blank">' . $safeValue . '</a>';
         }
 
         return htmlspecialchars($value);

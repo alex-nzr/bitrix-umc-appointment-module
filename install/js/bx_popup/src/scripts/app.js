@@ -14,6 +14,7 @@ import {TextInputNames} from "../types/params";
 
 export class ClassicForm
 {
+    minTimeStepServiceDurationMs: number = 1800000;
     selectionStep: string         = '';
     currentFormStep: HTMLElement  = null;
     formStepNodes: any            = {one: null, two: null, userData: null}
@@ -654,7 +655,7 @@ export class ClassicForm
             const appointmentsCount = Math.floor(timeDifference / serviceDurationMs);
             if (appointmentsCount > 0)
             {
-                if (this.useTimeSteps && (serviceDurationMs >= 30*60*1000)) //use timeSteps only for services with duration>=30 minutes
+                if (this.useTimeSteps && (serviceDurationMs >= this.minTimeStepServiceDurationMs)) //use timeSteps only for services with duration>=30 minutes
                 {
                     let start   = new Date(timestampTimeBegin);
                     let end     = new Date(timestampTimeBegin + serviceDurationMs);
@@ -717,12 +718,10 @@ export class ClassicForm
                     time.addEventListener('click', (e)=>{
                         e.stopPropagation();
                         this.selectionNodes[dataKey].listNode.classList.remove(styles['active']);
-                        this.selectionNodes[dataKey].selectedNode.innerHTML = `
-                            <span>
-                                ${e.currentTarget.dataset.displayDate} - 
-                                ${e.currentTarget.textContent}
-                            </span>
-                        `;
+                        BX.cleanNode(this.selectionNodes[dataKey].selectedNode);
+                        BX.append(BX.create('span', {
+                            text: `${e.currentTarget.dataset.displayDate} - ${e.currentTarget.textContent}`
+                        }), this.selectionNodes[dataKey].selectedNode);
 
                         this.changeSelectionStep(dataKey, e.currentTarget);
                         this.activateSelectionNodes();
@@ -734,7 +733,10 @@ export class ClassicForm
                 item.addEventListener('click', (e)=>{
                     e.stopPropagation();
                     this.selectionNodes[dataKey].listNode.classList.remove(styles['active']);
-                    this.selectionNodes[dataKey].selectedNode.innerHTML = `<span>${e.currentTarget.textContent}</span>`;
+                    BX.cleanNode(this.selectionNodes[dataKey].selectedNode);
+                    BX.append(BX.create('span', {
+                        text: e.currentTarget.textContent
+                    }), this.selectionNodes[dataKey].selectedNode);
                     this.changeSelectionStep(dataKey, e.currentTarget);
                     if(dataKey !== this.dataKeys.specialtiesKey)
                     {
@@ -1101,9 +1103,11 @@ export class ClassicForm
                         btnNode.classList.remove(styles['loading']);
                         if (result.errors?.length > 0){
                             result.errors.forEach((error) => {
-                                confirmWarningNode.innerHTML = ((Number(error.code) === 400) || (Number(error.code) === 406) || (Number(error.code) === 425))
-                                    ? `${confirmWarningNode.innerHTML}${error.message}<br>`
+                                const message = ((Number(error.code) === 400) || (Number(error.code) === 406) || (Number(error.code) === 425))
+                                    ? error.message
                                     : BX.message("ANZ_JS_APPLICATION_ERROR");
+                                confirmWarningNode.append(document.createTextNode(message));
+                                confirmWarningNode.append(document.createElement('br'));
                             })
                         }
                     });
@@ -1228,9 +1232,12 @@ export class ClassicForm
                 const date = this.convertDateToDisplay(this.orderData.timeBegin, false);
                 const time = this.convertDateToDisplay(this.orderData.timeBegin, true);
                 const doctor = this.orderData.doctorName;
-                resTextNode.innerHTML = `${BX.message("ANZ_JS_APPOINTMENT_SUCCESS")}
-                                         <br>${date} ${time}
-                                         <br>${BX.message("ANZ_JS_APPOINTMENT_DOCTOR")} - ${doctor}` ;
+                BX.cleanNode(resTextNode);
+                resTextNode.append(document.createTextNode(BX.message("ANZ_JS_APPOINTMENT_SUCCESS")));
+                resTextNode.append(document.createElement('br'));
+                resTextNode.append(document.createTextNode(`${date} ${time}`));
+                resTextNode.append(document.createElement('br'));
+                resTextNode.append(document.createTextNode(`${BX.message("ANZ_JS_APPOINTMENT_DOCTOR")} - ${doctor}`));
                 resTextNode.classList.add(styles['success']);
                 this.finalAnimations();
             }
@@ -1276,7 +1283,7 @@ export class ClassicForm
         return BX.create('p', {
             children: [
                 BX.create('span', {
-                    html: BX.message('ANZ_JS_APPOINTMENT_FINAL_ERROR_START')
+                    text: BX.message('ANZ_JS_APPOINTMENT_FINAL_ERROR_START')
                 }),
                 BX.create('a', {
                     attrs: {
@@ -1288,7 +1295,7 @@ export class ClassicForm
                     }
                 }),
                 BX.create('span', {
-                    html: BX.message('ANZ_JS_APPOINTMENT_FINAL_ERROR_END')
+                    text: BX.message('ANZ_JS_APPOINTMENT_FINAL_ERROR_END')
                 })
             ]
         });

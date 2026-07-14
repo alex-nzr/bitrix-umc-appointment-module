@@ -18,7 +18,7 @@ class SdkRequestFromParamsTest extends TestCase
             'clinicUid' => 'clinic-1',
             'employeeUid' => 'employee-1',
             'serviceUid' => 'service-1',
-            'serviceDuration' => 45,
+            'serviceDuration' => 2700,
             'timeBegin' => '2026-03-26 10:00:00',
             'phone' => '+79990000000',
             'surname' => 'Ivanov',
@@ -28,7 +28,7 @@ class SdkRequestFromParamsTest extends TestCase
             'comment' => 'Test comment',
         ]);
 
-        $this->assertSame(45, $dto->serviceDuration);
+        $this->assertSame(2700, $dto->serviceDuration);
         $this->assertSame(['service-1'], $dto->services);
     }
 

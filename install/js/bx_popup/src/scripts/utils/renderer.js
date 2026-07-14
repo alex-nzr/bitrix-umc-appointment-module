@@ -357,19 +357,32 @@ export class Renderer
             }
             else
             {
-                if(items[key].hasOwnProperty('price')){
-                    const price = Number(items[key]['price']) > 0 ? `<b>${items[key]['price']}</b>&#8381;` : "";
-                    items[key].fullName = `<p>${items[key].name}<br> <b>${price}</b></p>`;
-                }
                 const dataAttrs = {
                     uid:  items[key].uid ?? key,
-                    name: items[key].fullName ?? items[key].name,
+                    name: items[key].name,
                 }
                 items[key].duration ? (dataAttrs.duration = items[key].duration): void(0);
 
+                const itemChildren = [];
+                if(items[key].hasOwnProperty('price')){
+                    itemChildren.push(BX.create('p', {
+                        children: [
+                            BX.create('span', { text: items[key].name ?? '' }),
+                            BX.create('br'),
+                            BX.create('b', {
+                                text: Number(items[key]['price']) > 0 ? `${items[key]['price']}₽` : ''
+                            })
+                        ]
+                    }));
+                }
+                else
+                {
+                    itemChildren.push(BX.create('span', { text: items[key].name ?? '' }));
+                }
+
                 BX.append(BX.create('li', {
                     dataset: dataAttrs,
-                    html: items[key].fullName ?? items[key].name
+                    children: itemChildren
                 }), listNode);
             }
         }

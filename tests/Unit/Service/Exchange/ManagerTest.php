@@ -9,14 +9,19 @@
 namespace ANZ\Appointment\Tests\Unit\Service\Exchange;
 
 use ANZ\Appointment\Core\Exception\ExchangeManagerException;
+use ANZ\Appointment\Config\Configuration;
+use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Dto\BookingDto;
 use ANZ\Appointment\Dto\ClinicDto;
 use ANZ\Appointment\Dto\EmployeeDto;
+use ANZ\Appointment\Dto\ServiceDto;
+use ANZ\Appointment\Service\Security\AppointmentPayloadGuard;
 use ANZ\Appointment\Service\Exchange\Manager;
 use ANZ\Appointment\Tests\Unit\Integration\UmcSdk\Gateway\FakeSdk;
 use ANZ\Appointment\Tests\Unit\Model\FakeRecordTable;
 use ANZ\Appointment\Tests\Unit\Repository\UMC\FakeAppointmentRepository;
 use ANZ\Appointment\Tests\Unit\Repository\UMC\SpyAppointmentRepository;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\ORM\Objectify\EntityObject;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -80,12 +85,125 @@ class ManagerTest extends TestCase
             new FakeSdk(), new FakeAppointmentRepository(FakeRecordTable::getEntity())
         );
 
-        $booking = $svc->sendBooking('clinic-1', 'employee-1', '2026-03-26 10:00:00', 30);
+        $booking = $svc->sendBooking('clinic-1', 'employee-1', '2026-03-26 10:00:00', 1800);
 
         $this->assertTrue($booking instanceof BookingDto);
         $this->assertSame('clinic-1', $booking->clinicUid);
         $this->assertSame('employee-1', $booking->employeeUid);
-        $this->assertSame(30, $booking->serviceDuration);
+        $this->assertSame(1800, $booking->serviceDuration);
+    }
+
+    /**
+     * @throws ExchangeManagerException
+     */
+    public function testSendBookingAllowsEmployeeWithoutClinic(): void
+    {
+        $gateway = new FakeSdk();
+        $gateway->employees = [
+            new EmployeeDto(
+                'employee-1',
+                'Ivan',
+                'Ivanov',
+                'Ivanovich',
+                'Ivanov Ivan Ivanovich',
+                '',
+                '',
+                '',
+                '',
+                'Therapist',
+                'specialty-1'
+            )
+        ];
+
+        $svc = new Manager($gateway, new FakeAppointmentRepository(FakeRecordTable::getEntity()));
+
+        $booking = $svc->sendBooking('clinic-1', 'employee-1', '2026-03-26 10:00:00', 1800);
+
+        $this->assertInstanceOf(BookingDto::class, $booking);
+    }
+
+    public function testSendAppointmentAllowsEmployeeWithoutServiceRelations(): void
+    {
+        Option::set(Configuration::getModuleId(), Constants::OPTION_KEY_EXCHANGE_USE_SERVICES, 'Y');
+        $this->clearConfigurationOptionCache();
+
+        $gateway = new FakeSdk();
+        $gateway->employees = [
+            new EmployeeDto(
+                'employee-1',
+                'Ivan',
+                'Ivanov',
+                'Ivanovich',
+                'Ivanov Ivan Ivanovich',
+                'clinic-1',
+                '',
+                '',
+                '',
+                'Therapist',
+                'specialty-1',
+                []
+            )
+        ];
+        $gateway->services = [new ServiceDto('service-1', 'Consultation', 'service', 'ART-1', 1000, 1800, 'pcs', '')];
+
+        $svc = new Manager($gateway, new FakeAppointmentRepository(FakeRecordTable::getEntity()));
+        $booking = [
+            'uid' => 'booking-1',
+            'clinicUid' => 'clinic-1',
+            'employeeUid' => 'employee-1',
+            'timeBegin' => '2026-03-26 10:00:00',
+            'serviceDuration' => 1800,
+        ];
+
+        (new AppointmentPayloadGuard())->assertAppointmentPayload($svc, [
+            'bookingUid' => $booking['uid'],
+            'clinicUid' => 'clinic-1',
+            'employeeUid' => 'employee-1',
+            'serviceUid' => 'service-1',
+            'serviceDuration' => 1800,
+            'timeBegin' => '2026-03-26 10:00:00',
+            'phone' => '+79990000000',
+            'surname' => 'Ivanov',
+            'name' => 'Ivan',
+            'middleName' => 'Ivanovich',
+            'email' => 'test@example.com',
+            'comment' => 'Test comment',
+        ], $booking);
+
+        $this->assertTrue(true);
+    }
+
+    public function testSendAppointmentDoesNotValidateServiceRelationsWhenServicesDisabled(): void
+    {
+        Option::set(Configuration::getModuleId(), Constants::OPTION_KEY_EXCHANGE_USE_SERVICES, 'N');
+        $this->clearConfigurationOptionCache();
+
+        $gateway = new FakeSdk();
+        $svc = new Manager($gateway, new FakeAppointmentRepository(FakeRecordTable::getEntity()));
+        $booking = [
+            'uid' => 'booking-1',
+            'clinicUid' => 'clinic-1',
+            'employeeUid' => 'employee-1',
+            'timeBegin' => '2026-03-26 10:00:00',
+            'serviceDuration' => 1800,
+        ];
+
+        (new AppointmentPayloadGuard())->assertAppointmentPayload($svc, [
+            'bookingUid' => $booking['uid'],
+            'clinicUid' => 'clinic-1',
+            'employeeUid' => 'employee-1',
+            'serviceUid' => 'unknown-service',
+            'serviceDuration' => 1800,
+            'timeBegin' => '2026-03-26 10:00:00',
+            'phone' => '+79990000000',
+            'surname' => 'Ivanov',
+            'name' => 'Ivan',
+            'middleName' => 'Ivanovich',
+            'email' => 'test@example.com',
+            'comment' => 'Test comment',
+        ], $booking);
+
+        $this->assertTrue(true);
     }
 
     /**
@@ -94,6 +212,12 @@ class ManagerTest extends TestCase
     public function testDeleteAppointmentDeletesRecordFromRepositoryAfterGatewayCall(): void
     {
         $repository = new SpyAppointmentRepository(FakeRecordTable::getEntity());
+        $repository->entityByPrimary = new class extends EntityObject {
+            public function getXmlId(): string
+            {
+                return 'booking-uid-55';
+            }
+        };
         $svc = new Manager(new FakeSdk(), $repository);
 
         $result = $svc->deleteAppointment(55, 'booking-uid-55');
@@ -128,5 +252,12 @@ class ManagerTest extends TestCase
         $this->assertSame('Confirmed', $dto->name);
         $this->assertCount(1, $repository->savedEntities);
         $this->assertSame('Confirmed', $repository->savedEntities[0]->get('STATUS_1C'));
+    }
+
+    private function clearConfigurationOptionCache(): void
+    {
+        $property = new \ReflectionProperty(Configuration::class, 'optionCache');
+        $property->setAccessible(true);
+        $property->setValue(Configuration::getInstance(), []);
     }
 }

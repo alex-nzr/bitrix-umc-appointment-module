@@ -14,7 +14,9 @@ use ANZ\Appointment\Service\Container;
 use ANZ\Appointment\Service\Exchange\Manager;
 use ANZ\Appointment\UI\Adapter\ReactMUI;
 use Bitrix\Main\Engine\Action;
+use Bitrix\Main\Engine\ActionFilter\Authentication;
 use Bitrix\Main\Engine\ActionFilter\Csrf;
+use Bitrix\Main\Engine\ActionFilter\FilterType;
 use Bitrix\Main\Engine\ActionFilter\HttpMethod;
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Main\Error;
@@ -48,7 +50,7 @@ class Appointment extends Controller
         }
         catch (Throwable $e)
         {
-            $this->addError(new Error($e->getMessage()));
+            $this->addPublicError($e);
             return null;
         }
     }
@@ -63,7 +65,7 @@ class Appointment extends Controller
         }
         catch (Throwable $e)
         {
-            $this->addError(new Error($e->getMessage()));
+            $this->addPublicError($e);
             return null;
         }
     }
@@ -79,7 +81,7 @@ class Appointment extends Controller
         }
         catch (Throwable $e)
         {
-            $this->addError(new Error($e->getMessage()));
+            $this->addPublicError($e);
             return null;
         }
     }
@@ -98,7 +100,7 @@ class Appointment extends Controller
         }
         catch (Throwable $e)
         {
-            $this->addError(new Error($e->getMessage()));
+            $this->addPublicError($e);
             return null;
         }
     }
@@ -118,7 +120,7 @@ class Appointment extends Controller
         }
         catch (Throwable $e)
         {
-            $this->addError(new Error($e->getMessage()));
+            $this->addAdminError($e);
             return null;
         }
     }
@@ -135,7 +137,7 @@ class Appointment extends Controller
         }
         catch (Throwable $e)
         {
-            $this->addError(new Error($e->getMessage()));
+            $this->addAdminError($e);
             return null;
         }
     }
@@ -149,11 +151,12 @@ class Appointment extends Controller
     {
         try
         {
+            Container::getInstance()->getRateLimitPolicy()->assertBookSlotAllowed($clinicUid, $employeeUid);
             return $this->exchangeService->sendBooking($clinicUid, $employeeUid, $dateTimeBegin, $serviceDuration)?->toArray();
         }
         catch (Throwable $e)
         {
-            $this->addError(new Error($e->getMessage()));
+            $this->addPublicError($e, Loc::getMessage('ANZ_APPOINTMENT_PUBLIC_ERROR_BOOK_SLOT'));
             return null;
         }
     }
@@ -162,6 +165,7 @@ class Appointment extends Controller
     {
         try
         {
+            Container::getInstance()->getRateLimitPolicy()->assertSendAppointmentAllowed();
             $data = json_decode($jsonData, true);
             if (!is_array($data))
             {
@@ -172,7 +176,7 @@ class Appointment extends Controller
         }
         catch (Throwable $e)
         {
-            $this->addError(new Error($e->getMessage()));
+            $this->addPublicError($e, Loc::getMessage('ANZ_APPOINTMENT_PUBLIC_ERROR_CREATE_APPOINTMENT'));
             return null;
         }
     }
@@ -188,7 +192,24 @@ class Appointment extends Controller
         }
         catch (Throwable $e)
         {
-            $this->addError(new Error($e->getMessage()));
+            $this->addAdminError($e);
+        }
+        return null;
+    }
+
+    public function cancelOwnAppointmentAction(string $uid): ?array
+    {
+        try
+        {
+            Container::getInstance()->getRateLimitPolicy()->assertCancelAppointmentAllowed($uid);
+            if ($this->exchangeService->cancelOwnAppointment($uid))
+            {
+                return [];
+            }
+        }
+        catch (Throwable $e)
+        {
+            $this->addPublicError($e, Loc::getMessage('ANZ_APPOINTMENT_PUBLIC_ERROR_CANCEL_APPOINTMENT'));
         }
         return null;
     }
@@ -201,33 +222,33 @@ class Appointment extends Controller
         }
         catch (Throwable $e)
         {
-            $this->addError(new Error($e->getMessage()));
+            $this->addAdminError($e);
             return null;
         }
     }
 
-    public function sendConfirmCodeAction(string $phone = '', string $email = ''): ?Result
+    public function sendConfirmCodeAction(string $phone = '', string $email = '', string $purpose = 'appointment'): ?Result
     {
         try
         {
-            return Container::getInstance()->getConfirmationService()->sendConfirmCode($phone, $email);
+            return Container::getInstance()->getConfirmationService()->sendConfirmCode($phone, $email, $purpose);
         }
         catch (Throwable $e)
         {
-            $this->addError(new Error($e->getMessage()));
+            $this->addPublicError($e);
             return null;
         }
     }
 
-    public function verifyConfirmCodeAction(string $code): ?Result
+    public function verifyConfirmCodeAction(string $code, string $purpose = 'appointment'): ?Result
     {
         try
         {
-            return Container::getInstance()->getConfirmationService()->verifyConfirmCode($code);
+            return Container::getInstance()->getConfirmationService()->verifyConfirmCode($code, $purpose);
         }
         catch (Throwable $e)
         {
-            $this->addError(new Error($e->getMessage()));
+            $this->addPublicError($e);
             return null;
         }
     }
@@ -246,7 +267,8 @@ class Appointment extends Controller
         }
         catch (Exception $e)
         {
-            return (new Result)->addError(new Error($e->getMessage()));
+            Container::getInstance()->getSecurityLogger()->log($e, __METHOD__);
+            return (new Result)->addError(new Error(Loc::getMessage('ANZ_APPOINTMENT_PUBLIC_ERROR_EMAIL_NOTE')));
         }
     }
 
@@ -284,12 +306,36 @@ class Appointment extends Controller
 
     public function configureActions(): array
     {
-        return [
-            /*'deleteAppointment' => [
-                \Bitrix\Main\Engine\ActionFilter\FilterType::EnablePrefilter->value => [
-                    new \ANZ\Appointment\Core\ActionFilter\Admin
-                ],
-            ],*/
+        $adminFilters = [
+            new Authentication(),
+            new \ANZ\Appointment\Core\ActionFilter\Admin(),
         ];
+
+        return [
+            'loadData' => [
+                FilterType::EnablePrefilter->value => $adminFilters,
+            ],
+            'checkConnection' => [
+                FilterType::EnablePrefilter->value => $adminFilters,
+            ],
+            'deleteAppointment' => [
+                FilterType::EnablePrefilter->value => $adminFilters,
+            ],
+            'updateAppointmentStatus' => [
+                FilterType::EnablePrefilter->value => $adminFilters,
+            ],
+        ];
+    }
+
+    private function addPublicError(Throwable $e, ?string $message = null): void
+    {
+        Container::getInstance()->getSecurityLogger()->log($e, __METHOD__);
+        $this->addError(new Error($message ?: Loc::getMessage('ANZ_APPOINTMENT_PUBLIC_ERROR_DEFAULT')));
+    }
+
+    private function addAdminError(Throwable $e): void
+    {
+        Container::getInstance()->getSecurityLogger()->log($e, __METHOD__);
+        $this->addError(new Error($e->getMessage()));
     }
 }

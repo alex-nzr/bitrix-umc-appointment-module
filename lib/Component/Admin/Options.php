@@ -171,6 +171,7 @@ abstract class Options extends BaseComponent
 
                             if (strlen($arFile['name']) > 0)
                             {
+                                $this->assertValidOptionFile($arFile, $arOption);
                                 $fid = CFile::SaveFile($arFile, $arFile['MODULE_ID']);
                                 $optionValue = (int)$fid > 0 ? $fid : '';
                             }
@@ -357,46 +358,59 @@ abstract class Options extends BaseComponent
             $attrs['name'] = $attrs['name'].'[]';
             $attrs['size'] = $attrs['size'] ?? '5';
         }
+        elseif ($type[0] === 'file')
+        {
+            $extensions = $this->getFileOptionExtensions($option);
+            if (!empty($extensions) && empty($attrs['accept']))
+            {
+                $attrs['accept'] = implode(',', array_map(static fn($ext) => '.' . $ext, $extensions));
+            }
+        }
         unset($attrs['type'], $attrs['value']);
 
         $attrsString = '';
         foreach($attrs as $attrName => $attrValue)
         {
-            $attrsString .= " $attrName='$attrValue'";
+            if (!preg_match('/^[a-zA-Z0-9_-]+$/', (string)$attrName))
+            {
+                continue;
+            }
+            $attrsString .= ' ' . $attrName . '="' . htmlspecialcharsbx((string)$attrValue) . '"';
         }
         ?>
         <td style="width: 50%">
-        <label for="<?=$name?>" class="module-option-label">
+        <label for="<?=htmlspecialcharsbx($name)?>" class="module-option-label">
             <?
             switch ($type[0])
             {
                 case "checkbox":
                     $checked = ($val === "Y") ? "checked" : '';
-                    echo "<input type='checkbox' value='Y' $checked $attrsString>";
+                    echo '<input type="checkbox" value="Y" ' . $checked . ' ' . $attrsString . '>';
                     break;
                 case "text":
                 case "password":
-                    $val = $type[0] === 'password' ? Constants::PASSWORD_MASKED_VALUE : htmlspecialchars($val);
-                    echo "<input type='$type[0]' value='$val' $attrsString>";
+                    $val = $type[0] === 'password' ? Constants::PASSWORD_MASKED_VALUE : htmlspecialcharsbx((string)$val);
+                    echo '<input type="' . htmlspecialcharsbx($type[0]) . '" value="' . $val . '" ' . $attrsString . '>';
                     break;
                 case "number":
-                    $val = htmlspecialchars($val);
-                    echo "<input type='number' value='$val' $attrsString>";
+                    $val = htmlspecialcharsbx((string)$val);
+                    echo '<input type="number" value="' . $val . '" ' . $attrsString . '>';
                     break;
                 case "datetime":
-                    echo "<input type='datetime-local' value='$val' $attrsString>";
+                    echo '<input type="datetime-local" value="' . htmlspecialcharsbx((string)$val) . '" ' . $attrsString . '>';
                     break;
                 case "hidden":
-                    echo "<input type='hidden' value='$val' $attrsString>";
+                    echo '<input type="hidden" value="' . htmlspecialcharsbx((string)$val) . '" ' . $attrsString . '>';
                     break;
                 case "select":
                     $arr = is_array($type['LIST']) ? $type['LIST'] : [];
-                    echo "<select $attrsString>";
+                    echo '<select ' . $attrsString . '>';
                     foreach($arr as $optionVal => $displayVal)
                     {
-                        $displayVal = htmlspecialchars($displayVal);
+                        $displayVal = htmlspecialcharsbx((string)$displayVal);
                         $selected = ($val === (string)$optionVal) ? "selected" : '';
-                        echo "<option value='$optionVal' $selected>$displayVal</option>";
+                        $safeOptionVal = htmlspecialcharsbx((string)$optionVal);
+                        echo '<option value="' . $safeOptionVal . '" ' . $selected . '>' . $displayVal . '</option>';
                     }
                     echo "</select>";
                     break;
@@ -411,28 +425,29 @@ abstract class Options extends BaseComponent
                     }catch (Throwable){
                         $arr_val = [];
                     }
-                    echo "<select multiple $attrsString>";
+                    echo '<select multiple ' . $attrsString . '>';
                     foreach($arr as $optionVal => $displayVal)
                     {
-                        $displayVal = htmlspecialchars($displayVal);
+                        $displayVal = htmlspecialcharsbx((string)$displayVal);
+                        $safeOptionVal = htmlspecialcharsbx((string)$optionVal);
                         $selected = (in_array($optionVal, $arr_val)) ? "selected" : '';
-                        echo "<option value='$optionVal' $selected>$displayVal</option>";
+                        echo '<option value="' . $safeOptionVal . '" ' . $selected . '>' . $displayVal . '</option>';
                     }
                     echo "</select>";
                     break;
                 case "textarea":
-                    $val = htmlspecialchars($val);
-                    echo "<textarea $attrsString>$val</textarea>";
+                    $val = htmlspecialcharsbx((string)$val);
+                    echo '<textarea ' . $attrsString . '>' . $val . '</textarea>';
                     break;
                 case "staticText":
-                    $val = htmlspecialchars($val);
-                    echo "<span>".(!empty($val) ? $val : $option[2])."</span>";
+                    $val = htmlspecialcharsbx((string)$val);
+                    echo '<span>' . (!empty($val) ? $val : htmlspecialcharsbx((string)$option[2])) . '</span>';
                     break;
                 case "htmlText":
                     echo "<span style='font-weight: 600'>".(!empty($val) ? $val : $option[2])."</span>";
                     break;
                 case "colorPicker":
-                    echo "<input type='color' value='$val' $attrsString>";
+                    echo '<input type="color" value="' . htmlspecialcharsbx((string)$val) . '" ' . $attrsString . '>';
                     break;
                 case "file":
                     if (is_numeric($val) && (int)$val > 0)
@@ -440,23 +455,19 @@ abstract class Options extends BaseComponent
                         $arFile = CFile::GetFileArray($val);
                         if (!empty($arFile))
                         {
-                            $fileLink = $arFile['SRC'];
-                            $fileName = $arFile['FILE_NAME'];
+                            $fileLink = htmlspecialcharsbx((string)$arFile['SRC']);
+                            $fileName = htmlspecialcharsbx((string)$arFile['FILE_NAME']);
                             if (CFile::IsImage($fileName))
                             {
-                                echo "<div>
-                                        <a href='$fileLink' download='$fileName'><img src='$fileLink' alt='image' width='200'></a>
-                                      </div>";
+                                echo '<div><a href="' . $fileLink . '" download="' . $fileName . '"><img src="' . $fileLink . '" alt="image" width="200"></a></div>';
                             }
                             else
                             {
-                                echo "<div>
-                                        <a href='$fileLink' download='$fileName'>$fileName</a>
-                                      </div>";
+                                echo '<div><a href="' . $fileLink . '" download="' . $fileName . '">' . $fileName . '</a></div>';
                             }
                         }
                     }
-                    echo "<input type='file' $attrsString/>";
+                    echo '<input type="file" ' . $attrsString . '/>';
                     break;
                 default:
                     echo "<p>Unknown option type '$type[0]'</p>";
@@ -465,5 +476,67 @@ abstract class Options extends BaseComponent
             ?>
         </label>
         </td><?
+    }
+
+    private function assertValidOptionFile(array $file, array $option): void
+    {
+        if ((int)($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK)
+        {
+            throw new Exception('Upload failed');
+        }
+
+        $maxSize = $this->getFileOptionMaxSize($option);
+        if ($maxSize > 0 && (int)($file['size'] ?? 0) > $maxSize)
+        {
+            throw new Exception('File is too large');
+        }
+
+        $ext = mb_strtolower(pathinfo((string)$file['name'], PATHINFO_EXTENSION));
+        $allowedExtensions = $this->getFileOptionExtensions($option);
+        if (!empty($allowedExtensions) && !in_array($ext, $allowedExtensions, true))
+        {
+            throw new Exception('Unsupported file type');
+        }
+
+        $imageRules = $this->getFileOptionImageRules($option);
+        if (!empty($imageRules))
+        {
+            $check = CFile::CheckImageFile(
+                $file,
+                $maxSize,
+                (int)($imageRules['maxWidth'] ?? 0),
+                (int)($imageRules['maxHeight'] ?? 0)
+            );
+            if ($check !== null)
+            {
+                throw new Exception($check);
+            }
+        }
+    }
+
+    private function getFileOptionMaxSize(array $option): int
+    {
+        $type = is_array($option[3] ?? null) ? $option[3] : [];
+        return (int)($type['maxSize'] ?? 0);
+    }
+
+    private function getFileOptionExtensions(array $option): array
+    {
+        $type = is_array($option[3] ?? null) ? $option[3] : [];
+        if (!is_array($type['extensions'] ?? null))
+        {
+            return [];
+        }
+
+        return array_values(array_filter(array_map(
+            static fn($ext) => mb_strtolower(trim((string)$ext, ". \t\n\r\0\x0B")),
+            $type['extensions']
+        )));
+    }
+
+    private function getFileOptionImageRules(array $option): array
+    {
+        $type = is_array($option[3] ?? null) ? $option[3] : [];
+        return is_array($type['image'] ?? null) ? $type['image'] : [];
     }
 }

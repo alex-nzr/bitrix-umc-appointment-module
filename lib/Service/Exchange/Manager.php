@@ -103,6 +103,7 @@ class Manager
     {
         try
         {
+            Container::getInstance()->getOneCUrlGuard()->assertAllowed($url);
             if ($password === Constants::PASSWORD_MASKED_VALUE)
             {
                 $password = Configuration::getInstance()->getOneCPassword();
@@ -190,14 +191,28 @@ class Manager
                 return null;
             }
 
-            if ($serviceDuration <= 0)
-            {
-                $serviceDuration = Configuration::getInstance()->getDefaultAppointmentDuration();
-            }
+            $serviceDuration = Container::getInstance()->getAppointmentPayloadGuard()->assertBookingCanBeCreated(
+                $this,
+                $clinicUid,
+                $employeeUid,
+                $dateTimeBegin,
+                $serviceDuration
+            );
 
             $oDateTimeBegin = new DateTime($dateTimeBegin);
 
-            return $this->gateway->sendBooking($clinicUid, $employeeUid, $oDateTimeBegin, $serviceDuration);
+            $dto = $this->gateway->sendBooking($clinicUid, $employeeUid, $oDateTimeBegin, $serviceDuration);
+            Container::getInstance()->getConfirmationService()->clear('appointment');
+            Container::getInstance()->getBookingSession()->rememberBooking([
+                'uid' => $dto->uid,
+                'clinicUid' => $clinicUid,
+                'employeeUid' => $employeeUid,
+                'timeBegin' => $dto->dateTimeBegin,
+                'serviceDuration' => $serviceDuration,
+                'appointmentCreated' => false,
+            ]);
+
+            return $dto;
         }
         catch (Throwable $e)
         {
@@ -213,6 +228,20 @@ class Manager
         try
         {
             $data = Event::getEventHandlersResult(EventType::ON_BEFORE_ORDER_SEND, $data);
+            $bookingUid = (string)($data['bookingUid'] ?? '');
+            $booking = $bookingUid !== '' ? Container::getInstance()->getBookingSession()->get($bookingUid) : null;
+            Container::getInstance()->getAppointmentPayloadGuard()->assertAppointmentPayload(
+                $this,
+                $data,
+                $booking,
+                !Configuration::getInstance()->isWaitListEnabled()
+            );
+            Container::getInstance()->getConfirmationService()->assertVerified(
+                (string)($data['phone'] ?? ''),
+                (string)($data['email'] ?? ''),
+                'appointment'
+            );
+
             if (Configuration::getInstance()->isWaitListEnabled())
             {
                 $dto = $this->gateway->sendWaitList($data);
@@ -221,7 +250,9 @@ class Manager
             {
                 $dto = $this->gateway->sendAppointment($data);
                 $this->repository->save(RecordTable::fromAppointmentPayload($data, $dto));
+                Container::getInstance()->getBookingSession()->markAppointmentCreated($dto->uid, $data);
             }
+            Container::getInstance()->getConfirmationService()->clear('appointment');
             return $dto;
         }
         catch (Throwable $e)
@@ -237,12 +268,59 @@ class Manager
     {
         try
         {
+            if ($id > 0)
+            {
+                $record = $this->repository->getByPrimary($id);
+                if (!$record || $record->getXmlId() !== $uid)
+                {
+                    return false;
+                }
+            }
+
             if (!$this->gateway->deleteAppointment($uid))
             {
                 return false;
             }
 
             return $id > 0 ? $this->repository->delete($id) : true;
+        }
+        catch (Throwable $e)
+        {
+            throw new ExchangeManagerException(__METHOD__, $e);
+        }
+    }
+
+    /**
+     * @throws \ANZ\Appointment\Core\Exception\ExchangeManagerException
+     */
+    public function cancelOwnAppointment(string $uid): bool
+    {
+        try
+        {
+            $accessData = Container::getInstance()->getAppointmentAccess()->assertCanCancelPublic($uid);
+            $isPendingSessionBooking = is_array($accessData) && empty($accessData['appointmentCreated']) && !isset($accessData[RecordTable::FIELD_NAME_PATIENT_PHONE]);
+            if (!$isPendingSessionBooking)
+            {
+                Container::getInstance()->getConfirmationService()->assertVerified(
+                    (string)($accessData[RecordTable::FIELD_NAME_PATIENT_PHONE] ?? $accessData['phone'] ?? ''),
+                    (string)($accessData[RecordTable::FIELD_NAME_PATIENT_EMAIL] ?? $accessData['email'] ?? ''),
+                    'cancel'
+                );
+            }
+
+            if (!$this->gateway->deleteAppointment($uid))
+            {
+                return false;
+            }
+
+            if (!empty($accessData[RecordTable::FIELD_NAME_ID]))
+            {
+                $this->repository->delete((int)$accessData[RecordTable::FIELD_NAME_ID]);
+            }
+
+            Container::getInstance()->getBookingSession()->forget($uid);
+            Container::getInstance()->getConfirmationService()->clear('cancel');
+            return true;
         }
         catch (Throwable $e)
         {

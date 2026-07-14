@@ -13,6 +13,7 @@ use Bitrix\Main\Grid\Row\Action\BaseAction;
 use Bitrix\Main\HttpRequest;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
+use Bitrix\Main\Web\Json;
 
 class UpdateStatusAction extends BaseAction
 {
@@ -38,7 +39,7 @@ class UpdateStatusAction extends BaseAction
         $gridId = Component::getGridId();
 
         $this->default = true;
-        $this->onclick = 'BX.Anz?.Appointment?.Admin?.AppointmentList?.updateAppointmentStatus('.$id.', "'.$gridId.'", "'.$uid.'")';
+        $this->onclick = 'BX.Anz?.Appointment?.Admin?.AppointmentList?.updateAppointmentStatus('.(int)$id.', '.Json::encode($gridId).', '.Json::encode($uid).')';
 
         return parent::getControl($rawFields);
     }
