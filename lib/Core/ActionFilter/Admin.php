@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 08.09.2025
- * ==================================================
-*/
 namespace ANZ\Appointment\Core\ActionFilter;
 
 use ANZ\Appointment\Core\Exception\ServiceContainerException;

@@ -13,6 +13,7 @@ namespace Bitrix\Main\Data {
 namespace Bitrix\Main {
     class ArgumentException extends \Exception {}
     class AccessDeniedException extends \Exception {}
+    class SystemException extends \Exception {}
 
     class Event {
         public function __construct(
@@ -79,6 +80,20 @@ namespace Bitrix\Main {
 }
 
 namespace Bitrix\Main\Config {
+    class Configuration {
+        private static array $values = [];
+
+        public static function getValue(string $name): mixed
+        {
+            return self::$values[$name] ?? null;
+        }
+
+        public static function setValue(string $name, mixed $value): void
+        {
+            self::$values[$name] = $value;
+        }
+    }
+
     class Option {
         private static array $values = [];
 
@@ -90,6 +105,48 @@ namespace Bitrix\Main\Config {
         public static function set(string $moduleId, string $name, string $value): void
         {
             self::$values[$moduleId][$name] = $value;
+        }
+    }
+}
+
+namespace Bitrix\Main\Security {
+    class SecurityException extends \Exception {}
+
+    class Cipher {
+        public function encrypt(string $value, string $key): string
+        {
+            $iv = random_bytes(16);
+            $cipher = openssl_encrypt($value, 'AES-256-CBC', hash('sha256', $key, true), OPENSSL_RAW_DATA, $iv);
+            if ($cipher === false)
+            {
+                throw new SecurityException('Encryption failed');
+            }
+
+            return $iv . hash_hmac('sha256', $iv . $cipher, $key, true) . $cipher;
+        }
+
+        public function decrypt(string $value, string $key): string
+        {
+            if (strlen($value) < 48)
+            {
+                throw new SecurityException('Invalid encrypted value');
+            }
+
+            $iv = substr($value, 0, 16);
+            $signature = substr($value, 16, 32);
+            $cipher = substr($value, 48);
+            if (!hash_equals(hash_hmac('sha256', $iv . $cipher, $key, true), $signature))
+            {
+                throw new SecurityException('Invalid encrypted value');
+            }
+
+            $decrypted = openssl_decrypt($cipher, 'AES-256-CBC', hash('sha256', $key, true), OPENSSL_RAW_DATA, $iv);
+            if ($decrypted === false)
+            {
+                throw new SecurityException('Decryption failed');
+            }
+
+            return $decrypted;
         }
     }
 }

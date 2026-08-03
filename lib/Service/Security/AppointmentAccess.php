@@ -13,6 +13,9 @@ class AppointmentAccess
     {
     }
 
+    /**
+     * @throws \Exception
+     */
     public function assertCanCancelPublic(string $uid): ?array
     {
         $booking = $this->bookingSession->get($uid);

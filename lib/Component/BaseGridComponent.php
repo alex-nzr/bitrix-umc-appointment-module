@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 02.10.2025
- * ==================================================
-*/
 namespace ANZ\Appointment\Component;
 
 use Bitrix\Main\Filter\Component\ComponentParams as FilterComponentParams;

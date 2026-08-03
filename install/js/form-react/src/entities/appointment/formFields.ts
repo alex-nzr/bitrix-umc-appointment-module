@@ -25,7 +25,7 @@ export const getFormFields = (
         {
             name: EContactFields.secondName,
             label: 'Ваше Отчество',
-            required: true,
+            required: false,
         },
         {
             name: EContactFields.lastName,

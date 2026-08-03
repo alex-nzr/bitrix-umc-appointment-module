@@ -1,15 +1,10 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 10.07.2022
- * ==================================================
-*/
 namespace ANZ\Appointment\Controller;
 
 use ANZ\Appointment\Agent\Exchange;
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Config\Constants;
+use ANZ\Appointment\Core\ActionFilter\Admin;
 use ANZ\Appointment\Service\Container;
 use ANZ\Appointment\Service\Exchange\Manager;
 use ANZ\Appointment\UI\Adapter\ReactMUI;
@@ -40,6 +35,9 @@ class Appointment extends Controller
         $this->isReactMuiExt = Configuration::getInstance()->getJsExtensionName() === Constants::JS_EXTENSION_FORM_REACT;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getClinicsAction(): ?array
     {
         try
@@ -55,6 +53,9 @@ class Appointment extends Controller
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getEmployeesAction(): ?array
     {
         try
@@ -70,6 +71,9 @@ class Appointment extends Controller
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getServicesAction(string $clinicUid): ?array
     {
         try
@@ -86,6 +90,9 @@ class Appointment extends Controller
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getScheduleAction(string $clinicUid = '', string $employeeUid = '', array $serviceUIDs = []): ?array
     {
         try
@@ -105,6 +112,9 @@ class Appointment extends Controller
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function loadDataAction(): ?array
     {
         try
@@ -125,6 +135,9 @@ class Appointment extends Controller
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function checkConnectionAction(string $mode, string $url, string $login, string $password = '', string $token = ''): ?array
     {
         try
@@ -142,6 +155,9 @@ class Appointment extends Controller
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function bookSlotAction(
         string $clinicUid,
         string $employeeUid,
@@ -161,6 +177,9 @@ class Appointment extends Controller
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function sendAppointmentAction(string $jsonData): ?array
     {
         try
@@ -181,6 +200,9 @@ class Appointment extends Controller
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function deleteAppointmentAction(int $id, string $uid): ?array
     {
         try
@@ -197,6 +219,9 @@ class Appointment extends Controller
         return null;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function cancelOwnAppointmentAction(string $uid): ?array
     {
         try
@@ -214,6 +239,9 @@ class Appointment extends Controller
         return null;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function updateAppointmentStatusAction(int $id, string $uid): ?array
     {
         try
@@ -227,6 +255,9 @@ class Appointment extends Controller
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function sendConfirmCodeAction(string $phone = '', string $email = '', string $purpose = 'appointment'): ?Result
     {
         try
@@ -240,6 +271,9 @@ class Appointment extends Controller
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function verifyConfirmCodeAction(string $code, string $purpose = 'appointment'): ?Result
     {
         try
@@ -253,6 +287,9 @@ class Appointment extends Controller
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function sendEmailNoteAction(string $jsonData): Result
     {
         try
@@ -262,6 +299,10 @@ class Appointment extends Controller
             {
                 throw new Exception('Invalid JSON Data');
             }
+
+            $email = (string)($data['email'] ?? '');
+            Container::getInstance()->getBookingSession()->assertCanSendEmailNote($email);
+            Container::getInstance()->getRateLimitPolicy()->assertEmailNoteAllowed($email);
 
             return Container::getInstance()->getMailerService()->sendEmailNote($data);
         }
@@ -308,7 +349,7 @@ class Appointment extends Controller
     {
         $adminFilters = [
             new Authentication(),
-            new \ANZ\Appointment\Core\ActionFilter\Admin(),
+            new Admin(),
         ];
 
         return [
@@ -327,12 +368,18 @@ class Appointment extends Controller
         ];
     }
 
+    /**
+     * @throws \ANZ\Appointment\Core\Exception\ServiceContainerException
+     */
     private function addPublicError(Throwable $e, ?string $message = null): void
     {
         Container::getInstance()->getSecurityLogger()->log($e, __METHOD__);
         $this->addError(new Error($message ?: Loc::getMessage('ANZ_APPOINTMENT_PUBLIC_ERROR_DEFAULT')));
     }
 
+    /**
+     * @throws \Exception
+     */
     private function addAdminError(Throwable $e): void
     {
         Container::getInstance()->getSecurityLogger()->log($e, __METHOD__);

@@ -7,6 +7,9 @@ use Bitrix\Main\SystemException;
 
 class RateLimiter
 {
+    /**
+     * @throws \Bitrix\Main\SystemException
+     */
     public function assertAllowed(string $scope, int $limit, int $ttl, string $identity = ''): void
     {
         $session = Application::getInstance()->getSession();

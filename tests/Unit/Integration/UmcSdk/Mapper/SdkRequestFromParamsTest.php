@@ -55,6 +55,27 @@ class SdkRequestFromParamsTest extends TestCase
         $this->assertSame(4500, $dto->serviceDuration);
     }
 
+    public function testAppointmentDtoAllowsMissingMiddleName(): void
+    {
+        $mapper = new SdkRequestFromParams();
+
+        $dto = $mapper->appointmentDtoFromArray([
+            'bookingUid' => 'booking-1',
+            'clinicUid' => 'clinic-1',
+            'employeeUid' => 'employee-1',
+            'serviceUid' => 'service-1',
+            'serviceDuration' => 1800,
+            'timeBegin' => '2026-03-26 10:00:00',
+            'phone' => '+79990000000',
+            'surname' => 'Ivanov',
+            'name' => 'Ivan',
+            'email' => 'test@example.com',
+            'comment' => 'Test comment',
+        ]);
+
+        $this->assertSame('', $dto->secondName);
+    }
+
     public function testWaitListDtoMapsEmployeeUidSeparatelyFromClinicUid(): void
     {
         $mapper = new SdkRequestFromParams();

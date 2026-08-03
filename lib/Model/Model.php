@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 06.09.2025
- * ==================================================
-*/
 namespace ANZ\Appointment\Model;
 
 use Bitrix\Main\ORM\Data\DataManager;
@@ -21,7 +15,7 @@ abstract class Model extends DataManager
         {
             if (is_string($value))
             {
-                return strip_tags(stripslashes(htmlspecialchars($value)));
+                return strip_tags(stripslashes(htmlspecialcharsbx($value)));
             }
         }
         catch(Throwable $e)

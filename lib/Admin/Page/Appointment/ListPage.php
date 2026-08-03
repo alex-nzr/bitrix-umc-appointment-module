@@ -1,14 +1,6 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 10.07.2022
- * ==================================================
-*/
 namespace ANZ\Appointment\Admin\Page\Appointment;
 
-use Bitrix\Main\Context;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use ANZ\Appointment\Admin\Page\BaseAdminPage;
 

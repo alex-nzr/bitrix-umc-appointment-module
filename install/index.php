@@ -1,14 +1,9 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 10.07.2022
- * ==================================================
-*/
 
 use ANZ\Appointment\Agent\Exchange;
 use ANZ\Appointment\Core\Installation\Installer;
 use ANZ\Appointment\Event\EventManager as ANZEventManager;
+use ANZ\Appointment\Config\Configuration;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Context;
@@ -201,6 +196,17 @@ class anz_appointment extends CModule
         CopyDirFiles(__DIR__.'/wizards/', $this->docRoot.'/bitrix/wizards', true, true);
         CopyDirFiles(__DIR__.'/components/', $this->docRoot.'/bitrix/components', true, true);
         CopyDirFiles(__DIR__.'/panel/', $this->docRoot.'/bitrix/panel', true, true);
+        $logDirectory = Configuration::getInstance()->getLogFileDir(true);
+        if (!Dir::isDirectoryExists($logDirectory))
+        {
+            Dir::createDirectory($logDirectory);
+        }
+
+        $htaccessPath = $logDirectory . '/.htaccess';
+        if (!is_file($htaccessPath))
+        {
+            file_put_contents($htaccessPath, 'Deny from all');
+        }
     }
 
     public function UnInstallFiles(): void

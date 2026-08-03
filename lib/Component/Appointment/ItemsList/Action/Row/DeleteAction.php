@@ -32,6 +32,9 @@ class DeleteAction extends BaseAction
         return null;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getControl(array $rawFields): ?array
     {
         $id = $rawFields[RecordTable::FIELD_NAME_ID];

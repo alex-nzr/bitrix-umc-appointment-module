@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 10.07.2022
- * ==================================================
-*/
 global $APPLICATION;
 
 use Bitrix\Main\Context;

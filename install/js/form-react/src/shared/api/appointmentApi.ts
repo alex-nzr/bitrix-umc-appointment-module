@@ -66,7 +66,7 @@ const buildAppointmentPayload = (appointment: Appointment) => {
         serviceDuration: appointment.duration,
         surname: appointment.contact.lastName,
         name: appointment.contact.firstName,
-        middleName: appointment.contact.secondName,
+        middleName: appointment.contact.secondName ?? '',
         phone: appointment.contact.phone,
         email: appointment.contact.email ?? '',
         birthday: appointment.contact.birthday || '',

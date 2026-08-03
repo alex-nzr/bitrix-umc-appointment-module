@@ -22,14 +22,18 @@ export const TextInput: FC<TextInputProps> = ({name, label, required, multiline,
         switch (name)
         {
             case EContactFields.firstName:
-            case EContactFields.secondName:
             case EContactFields.lastName:
-
                 if (!value || value.length < 2) {
                     valid = false;
                     text = 'От 2 до 50 символов';
                 }
+                break;
 
+            case EContactFields.secondName:
+                if (value && value.length < 2) {
+                    valid = false;
+                    text = 'От 2 до 50 символов';
+                }
                 break;
 
             case EContactFields.phone:

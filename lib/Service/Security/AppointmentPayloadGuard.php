@@ -7,13 +7,15 @@ use ANZ\Appointment\Dto\EmployeeDto;
 use ANZ\Appointment\Dto\ScheduleItemDto;
 use ANZ\Appointment\Service\Exchange\Manager;
 use Bitrix\Main\ArgumentException;
-use DateTime;
 
 class AppointmentPayloadGuard
 {
     private const MIN_DURATION_SECONDS = 300;
     private const MAX_DURATION_SECONDS = 28800;
 
+    /**
+     * @throws \Exception
+     */
     public function assertBookingCanBeCreated(
         Manager $exchange,
         string $clinicUid,
@@ -36,11 +38,11 @@ class AppointmentPayloadGuard
     }
 
     /**
-     * @throws \Bitrix\Main\ArgumentException
+     * @throws \Exception
      */
     public function assertAppointmentPayload(Manager $exchange, array $data, ?array $booking, bool $bookingRequired = true): void
     {
-        foreach (['bookingUid', 'clinicUid', 'employeeUid', 'timeBegin', 'phone', 'surname', 'name', 'middleName'] as $field)
+        foreach (['bookingUid', 'clinicUid', 'employeeUid', 'timeBegin', 'phone', 'surname', 'name'] as $field)
         {
             if (trim((string)($data[$field] ?? '')) === '')
             {
@@ -78,6 +80,9 @@ class AppointmentPayloadGuard
         $this->resolveDuration((int)($data['serviceDuration'] ?? 0));
     }
 
+    /**
+     * @throws \Exception
+     */
     private function assertClinicAllowed(Manager $exchange, string $clinicUid): void
     {
         foreach ($exchange->getClinics() as $clinic)
@@ -90,6 +95,9 @@ class AppointmentPayloadGuard
         throw new ArgumentException('Invalid clinic');
     }
 
+    /**
+     * @throws \Exception
+     */
     private function findEmployee(Manager $exchange, string $employeeUid): EmployeeDto
     {
         foreach ($exchange->getEmployees() as $employee)
@@ -102,6 +110,9 @@ class AppointmentPayloadGuard
         throw new ArgumentException('Invalid employee');
     }
 
+    /**
+     * @throws \Exception
+     */
     private function assertServicesBelongToEmployee(EmployeeDto $employee, array $serviceUids): void
     {
         if (empty($serviceUids) || empty($employee->services))
@@ -119,6 +130,9 @@ class AppointmentPayloadGuard
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     private function assertSlotExists(Manager $exchange, string $clinicUid, string $employeeUid, string $dateTimeBegin, int $duration): void
     {
         $schedule = $exchange->getSchedule(Configuration::getInstance()->getExchangeSchedulePeriod(), $clinicUid, [$employeeUid]);
@@ -166,6 +180,9 @@ class AppointmentPayloadGuard
         throw new ArgumentException('Slot is not available');
     }
 
+    /**
+     * @throws \Exception
+     */
     private function resolveDuration(int $duration): int
     {
         if ($duration <= 0)

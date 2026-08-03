@@ -59,7 +59,11 @@ export const useAppointment = () => {
                 specialtyUid: selectedSpec.uid,
                 specialtyName: selectedSpec.name,
                 doctorUid: selectedDoctor.uid,
-                doctorName: selectedDoctor.name,
+                doctorName: selectedDoctor.fullName || [
+                    selectedDoctor.surname,
+                    selectedDoctor.name,
+                    selectedDoctor.middleName,
+                ].filter(Boolean).join(' '),
                 services: selectedServices,
                 date: slot.date,
                 timeBegin: slot.timeBegin,

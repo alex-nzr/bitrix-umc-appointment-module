@@ -9,10 +9,6 @@ export const validateContact = (contact: ContactInfo, confirmationType: Confirma
     if (!contact.lastName || contact.lastName.length < 2) {
         return false;
     }
-    if (!contact.secondName || contact.secondName.length < 2) {
-        return false;
-    }
-
     if (!contact.phone || contact.phone.length < 16) {
         return false;
     }

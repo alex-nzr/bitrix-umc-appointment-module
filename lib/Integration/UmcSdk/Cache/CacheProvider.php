@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 22.08.2025
- * ==================================================
-*/
 namespace ANZ\Appointment\Integration\UmcSdk\Cache;
 
 use ANZ\Appointment\Config\Configuration;
@@ -12,7 +6,6 @@ use ANZ\Appointment\Integration\UmcSdk\Exception\UmcIntegrationCacheException;
 use Bitrix\Main\Context;
 use Bitrix\Main\Data\Cache;
 use DateTimeInterface;
-use Exception;
 use Throwable;
 
 class CacheProvider

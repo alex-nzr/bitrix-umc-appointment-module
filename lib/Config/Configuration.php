@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 10.07.2022
- * ==================================================
-*/
 namespace ANZ\Appointment\Config;
 
 use ANZ\Appointment\Core\Exception\ConfigurationException;
@@ -83,7 +77,7 @@ final class Configuration
      */
     public function getLogFileDir(bool $fullPath = false): string
     {
-        return $this::getModuleLocation($fullPath) . '/logs';
+        return self::getModuleLocation($fullPath) . '/logs';
     }
 
     /**

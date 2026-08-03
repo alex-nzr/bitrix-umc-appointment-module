@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 10.07.2022
- * ==================================================
-*/
 namespace ANZ\Appointment\Core\Installation;
 
 use ANZ\Appointment\Model\RecordTable;

@@ -18,6 +18,9 @@ class OneCUrlGuard
         ['224.0.0.0', '255.255.255.255'],
     ];
 
+    /**
+     * @throws \Bitrix\Main\ArgumentException
+     */
     public function assertAllowed(string $url): void
     {
         $parts = parse_url($url);

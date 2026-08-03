@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 09.03.2025
- * ==================================================
-*/
 namespace ANZ\Appointment\Agent;
 
 use ANZ\Appointment\Config\Configuration;
@@ -49,7 +43,6 @@ class Exchange
                     );
 
                     Configuration::getInstance()->setExchangeActive(true);
-                    $exchangeStateChanged = false;
                 }
             }
         }
@@ -59,7 +52,6 @@ class Exchange
             Debug::writeToFile(
                 [
                     'MESSAGE' => $e->getMessage(),
-                    'TRACE' => $e->getTrace()
                 ],
                 __METHOD__ . ' ' . date('Y-m-d H:i:s'),
                 $logFilePath
@@ -123,7 +115,6 @@ class Exchange
             Debug::writeToFile(
                 [
                     'MESSAGE' => $e->getMessage(),
-                    //'TRACE' => $e->getTrace()
                 ],
                 __METHOD__ . ' ' . date('Y-m-d H:i:s'),
                 Configuration::getInstance()->getCommonLogFilePath()
@@ -147,7 +138,6 @@ class Exchange
             Debug::writeToFile(
                 [
                     'MESSAGE' => $e->getMessage(),
-                    //'TRACE' => $e->getTrace()
                 ],
                 __METHOD__ . ' ' . date('Y-m-d H:i:s'),
                 Configuration::getInstance()->getCommonLogFilePath()

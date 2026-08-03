@@ -35,6 +35,34 @@ class BookingSession
         $this->rememberBooking(array_merge($booking, ['uid' => $uid]));
     }
 
+    /**
+     * @throws \Bitrix\Main\SystemException
+     */
+    public function assertCanSendEmailNote(string $email): void
+    {
+        $email = strtolower(trim($email));
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL))
+        {
+            throw new \Bitrix\Main\SystemException('Invalid email');
+        }
+
+        foreach ($this->all() as $booking)
+        {
+            if (($booking['appointmentCreated'] ?? false) !== true)
+            {
+                continue;
+            }
+
+            $bookingEmail = strtolower(trim((string)($booking['email'] ?? '')));
+            if ($bookingEmail !== '' && hash_equals($bookingEmail, $email))
+            {
+                return;
+            }
+        }
+
+        throw new \Bitrix\Main\SystemException('Email note is not available for this appointment');
+    }
+
     public function get(string $uid): ?array
     {
         $bookings = $this->all();

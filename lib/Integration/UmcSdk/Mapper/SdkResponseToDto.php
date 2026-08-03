@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 22.08.2025
- * ==================================================
-*/
 namespace ANZ\Appointment\Integration\UmcSdk\Mapper;
 
 use ANZ\Appointment\Config\Configuration;
@@ -119,7 +113,7 @@ class SdkResponseToDto
     }
 
     /**
-     * @throws \DateMalformedStringException
+     * @throws \Exception
      */
     protected function timeslotFromArray(array $item, string $status): TimeSlotDto
     {

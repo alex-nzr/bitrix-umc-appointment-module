@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 08.03.2025
- * ==================================================
-*/
 namespace ANZ\Appointment\Config\Options;
 
 use ANZ\Appointment\Config\Configuration;
@@ -369,10 +363,11 @@ class Module implements IOptionStorage
                     [
                         '',
                         Loc::getMessage('ANZ_APPOINTMENT_DEBUG_LOGS_DIR'),
-                        '<a href="/bitrix/admin/fileman_admin.php?path='.urlencode(Configuration::getInstance()->getLogFileDir()).'" target="_blank">
-                            '.Loc::getMessage('ANZ_APPOINTMENT_DEBUG_LOGS_DIR_LINK').'
-                        </a>',
-                        ['htmlText']
+                        [
+                            "/bitrix/admin/fileman_admin.php?path=".urlencode(Configuration::getInstance()->getLogFileDir()),
+                            Loc::getMessage('ANZ_APPOINTMENT_DEBUG_LOGS_DIR_LINK')
+                        ],
+                        ['link']
                     ],
                 ]
             ],

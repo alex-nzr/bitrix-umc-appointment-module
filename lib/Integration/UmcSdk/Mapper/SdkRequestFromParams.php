@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 08.09.2025
- * ==================================================
-*/
 
 namespace ANZ\Appointment\Integration\UmcSdk\Mapper;
 
@@ -58,7 +52,7 @@ class SdkRequestFromParams
             (string)$data['phone'],
             (string)$data['surname'],
             (string)$data['name'],
-            (string)$data['middleName'],
+            (string)($data['middleName'] ?? ''),
             (string)$data['email'],
             key_exists('birthday', $data) && !empty($data['birthday']) ? new DateTime((string)$data['birthday']) : null,
             key_exists('address', $data) ? (string)$data['address'] : null,
@@ -111,7 +105,7 @@ class SdkRequestFromParams
     }
 
     /**
-     * @throws \DateMalformedStringException
+     * @throws \Exception
      */
     public function waitListDtoFromArray(array $data): WaitListDto
     {
@@ -126,7 +120,7 @@ class SdkRequestFromParams
             (string)$data['phone'],
             (string)$data['surname'],
             (string)$data['name'],
-            (string)$data['middleName'],
+            (string)($data['middleName'] ?? ''),
             (string)$data['email'],
             (string)$data['comment'],
         );

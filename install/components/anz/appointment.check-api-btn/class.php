@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 10.04.2025
- * ==================================================
-*/
 namespace ANZ\Appointment\Component;
 
 class CheckApiBtnComponent extends BaseComponent

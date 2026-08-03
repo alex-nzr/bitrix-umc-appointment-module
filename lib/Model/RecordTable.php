@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 10.07.2022
- * ==================================================
-*/
 namespace ANZ\Appointment\Model;
 
 use ANZ\Appointment\Dto\AppointmentDto;
@@ -147,7 +141,7 @@ class RecordTable extends Model
             ->setDoctorName($data['doctorName'])
             ->setServiceTitle($data['serviceName'] ?? '')
             ->setDatetimeVisit(DateTime::createFromTimestamp(strtotime($data['timeBegin'])))
-            ->setPatientName($data['surname'] ." ". $data['name'] ." ". $data['middleName'])
+            ->setPatientName($data['surname'] ." ". $data['name'] ." ". ($data['middleName'] ?? ''))
             ->setPatientPhone($data['phone'])
             ->setPatientEmail($data['email'] ?? '')
             ->setComment($data['comment'] ?? '')

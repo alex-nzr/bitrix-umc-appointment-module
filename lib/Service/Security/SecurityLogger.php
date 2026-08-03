@@ -3,7 +3,9 @@
 namespace ANZ\Appointment\Service\Security;
 
 use ANZ\Appointment\Config\Configuration;
+use Bitrix\Main\Application;
 use Bitrix\Main\Diag\Debug;
+use CEventLog;
 use Throwable;
 
 class SecurityLogger
@@ -12,17 +14,18 @@ class SecurityLogger
     {
         try
         {
-            Debug::writeToFile(
-                [
-                    'message' => $exception->getMessage(),
+            CEventLog::Add([
+                'SEVERITY' => CEventLog::SEVERITY_ERROR,
+                'AUDIT_TYPE_ID' => 'ANZ_APPOINTMENT_SECURITY',
+                'MODULE_ID' => Configuration::getModuleId(),
+                'DESCRIPTION' => json_encode([
+                    'message' => str_replace(Application::getDocumentRoot(), '[DOC_ROOT]', $exception->getMessage()),
                     'class' => get_class($exception),
                     'code' => $exception->getCode(),
-                    'context' => $data,
-                    'trace' => $exception->getTraceAsString(),
-                ],
-                $context . ' ' . date('Y-m-d H:i:s'),
-                Configuration::getInstance()->getCommonLogFilePath()
-            );
+                    'context' => $context,
+                    'data' => $data
+                ], JSON_UNESCAPED_UNICODE),
+            ]);
         }
         catch (Throwable)
         {

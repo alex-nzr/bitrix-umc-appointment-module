@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 09.12.2022
- * ==================================================
-*/
 namespace ANZ\Appointment\Event\Handler;
 
 use ANZ\Appointment\Admin;

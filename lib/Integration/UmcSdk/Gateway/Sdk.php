@@ -7,17 +7,12 @@ use ANZ\Appointment\Config\ExchangeMode;
 use ANZ\Appointment\Dto\AppointmentDto;
 use ANZ\Appointment\Dto\AppointmentStatusDto;
 use ANZ\Appointment\Dto\BookingDto;
-use ANZ\Appointment\Dto\ClinicDto;
-use ANZ\Appointment\Dto\EmployeeDto;
-use ANZ\Appointment\Dto\ServiceDto;
 use ANZ\Appointment\Dto\WaitListDto;
 use ANZ\Appointment\Event\Event;
 use ANZ\Appointment\Event\EventType;
 use ANZ\Appointment\Integration\UmcSdk\Cache\CacheProvider;
 use ANZ\Appointment\Integration\UmcSdk\Contract\UmcGatewayInterface;
 use ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException;
-use ANZ\Appointment\Integration\UmcSdk\Exception\SdkDataMapperException;
-use ANZ\Appointment\Integration\UmcSdk\Exception\UmcIntegrationCacheException;
 use ANZ\Appointment\Integration\UmcSdk\Mapper\SdkRequestFromParams;
 use ANZ\Appointment\Integration\UmcSdk\Mapper\SdkResponseToDto;
 use ANZ\Appointment\Integration\UmcSdk\Validator\RequestValidator;
@@ -41,6 +36,9 @@ class Sdk implements UmcGatewayInterface
     private ?BitUmcClient $client = null;
     private string $lockKeyPrefix = 'anz_lock_';
 
+    /**
+     * @throws \ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException
+     */
     public function __construct(
         private readonly bool                 $demoMode,
         private readonly SdkResponseToDto     $responseMapper,
@@ -70,6 +68,9 @@ class Sdk implements UmcGatewayInterface
         }
     }
 
+    /**
+     * @throws \ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException
+     */
     protected function init(): void
     {
         try
@@ -103,6 +104,9 @@ class Sdk implements UmcGatewayInterface
         }
     }
 
+    /**
+     * @throws \ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException
+     */
     protected function getSdkClient(): BitUmcClient
     {
         if (is_null($this->client))
@@ -112,6 +116,9 @@ class Sdk implements UmcGatewayInterface
         return $this->client;
     }
 
+    /**
+     * @throws \ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException
+     */
     protected function createClient(ExchangeMode $exchangeMode, string $login, string $password, string $url, string $token = ''): BitUmcClient
     {
         try
@@ -144,6 +151,9 @@ class Sdk implements UmcGatewayInterface
         }
     }
 
+    /**
+     * @throws \ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException
+     */
     private function parsePublicationUrl(string $url): array
     {
         $arUri = parse_url($url);
@@ -207,6 +217,9 @@ class Sdk implements UmcGatewayInterface
         ];
     }
 
+    /**
+     * @throws \ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException
+     */
     public function checkConnection(string $strModeVal, string $url, string $login, string $password, string $token = ''): bool
     {
         $this->createClient(
@@ -220,6 +233,9 @@ class Sdk implements UmcGatewayInterface
         return true;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getClinics(): array
     {
         if ($this->demoMode)
@@ -263,6 +279,9 @@ class Sdk implements UmcGatewayInterface
         return array_map(fn(array $item) => $this->responseMapper->clinicFromArray($item), $data ?? []);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getEmployees(): array
     {
         if ($this->demoMode)
@@ -306,6 +325,9 @@ class Sdk implements UmcGatewayInterface
         return array_map(fn(array $item) => $this->responseMapper->employeeFromArray($item), $data ?? []);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getServices(string $clinicUid): array
     {
         if ($this->demoMode)
@@ -349,6 +371,9 @@ class Sdk implements UmcGatewayInterface
         return array_map(fn(array $item) => $this->responseMapper->serviceFromArray($item), $data ?? []);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getSchedule(int $days = 14, string $clinicUid = '', array $employees = [], ?DateTime $startDate = null): array
     {
         if ($this->demoMode)
@@ -475,6 +500,9 @@ class Sdk implements UmcGatewayInterface
         return $data;
     }
 
+    /**
+     * @throws \Exception
+     */
     private function mapScheduleItems(array $data): array
     {
         foreach ($data as $clinicKey => $clinicData)
@@ -515,6 +543,9 @@ class Sdk implements UmcGatewayInterface
         return $data;
     }
 
+    /**
+     * @throws \ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException
+     */
     public function getAppointmentStatus(string $appointmentUid): AppointmentStatusDto
     {
         try
@@ -534,6 +565,9 @@ class Sdk implements UmcGatewayInterface
         }
     }
 
+    /**
+     * @throws \ANZ\Appointment\Integration\UmcSdk\Exception\GatewayException
+     */
     public function sendBooking(string $clinicUid, string $employeeUid, DateTime $dateTimeBegin, int $serviceDuration): BookingDto
     {
         $uid = null;
@@ -576,6 +610,9 @@ class Sdk implements UmcGatewayInterface
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function sendAppointment(array $data): AppointmentDto
     {
         try
@@ -614,6 +651,9 @@ class Sdk implements UmcGatewayInterface
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function sendWaitList(array $data): WaitListDto
     {
         try
@@ -641,6 +681,9 @@ class Sdk implements UmcGatewayInterface
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function deleteAppointment(string $uid): bool
     {
         try
@@ -654,6 +697,9 @@ class Sdk implements UmcGatewayInterface
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     private function applyEvent(string $eventName, array $data): array
     {
         $result = Event::getEventHandlersResult($eventName, $data);
@@ -669,11 +715,17 @@ class Sdk implements UmcGatewayInterface
         return $this->applyEvent($afterEventName, $data);
     }
 
+    /**
+     * @throws \Exception
+     */
     private function isLocked(string $key, int $lockTime = 60): bool
     {
         return is_array($this->cacheProvider->get($key, $lockTime));
     }
 
+    /**
+     * @throws \Exception
+     */
     private function setLock(string $key, int $lockTime = 60): void
     {
         $this->cacheProvider->set($key, $lockTime, [true]);
@@ -694,6 +746,9 @@ class Sdk implements UmcGatewayInterface
         return $this->lockKeyPrefix . md5($method . '|' . implode('|', $normalizedContext));
     }
 
+    /**
+     * @throws \Exception
+     */
     private function waitForCache(callable $cacheGetter, string $lockKey, int $lockTime = 60): ?array
     {
         $deadline = microtime(true) + (self::CACHE_WAIT_TIMEOUT_MS / 1000);

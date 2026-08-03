@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 10.07.2022
- * ==================================================
-*/
 namespace ANZ\Appointment\Service\Message;
 
 use Bitrix\Main\Context;
@@ -33,25 +27,26 @@ class Mailer
     {
         try
         {
-            $name = htmlspecialchars($params["name"] ." ". $params["middleName"] ." ". $params["surname"]);
-            $emailTo = htmlspecialchars($params["email"]);
-            $phone = htmlspecialchars($params["phone"]);
-            $clinic = htmlspecialchars($params["clinicName"]);
-            $specialty = htmlspecialchars($params["specialty"]);
-            $service = htmlspecialchars($params["serviceName"]);
-            if (is_array($params["services"]))
+            $name = htmlspecialcharsbx(($params["name"] ?? '') ." ". ($params["middleName"] ?? '') ." ". ($params["surname"] ?? ''));
+            $emailTo = (string)($params["email"] ?? '');
+            $phone = htmlspecialcharsbx((string)($params["phone"] ?? ''));
+            $clinic = htmlspecialcharsbx((string)($params["clinicName"] ?? ''));
+            $specialty = htmlspecialcharsbx((string)($params["specialty"] ?? ''));
+            $service = htmlspecialcharsbx((string)($params["serviceName"] ?? ''));
+            if (is_array($params["services"] ?? null))
             {
                 $service = "";
-                foreach ($params["services"] as $serviceItem) {
-                    $service .= $serviceItem['name']."<br>";
+                foreach ($params["services"] as $serviceItem)
+                {
+                    $service .= htmlspecialcharsbx((string)($serviceItem['name'] ?? '')) . "<br>";
                 }
             }
 
-            $doctor = htmlspecialchars($params["doctorName"]);
-            $dateTime = date("d.m.Y H:i", strtotime($params["timeBegin"]));
-            $comment = htmlspecialchars($params["comment"]);
+            $doctor = htmlspecialcharsbx((string)($params["doctorName"] ?? ''));
+            $dateTime = date("d.m.Y H:i", strtotime((string)($params["timeBegin"] ?? '')));
+            $comment = htmlspecialcharsbx((string)($params["comment"] ?? ''));
 
-            if (!empty($emailTo))
+            if (filter_var($emailTo, FILTER_VALIDATE_EMAIL))
             {
                 $text = Loc::getMessage('ANZ_APPOINTMENT_MESSAGE_NOTE', [
                     "#CLINIC#"      => $clinic,

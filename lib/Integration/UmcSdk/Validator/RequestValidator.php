@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 20.11.2025
- * ==================================================
-*/
 
 namespace ANZ\Appointment\Integration\UmcSdk\Validator;
 

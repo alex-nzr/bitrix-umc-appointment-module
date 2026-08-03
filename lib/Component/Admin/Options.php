@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 04.03.2025
- * ==================================================
-*/
 namespace ANZ\Appointment\Component\Admin;
 
 use ANZ\Appointment\Component\BaseComponent;
@@ -20,7 +14,6 @@ use Bitrix\Main\SiteTable;
 use CAdminTabControl;
 use CFile;
 use CModule;
-use COption;
 use Exception;
 use Throwable;
 
@@ -113,12 +106,12 @@ abstract class Options extends BaseComponent
                             )
                             {
                                 // Set Default for all sites
-                                COption::SetOptionString($this->moduleId, "GROUP_DEFAULT_RIGHT", $RIGHTS[$i], "Right for groups by default");
+                                Option::set($this->moduleId, "GROUP_DEFAULT_RIGHT", $RIGHTS[$i]);
                             }
                             else
                             {
                                 // Set Default for site $SITES[$i]
-                                COption::SetOptionString($this->moduleId, "GROUP_DEFAULT_RIGHT", $RIGHTS[$i], "Right for groups by default for site ".$SITES[$i], $SITES[$i]);
+                                Option::set($this->moduleId, "GROUP_DEFAULT_RIGHT", $RIGHTS[$i], $SITES[$i]);
                             }
                         }
                         else
@@ -128,7 +121,7 @@ abstract class Options extends BaseComponent
                                 || $SITES[$i] == ''
                             )
                             {
-                                // "Set Right for group ".$group_id." all sites: ".$RIGHTS[$i]."<br>";
+                                // Set Right for group ".$group_id." all sites: ".$RIGHTS[$i]."<br>";
                                 $this->App->SetGroupRight($this->moduleId, $group_id, $RIGHTS[$i]);
                             }
                             else
@@ -254,6 +247,7 @@ abstract class Options extends BaseComponent
 
     /**
      * @throws \ANZ\Appointment\Core\Exception\ConfigurationException
+     * @throws \Exception
      */
     public function drawSettingsRow(string $module_id, $option): void
     {
@@ -389,18 +383,18 @@ abstract class Options extends BaseComponent
                     break;
                 case "text":
                 case "password":
-                    $val = $type[0] === 'password' ? Constants::PASSWORD_MASKED_VALUE : htmlspecialcharsbx((string)$val);
+                    $val = $type[0] === 'password' ? Constants::PASSWORD_MASKED_VALUE : htmlspecialcharsbx($val);
                     echo '<input type="' . htmlspecialcharsbx($type[0]) . '" value="' . $val . '" ' . $attrsString . '>';
                     break;
                 case "number":
-                    $val = htmlspecialcharsbx((string)$val);
+                    $val = htmlspecialcharsbx($val);
                     echo '<input type="number" value="' . $val . '" ' . $attrsString . '>';
                     break;
                 case "datetime":
-                    echo '<input type="datetime-local" value="' . htmlspecialcharsbx((string)$val) . '" ' . $attrsString . '>';
+                    echo '<input type="datetime-local" value="' . htmlspecialcharsbx($val) . '" ' . $attrsString . '>';
                     break;
                 case "hidden":
-                    echo '<input type="hidden" value="' . htmlspecialcharsbx((string)$val) . '" ' . $attrsString . '>';
+                    echo '<input type="hidden" value="' . htmlspecialcharsbx($val) . '" ' . $attrsString . '>';
                     break;
                 case "select":
                     $arr = is_array($type['LIST']) ? $type['LIST'] : [];
@@ -436,18 +430,30 @@ abstract class Options extends BaseComponent
                     echo "</select>";
                     break;
                 case "textarea":
-                    $val = htmlspecialcharsbx((string)$val);
+                    $val = htmlspecialcharsbx($val);
                     echo '<textarea ' . $attrsString . '>' . $val . '</textarea>';
                     break;
                 case "staticText":
-                    $val = htmlspecialcharsbx((string)$val);
+                    $val = htmlspecialcharsbx($val);
                     echo '<span>' . (!empty($val) ? $val : htmlspecialcharsbx((string)$option[2])) . '</span>';
                     break;
-                case "htmlText":
-                    echo "<span style='font-weight: 600'>".(!empty($val) ? $val : $option[2])."</span>";
+                case "link":
+                    $val = $option[2];
+                    if (is_array($val))
+                    {
+                        [$linkHref, $linkText] = $val;
+                        $displayValue = '<a href="'.htmlspecialcharsbx($linkHref).'" target="_blank">
+                                            '.htmlspecialcharsbx($linkText).'
+                                        </a>';
+                    }
+                    else
+                    {
+                        $displayValue = '';
+                    }
+                    echo "<span style='font-weight: 600'>".$displayValue."</span>";
                     break;
                 case "colorPicker":
-                    echo '<input type="color" value="' . htmlspecialcharsbx((string)$val) . '" ' . $attrsString . '>';
+                    echo '<input type="color" value="' . htmlspecialcharsbx($val) . '" ' . $attrsString . '>';
                     break;
                 case "file":
                     if (is_numeric($val) && (int)$val > 0)
@@ -478,6 +484,9 @@ abstract class Options extends BaseComponent
         </td><?
     }
 
+    /**
+     * @throws \Exception
+     */
     private function assertValidOptionFile(array $file, array $option): void
     {
         if ((int)($file['error'] ?? UPLOAD_ERR_OK) !== UPLOAD_ERR_OK)

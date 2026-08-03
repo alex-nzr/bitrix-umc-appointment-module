@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 08.03.2025
- * ==================================================
-*/
 namespace ANZ\Appointment\Admin\Page;
 
 use ANZ\Appointment\Core\Contract\Page\IPage;

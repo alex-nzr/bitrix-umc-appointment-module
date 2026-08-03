@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 10.07.2022
- * ==================================================
-*/
 namespace ANZ\Appointment\Service;
 
 use ANZ\Appointment\Config\Configuration;
@@ -89,11 +83,6 @@ class Container
     public function getMailerService(): Mailer
     {
         return $this->getShared(Mailer::class, fn() => new Mailer);
-    }
-
-    public function getRecordDataClass(): RecordTable | string
-    {
-        return RecordTable::class;
     }
 
     /**

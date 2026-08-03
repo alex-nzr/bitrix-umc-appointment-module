@@ -10,11 +10,16 @@ class RateLimitPolicy
     private const SEND_APPOINTMENT_TTL = 900;
     private const CANCEL_APPOINTMENT_LIMIT = 10;
     private const CANCEL_APPOINTMENT_TTL = 900;
+    private const EMAIL_NOTE_LIMIT = 5;
+    private const EMAIL_NOTE_TTL = 900;
 
     public function __construct(private readonly RateLimiter $rateLimiter)
     {
     }
 
+    /**
+     * @throws \Bitrix\Main\SystemException
+     */
     public function assertBookSlotAllowed(string $clinicUid, string $employeeUid): void
     {
         $this->rateLimiter->assertAllowed(
@@ -25,6 +30,9 @@ class RateLimitPolicy
         );
     }
 
+    /**
+     * @throws \Bitrix\Main\SystemException
+     */
     public function assertSendAppointmentAllowed(): void
     {
         $this->rateLimiter->assertAllowed(
@@ -34,6 +42,9 @@ class RateLimitPolicy
         );
     }
 
+    /**
+     * @throws \Bitrix\Main\SystemException
+     */
     public function assertCancelAppointmentAllowed(string $uid): void
     {
         $this->rateLimiter->assertAllowed(
@@ -41,6 +52,19 @@ class RateLimitPolicy
             self::CANCEL_APPOINTMENT_LIMIT,
             self::CANCEL_APPOINTMENT_TTL,
             $uid
+        );
+    }
+
+    /**
+     * @throws \Bitrix\Main\SystemException
+     */
+    public function assertEmailNoteAllowed(string $email): void
+    {
+        $this->rateLimiter->assertAllowed(
+            'email_note',
+            self::EMAIL_NOTE_LIMIT,
+            self::EMAIL_NOTE_TTL,
+            strtolower(trim($email))
         );
     }
 }

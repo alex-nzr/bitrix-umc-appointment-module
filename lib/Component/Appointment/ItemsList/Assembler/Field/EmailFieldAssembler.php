@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 02.10.2025
- * ==================================================
-*/
 namespace ANZ\Appointment\Component\Appointment\ItemsList\Assembler\Field;
 
 use Bitrix\Main\Grid\Row\FieldAssembler;
@@ -18,7 +12,7 @@ class EmailFieldAssembler extends FieldAssembler
             return $this->getUserEmailLink($value);
         }
 
-        return htmlspecialchars($value);
+        return htmlspecialcharsbx($value);
     }
 
     protected function getUserEmailLink(string $email): string

@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 23.08.2025
- * ==================================================
-*/
 
 namespace ANZ\Appointment\Config;
 

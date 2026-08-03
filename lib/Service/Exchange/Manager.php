@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 06.09.2025
- * ==================================================
-*/
 namespace ANZ\Appointment\Service\Exchange;
 
 use ANZ\Appointment\Config\Configuration;
@@ -73,8 +67,8 @@ class Manager
                     {
                         Debug::writeToFile(
                             [
-                                'MESSAGE' => $e->getMessage(),
-                                'TRACE' => $e->getTrace()
+                                'ERROR_CODE' => $e->getCode(),
+                                'CLINIC' => "$clinic->uid '$clinic->name'",
                             ],
                             __METHOD__ . ' ' . date('Y-m-d H:i:s'),
                             Configuration::getInstance()->getExchangeLogFilePath()
@@ -202,7 +196,7 @@ class Manager
             $oDateTimeBegin = new DateTime($dateTimeBegin);
 
             $dto = $this->gateway->sendBooking($clinicUid, $employeeUid, $oDateTimeBegin, $serviceDuration);
-            Container::getInstance()->getConfirmationService()->clear('appointment');
+            Container::getInstance()->getConfirmationService()->clear();
             Container::getInstance()->getBookingSession()->rememberBooking([
                 'uid' => $dto->uid,
                 'clinicUid' => $clinicUid,
@@ -238,8 +232,7 @@ class Manager
             );
             Container::getInstance()->getConfirmationService()->assertVerified(
                 (string)($data['phone'] ?? ''),
-                (string)($data['email'] ?? ''),
-                'appointment'
+                (string)($data['email'] ?? '')
             );
 
             if (Configuration::getInstance()->isWaitListEnabled())
@@ -252,7 +245,7 @@ class Manager
                 $this->repository->save(RecordTable::fromAppointmentPayload($data, $dto));
                 Container::getInstance()->getBookingSession()->markAppointmentCreated($dto->uid, $data);
             }
-            Container::getInstance()->getConfirmationService()->clear('appointment');
+            Container::getInstance()->getConfirmationService()->clear();
             return $dto;
         }
         catch (Throwable $e)
@@ -271,7 +264,8 @@ class Manager
             if ($id > 0)
             {
                 $record = $this->repository->getByPrimary($id);
-                if (!$record || $record->getXmlId() !== $uid)
+                if (is_null($record) || $record->getXmlId() !== $uid
+                )
                 {
                     return false;
                 }

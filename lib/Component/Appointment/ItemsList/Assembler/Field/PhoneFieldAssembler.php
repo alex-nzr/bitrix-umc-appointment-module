@@ -1,10 +1,4 @@
 <?php
-/*
- * ==================================================
- * This file is part of project Bit UMC - Bitrix integration
- * 02.10.2025
- * ==================================================
-*/
 
 namespace ANZ\Appointment\Component\Appointment\ItemsList\Assembler\Field;
 
@@ -20,6 +14,6 @@ class PhoneFieldAssembler extends FieldAssembler
             return '<a href="tel:' . $safeValue . '" target="_blank">' . $safeValue . '</a>';
         }
 
-        return htmlspecialchars($value);
+        return htmlspecialcharsbx($value);
     }
 }
