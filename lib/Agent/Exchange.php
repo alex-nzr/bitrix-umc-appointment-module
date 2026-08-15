@@ -3,7 +3,6 @@ namespace ANZ\Appointment\Agent;
 
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Service\Container;
-use Bitrix\Main\Diag\Debug;
 use Bitrix\Main\IO\Directory;
 use DateTime as PhpDateTime;
 use Exception;
@@ -48,13 +47,10 @@ class Exchange
         }
         catch (Throwable $e)
         {
-            $logFilePath = Configuration::getInstance()->getExchangeLogFilePath();
-            Debug::writeToFile(
-                [
-                    'MESSAGE' => $e->getMessage(),
-                ],
+            Container::getInstance()->getLogger()->log(
+                $e,
                 __METHOD__ . ' ' . date('Y-m-d H:i:s'),
-                $logFilePath
+                Configuration::getInstance()->getExchangeLogFilePath()
             );
 
             if ($throwError)
@@ -112,10 +108,8 @@ class Exchange
         }
         catch (Throwable $e)
         {
-            Debug::writeToFile(
-                [
-                    'MESSAGE' => $e->getMessage(),
-                ],
+            Container::getInstance()->getLogger()->log(
+                $e,
                 __METHOD__ . ' ' . date('Y-m-d H:i:s'),
                 Configuration::getInstance()->getCommonLogFilePath()
             );
@@ -135,10 +129,8 @@ class Exchange
         }
         catch (Throwable $e)
         {
-            Debug::writeToFile(
-                [
-                    'MESSAGE' => $e->getMessage(),
-                ],
+            Container::getInstance()->getLogger()->log(
+                $e,
                 __METHOD__ . ' ' . date('Y-m-d H:i:s'),
                 Configuration::getInstance()->getCommonLogFilePath()
             );

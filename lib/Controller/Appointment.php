@@ -290,7 +290,7 @@ class Appointment extends Controller
     /**
      * @throws \Exception
      */
-    public function sendEmailNoteAction(string $jsonData): Result
+    public function sendEmailNoteAction(string $jsonData): ?Result
     {
         try
         {
@@ -308,8 +308,8 @@ class Appointment extends Controller
         }
         catch (Exception $e)
         {
-            Container::getInstance()->getSecurityLogger()->log($e, __METHOD__);
-            return (new Result)->addError(new Error(Loc::getMessage('ANZ_APPOINTMENT_PUBLIC_ERROR_EMAIL_NOTE')));
+            $this->addPublicError($e, Loc::getMessage('ANZ_APPOINTMENT_PUBLIC_ERROR_EMAIL_NOTE'));
+            return null;
         }
     }
 
@@ -369,11 +369,15 @@ class Appointment extends Controller
     }
 
     /**
-     * @throws \ANZ\Appointment\Core\Exception\ServiceContainerException
+     * @throws \Exception
      */
     private function addPublicError(Throwable $e, ?string $message = null): void
     {
-        Container::getInstance()->getSecurityLogger()->log($e, __METHOD__);
+        Container::getInstance()->getLogger()->log(
+            $e,
+            __METHOD__,
+            Configuration::getInstance()->getControllerLogFilePath()
+        );
         $this->addError(new Error($message ?: Loc::getMessage('ANZ_APPOINTMENT_PUBLIC_ERROR_DEFAULT')));
     }
 
@@ -382,7 +386,11 @@ class Appointment extends Controller
      */
     private function addAdminError(Throwable $e): void
     {
-        Container::getInstance()->getSecurityLogger()->log($e, __METHOD__);
+        Container::getInstance()->getLogger()->log(
+            $e,
+            __METHOD__,
+            Configuration::getInstance()->getControllerLogFilePath()
+        );
         $this->addError(new Error($e->getMessage()));
     }
 }

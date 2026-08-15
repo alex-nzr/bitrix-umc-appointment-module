@@ -17,7 +17,6 @@ use ANZ\Appointment\Model\RecordTable;
 use ANZ\Appointment\Repository\EntityRepository;
 use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Context;
-use Bitrix\Main\Diag\Debug;
 use DateTime;
 use Exception;
 use Throwable;
@@ -65,22 +64,26 @@ class Manager
                     }
                     catch (Throwable $e)
                     {
-                        Debug::writeToFile(
-                            [
-                                'ERROR_CODE' => $e->getCode(),
-                                'CLINIC' => "$clinic->uid '$clinic->name'",
-                            ],
-                            __METHOD__ . ' ' . date('Y-m-d H:i:s'),
-                            Configuration::getInstance()->getExchangeLogFilePath()
-                        );
-                        $errors[] = "$clinic->uid '$clinic->name'" . ' - ' .$e->getMessage();
+                        $errors[] = "getServices error: $clinic->uid '$clinic->name'" . ' - ' . $e->getMessage();
                         continue;
                     }
                 }
 
-                if (Context::getCurrent()->getRequest()->isAdminSection() && !empty($errors))
+                if (!empty($errors))
                 {
-                    throw new ExchangeManagerException(__METHOD__, new Exception(implode(PHP_EOL, $errors)));
+                    $ex = new ExchangeManagerException(__METHOD__, new Exception(implode(PHP_EOL, $errors)));
+                    if (Context::getCurrent()->getRequest()->isAdminSection())
+                    {
+                        throw $ex;
+                    }
+                    else
+                    {
+                        Container::getInstance()->getLogger()->log(
+                            $ex,
+                            __METHOD__,
+                            Configuration::getInstance()->getExchangeLogFilePath()
+                        );
+                    }
                 }
             }
         }

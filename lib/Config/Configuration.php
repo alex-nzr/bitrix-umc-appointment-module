@@ -91,6 +91,14 @@ final class Configuration
     /**
      * @throws \Exception
      */
+    public function getControllerLogFilePath(): string
+    {
+        return $this->getLogFileDir() . '/' . date('Y-m-d') . '_controller.log.txt';
+    }
+
+    /**
+     * @throws \Exception
+     */
     public function getExchangeLogFilePath(): string
     {
         return $this->getLogFileDir() . '/' . date('Y-m-d') . '_exchange.log.txt';

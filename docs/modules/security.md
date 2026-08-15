@@ -18,4 +18,4 @@
 
 `OneCUrlGuard` разрешает только HTTP/HTTPS и отклоняет localhost, loopback, link-local, multicast и другие запрещённые диапазоны IPv4/IPv6 после DNS-разрешения.
 
-`SecurityLogger` и агент обмена пишут в `{module_dir}/logs`. Установщик создаёт `logs/.htaccess` с `Deny from all`; стек вызовов в security-лог не записывается. При изменении установки или логирования это ограничение необходимо сохранять.
+`Logger` и агент обмена пишут в `{module_dir}/logs`. Установщик создаёт `logs/.htaccess` с `Deny from all`; стек вызовов в security-лог не записывается. При изменении установки или логирования это ограничение необходимо сохранять.

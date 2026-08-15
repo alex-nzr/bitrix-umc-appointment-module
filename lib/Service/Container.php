@@ -13,18 +13,18 @@ use ANZ\Appointment\Integration\UmcSdk\Validator\ResponseValidator;
 use ANZ\Appointment\Model\RecordTable;
 use ANZ\Appointment\Repository\UMC\AppointmentRepository;
 use ANZ\Appointment\Service\Access\UserPermissions;
+use ANZ\Appointment\Service\Debug\Logger;
 use ANZ\Appointment\Service\Exchange\Manager;
 use ANZ\Appointment\Service\Message\Mailer;
 use ANZ\Appointment\Service\Message\Sms;
-use ANZ\Appointment\Service\Security\Confirmation;
 use ANZ\Appointment\Service\Security\AppointmentAccess;
 use ANZ\Appointment\Service\Security\AppointmentPayloadGuard;
 use ANZ\Appointment\Service\Security\BookingSession;
+use ANZ\Appointment\Service\Security\Confirmation;
 use ANZ\Appointment\Service\Security\Encryptor;
 use ANZ\Appointment\Service\Security\OneCUrlGuard;
 use ANZ\Appointment\Service\Security\RateLimiter;
 use ANZ\Appointment\Service\Security\RateLimitPolicy;
-use ANZ\Appointment\Service\Security\SecurityLogger;
 use Bitrix\Main\DI\ServiceLocator;
 use Throwable;
 
@@ -151,9 +151,9 @@ class Container
     /**
      * @throws ServiceContainerException
      */
-    public function getSecurityLogger(): SecurityLogger
+    public function getLogger(): Logger
     {
-        return $this->getShared(SecurityLogger::class, fn() => new SecurityLogger());
+        return $this->getShared(Logger::class, fn() => new Logger());
     }
 
     /**
