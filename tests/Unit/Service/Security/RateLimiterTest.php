@@ -1,0 +1,95 @@
+<?php
+
+namespace ANZ\Appointment\Tests\Unit\Service\Security;
+
+use ANZ\Appointment\Service\Security\RateLimit\RateLimiter;
+use ANZ\Appointment\Repository\RateLimit\RateLimitRepositoryInterface;
+use Bitrix\Main\SystemException;
+use PHPUnit\Framework\TestCase;
+
+class RateLimiterTest extends TestCase
+{
+    public function testLimitIsSharedBetweenIndependentLimiterInstances(): void
+    {
+        $storage = new InMemoryRateLimitRepository();
+        $firstLimiter = $this->createLimiter($storage);
+        $secondLimiter = $this->createLimiter($storage);
+
+        $firstLimiter->assertAllowed('confirm_send', 1, 900, '79990000000');
+
+        $this->expectException(SystemException::class);
+        $secondLimiter->assertAllowed('confirm_send', 1, 900, '79990000000');
+    }
+
+    public function testExpiredLimitWindowStartsFromFirstRequestAgain(): void
+    {
+        $storage = new InMemoryRateLimitRepository();
+        $now = 1000;
+        $limiter = $this->createLimiter($storage, $now);
+
+        $limiter->assertAllowed('confirm_send', 1, 60, '79990000000');
+
+        $now = 1061;
+        $limiter->assertAllowed('confirm_send', 1, 60, '79990000000');
+
+        self::assertSame(1, $storage->getCount());
+    }
+
+    public function testSharedStorageEnforcesLimitForParallelWorkers(): void
+    {
+        $storage = new InMemoryRateLimitRepository();
+        $firstWorker = $this->createLimiter($storage);
+        $secondWorker = $this->createLimiter($storage);
+
+        for ($request = 1; $request <= 10; $request++)
+        {
+            ($request % 2 === 0 ? $firstWorker : $secondWorker)->assertAllowed('book_slot', 10, 900, 'clinic|employee');
+        }
+
+        $this->expectException(SystemException::class);
+        $firstWorker->assertAllowed('book_slot', 10, 900, 'clinic|employee');
+    }
+
+    private function createLimiter(InMemoryRateLimitRepository $storage, int &$now = 1000): RateLimiter
+    {
+        return new RateLimiter(
+            $storage,
+            static function () use (&$now): int {
+                return $now;
+            },
+            static fn(): string => '127.0.0.1',
+            static fn(): string => 'test-installation-secret'
+        );
+    }
+}
+
+class InMemoryRateLimitRepository implements RateLimitRepositoryInterface
+{
+    private array $records = [];
+
+    public function increment(string $key, int $expiresAt, int $now): int
+    {
+        $record = $this->records[$key] ?? [
+            'count' => 0,
+            'expiresAt' => $expiresAt,
+        ];
+
+        if ($record['expiresAt'] <= $now)
+        {
+            $record = [
+                'count' => 0,
+                'expiresAt' => $expiresAt,
+            ];
+        }
+
+        $record['count']++;
+        $this->records[$key] = $record;
+
+        return $record['count'];
+    }
+
+    public function getCount(): int
+    {
+        return (int)array_values($this->records)[0]['count'];
+    }
+}

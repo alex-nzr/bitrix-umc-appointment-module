@@ -3,6 +3,7 @@ namespace ANZ\Appointment\Service\Security;
 
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Config\ConfirmationType;
+use ANZ\Appointment\Core\Trait\Validator;
 use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Application;
 use Bitrix\Main\AccessDeniedException;
@@ -13,6 +14,8 @@ use Exception;
 
 class Confirmation
 {
+    use Validator;
+
     private const SESSION_KEY = 'anz_appointment_confirm';
     private const CODE_TTL = 300;
     private const RESEND_TTL = 60;
@@ -180,8 +183,8 @@ class Confirmation
     private function resolveTarget(string $confirmWith, string $phone, string $email): string
     {
         return match ($confirmWith) {
-            ConfirmationType::PHONE->value => preg_replace('/\D+/', '', $phone) ?: '',
-            ConfirmationType::EMAIL->value => mb_strtolower(trim($email)),
+            ConfirmationType::PHONE->value => $this->validateAndFormatPhone($phone),
+            ConfirmationType::EMAIL->value => (string)$this->validateEmail(mb_strtolower(trim($email)), true),
             default => '',
         };
     }

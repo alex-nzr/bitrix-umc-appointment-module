@@ -3,7 +3,7 @@
 namespace ANZ\Appointment\Tests\Unit\Service\Security;
 
 use ANZ\Appointment\Service\Exchange\Manager;
-use ANZ\Appointment\Service\Security\AppointmentPayloadGuard;
+use ANZ\Appointment\Service\Security\Appointment\AppointmentPayloadGuard;
 use ANZ\Appointment\Tests\Unit\Integration\UmcSdk\Gateway\FakeSdk;
 use ANZ\Appointment\Tests\Unit\Model\FakeRecordTable;
 use ANZ\Appointment\Tests\Unit\Repository\UMC\FakeAppointmentRepository;

@@ -2,15 +2,15 @@
 
 namespace ANZ\Appointment\Tests\Unit\Service\Exchange;
 
-use ANZ\Appointment\Core\Exception\ExchangeManagerException;
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Config\Constants;
+use ANZ\Appointment\Core\Exception\ExchangeManagerException;
 use ANZ\Appointment\Dto\BookingDto;
 use ANZ\Appointment\Dto\ClinicDto;
 use ANZ\Appointment\Dto\EmployeeDto;
 use ANZ\Appointment\Dto\ServiceDto;
-use ANZ\Appointment\Service\Security\AppointmentPayloadGuard;
 use ANZ\Appointment\Service\Exchange\Manager;
+use ANZ\Appointment\Service\Security\Appointment\AppointmentPayloadGuard;
 use ANZ\Appointment\Tests\Unit\Integration\UmcSdk\Gateway\FakeSdk;
 use ANZ\Appointment\Tests\Unit\Model\FakeRecordTable;
 use ANZ\Appointment\Tests\Unit\Repository\UMC\FakeAppointmentRepository;

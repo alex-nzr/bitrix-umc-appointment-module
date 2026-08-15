@@ -2,13 +2,15 @@
 namespace ANZ\Appointment\Core\Installation;
 
 use ANZ\Appointment\Model\RecordTable;
+use ANZ\Appointment\Model\RateLimitTable;
 use Bitrix\Main\Application;
 
 class DBTableInstaller
 {
     /** @var \Bitrix\Main\ORM\Data\DataManager[]|string[]  */
     private static array $dataClasses = [
-        RecordTable::class
+        RecordTable::class,
+        RateLimitTable::class,
     ];
 
     /**

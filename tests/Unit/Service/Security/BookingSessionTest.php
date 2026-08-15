@@ -2,7 +2,7 @@
 
 namespace ANZ\Appointment\Tests\Unit\Service\Security;
 
-use ANZ\Appointment\Service\Security\BookingSession;
+use ANZ\Appointment\Service\Security\Appointment\BookingSession;
 use Bitrix\Main\SystemException;
 use PHPUnit\Framework\TestCase;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace ANZ\Appointment\Service\Security;
+namespace ANZ\Appointment\Service\Security\RateLimit;
 
 class RateLimitPolicy
 {

@@ -11,20 +11,23 @@ use ANZ\Appointment\Integration\UmcSdk\Mapper\SdkResponseToDto;
 use ANZ\Appointment\Integration\UmcSdk\Validator\RequestValidator;
 use ANZ\Appointment\Integration\UmcSdk\Validator\ResponseValidator;
 use ANZ\Appointment\Model\RecordTable;
+use ANZ\Appointment\Model\RateLimitTable;
+use ANZ\Appointment\Repository\RateLimit\RateLimitRepository;
+use ANZ\Appointment\Repository\RateLimit\RateLimitRepositoryInterface;
 use ANZ\Appointment\Repository\UMC\AppointmentRepository;
 use ANZ\Appointment\Service\Access\UserPermissions;
 use ANZ\Appointment\Service\Debug\Logger;
 use ANZ\Appointment\Service\Exchange\Manager;
 use ANZ\Appointment\Service\Message\Mailer;
 use ANZ\Appointment\Service\Message\Sms;
-use ANZ\Appointment\Service\Security\AppointmentAccess;
-use ANZ\Appointment\Service\Security\AppointmentPayloadGuard;
-use ANZ\Appointment\Service\Security\BookingSession;
+use ANZ\Appointment\Service\Security\Appointment\AppointmentAccess;
+use ANZ\Appointment\Service\Security\Appointment\AppointmentPayloadGuard;
+use ANZ\Appointment\Service\Security\Appointment\BookingSession;
 use ANZ\Appointment\Service\Security\Confirmation;
 use ANZ\Appointment\Service\Security\Encryptor;
 use ANZ\Appointment\Service\Security\OneCUrlGuard;
-use ANZ\Appointment\Service\Security\RateLimiter;
-use ANZ\Appointment\Service\Security\RateLimitPolicy;
+use ANZ\Appointment\Service\Security\RateLimit\RateLimiter;
+use ANZ\Appointment\Service\Security\RateLimit\RateLimitPolicy;
 use Bitrix\Main\DI\ServiceLocator;
 use Throwable;
 
@@ -161,7 +164,15 @@ class Container
      */
     public function getRateLimiter(): RateLimiter
     {
-        return $this->getShared(RateLimiter::class, fn() => new RateLimiter());
+        return $this->getShared(RateLimiter::class, fn() => new RateLimiter($this->getRateLimitRepository()));
+    }
+
+    /**
+     * @throws ServiceContainerException
+     */
+    public function getRateLimitRepository(): RateLimitRepositoryInterface
+    {
+        return $this->getShared(RateLimitRepository::class, fn() => new RateLimitRepository(RateLimitTable::getEntity()));
     }
 
     /**

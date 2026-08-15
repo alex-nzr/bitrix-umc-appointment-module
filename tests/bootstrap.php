@@ -15,6 +15,18 @@ namespace Bitrix\Main {
     class AccessDeniedException extends \Exception {}
     class SystemException extends \Exception {}
 
+    class UserPhoneAuthTable {
+        public static function normalizePhoneNumber(string $phone): string
+        {
+            return $phone;
+        }
+
+        public static function validatePhoneNumber(string $phone): bool|string
+        {
+            return preg_match('/^\\+7\\d{10}$/', $phone) === 1 ? true : 'Invalid phone number';
+        }
+    }
+
     class Event {
         public function __construct(
             private string $moduleId,
