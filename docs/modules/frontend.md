@@ -2,7 +2,7 @@
 
 Исходный код React-формы расположен в `install/js/form-react`. Сборка создаётся `react-scripts` и попадает в `install/js/form-react/build`; установщик копирует JavaScript в `/bitrix/js/anz/appointment`.
 
-Форма использует React 19, Material UI, `react-hook-form`, `react-imask`, `zustand` и обращается к `/bitrix/services/main/ajax.php`. Типы данных и API-клиент находятся в `install/js/form-react/src`.
+Форма использует React 19, Material UI, `react-hook-form`, `react-imask`, `zustand` и обращается к `/bitrix/services/main/ajax.php`. Типы данных и API-клиент находятся в `install/js/form-react/src`. Конфигурация расширения читает `build/asset-manifest.json`, поэтому подключает точный актуальный файл `main.<hash>.js`, а не первый файл, найденный по шаблону.
 
 React-форма открывается в полноэкранном диалоге. У шапки и содержимого минимальные отступы, чтобы календарь, CAPTCHA и навигация помещались в области просмотра без обрезания.
 

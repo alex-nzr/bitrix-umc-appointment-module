@@ -45,37 +45,34 @@ return $assets + [
  */
 function resolveExtensionAssets(): array
 {
-    $css = '';
-    $js = '';
     $root = Application::getDocumentRoot();
-    $pathToJs = '/js/anz/appointment/form-react/build/static/js/';
-    $pathToCss = '/js/anz/appointment/form-react/build/static/css/';
-    $useLocal = Configuration::isInLocalHolder();
-    if ($useLocal)
+    $holder = Configuration::isInLocalHolder() ? Loader::LOCAL_HOLDER : Loader::BITRIX_HOLDER;
+    $manifestPath = $root . '/' . $holder . '/js/anz/appointment/form-react/build/asset-manifest.json';
+    $manifestContent = file_get_contents($manifestPath);
+    if (!is_string($manifestContent))
     {
-        $jsPattern = $root . '/' . Loader::LOCAL_HOLDER . $pathToJs . 'main.*.js';
-        $cssPattern = $root . '/' . Loader::LOCAL_HOLDER . $pathToCss . 'main.*.css';
-    }
-    else
-    {
-        $jsPattern = $root . '/' . Loader::BITRIX_HOLDER . $pathToJs . 'main.*.js';
-        $cssPattern = $root . '/' . Loader::BITRIX_HOLDER . $pathToCss . 'main.*.css';
+        throw new \RuntimeException('React asset manifest is unavailable.');
     }
 
-    $jsFiles = glob($jsPattern);
-    if (is_array($jsFiles) && count($jsFiles) > 0)
+    $manifest = json_decode($manifestContent, true, 512, JSON_THROW_ON_ERROR);
+    if (!is_array($manifest) || !is_array($manifest['files'] ?? null))
     {
-        $js = 'build/static/js/'.basename(current($jsFiles));
+        throw new \RuntimeException('React asset manifest has invalid format.');
     }
 
-    $cssFiles = glob($cssPattern);
-    if (is_array($cssFiles) && count($cssFiles) > 0)
+    $js = ltrim((string)($manifest['files']['main.js'] ?? ''), './');
+    $css = ltrim((string)($manifest['files']['main.css'] ?? ''), './');
+    if (
+        !str_starts_with($js, 'static/js/main.')
+        || !str_ends_with($js, '.js')
+        || ($css !== '' && (!str_starts_with($css, 'static/css/main.') || !str_ends_with($css, '.css')))
+    )
     {
-        $css = 'build/static/css/'.basename(current($cssFiles));
+        throw new \RuntimeException('React asset manifest contains invalid asset paths.');
     }
 
     return [
-        'js' => $js,
-        'css' => $css,
+        'js' => 'build/' . $js,
+        'css' => $css === '' ? '' : 'build/' . $css,
     ];
 }
