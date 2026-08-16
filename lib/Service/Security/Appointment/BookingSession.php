@@ -2,11 +2,13 @@
 
 namespace ANZ\Appointment\Service\Security\Appointment;
 
+use ANZ\Appointment\Core\Exception\PublicRequestException;
 use Bitrix\Main\Application;
 
 class BookingSession
 {
     private const KEY = 'anz_appointment_bookings';
+    private const TTL = 900;
 
     public function rememberBooking(array $data): void
     {
@@ -17,9 +19,9 @@ class BookingSession
             return;
         }
 
-        $bookings[$uid] = array_merge($data, [
+        $bookings[$uid] = array_merge($bookings[$uid] ?? [], $data, [
             'uid' => $uid,
-            'createdAt' => time(),
+            'createdAt' => (int)($bookings[$uid]['createdAt'] ?? time()),
         ]);
 
         $this->setAll($bookings);
@@ -35,6 +37,53 @@ class BookingSession
         $this->rememberBooking(array_merge($booking, ['uid' => $uid]));
     }
 
+    public function markCaptchaVerified(string $uid): void
+    {
+        $booking = $this->getActiveBooking($uid);
+        $booking['captchaVerified'] = true;
+        $this->rememberBooking($booking);
+    }
+
+    /**
+     * @throws \Bitrix\Main\SystemException
+     */
+    public function assertCanConfirm(string $uid): void
+    {
+        $booking = $this->getActiveBooking($uid);
+        if (!($booking['captchaVerified'] ?? false))
+        {
+            throw new PublicRequestException('CAPTCHA confirmation is required');
+        }
+    }
+
+    /**
+     * @throws \Bitrix\Main\SystemException
+     */
+    public function bindConfirmationTarget(string $uid, string $target): void
+    {
+        $booking = $this->getActiveBooking($uid);
+        $boundTarget = (string)($booking['confirmationTarget'] ?? '');
+        if ($boundTarget !== '' && !hash_equals($boundTarget, $target))
+        {
+            throw new PublicRequestException('Confirmation target does not match booking');
+        }
+
+        $booking['confirmationTarget'] = $target;
+        $this->rememberBooking($booking);
+    }
+
+    /**
+     * @throws \Bitrix\Main\SystemException
+     */
+    public function clearConfirmationTarget(string $uid): void
+    {
+        $booking = $this->getActiveBooking($uid);
+        unset($booking['confirmationTarget']);
+        $bookings = $this->all();
+        $bookings[$uid] = $booking;
+        $this->setAll($bookings);
+    }
+
     /**
      * @throws \Bitrix\Main\SystemException
      */
@@ -43,7 +92,7 @@ class BookingSession
         $email = strtolower(trim($email));
         if (!filter_var($email, FILTER_VALIDATE_EMAIL))
         {
-            throw new \Bitrix\Main\SystemException('Invalid email');
+            throw new PublicRequestException('Invalid email');
         }
 
         foreach ($this->all() as $booking)
@@ -60,7 +109,7 @@ class BookingSession
             }
         }
 
-        throw new \Bitrix\Main\SystemException('Email note is not available for this appointment');
+        throw new PublicRequestException('Email note is not available for this appointment');
     }
 
     public function get(string $uid): ?array
@@ -85,5 +134,25 @@ class BookingSession
     private function setAll(array $bookings): void
     {
         Application::getInstance()->getSession()->set(self::KEY, $bookings);
+    }
+
+    /**
+     * @throws \Bitrix\Main\SystemException
+     */
+    private function getActiveBooking(string $uid): array
+    {
+        $booking = $this->get($uid);
+        if ($booking === null || ($booking['appointmentCreated'] ?? false) === true)
+        {
+            throw new PublicRequestException('Booking is not available');
+        }
+
+        if ((int)($booking['createdAt'] ?? 0) + self::TTL < time())
+        {
+            $this->forget($uid);
+            throw new PublicRequestException('Booking has expired');
+        }
+
+        return $booking;
     }
 }

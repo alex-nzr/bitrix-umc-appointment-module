@@ -2,10 +2,9 @@
 
 namespace ANZ\Appointment\Core\Exception;
 
-use Exception;
 use Throwable;
 
-class ValidatorException extends Exception
+class ValidatorException extends PublicRequestException
 {
     public function __construct(string $validationError, ?Throwable $previous = null)
     {

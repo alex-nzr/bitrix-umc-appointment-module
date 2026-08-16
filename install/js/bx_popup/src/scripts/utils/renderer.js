@@ -110,7 +110,40 @@ export class Renderer
                     this.application.useServices ? this.application.dataKeys.servicesKey : null,
                     this.application.dataKeys.scheduleKey
                 ])),
+                this.getCaptchaBlock(),
                 this.getFormButtonsBlock([btnPrev, btnNext])
+            ]
+        });
+    }
+
+    getCaptchaBlock(){
+        return BX.create('div', {
+            attrs: {
+                className: this.styles['appointment-captcha'],
+            },
+            children: [
+                BX.create('p', {text: 'Введите код с картинки'}),
+                BX.create('img', {
+                    attrs: {
+                        id: this.application.selectors.captchaImageId,
+                        alt: 'CAPTCHA',
+                    },
+                }),
+                BX.create('input', {
+                    attrs: {
+                        id: this.application.selectors.captchaInputId,
+                        type: 'text',
+                        maxlength: '10',
+                        autocomplete: 'off',
+                    },
+                }),
+                BX.create('button', {
+                    attrs: {
+                        type: 'button',
+                        id: this.application.selectors.captchaRefreshId,
+                    },
+                    text: 'Обновить картинку',
+                }),
             ]
         });
     }
@@ -123,7 +156,15 @@ export class Renderer
             },
             children: [
                 ...(this.getTextNodes()),
-                this.getFormButtonsBlock([this.getFormSubmitBtn()])
+                this.getFormButtonsBlock([
+                    this.getFormSubmitBtn(),
+                    BX.create('span', {
+                        attrs: {
+                            className: this.styles['appointment-booking-progress'],
+                        },
+                        text: 'Бронирование слота...',
+                    }),
+                ])
             ]
         });
     }
@@ -564,6 +605,17 @@ export class Renderer
             }
         });
 
+        const changeContactBtn = BX.create('a', {
+            attrs: {
+                className: styles['appointment-form-button-link'],
+                href: "#"
+            },
+            text: 'Изменить контакты',
+            events: {
+                click: (event) => this.application.editConfirmationContact(event)
+            }
+        });
+
         const confirmWrapper = BX.create('div', {
             attrs: {
                 id: this.application.selectors.confirmWrapperId,
@@ -581,6 +633,7 @@ export class Renderer
                 confirmWarningNode,
                 confirmSubmitBtn,
                 confirmRepeatBtn,
+                changeContactBtn,
             ]
         });
 

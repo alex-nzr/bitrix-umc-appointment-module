@@ -3,6 +3,7 @@
 namespace ANZ\Appointment\Tests\Unit\Service\Security;
 
 use ANZ\Appointment\Service\Security\RateLimit\RateLimiter;
+use ANZ\Appointment\Core\Exception\RateLimitExceededException;
 use ANZ\Appointment\Repository\RateLimit\RateLimitRepositoryInterface;
 use Bitrix\Main\SystemException;
 use PHPUnit\Framework\TestCase;
@@ -50,6 +51,56 @@ class RateLimiterTest extends TestCase
         $firstWorker->assertAllowed('book_slot', 10, 900, 'clinic|employee');
     }
 
+    public function testGlobalLimitDoesNotDependOnIp(): void
+    {
+        $storage = new InMemoryRateLimitRepository();
+        $now = 1000;
+        $firstLimiter = new RateLimiter($storage, static fn(): int => $now, static fn(): string => '127.0.0.1', static fn(): string => 'secret');
+        $secondLimiter = new RateLimiter($storage, static fn(): int => $now, static fn(): string => '127.0.0.2', static fn(): string => 'secret');
+
+        $firstLimiter->assertAllowed('confirm_send_global', 1, 900, '', false);
+
+        $this->expectException(SystemException::class);
+        $secondLimiter->assertAllowed('confirm_send_global', 1, 900, '', false);
+    }
+
+    public function testOnlyFirstRateLimitRejectionIsMarkedForLogging(): void
+    {
+        $storage = new InMemoryRateLimitRepository();
+        $limiter = $this->createLimiter($storage);
+
+        $limiter->assertAllowed('book_slot', 1, 900);
+
+        try
+        {
+            $limiter->assertAllowed('book_slot', 1, 900);
+            self::fail('The second request must exceed the limit.');
+        }
+        catch (RateLimitExceededException $exception)
+        {
+            self::assertTrue($exception->isFirstExceeded());
+        }
+
+        try
+        {
+            $limiter->assertAllowed('book_slot', 1, 900);
+            self::fail('The third request must exceed the limit.');
+        }
+        catch (RateLimitExceededException $exception)
+        {
+            self::assertFalse($exception->isFirstExceeded());
+        }
+    }
+
+    public function testFirstOccurrenceIsReportedOnlyOnceDuringTtl(): void
+    {
+        $storage = new InMemoryRateLimitRepository();
+        $limiter = $this->createLimiter($storage);
+
+        self::assertTrue($limiter->isFirstOccurrence('public_error_log', 300, 'RuntimeException|0'));
+        self::assertFalse($limiter->isFirstOccurrence('public_error_log', 300, 'RuntimeException|0'));
+    }
+
     private function createLimiter(InMemoryRateLimitRepository $storage, int &$now = 1000): RateLimiter
     {
         return new RateLimiter(
@@ -91,5 +142,10 @@ class InMemoryRateLimitRepository implements RateLimitRepositoryInterface
     public function getCount(): int
     {
         return (int)array_values($this->records)[0]['count'];
+    }
+
+    public function deleteExpired(int $now): int
+    {
+        return 0;
     }
 }

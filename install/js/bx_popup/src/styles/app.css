@@ -450,6 +450,7 @@ body {
     position: relative;
     padding-top: 5px;
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: flex-end;
 }
@@ -507,6 +508,16 @@ body {
 .appointment-popup-overlay .appointment-form-button.loading:before {
     opacity: 1;
 }
+.appointment-popup-overlay .appointment-booking-progress {
+    display: none;
+    flex-basis: 100%;
+    margin-top: 6px;
+    color: var(--appointment-form-text-color);
+    text-align: center;
+}
+.appointment-popup-overlay .appointment-form-button.loading + .appointment-booking-progress {
+    display: block;
+}
 .appointment-popup-overlay #appointment-form-confirmation-wrapper {
     width: 100%;
 }
@@ -521,6 +532,11 @@ body {
 }
 .appointment-popup-overlay .appointment-form-button-link:hover, .appointment-popup-overlay .appointment-form-button-link:focus, .appointment-popup-overlay .appointment-form-button-link:visited {
     opacity: 0.7;
+}
+.appointment-popup-overlay .appointment-confirmation-pending .appointment-form-button-link {
+    cursor: wait;
+    opacity: 0.5;
+    pointer-events: none;
 }
 .appointment-popup-overlay .appointment-info-message {
     padding-top: 10px;
@@ -761,6 +777,55 @@ body {
     #appointment-button.active {
         display: none;
     }
+}
+
+.appointment-captcha {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    margin: 8px 0;
+}
+
+.appointment-captcha p {
+    margin: 0;
+}
+
+.appointment-popup-overlay .appointment-captcha img,
+.appointment-popup-overlay .appointment-captcha input,
+.appointment-popup-overlay .appointment-captcha button {
+    width: 180px;
+}
+
+.appointment-popup-overlay .appointment-captcha img {
+    display: block;
+    height: 40px;
+    border-radius: 6px;
+}
+
+.appointment-popup-overlay .appointment-captcha input {
+    height: 30px;
+    padding: 0 15px;
+    background: var(--appointment-field-color);
+    border-radius: 6px;
+    color: var(--appointment-form-text-color);
+}
+
+.appointment-popup-overlay .appointment-captcha button {
+    height: 30px;
+    padding: 0 15px;
+    background: var(--appointment-btn-bg-color);
+    border: 1px solid var(--appointment-btn-bg-color);
+    border-radius: 6px;
+    color: var(--appointment-btn-text-color);
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.appointment-popup-overlay .appointment-captcha button:hover {
+    opacity: 0.7;
 }
 
 /*# sourceMappingURL=app.css.map */

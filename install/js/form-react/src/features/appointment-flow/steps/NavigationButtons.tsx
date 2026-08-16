@@ -21,6 +21,7 @@ export const NavigationButtons = ({
         <Box display="flex" gap={2} justifyContent="center">
             <Button
                 variant="outlined"
+                size="small"
                 disabled={backDisabled ?? false}
                 onClick={() => backHandler ? backHandler() : prevStep()}
             >
@@ -29,6 +30,7 @@ export const NavigationButtons = ({
 
             <Button
                 variant="contained"
+                size="small"
                 disabled={nextDisabled}
                 onClick={() => nextHandler ? nextHandler() : nextStep()}
             >

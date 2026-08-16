@@ -16,6 +16,11 @@ interface API_RESPONSE {
     errors: Array<API_ERROR>
 }
 
+export interface CaptchaChallenge {
+    captchaSid: string
+    imageUrl: string
+}
+
 const API_URL = '/bitrix/services/main/ajax.php';
 const CONTROLLER = 'anz:appointment.Appointment';
 
@@ -124,13 +129,25 @@ export const appointmentApi = {
         return await prepareResponse(res);
     },
 
-    async bookSlot(reserve: Reserve): Promise<Reserve | null> {
+    async getCaptcha(): Promise<CaptchaChallenge> {
+        const action = `${CONTROLLER}.getCaptcha`;
+        const res = await fetch(`${API_URL}?sessid=${sessid}&action=${action}`, {
+            method: 'POST',
+            body: '',
+        });
+        // @ts-ignore
+        return await prepareResponse(res);
+    },
+
+    async bookSlot(reserve: Reserve, captchaSid: string, captchaWord: string): Promise<Reserve | null> {
         const action = `${CONTROLLER}.bookSlot`;
         const data = new FormData();
         data.set('clinicUid', reserve.clinicUid);
         data.set('employeeUid', reserve.doctorUid);
         data.set('dateTimeBegin', reserve.timeBegin);
         data.set('serviceDuration', `${reserve.duration}`);
+        data.set('captchaSid', captchaSid);
+        data.set('captchaWord', captchaWord);
         const res = await fetch(`${API_URL}?sessid=${sessid}&action=${action}`, {
             method: 'POST',
             body: data,
@@ -139,11 +156,13 @@ export const appointmentApi = {
         return await prepareResponse(res);
     },
 
-    async sendAppointment(appointment: Appointment): Promise<any> {
+    async sendAppointment(appointment: Appointment, captchaSid: string = '', captchaWord: string = ''): Promise<any> {
         const action = `${CONTROLLER}.sendAppointment`;
         const payload = buildAppointmentPayload(appointment);
         const data = new FormData();
         data.set('jsonData', JSON.stringify(payload));
+        data.set('captchaSid', captchaSid);
+        data.set('captchaWord', captchaWord);
         const res = await fetch(`${API_URL}?sessid=${sessid}&action=${action}`, {
             method: 'POST',
             body: data,
@@ -152,11 +171,12 @@ export const appointmentApi = {
         return await prepareResponse(res);
     },
 
-    async sendConfirmCode(phone: string = '', email: string = '') {
+    async sendConfirmCode(phone: string = '', email: string = '', bookingUid: string = '') {
         const action = `${CONTROLLER}.sendConfirmCode`;
         const data = new FormData();
         data.set('phone', phone);
         data.set('email', email);
+        data.set('bookingUid', bookingUid);
         const res = await fetch(`${API_URL}?sessid=${sessid}&action=${action}`, {
             method: 'POST',
             body: data,
@@ -165,15 +185,27 @@ export const appointmentApi = {
         return await prepareResponse(res);
     },
 
-    async verifyConfirmCode(code: string) {
+    async verifyConfirmCode(code: string, bookingUid: string = '') {
         const action = `${CONTROLLER}.verifyConfirmCode`;
         const data = new FormData();
         data.set('code', code);
+        data.set('bookingUid', bookingUid);
         const res = await fetch(`${API_URL}?sessid=${sessid}&action=${action}`, {
             method: 'POST',
             body: data,
         });
         // @ts-ignore
+        return await prepareResponse(res);
+    },
+
+    async resetConfirmation(bookingUid: string) {
+        const action = `${CONTROLLER}.resetConfirmation`;
+        const data = new FormData();
+        data.set('bookingUid', bookingUid);
+        const res = await fetch(`${API_URL}?sessid=${sessid}&action=${action}`, {
+            method: 'POST',
+            body: data,
+        });
         return await prepareResponse(res);
     },
 

@@ -243,7 +243,7 @@ final class Configuration
 
     public function getExchangeConfirmMode(): string
     {
-        return $this->getOption(Constants::OPTION_KEY_EXCHANGE_CONFIRM_MODE, ConfirmationType::NONE->value);
+        return $this->getOption(Constants::OPTION_KEY_EXCHANGE_CONFIRM_MODE, ConfirmationType::EMAIL->value);
     }
 
     public function getLogsTTL(): int

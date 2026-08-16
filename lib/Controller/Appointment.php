@@ -5,6 +5,8 @@ use ANZ\Appointment\Agent\Exchange;
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Config\Constants;
 use ANZ\Appointment\Core\ActionFilter\Admin;
+use ANZ\Appointment\Core\Exception\PublicRequestException;
+use ANZ\Appointment\Core\Exception\RateLimitExceededException;
 use ANZ\Appointment\Service\Container;
 use ANZ\Appointment\Service\Exchange\Manager;
 use ANZ\Appointment\UI\Adapter\ReactMUI;
@@ -22,6 +24,8 @@ use Throwable;
 
 class Appointment extends Controller
 {
+    private const PUBLIC_ERROR_LOG_TTL = 300;
+
     private Manager $exchangeService;
     private bool $isReactMuiExt;
 
@@ -163,12 +167,21 @@ class Appointment extends Controller
         string $employeeUid,
         string $dateTimeBegin,
         int    $serviceDuration = 0,
+        string $captchaSid = '',
+        string $captchaWord = '',
     ): ?array
     {
         try
         {
+            Container::getInstance()->getCaptchaService()->assertValid($captchaSid, $captchaWord);
             Container::getInstance()->getRateLimitPolicy()->assertBookSlotAllowed($clinicUid, $employeeUid);
-            return $this->exchangeService->sendBooking($clinicUid, $employeeUid, $dateTimeBegin, $serviceDuration)?->toArray();
+            $booking = $this->exchangeService->sendBooking($clinicUid, $employeeUid, $dateTimeBegin, $serviceDuration);
+            if ($booking !== null)
+            {
+                Container::getInstance()->getBookingSession()->markCaptchaVerified($booking->uid);
+            }
+
+            return $booking?->toArray();
         }
         catch (Throwable $e)
         {
@@ -180,7 +193,7 @@ class Appointment extends Controller
     /**
      * @throws \Exception
      */
-    public function sendAppointmentAction(string $jsonData): ?array
+    public function sendAppointmentAction(string $jsonData, string $captchaSid = '', string $captchaWord = ''): ?array
     {
         try
         {
@@ -188,7 +201,20 @@ class Appointment extends Controller
             $data = json_decode($jsonData, true);
             if (!is_array($data))
             {
-                throw new Exception('Invalid JSON Data');
+                throw new PublicRequestException('Invalid JSON Data');
+            }
+
+            if (Configuration::getInstance()->getExchangeConfirmMode() === 'none')
+            {
+                $bookingUid = (string)($data['bookingUid'] ?? '');
+                if ($bookingUid !== '')
+                {
+                    Container::getInstance()->getBookingSession()->assertCanConfirm($bookingUid);
+                }
+                else
+                {
+                    Container::getInstance()->getCaptchaService()->assertValid($captchaSid, $captchaWord);
+                }
             }
 
             return $this->exchangeService->sendAppointment($data)->toArray();
@@ -258,11 +284,12 @@ class Appointment extends Controller
     /**
      * @throws \Exception
      */
-    public function sendConfirmCodeAction(string $phone = '', string $email = '', string $purpose = 'appointment'): ?Result
+    public function getCaptchaAction(): ?array
     {
         try
         {
-            return Container::getInstance()->getConfirmationService()->sendConfirmCode($phone, $email, $purpose);
+            Container::getInstance()->getRateLimitPolicy()->assertCaptchaIssueAllowed();
+            return Container::getInstance()->getCaptchaService()->create();
         }
         catch (Throwable $e)
         {
@@ -274,11 +301,48 @@ class Appointment extends Controller
     /**
      * @throws \Exception
      */
-    public function verifyConfirmCodeAction(string $code, string $purpose = 'appointment'): ?Result
+    public function sendConfirmCodeAction(
+        string $phone = '',
+        string $email = '',
+        string $bookingUid = '',
+    ): ?Result
     {
         try
         {
-            return Container::getInstance()->getConfirmationService()->verifyConfirmCode($code, $purpose);
+            return Container::getInstance()->getConfirmationService()->sendConfirmCode($phone, $email, $bookingUid);
+        }
+        catch (Throwable $e)
+        {
+            $this->addPublicError($e);
+            return null;
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function verifyConfirmCodeAction(string $code, string $bookingUid = ''): ?Result
+    {
+        try
+        {
+            return Container::getInstance()->getConfirmationService()->verifyConfirmCode($code, $bookingUid);
+        }
+        catch (Throwable $e)
+        {
+            $this->addPublicError($e);
+            return null;
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function resetConfirmationAction(string $bookingUid = ''): ?array
+    {
+        try
+        {
+            Container::getInstance()->getConfirmationService()->resetUnverified($bookingUid);
+            return [];
         }
         catch (Throwable $e)
         {
@@ -297,7 +361,7 @@ class Appointment extends Controller
             $data = json_decode($jsonData, true);
             if (!is_array($data))
             {
-                throw new Exception('Invalid JSON Data');
+                throw new PublicRequestException('Invalid JSON Data');
             }
 
             $email = (string)($data['email'] ?? '');
@@ -373,12 +437,41 @@ class Appointment extends Controller
      */
     private function addPublicError(Throwable $e, ?string $message = null): void
     {
-        Container::getInstance()->getLogger()->log(
-            $e,
-            __METHOD__,
-            Configuration::getInstance()->getControllerLogFilePath()
-        );
+        if ($this->shouldLogPublicError($e))
+        {
+            Container::getInstance()->getLogger()->log(
+                $e,
+                __METHOD__,
+                Configuration::getInstance()->getControllerLogFilePath()
+            );
+        }
         $this->addError(new Error($message ?: Loc::getMessage('ANZ_APPOINTMENT_PUBLIC_ERROR_DEFAULT')));
+    }
+
+    private function shouldLogPublicError(Throwable $exception): bool
+    {
+        if ($exception instanceof RateLimitExceededException)
+        {
+            return $exception->isFirstExceeded();
+        }
+
+        if ($exception instanceof PublicRequestException)
+        {
+            return false;
+        }
+
+        try
+        {
+            return Container::getInstance()->getRateLimiter()->isFirstOccurrence(
+                'public_error_log',
+                self::PUBLIC_ERROR_LOG_TTL,
+                get_class($exception) . '|' . $exception->getCode(),
+            );
+        }
+        catch (Throwable)
+        {
+            return true;
+        }
     }
 
     /**

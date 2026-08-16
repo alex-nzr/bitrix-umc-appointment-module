@@ -12,7 +12,7 @@ import {useAppointment} from "../hooks/useAppointment";
 import ErrorIcon from "@mui/icons-material/Error";
 
 export const StepConfirmation = () => {
-    const { code, setCode, nextStep, goToStep, contact, isLoading, setIsLoading } = useAppointmentStore();
+    const { code, setCode, nextStep, goToStep, contact, bookingUid, isLoading, setIsLoading } = useAppointmentStore();
     const {sendAppointment, appointmentError} = useAppointment();
     const [seconds, setSeconds] = useState(60);
     const [confirmed, setConfirmed] = useState(false);
@@ -35,11 +35,11 @@ export const StepConfirmation = () => {
 
     const send = useCallback(() => {
         setIsLoading(true);
-        appointmentApi.sendConfirmCode(contact.phone, contact.email)
+        appointmentApi.sendConfirmCode(contact.phone, contact.email, bookingUid ?? '')
             .then(() => initTimer())
             .catch((e) => setError(Array.isArray(e) ? String(e[0]?.message) : String(e)))
             .finally(() => setIsLoading(false))
-    }, [contact.email, contact.phone, initTimer, setIsLoading]);
+    }, [bookingUid, contact.email, contact.phone, initTimer, setIsLoading]);
 
     useEffect(() => {
         send();
@@ -67,12 +67,28 @@ export const StepConfirmation = () => {
             return;
         }
         setIsLoading(true);
-        appointmentApi.verifyConfirmCode(code)
+        appointmentApi.verifyConfirmCode(code, bookingUid ?? '')
             .then(() => {
                 setConfirmed(true);
             })
             .catch((e) => setError(Array.isArray(e) ? String(e[0]?.message) : String(e)))
             .finally(() => setIsLoading(false))
+    };
+
+    const changeContact = () => {
+        if (!bookingUid)
+        {
+            return;
+        }
+
+        setIsLoading(true);
+        appointmentApi.resetConfirmation(bookingUid)
+            .then(() => {
+                setCode('');
+                goToStep(3);
+            })
+            .catch((e) => setError(Array.isArray(e) ? String(e[0]?.message) : String(e)))
+            .finally(() => setIsLoading(false));
     };
 
     if (appointmentError)
@@ -148,6 +164,10 @@ export const StepConfirmation = () => {
                     </Typography>
                 </>
             )}
+
+            <Button variant="text" sx={{ mt: 1 }} onClick={changeContact} disabled={isLoading}>
+                Изменить контакты
+            </Button>
         </Box>
     );
 };

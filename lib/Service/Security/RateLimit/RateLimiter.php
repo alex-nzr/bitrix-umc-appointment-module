@@ -2,6 +2,7 @@
 
 namespace ANZ\Appointment\Service\Security\RateLimit;
 
+use ANZ\Appointment\Core\Exception\RateLimitExceededException;
 use ANZ\Appointment\Model\RateLimitTable;
 use ANZ\Appointment\Repository\RateLimit\RateLimitRepository;
 use ANZ\Appointment\Repository\RateLimit\RateLimitRepositoryInterface;
@@ -34,16 +35,39 @@ class RateLimiter
     /**
      * @throws \Bitrix\Main\SystemException
      */
-    public function assertAllowed(string $scope, int $limit, int $ttl, string $identity = ''): void
+    public function assertAllowed(string $scope, int $limit, int $ttl, string $identity = '', bool $includeIp = true): void
     {
         $now = ($this->clock)();
-        $key = hash_hmac('sha256', $scope . '|' . $identity . '|' . ($this->ipResolver)(), ($this->secretResolver)());
+        $keyData = $scope . '|' . $identity;
+        if ($includeIp)
+        {
+            $keyData .= '|' . ($this->ipResolver)();
+        }
+
+        $key = hash_hmac('sha256', $keyData, ($this->secretResolver)());
         $count = $this->repository->increment($key, $now + $ttl, $now);
 
         if ($count > $limit)
         {
-            throw new SystemException('Too many requests');
+            throw new RateLimitExceededException($scope, $count === $limit + 1);
         }
+    }
+
+    /**
+     * @throws \Bitrix\Main\SystemException
+     */
+    public function isFirstOccurrence(string $scope, int $ttl, string $identity = '', bool $includeIp = false): bool
+    {
+        $now = ($this->clock)();
+        $keyData = $scope . '|' . $identity;
+        if ($includeIp)
+        {
+            $keyData .= '|' . ($this->ipResolver)();
+        }
+
+        $key = hash_hmac('sha256', $keyData, ($this->secretResolver)());
+
+        return $this->repository->increment($key, $now + $ttl, $now) === 1;
     }
 
     private function getIp(): string

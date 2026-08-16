@@ -42,6 +42,7 @@ export class ClassicForm
     orderData       = {
         bookingUid: null,
     };
+    confirmationInProgress = false;
     selectionBlocks = {};
     selectionNodes  = {};
     textNodes       = {};
@@ -175,6 +176,7 @@ export class ClassicForm
             this.initMobileCloseBtn();
             this.initSelectionNodes();
             this.initTextNodes();
+            this.initCaptcha();
             this.addPhoneMasks();
             this.addCalendarSelection();
             this.addCustomColors();
@@ -267,6 +269,31 @@ export class ClassicForm
         this.messageNode    = BX(this.selectors.messageNodeId);
         this.submitBtn      = BX(this.selectors.submitBtnId);
         this.resultBlock    = BX(this.selectors.appResultBlockId);
+        this.captchaImage   = BX(this.selectors.captchaImageId);
+        this.captchaInput   = BX(this.selectors.captchaInputId);
+        this.captchaRefresh = BX(this.selectors.captchaRefreshId);
+    }
+
+    initCaptcha(){
+        this.refreshCaptcha();
+        this.captchaRefresh && EventManager.bind(this.captchaRefresh, 'click', this.refreshCaptcha.bind(this));
+    }
+
+    refreshCaptcha(){
+        return BX.ajax.runAction('anz:appointment.Appointment.getCaptcha', {
+            data: {
+                sessid: BX.bitrix_sessid()
+            }
+        })
+            .then((result) => {
+                this.captchaSid = result.data?.captchaSid ?? '';
+                this.captchaImage && (this.captchaImage.src = result.data?.imageUrl ?? '');
+                this.captchaInput && (this.captchaInput.value = '');
+            })
+            .catch((result) => {
+                this.captchaSid = '';
+                this.logResultErrors(result);
+            });
     }
 
     /**
@@ -1065,12 +1092,18 @@ export class ClassicForm
     sendConfirmCode (event = false) {
         event && event.preventDefault();
 
+        if (this.confirmationInProgress)
+        {
+            return;
+        }
+
         this.messageNode.textContent = "";
 
         BX.ajax.runAction('anz:appointment.Appointment.sendConfirmCode', {
             data: {
                 phone: this.orderData.phone,
                 email: this.orderData.email,
+                bookingUid: this.orderData.bookingUid,
                 sessid: BX.bitrix_sessid()
             }
         })
@@ -1095,21 +1128,30 @@ export class ClassicForm
 
     verifyConfirmCode (code, confirmWarningNode, btnNode)
     {
+        if (this.confirmationInProgress)
+        {
+            return;
+        }
+
         if (confirmWarningNode && btnNode){
             confirmWarningNode.textContent = '';
             if (code?.length === 4)
             {
+                this.confirmationInProgress = true;
+                this.confirmWrapper?.classList.add(styles['appointment-confirmation-pending']);
                 btnNode.classList.add(styles['loading']);
 
                 BX.ajax.runAction('anz:appointment.Appointment.verifyConfirmCode', {
                     data: {
                         code: code,
-                        email: this.orderData.email,
+                        bookingUid: this.orderData.bookingUid,
                         sessid: BX.bitrix_sessid()
                     }
                 })
                     .then(() => this.sendAppointment())
                     .catch(result => {
+                        this.confirmationInProgress = false;
+                        this.confirmWrapper?.classList.remove(styles['appointment-confirmation-pending']);
                         btnNode.classList.remove(styles['loading']);
                         if (result.errors?.length > 0){
                             result.errors.forEach((error) => {
@@ -1129,12 +1171,39 @@ export class ClassicForm
         }
     }
 
+    editConfirmationContact(event) {
+        event.preventDefault();
+
+        if (this.confirmationInProgress)
+        {
+            return;
+        }
+
+        BX.ajax.runAction('anz:appointment.Appointment.resetConfirmation', {
+            data: {
+                bookingUid: this.orderData.bookingUid,
+                sessid: BX.bitrix_sessid()
+            }
+        })
+            .then(() => this.destroyConfirmationForm())
+            .catch((result) => {
+                this.showError(result.errors?.[0]?.message ?? BX.message("ANZ_JS_APPLICATION_ERROR"));
+                this.logResultErrors(result);
+            });
+    }
+
     bookSlot()
     {
         if (this.bookingInProgress)
         {
             return;
         }
+        if (!this.captchaSid || !this.captchaInput?.value?.trim())
+        {
+            this.showError('Введите код с картинки');
+            return;
+        }
+
         this.bookingInProgress = true;
         this.fillOrderData();
         this.submitBtn.classList.add(styles['loading']);
@@ -1144,8 +1213,10 @@ export class ClassicForm
                 employeeUid: this.orderData.employeeUid,
                 dateTimeBegin: this.orderData.timeBegin,//.orderDate
                 serviceDuration: this.orderData.serviceDuration,
-            },
-            sessid: BX.bitrix_sessid()
+                captchaSid: this.captchaSid,
+                captchaWord: this.captchaInput.value,
+                sessid: BX.bitrix_sessid()
+            }
         })
             .then((result) => {
                 if (result.data?.error)
@@ -1161,6 +1232,7 @@ export class ClassicForm
                 this.changeFormStep(this.formStepNodes.two, true);
                 this.showError(BX.message('ANZ_JS_BOOKING_SLOT_ERROR'));
                 this.logResultErrors(result);
+                this.refreshCaptcha();
                 this.bookingInProgress = false;
             });
     }
@@ -1173,6 +1245,7 @@ export class ClassicForm
             }
         })
             .then((result) => {
+                this.confirmationInProgress = false;
                 this.destroyConfirmationForm();
                 this.toggleLoader(false);
 
@@ -1191,6 +1264,7 @@ export class ClassicForm
                 }
             })
             .catch(result => {
+                this.confirmationInProgress = false;
                 this.destroyConfirmationForm();
                 this.toggleLoader(false);
                 this.logResultErrors(result);
@@ -1559,6 +1633,9 @@ export class ClassicForm
             inputClass:         stylesObject['appointment-form_input'],
             textareaClass:      stylesObject['appointment-form_textarea'],
             confirmWrapperId:   stylesObject['appointment-form-confirmation-wrapper'],
+            captchaImageId:     'appointment-captcha-image',
+            captchaInputId:     'appointment-captcha-input',
+            captchaRefreshId:   'appointment-captcha-refresh',
             formStepIds: {
                 one:        'appointment-form-step-one',
                 two:        'appointment-form-step-two',

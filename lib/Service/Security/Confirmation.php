@@ -3,10 +3,10 @@ namespace ANZ\Appointment\Service\Security;
 
 use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Config\ConfirmationType;
+use ANZ\Appointment\Core\Exception\PublicRequestException;
 use ANZ\Appointment\Core\Trait\Validator;
 use ANZ\Appointment\Service\Container;
 use Bitrix\Main\Application;
-use Bitrix\Main\AccessDeniedException;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
@@ -20,8 +20,6 @@ class Confirmation
     private const CODE_TTL = 300;
     private const RESEND_TTL = 60;
     private const MAX_ATTEMPTS = 5;
-    private const RATE_LIMIT_SEND_LIMIT = 5;
-    private const RATE_LIMIT_SEND_TTL = 900;
     private const RATE_LIMIT_VERIFY_LIMIT = 10;
     private const RATE_LIMIT_VERIFY_TTL = 900;
     private const CODE_MIN = 1000;
@@ -31,7 +29,7 @@ class Confirmation
     private const ERROR_CODE_INCORRECT = 406;
     private const ERROR_CODE_CONFIRM_TYPE = 400;
 
-    public function sendConfirmCode(string $phone, string $email, string $purpose = 'appointment'): Result
+    public function sendConfirmCode(string $phone, string $email, string $bookingUid, string $purpose = 'appointment'): Result
     {
         try
         {
@@ -43,12 +41,14 @@ class Confirmation
             $result = new Result();
             $target = $this->resolveTarget($confirmWith, $phone, $email);
 
-            Container::getInstance()->getRateLimiter()->assertAllowed(
-                'confirm_send',
-                self::RATE_LIMIT_SEND_LIMIT,
-                self::RATE_LIMIT_SEND_TTL,
-                $purpose . '|' . $target
-            );
+            if ($purpose === 'appointment')
+            {
+                $bookingSession = Container::getInstance()->getBookingSession();
+                $bookingSession->assertCanConfirm($bookingUid);
+                $bookingSession->bindConfirmationTarget($bookingUid, $target);
+            }
+
+            Container::getInstance()->getRateLimitPolicy()->assertConfirmCodeSendAllowed($target, $bookingUid);
 
             $confirm = $this->getConfirmData($purpose);
             if (!empty($confirm))
@@ -64,10 +64,10 @@ class Confirmation
             switch ($confirmWith)
             {
                 case ConfirmationType::PHONE->value:
-                    $result = $smsService->sendConfirmCode($phone, $code);
+                    $result = $smsService->sendConfirmCode($target, $code);
                     break;
                 case ConfirmationType::EMAIL->value:
-                    $result = $mailer->sendConfirmCode($email, $code);
+                    $result = $mailer->sendConfirmCode($target, $code);
                     break;
                 case ConfirmationType::NONE->value:
                     break;
@@ -87,6 +87,7 @@ class Confirmation
                     'resendAfter' => $timeExpires,
                     'attempts' => 0,
                     'verified' => $confirmWith === ConfirmationType::NONE->value,
+                    'bookingUid' => $bookingUid,
                 ]);
             }
 
@@ -98,7 +99,7 @@ class Confirmation
         }
     }
 
-    public function verifyConfirmCode(string $code, string $purpose = 'appointment'): Result
+    public function verifyConfirmCode(string $code, string $bookingUid, string $purpose = 'appointment'): Result
     {
         $result = new Result();
         try
@@ -119,6 +120,12 @@ class Confirmation
             if ((int)($confirm['expires'] ?? 0) < time())
             {
                 $this->clear($purpose);
+                $result->addError(new Error(Loc::getMessage("ANZ_APPOINTMENT_CONFIRM_CODE_EXPIRED"), self::ERROR_CODE_EXPIRED));
+                return $result;
+            }
+
+            if ($purpose === 'appointment' && !hash_equals((string)($confirm['bookingUid'] ?? ''), $bookingUid))
+            {
                 $result->addError(new Error(Loc::getMessage("ANZ_APPOINTMENT_CONFIRM_CODE_EXPIRED"), self::ERROR_CODE_EXPIRED));
                 return $result;
             }
@@ -150,9 +157,9 @@ class Confirmation
     }
 
     /**
-     * @throws AccessDeniedException
+     * @throws PublicRequestException
      */
-    public function assertVerified(string $phone, string $email, string $purpose = 'appointment'): void
+    public function assertVerified(string $phone, string $email, string $bookingUid = '', string $purpose = 'appointment'): void
     {
         $confirmWith = Configuration::getInstance()->getExchangeConfirmMode();
         if ($confirmWith === ConfirmationType::NONE->value)
@@ -166,10 +173,11 @@ class Confirmation
             empty($confirm)
             || empty($confirm['verified'])
             || (string)($confirm['target'] ?? '') !== $target
+            || ($purpose === 'appointment' && !hash_equals((string)($confirm['bookingUid'] ?? ''), $bookingUid))
             || (int)($confirm['expires'] ?? 0) < time()
         )
         {
-            throw new AccessDeniedException('Confirmation is required');
+            throw new PublicRequestException('Confirmation is required');
         }
     }
 
@@ -178,6 +186,25 @@ class Confirmation
         $all = $this->getAllConfirmData();
         unset($all[$purpose]);
         Application::getInstance()->getSession()->set(self::SESSION_KEY, $all);
+    }
+
+    /**
+     * @throws PublicRequestException
+     */
+    public function resetUnverified(string $bookingUid): void
+    {
+        $confirm = $this->getConfirmData('appointment');
+        if (
+            empty($confirm)
+            || !hash_equals((string)($confirm['bookingUid'] ?? ''), $bookingUid)
+            || !empty($confirm['verified'])
+        )
+        {
+            throw new PublicRequestException('Confirmation cannot be reset');
+        }
+
+        Container::getInstance()->getBookingSession()->clearConfirmationTarget($bookingUid);
+        $this->clear();
     }
 
     private function resolveTarget(string $confirmWith, string $phone, string $email): string

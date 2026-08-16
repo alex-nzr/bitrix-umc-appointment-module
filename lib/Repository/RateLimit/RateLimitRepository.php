@@ -72,6 +72,26 @@ class RateLimitRepository extends EntityRepository implements RateLimitRepositor
         throw new SystemException('Unable to update rate limit counter');
     }
 
+    public function deleteExpired(int $now): int
+    {
+        $rateLimitTable = $this->entity->getDataClass();
+        $result = $rateLimitTable::query()
+            ->setSelect(['RATE_KEY'])
+            ->setFilter(['<EXPIRES_AT' => $now])
+            ->exec();
+        $deletedCount = 0;
+
+        while ($record = $result->fetch())
+        {
+            if ($this->delete((string)$record['RATE_KEY']))
+            {
+                $deletedCount++;
+            }
+        }
+
+        return $deletedCount;
+    }
+
     protected function validate(EntityObject $entity): bool
     {
         return true;

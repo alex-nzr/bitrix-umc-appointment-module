@@ -10,6 +10,7 @@ use Throwable;
 
 class Exchange
 {
+    private const RATE_LIMIT_RETENTION_TTL = 86400;
     /**
      * @throws \Throwable
      */
@@ -137,5 +138,26 @@ class Exchange
         }
 
         return __METHOD__ . "();";
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public static function cleanRateLimits(): string
+    {
+        try
+        {
+            Container::getInstance()->getRateLimitRepository()->deleteExpired(time() - self::RATE_LIMIT_RETENTION_TTL);
+        }
+        catch (Throwable $e)
+        {
+            Container::getInstance()->getLogger()->log(
+                $e,
+                __METHOD__ . ' ' . date('Y-m-d H:i:s'),
+                Configuration::getInstance()->getCommonLogFilePath()
+            );
+        }
+
+        return __METHOD__ . '();';
     }
 }

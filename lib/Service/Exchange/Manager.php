@@ -235,7 +235,8 @@ class Manager
             );
             Container::getInstance()->getConfirmationService()->assertVerified(
                 (string)($data['phone'] ?? ''),
-                (string)($data['email'] ?? '')
+                (string)($data['email'] ?? ''),
+                $bookingUid
             );
 
             if (Configuration::getInstance()->isWaitListEnabled())
@@ -301,6 +302,7 @@ class Manager
                 Container::getInstance()->getConfirmationService()->assertVerified(
                     (string)($accessData[RecordTable::FIELD_NAME_PATIENT_PHONE] ?? $accessData['phone'] ?? ''),
                     (string)($accessData[RecordTable::FIELD_NAME_PATIENT_EMAIL] ?? $accessData['email'] ?? ''),
+                    '',
                     'cancel'
                 );
             }

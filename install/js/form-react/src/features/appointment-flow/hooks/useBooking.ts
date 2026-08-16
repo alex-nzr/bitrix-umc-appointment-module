@@ -18,7 +18,7 @@ export const useBooking = () => {
     const bookingRef = useRef(false);
     const {servicesEnabled} = useSettings();
 
-    const bookSlot = async (): Promise<boolean> => {
+    const bookSlot = async (captchaSid: string, captchaWord: string): Promise<boolean> => {
         if (bookingRef.current || !clinicUid || !doctorUid || (servicesEnabled && !serviceUIDs.length) || !slot)
         {
             return false;
@@ -36,7 +36,7 @@ export const useBooking = () => {
                 timeBegin: slot.timeBegin,
                 duration: slot.duration,
             };
-            const data = await appointmentApi.bookSlot(reserve);
+            const data = await appointmentApi.bookSlot(reserve, captchaSid, captchaWord);
             setBookingUid(data?.uid ?? null);
             return true;
         }

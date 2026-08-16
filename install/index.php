@@ -322,6 +322,15 @@ class anz_appointment extends CModule
                 'nextExec' => date("d.m.Y H:i:s", time() + 60),
                 'sort' => 100
             ],
+            [
+                'handler' => Exchange::class . "::cleanRateLimits();",
+                'period' => "N",
+                'interval' => 86400,
+                'userId' => null,
+                'active' => 'Y',
+                'nextExec' => date("d.m.Y H:i:s", time() + 60),
+                'sort' => 100
+            ],
         ];
     }
 

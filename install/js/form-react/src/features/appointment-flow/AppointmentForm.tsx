@@ -89,27 +89,19 @@ export const AppointmentForm: FC = () => {
                 onClose={handleClose}
                 aria-labelledby={`appointment-form`}
                 keepMounted={steps[step]?.id !== 'Final'}
-                fullScreen={isMobile}
-                slotProps={{
-                    paper: {
-                        sx: {
-                            width: "100%",
-                            maxWidth: 900
-                        }
-                    }
-                }}
+                fullScreen
         >
-            <DialogContent>
-                <Box sx={{p: { xs: 2, md: 2 } }}>
+            <DialogContent sx={{p: 0, display: 'flex', flexDirection: 'column'}}>
+                <Box sx={{px: 2, pt: 0, pb: 1}}>
                     {logoImageSrc && (
-                        <Box sx={{display: 'flex', justifyContent: 'center', mb: 2}}>
+                        <Box sx={{display: 'flex', justifyContent: 'center', mb: 1}}>
                             <Avatar
                                 src={logoImageSrc}
                                 alt="Logo"
                                 variant="rounded"
                                 sx={{
                                     width: 'auto',
-                                    height: { xs: 56, md: 72 },
+                                    height: { xs: 40, md: 40 },
                                     maxWidth: '100%',
                                     '& img': {
                                         objectFit: 'contain'
@@ -145,7 +137,7 @@ export const AppointmentForm: FC = () => {
                             </Box>
                         )
                         : (
-                            <Stepper activeStep={step} sx={{ pt: 2, pb: 1 }}>
+                            <Stepper activeStep={step} sx={{pt: 1, pb: 1}}>
                                 {steps.map((step) => (
                                     <Step key={step.id}>
                                         <StepLabel>{step.label}</StepLabel>
@@ -157,7 +149,7 @@ export const AppointmentForm: FC = () => {
                 </Box>
 
                 <Fade key={step} in timeout={300}>
-                    <Box>
+                    <Box sx={{px: 2, pb: 1}}>
                         <StepComponent />
                     </Box>
                 </Fade>

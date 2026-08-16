@@ -208,7 +208,7 @@ class Module implements IOptionStorage
                     [
                         Constants::OPTION_KEY_EXCHANGE_CONFIRM_MODE,
                         Loc::getMessage('ANZ_APPOINTMENT_EXCHANGE_CONFIRM_MODE'),
-                        ConfirmationType::NONE->value,
+                        ConfirmationType::EMAIL->value,
                         [
                             'select',
                             'LIST' => [

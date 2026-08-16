@@ -23,6 +23,7 @@ use ANZ\Appointment\Service\Message\Sms;
 use ANZ\Appointment\Service\Security\Appointment\AppointmentAccess;
 use ANZ\Appointment\Service\Security\Appointment\AppointmentPayloadGuard;
 use ANZ\Appointment\Service\Security\Appointment\BookingSession;
+use ANZ\Appointment\Service\Security\Captcha\BitrixCaptcha;
 use ANZ\Appointment\Service\Security\Confirmation;
 use ANZ\Appointment\Service\Security\Encryptor;
 use ANZ\Appointment\Service\Security\OneCUrlGuard;
@@ -181,6 +182,14 @@ class Container
     public function getRateLimitPolicy(): RateLimitPolicy
     {
         return $this->getShared(RateLimitPolicy::class, fn() => new RateLimitPolicy($this->getRateLimiter()));
+    }
+
+    /**
+     * @throws ServiceContainerException
+     */
+    public function getCaptchaService(): BitrixCaptcha
+    {
+        return $this->getShared(BitrxCaptcha::class, fn() => new BitrixCaptcha());
     }
 
     /**
