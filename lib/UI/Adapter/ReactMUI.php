@@ -218,7 +218,7 @@ class ReactMUI
         $timestampTimeBegin = (int)strtotime($timeSlot->timeBegin);
         $timestampTimeEnd = (int)strtotime($timeSlot->timeEnd);
         $timeDifference = $timestampTimeEnd - $timestampTimeBegin;
-        $timeslotsCount = round($timeDifference / ($duration));
+        $timeslotsCount = (int)floor($timeDifference / $duration);
 
         $result = [];
         for ($i = 0; $i < $timeslotsCount; $i++)

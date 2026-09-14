@@ -150,25 +150,18 @@ class AppointmentPayloadGuard
                 {
                     if ($scheduleItem instanceof ScheduleItemDto)
                     {
-                        foreach ((array)($scheduleItem->timeslots['freeFormatted'] ?? []) as $dateSlots)
+                        foreach (['free', 'freeFormatted'] as $status)
                         {
-                            foreach ((array)$dateSlots as $slot)
+                            foreach ((array)($scheduleItem->timeslots[$status] ?? []) as $dateSlots)
                             {
-                                if (strtotime($slot->timeBegin) === $timestamp)
+                                foreach ((array)$dateSlots as $slot)
                                 {
-                                    return;
-                                }
-                            }
-                        }
-                        foreach ((array)($scheduleItem->timeslots['free'] ?? []) as $dateSlots)
-                        {
-                            foreach ((array)$dateSlots as $slot)
-                            {
-                                $slotStart = strtotime($slot->timeBegin);
-                                $slotEnd = strtotime($slot->timeEnd);
-                                if ($slotStart !== false && $slotEnd !== false && $timestamp >= $slotStart && ($timestamp + $duration) <= $slotEnd)
-                                {
-                                    return;
+                                    $slotStart = strtotime($slot->timeBegin);
+                                    $slotEnd = strtotime($slot->timeEnd);
+                                    if ($slotStart !== false && $slotEnd !== false && $timestamp >= $slotStart && ($timestamp + $duration) <= $slotEnd)
+                                    {
+                                        return;
+                                    }
                                 }
                             }
                         }
