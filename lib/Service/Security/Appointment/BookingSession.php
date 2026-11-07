@@ -2,6 +2,7 @@
 
 namespace ANZ\Appointment\Service\Security\Appointment;
 
+use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Core\Exception\PublicRequestException;
 use Bitrix\Main\Application;
 
@@ -50,7 +51,7 @@ class BookingSession
     public function assertCanConfirm(string $uid): void
     {
         $booking = $this->getActiveBooking($uid);
-        if (!($booking['captchaVerified'] ?? false))
+        if (Configuration::getInstance()->isCaptchaEnabled() && !($booking['captchaVerified'] ?? false))
         {
             throw new PublicRequestException('CAPTCHA confirmation is required');
         }

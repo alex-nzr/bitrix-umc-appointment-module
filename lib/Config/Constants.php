@@ -34,6 +34,8 @@ class Constants
     const OPTION_KEY_USE_WAIT_LIST          = 'appointment_settings_use_waiting_list';
     const OPTION_KEY_EMAIL_NOTE             = 'appointment_settings_use_email_note';
     const OPTION_KEY_EXCHANGE_CONFIRM_MODE = 'appointment_exchange_confirm_mode';
+    const OPTION_KEY_USE_CAPTCHA = 'appointment_use_captcha';
+    const DEFAULT_USE_CAPTCHA = 'Y';
     const OPTION_KEY_USE_TIME_STEPS         = 'appointment_settings_use_time_steps';
     const OPTION_KEY_TIME_STEP_DURATION     = 'appointment_settings_time_step_duration';
     const OPTION_KEY_STRICT_RELATIONS       = 'appointment_settings_strict_checking_relations';

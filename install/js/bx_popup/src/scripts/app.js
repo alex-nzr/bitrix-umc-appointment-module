@@ -64,6 +64,7 @@ export class ClassicForm
         this.showDoctorsWithoutDepartment	= (params.showDoctorsWithoutDepartment === "Y");
         this.confirmTypes                   = params.confirmTypes;
         this.useConfirmWith                 = (params.useConfirmWith);
+        this.captchaEnabled                 = params.captchaEnabled !== false;
         this.useEmailNote                   = (params.useEmailNote === "Y");
 
         this.companyLogo      = params.companyLogo ?? false;
@@ -280,6 +281,10 @@ export class ClassicForm
     }
 
     refreshCaptcha(){
+        if (!this.captchaEnabled)
+        {
+            return Promise.resolve();
+        }
         return BX.ajax.runAction('anz:appointment.Appointment.getCaptcha', {
             data: {
                 sessid: BX.bitrix_sessid()
@@ -1198,7 +1203,7 @@ export class ClassicForm
         {
             return;
         }
-        if (!this.captchaSid || !this.captchaInput?.value?.trim())
+        if (this.captchaEnabled && (!this.captchaSid || !this.captchaInput?.value?.trim()))
         {
             this.showError('Введите код с картинки');
             return;
@@ -1213,8 +1218,8 @@ export class ClassicForm
                 employeeUid: this.orderData.employeeUid,
                 dateTimeBegin: this.orderData.timeBegin,//.orderDate
                 serviceDuration: this.orderData.serviceDuration,
-                captchaSid: this.captchaSid,
-                captchaWord: this.captchaInput.value,
+                captchaSid: this.captchaEnabled ? this.captchaSid : '',
+                captchaWord: this.captchaEnabled ? this.captchaInput?.value ?? '' : '',
                 sessid: BX.bitrix_sessid()
             }
         })

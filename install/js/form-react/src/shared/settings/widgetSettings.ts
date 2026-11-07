@@ -13,6 +13,7 @@ export interface WidgetSettings {
     servicesEnabled: boolean;
     emailNotificationEnabled: boolean;
     confirmationType: ConfirmationType;
+    captchaEnabled?: boolean;
     useCustomButton: boolean;
     customButtonSelector: string|null;
     phoneInputMask: string;

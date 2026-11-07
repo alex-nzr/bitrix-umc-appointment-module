@@ -218,6 +218,12 @@ class Module implements IOptionStorage
                             ]
                         ]
                     ],
+                    [
+                        Constants::OPTION_KEY_USE_CAPTCHA,
+                        Loc::getMessage('ANZ_APPOINTMENT_USE_CAPTCHA'),
+                        Constants::DEFAULT_USE_CAPTCHA,
+                        ['checkbox'],
+                    ],
                 ]
             ],
             [

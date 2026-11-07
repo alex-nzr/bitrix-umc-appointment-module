@@ -176,7 +176,7 @@ class Appointment extends Controller
             Container::getInstance()->getCaptchaService()->assertValid($captchaSid, $captchaWord);
             Container::getInstance()->getRateLimitPolicy()->assertBookSlotAllowed($clinicUid, $employeeUid);
             $booking = $this->exchangeService->sendBooking($clinicUid, $employeeUid, $dateTimeBegin, $serviceDuration);
-            if ($booking !== null)
+            if ($booking !== null && Configuration::getInstance()->isCaptchaEnabled())
             {
                 Container::getInstance()->getBookingSession()->markCaptchaVerified($booking->uid);
             }

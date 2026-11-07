@@ -2,6 +2,7 @@
 
 namespace ANZ\Appointment\Service\Security\Captcha;
 
+use ANZ\Appointment\Config\Configuration;
 use ANZ\Appointment\Core\Exception\PublicRequestException;
 use Bitrix\Main\SystemException;
 
@@ -37,6 +38,11 @@ class BitrixCaptcha
      */
     public function assertValid(string $captchaSid, string $captchaWord): void
     {
+        if (!Configuration::getInstance()->isCaptchaEnabled())
+        {
+            return;
+        }
+
         global $APPLICATION;
 
         if (

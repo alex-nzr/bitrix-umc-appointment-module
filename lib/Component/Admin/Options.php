@@ -150,6 +150,10 @@ abstract class Options extends BaseComponent
 
                         $optionValue = $this->request->getPost($optionName);
                         $optionType  = is_array($arOption[3]) ? $arOption[3][0] : '';
+                        if ($optionType === 'checkbox')
+                        {
+                            $optionValue = $optionValue === 'Y' ? 'Y' : 'N';
+                        }
                         if ($optionType === 'file')
                         {
                             $currentValue = Option::get($this->moduleId, $optionName);

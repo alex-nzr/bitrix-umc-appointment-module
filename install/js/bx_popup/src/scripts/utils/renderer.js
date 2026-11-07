@@ -110,7 +110,7 @@ export class Renderer
                     this.application.useServices ? this.application.dataKeys.servicesKey : null,
                     this.application.dataKeys.scheduleKey
                 ])),
-                this.getCaptchaBlock(),
+                ...(this.application.captchaEnabled ? [this.getCaptchaBlock()] : []),
                 this.getFormButtonsBlock([btnPrev, btnNext])
             ]
         });

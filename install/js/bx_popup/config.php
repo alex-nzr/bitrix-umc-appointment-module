@@ -28,6 +28,7 @@ try
             'none'    => ConfirmationType::NONE->value,
         ],
         "useConfirmWith"    => Configuration::getInstance()->getExchangeConfirmMode(),
+        "captchaEnabled"    => Configuration::getInstance()->isCaptchaEnabled(),
         "privacyPageLink"   => Configuration::getInstance()->getPrivacyPageLink(),
 
         "textBlocks" => [

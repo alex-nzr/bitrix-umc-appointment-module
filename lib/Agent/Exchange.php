@@ -83,7 +83,7 @@ class Exchange
                 {
                     while ($item = readdir($dir))
                     {
-                        if ($item === '.keepme')
+                        if (in_array($item, ['.keepme', '.htaccess'], true))
                         {
                             continue;
                         }

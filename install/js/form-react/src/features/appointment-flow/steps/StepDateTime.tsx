@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import dayjs from "dayjs";
 import {Box, Button, Stack, TextField, Typography} from "@mui/material";
 import {useAppointmentStore} from "../../../shared/store/appointmentStore";
@@ -19,12 +19,16 @@ export const StepDateTime = () => {
     const {bookSlot, bookingError} = useBooking();
     const availableDates = useAvailableDates(slots);
     const slotsMap = useSlotsByDates(slots);
-    const {servicesEnabled} = useSettings();
+    const {servicesEnabled, captchaEnabled = true} = useSettings();
     const [captcha, setCaptcha] = useState<CaptchaChallenge | null>(null);
     const [captchaWord, setCaptchaWord] = useState('');
     const [captchaError, setCaptchaError] = useState<string | null>(null);
 
-    const refreshCaptcha = async () => {
+    const refreshCaptcha = useCallback(async () => {
+        if (!captchaEnabled)
+        {
+            return;
+        }
         try
         {
             setCaptchaError(null);
@@ -35,11 +39,11 @@ export const StepDateTime = () => {
         {
             setCaptchaError(String(error));
         }
-    };
+    }, [captchaEnabled]);
 
     useEffect(() => {
         refreshCaptcha();
-    }, []);
+    }, [refreshCaptcha]);
 
     useEffect(() => {
         if (slot && !dayjs(slot.timeBegin).isSame(selectedDate, 'day')) {
@@ -48,13 +52,13 @@ export const StepDateTime = () => {
     }, [selectedDate, setSlot, slot])
 
     const handleNext = async () => {
-        if (captcha === null || captchaWord.trim() === '')
+        if (captchaEnabled && (captcha === null || captchaWord.trim() === ''))
         {
             setCaptchaError('Введите код с картинки');
             return;
         }
 
-        const success = await bookSlot(captcha.captchaSid, captchaWord);
+        const success = await bookSlot(captchaEnabled ? captcha?.captchaSid ?? '' : '', captchaEnabled ? captchaWord : '');
         if (success) {
             nextStep();
             return;
@@ -92,7 +96,7 @@ export const StepDateTime = () => {
                 </Box>
             )}
 
-            <Stack
+            {captchaEnabled && <Stack
                 spacing={0.25}
                 alignItems="center"
             >
@@ -106,9 +110,9 @@ export const StepDateTime = () => {
                 />
                 <Button variant="text" onClick={refreshCaptcha} disabled={isLoading}>Обновить картинку</Button>
                 {captchaError && <Typography color="error">{captchaError}</Typography>}
-            </Stack>
+            </Stack>}
 
-            <NavigationButtons nextDisabled={!slot || !captcha || !captchaWord.trim() || isLoading} nextHandler={handleNext}/>
+            <NavigationButtons nextDisabled={!slot || (captchaEnabled && (!captcha || !captchaWord.trim())) || isLoading} nextHandler={handleNext}/>
         </Stack>
     );
 }

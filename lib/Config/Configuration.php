@@ -246,6 +246,11 @@ final class Configuration
         return $this->getOption(Constants::OPTION_KEY_EXCHANGE_CONFIRM_MODE, ConfirmationType::EMAIL->value);
     }
 
+    public function isCaptchaEnabled(): bool
+    {
+        return $this->getOption(Constants::OPTION_KEY_USE_CAPTCHA, Constants::DEFAULT_USE_CAPTCHA) !== 'N';
+    }
+
     public function getLogsTTL(): int
     {
         $val = (int)$this->getOption(Constants::OPTION_KEY_DEBUG_LOGS_TTL);

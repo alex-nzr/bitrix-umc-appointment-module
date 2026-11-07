@@ -11,6 +11,11 @@ namespace Bitrix\Main\Data {
 }
 
 namespace Bitrix\Main {
+    class Loader {
+        public const LOCAL_HOLDER = 'local';
+        public const BITRIX_HOLDER = 'bitrix';
+    }
+
     class ArgumentException extends \Exception {}
     class AccessDeniedException extends \Exception {}
     class SystemException extends \Exception {}
@@ -57,6 +62,13 @@ namespace Bitrix\Main {
     }
 
     class Application {
+        public static string $documentRoot = '';
+
+        public static function getDocumentRoot(): string
+        {
+            return self::$documentRoot;
+        }
+
         private static ?self $instance = null;
         private Session $session;
 
@@ -87,6 +99,15 @@ namespace Bitrix\Main {
         public function set(string $name, mixed $value): void
         {
             $this->data[$name] = $value;
+        }
+    }
+}
+
+namespace Bitrix\Main\IO {
+    class Directory {
+        public static function isDirectoryExists(string $path): bool
+        {
+            return is_dir($path);
         }
     }
 }
